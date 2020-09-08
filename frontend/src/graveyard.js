@@ -1743,3 +1743,5 @@ export default Map;
                         : (currentWeekDay === 'Saturday' && employee.workTime.sat) ? employee.workTime.sat.to
                             : (currentWeekDay === 'Sunday' && employee.workTime.sun) ? employee.workTime.sun.to
                                 : undefined)
+
+MONGODB_URL = mongodb://localhost/sarahoriginals

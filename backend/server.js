@@ -1,6 +1,5 @@
 import express from "express";
 import config from "./config";
-import dotenv from "dotenv";
 import path from 'path';
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
@@ -18,7 +17,6 @@ import uploadRoute from './routes/uploadRoute';
 import chatRoute from './routes/chatRoute';
 import liveChatRoute from './routes/liveUserRoute';
 
-dotenv.config();
 const mongodbUrl = config.MONGODB_URL;
 mongoose
   .connect(mongodbUrl, {
