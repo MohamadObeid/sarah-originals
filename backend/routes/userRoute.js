@@ -61,8 +61,8 @@ router.post("/create", async (req, res) => {
     password: req.body.password,
     isAdmin: req.body.isAdmin,
     isCallCenterAgent: req.body.isCallCenterAgent,
-    image: newUser.image && newUser.image,
-    employeeId: newUser.employeeId && newUser.image,
+    image: req.body.image,
+    employeeId: req.body.image,
   })
 
   const newUser = await user.save();
@@ -118,8 +118,8 @@ router.put("/:id", isAuth, async (req, res) => {
     user.isAdmin = req.body.isAdmin;
     user.isCallCenterAgent = req.body.isCallCenterAgent;
     user.active = req.body.active;
-    user.image = req.body.image;
-    user.employeeId = req.body.employeeId;
+    user.image = req.body.image && req.body.image;
+    user.employeeId = req.body.employeeId && req.body.employeeId;
   }
   const userUpdated = await user.save();
   if (userUpdated) {
