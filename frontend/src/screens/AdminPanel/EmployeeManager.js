@@ -1656,12 +1656,12 @@ function EmployeeManager(props) {
                                             className='faCircle' icon={faCircle} />
                                             <ReactTooltip id={'endTime' + employees.indexOf(employee)} place="top" effect="solid">
                                                 {((currentWeekDay === 'Monday' && employee.workTime.mon) ? 'Monday ' + employee.workTime.mon.from + ' till ' + employee.workTime.mon.to
-                                                    : (currentWeekDay === 'Tuesday' && employee.workTime.tue) ? 'Tuesday ' + employee.workTime.tue.to + ' till ' + employee.workTime.tue.to
-                                                        : (currentWeekDay === 'Wednesday' && employee.workTime.wed) ? 'Wednesday ' + employee.workTime.wed.to + ' till ' + employee.workTime.wed.to
-                                                            : (currentWeekDay === 'Thursday' && employee.workTime.thu) ? 'Thursday ' + employee.workTime.thu.to + ' till ' + employee.workTime.thu.to
-                                                                : (currentWeekDay === 'Friday' && employee.workTime.fri) ? 'Friday ' + employee.workTime.fri.to + ' till ' + employee.workTime.fri.to
-                                                                    : (currentWeekDay === 'Saturday' && employee.workTime.sat) ? 'Saturday ' + employee.workTime.sat.to + ' till ' + employee.workTime.sat.to
-                                                                        : (currentWeekDay === 'Sunday' && employee.workTime.sun) ? 'Sunday ' + employee.workTime.sun.to + ' till ' + employee.workTime.sun.to
+                                                    : (currentWeekDay === 'Tuesday' && employee.workTime.tue) ? 'Tuesday ' + employee.workTime.tue.from + ' till ' + employee.workTime.tue.to
+                                                        : (currentWeekDay === 'Wednesday' && employee.workTime.wed) ? 'Wednesday ' + employee.workTime.wed.from + ' till ' + employee.workTime.wed.to
+                                                            : (currentWeekDay === 'Thursday' && employee.workTime.thu) ? 'Thursday ' + employee.workTime.thu.from + ' till ' + employee.workTime.thu.to
+                                                                : (currentWeekDay === 'Friday' && employee.workTime.fri) ? 'Friday ' + employee.workTime.fri.from + ' till ' + employee.workTime.fri.to
+                                                                    : (currentWeekDay === 'Saturday' && employee.workTime.sat) ? 'Saturday ' + employee.workTime.sat.from + ' till ' + employee.workTime.sat.to
+                                                                        : (currentWeekDay === 'Sunday' && employee.workTime.sun) ? 'Sunday ' + employee.workTime.sun.from + ' till ' + employee.workTime.sun.to
                                                                             : '')}
                                             </ReactTooltip>
                                         </div>

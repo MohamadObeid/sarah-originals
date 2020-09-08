@@ -192,13 +192,15 @@ function ProductManager() {
         bodyFormData.append('image', image);
         setUploading(true);
 
-        axios.post('/api/uploads', bodyFormData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        })
+        axios
+            //.post('/api/uploads/s3', bodyFormData, {
+            .post('/api/uploads', bodyFormData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            })
             .then((response) => {
                 setImage(response.data);
                 console.log(response.data)
-                setUploading(false);
+                setUploading(false)
             })
             .catch((err) => {
                 console.log(err);
