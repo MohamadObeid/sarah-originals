@@ -78,18 +78,17 @@ const saveUser = (user) => async (dispatch, getState) => {
 
 const register = (user) => async (dispatch, getState) => {
     dispatch({ type: USER_REGISTER_REQUEST, payload: user });
+
     try {
         const { data } = await axios.post("/api/users/register", user)
         dispatch({ type: USER_REGISTER_SUCCESS, payload: data });
 
-        if (user._id === userInfo._id) {
-            cookie.remove('userInfo')
-            let { data: signinData } = await axios.post("/api/users/signin",
-                { email: data.email, password: data.password })
-            dispatch({ type: USER_SIGNIN_SUCCESS, payload: signinData })
-            signinData = { ...signinData, signinDate: Date.now() }
-            cookie.set('userInfo', JSON.stringify(signinData))
-        }
+        let { data: signinData } = await axios.post("/api/users/signin",
+            { email: data.email, password: data.password })
+        dispatch({ type: USER_SIGNIN_SUCCESS, payload: signinData })
+        signinData = { ...signinData, signinDate: Date.now() }
+        cookie.set('userInfo', JSON.stringify(signinData))
+
     } catch (error) {
         dispatch({ type: USER_REGISTER_FAIL, payload: error.message })
     }
