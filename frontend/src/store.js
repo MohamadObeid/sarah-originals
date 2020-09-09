@@ -195,4 +195,4 @@ const store = createStore(
   composeEnhancer(applyMiddleware(thunk)) // allows us to run async operation inside action in the redux
 );
 
-export default store;
+export default store
