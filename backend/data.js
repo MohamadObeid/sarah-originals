@@ -53,4 +53,4 @@ export default {
         "A T-shirt is a style of fabric shirt namEnd after the T shape of its body and sleeves. Traditionally it has short sleeves and a round neckline, known as a crew neck, which lacks a collar.",
     },
   ],
-};
+}
