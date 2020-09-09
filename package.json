@@ -25,9 +25,19 @@
     "prettier": "2.0.5"
   },
   "scripts": {
-    "start": "nodemon --watch backend --exec babel-node backend/server.js"
+    "start": "nodemon --watch backend --exec babel-node backend/server.js",
+    "build": "rm -rf dist && babel backend -d dist",
+    "heroku-postbuild": "npm run build && cd frontend && npm install && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MohamadObeid/react-js-project.git"
   },
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MohamadObeid/react-js-project"
+  },
+  "homepage": "https://github.com/basir/amazona#readme",
   "description": ""
 }
