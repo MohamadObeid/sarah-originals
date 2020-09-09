@@ -39,5 +39,8 @@
     "url": "https://github.com/MohamadObeid/React-Project.git"
   },
   "homepage": "https://github.com/MohamadObeid",
-  "description": ""
+  "description": "",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
 }
