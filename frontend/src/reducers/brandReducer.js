@@ -8,6 +8,7 @@ import {
     BRAND_DELETE_REQUEST,
     BRAND_DELETE_SUCCESS,
     BRAND_DELETE_FAIL,
+    BRAND_SAVE_CLEAR,
 } from "../constants/constants";
 
 function brandListReducer(state = { brand: [] }, action) {
@@ -50,6 +51,11 @@ function brandSaveReducer(state = { brand: {} }, action) {
                 loading: false,
                 error: action.payload,
             };
+        case BRAND_SAVE_CLEAR:
+            return {
+                success: false,
+                brand: action.payload,
+            }
         default:
             return state;
     }

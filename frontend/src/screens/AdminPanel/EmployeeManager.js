@@ -39,13 +39,6 @@ function EmployeeManager(props) {
         setTimeout(refreshTime, 1000)
     }
 
-    useEffect(() => {
-        //refreshTime()
-        return () => {
-            //
-        }
-    }, [])
-
     const [formAction, setFormAction] = useState()
     const [actionNote, setActionNote] = useState()
     const [actionNoteVisible, setActionNoteVisible] = useState(false)
@@ -152,7 +145,7 @@ function EmployeeManager(props) {
         return () => {
             //
         }
-    }, [employees, successSave, successDelete])
+    }, [successSave, successDelete])
 
     const openModel = (employee) => {
         setModelVisible(true)
@@ -493,9 +486,11 @@ function EmployeeManager(props) {
         bodyFormData.append('image', image);
         setUploading(true);
 
-        axios.post('/api/uploads', bodyFormData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        })
+        axios
+            //.post('/api/uploads/s3', bodyFormData, {
+            .post('/api/uploads', bodyFormData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            })
             .then((response) => {
                 setImage(response.data);
                 console.log(response.data)
@@ -1424,7 +1419,7 @@ function EmployeeManager(props) {
                                                 setSalarySaved(false)
                                             }}
                                         ></input>
-                                        /
+                                        {commissionType === 'Sales' ? '%' : '/'}
                                         <select
                                             style={{ width: '9rem', marginLeft: '0.2rem', padding: '0', fontSize: '1.2rem' }}
                                             value={commissionType}

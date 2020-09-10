@@ -14,7 +14,7 @@ const employeeSchema = new mongoose.Schema({
     title: { type: String, required: true, default: '' },
     firstName: { type: String, required: true, default: '' },
     lastName: { type: String, required: true, default: '' },
-    image: { type: String, required: true, default: '' },
+    image: { type: String, required: false, default: '' },
     email: { type: String, required: true, default: '' },
     phone: { type: Number, required: true, default: null },
     dob: {

@@ -20,10 +20,17 @@ body {
   font: 1.6rem Helvetica;
   height: 100vh;
   margin: 0;
+  overflow-x: hidden;
 }
 
 body::-webkit-scrollbar {
-  display: none;
+  /*display: none;*/
+  width: 3px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.466);
+  border-radius: 1rem;
 }
 
 textarea {
@@ -2074,9 +2081,14 @@ input.checked[type="radio"] {
   overflow-y: scroll;
   overscroll-behavior-y: contain;
 }
-
 .chatbox-msg-container::-webkit-scrollbar {
-  display: none;
+  /*display: none;*/
+  width: 3px;
+}
+
+.chatbox-msg-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.466);
+  border-radius: 0.5rem;
 }
 
 .chatbox-msg-line {

@@ -9,6 +9,7 @@ import {
     BRAND_DELETE_REQUEST,
     BRAND_DELETE_SUCCESS,
     BRAND_DELETE_FAIL,
+    BRAND_SAVE_CLEAR,
 } from "../constants/constants";
 
 const listBrand = () => async (dispatch) => {
@@ -22,7 +23,9 @@ const listBrand = () => async (dispatch) => {
 }
 
 const saveBrand = (brand) => async (dispatch, getState) => {
-    try {
+    if (brand === 'clear') {
+        dispatch({ type: BRAND_SAVE_CLEAR, payload: undefined })
+    } else try {
         const { userSignin: { userInfo } } = getState()
         dispatch({ type: BRAND_SAVE_REQUEST, payload: brand });
 

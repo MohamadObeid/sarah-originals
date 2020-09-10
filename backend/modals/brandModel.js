@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const brandSchema = new mongoose.Schema({
+    active: { type: Boolean, required: false, default: false },
     creation_date: { type: Date, required: false, default: Date.now },
     created_by: { type: String, required: false, default: '' },
     modified: {
@@ -14,6 +15,7 @@ const brandSchema = new mongoose.Schema({
     origin: { type: String, required: false, default: '' },
     supplier: { type: String, required: false, default: '' },
     phone: { type: Number, required: false },
+    image: { type: String, required: false },
     description: { type: String, required: true, default: '' },
 })
 

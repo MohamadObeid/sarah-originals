@@ -1744,4 +1744,9 @@ export default Map;
                             : (currentWeekDay === 'Sunday' && employee.workTime.sun) ? employee.workTime.sun.to
                                 : undefined)
 
-MONGODB_URL = mongodb://localhost/sarahoriginals
+
+
+MONGODB_URL = mongodb + srv://mohamad-baker-obeid:Beirut@GroupTT123@cluster0.rddec.mongodb.net/sarahoriginals?retryWrites=true&w=majority
+app.listen(config.PORT || 5000, () => {
+    console.log("Server started at http://localhost:config.PORT||5000");
+});

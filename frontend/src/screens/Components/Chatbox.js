@@ -17,7 +17,6 @@ import {
 import { CHAT_DETAILS_SUCCESS, CHAT_SAVE_SUCCESS, LIVE_USER_LIST_SUCCESS } from "../../constants/constants";
 import audio from '../../sounds/swiftly.mp3'
 import UIfx from 'uifx';
-import testImage from '../../images/df.jpg'
 
 function Chatbox() {
     const dispatch = useDispatch()
@@ -31,6 +30,7 @@ function Chatbox() {
     const [typing, setTyping] = useState(false)
     const [notTyping, setNotTyping] = useState(true)
     const [userVisible, setUserVisible] = useState(false)
+    const [scrolling, setScrolling] = useState(false)
 
     const [chatId, setChatId] = useState()
     const [modified, setModified] = useState(undefined)
@@ -142,14 +142,17 @@ function Chatbox() {
         }
 
         if (chatDetails) {
-            var t = document.querySelector('.chatbox-msg-container')
             if (modified) {
+                if (!scrolling) {
+                    var t = document.querySelector('.chatbox-msg-container')
+                    if (t) t.scrollTop = t.scrollHeight
+                }
                 if (modified.length < chatDetails.modified.length) {
+                    setScrolling(false)
+                    setModified(chatDetails.modified)
                     if (unseenVisible) {
                         setUnseen(unseen + chatDetails.modified.length - modified.length)
                     } else setUnseen(0)
-                    setModified(chatDetails.modified)
-                    if (t) t.scrollTop = t.scrollHeight
                     var lengthIndex = chatDetails.modified.length - 1
                     if (chatDetails.modified[lengthIndex].modified_by !== userInfo.name) tick.play(1.0)
                 }
@@ -173,7 +176,7 @@ function Chatbox() {
         return () => {
             //
         }
-    }, [chatDetails, chatboxVisible, userDetails, liveUserList, liveUserSave])
+    }, [chatDetails, chatboxVisible, userDetails, liveUserList, liveUserSave, scrolling])
 
     const closeChatBoxHandler = async () => {
         await setUserDetails(undefined)
@@ -207,6 +210,7 @@ function Chatbox() {
                 }
             })
         }
+        setModified(chatDetails.modified)
         setTyping(false)
         setNotTyping(true)
         setModifiedNote('')
@@ -214,10 +218,7 @@ function Chatbox() {
         const { data } = await axios.put('/api/chat/' + chatDetails._id, chatDetails)
         dispatch({ type: CHAT_SAVE_SUCCESS, payload: data })
         var t = document.querySelector('.chatbox-msg-container')
-        setModified(chatDetails.modified)
         if (t) t.scrollTop = t.scrollHeight
-        var lengthIndex = chatDetails.modified.length - 1
-        if (chatDetails.modified[lengthIndex].modified_by !== userInfo.name) tick.play(1.0)
     }
 
     const startChatHandler = async (e) => {
@@ -257,6 +258,8 @@ function Chatbox() {
         setStartChatVisible(true)
         setUserDetails(undefined)
         setUserVisible(false)
+        setGood(false)
+        setBad(false)
     }
 
     // Formats
@@ -449,11 +452,11 @@ function Chatbox() {
                             <img src={user.image} alt='image' className='chatbox-user-img' />
                             <div className='chabox-username'>{user.name}</div>
                             <FontAwesomeIcon
-                                onClick={(e) => !userInfo.isAdmin && rateGood(e)}
+                                onClick={(e) => !userInfo.isCallCenterAgent && rateGood(e)}
                                 className='chatbox-far-thumbup fa-2x'
                                 icon={good ? faThumbsUp : farThumbsUp} />
                             <FontAwesomeIcon
-                                onClick={(e) => !userInfo.isAdmin && rateBad(e)}
+                                onClick={(e) => !userInfo.isCallCenterAgent && rateBad(e)}
                                 className='chatbox-far-thumbdown fa-2x'
                                 icon={bad ? faThumbsDown : farThumbsDown} />
                         </div>
@@ -466,8 +469,9 @@ function Chatbox() {
                         user.id !== userInfo._id && user.typing &&
                         <div className='chatbox-typing'>{user.name + ' is typing...'}</div>
                     ))}
-                    <div className='chatbox-msg-container'>
-                        {chatDetails && chatDetails.modified.map(mod => (
+                    <div className='chatbox-msg-container'
+                        onScroll={() => setScrolling(true)}>
+                        {modified && modified.map(mod => (
                             <div className='chatbox-msg-line'>
                                 <div className='chatbox-username'>{mod.modified_by}</div>
                                 <div className='chatbox-msg'>{

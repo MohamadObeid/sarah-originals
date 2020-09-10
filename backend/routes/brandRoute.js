@@ -25,13 +25,14 @@ router.post("", isAuth, isAdmin, async (req, res) => {
 router.put("/:id", isAuth, isAdmin, async (req, res) => {
     const brand = await Brand.findOne({ _id: req.params.id })
     if (brand) {
-        if (brand.created_by)
-            brand.created_by = req.body.created_by;
+        brand.active = req.body.active;
+        brand.created_by = req.body.created_by;
         brand.modified = req.body.modified;
         brand.name = req.body.name;
         brand.origin = req.body.origin;
         brand.supplier = req.body.supplier;
         brand.phone = req.body.phone;
+        brand.image = req.body.image;
         brand.description = req.body.description;
     };
     const brandUpdated = await brand.save()

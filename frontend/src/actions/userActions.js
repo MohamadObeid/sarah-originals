@@ -1,5 +1,6 @@
 import axios from 'axios';
 import cookie from "js-cookie";
+import { listLiveUser } from './chatActions'
 import {
     USER_SIGNIN_FAIL,
     USER_SIGNIN_REQUEST,
@@ -64,6 +65,7 @@ const saveUser = (user) => async (dispatch, getState) => {
                     dispatch({ type: USER_SIGNIN_SUCCESS, payload: signinData })
                     signinData = { ...signinData, signinDate: Date.now() }
                     cookie.set('userInfo', JSON.stringify(signinData))
+                    dispatch(listLiveUser())
                 }
 
             } else {
@@ -88,6 +90,7 @@ const register = (user) => async (dispatch, getState) => {
         dispatch({ type: USER_SIGNIN_SUCCESS, payload: signinData })
         signinData = { ...signinData, signinDate: Date.now() }
         cookie.set('userInfo', JSON.stringify(signinData))
+        dispatch(listLiveUser())
 
     } catch (error) {
         dispatch({ type: USER_REGISTER_FAIL, payload: error.message })

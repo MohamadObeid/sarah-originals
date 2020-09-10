@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { saveBrand, listBrand, deleteBrand } from "../../actions/brandActions";
 import FontAwesome from 'react-fontawesome';
+import axios from "axios";
 
 function BrandManager(props) {
     const [formAction, setFormAction] = useState('Create')
@@ -11,6 +12,7 @@ function BrandManager(props) {
     const [formAlertVisible, setFormAlertVisible] = useState()
     const [modelVisible, setModelVisible] = useState(false)
     const [historyVisible, setHistoryVisible] = useState(false)
+    const [uploading, setUploading] = useState()
 
     const [_id, setId] = useState()
     const [modified, setModified] = useState()
@@ -19,7 +21,9 @@ function BrandManager(props) {
     const [supplier, setSupplier] = useState()
     const [phone, setPhone] = useState()
     const [description, setDescription] = useState()
-    const [historyDetails, setHistoryDetails] = useState()
+    const [brandValues, setBrandValues] = useState()
+    const [image, setImage] = useState()
+    const [active, setActive] = useState(false)
 
     const { success: successSave } = useSelector(state => state.brandSave)
     const { success: successDelete } = useSelector(state => state.brandDelete)
@@ -28,7 +32,7 @@ function BrandManager(props) {
 
     const dispatch = useDispatch();
     useEffect(() => {
-        if (successSave && modelVisible || successDelete) {
+        if (successSave || successDelete) {
             setFormAlertVisible(false)
             setModelVisible(false);
             dispatch(listBrand())
@@ -36,6 +40,7 @@ function BrandManager(props) {
             setFormNoteVisible(true);
             setInterval(() => setFormNoteVisible(false), 5000)
             setFormAction('')
+            dispatch(saveBrand('clear'))
         }
         return () => {
             //
@@ -44,10 +49,12 @@ function BrandManager(props) {
 
     const modifiedArray = (brand) => {
         let modifiedNote = []
+        if (active !== brand.active) modifiedNote = [...modifiedNote, 'Activation']
         if (name !== brand.name) modifiedNote = [...modifiedNote, 'Name']
         if (origin !== brand.origin) modifiedNote = [...modifiedNote, 'Origin']
         if (supplier !== brand.supplier) modifiedNote = [...modifiedNote, 'Supplier']
         if (phone !== brand.phone) modifiedNote = [...modifiedNote, 'Phone']
+        if (image !== brand.image) modifiedNote = [...modifiedNote, 'Image']
         if (description !== brand.description) modifiedNote = [...modifiedNote, 'Description']
         return [...modified, { modified_date: Date.now() + 10800000, modified_by: userInfo.name, modified_note: modifiedNote }]
     }
@@ -58,9 +65,11 @@ function BrandManager(props) {
         setId(brand._id ? brand._id : '')
         setModified(brand.modified ? brand.modified : [])
         setName(brand.name ? brand.name : '')
+        setActive(brand.active ? brand.active : false)
         setOrigin(brand.origin ? brand.origin : '')
         setSupplier(brand.supplier ? brand.supplier : '')
         setPhone(brand.phone ? brand.phone : undefined)
+        setImage(brand.image ? brand.image : undefined)
         setDescription(brand.description ? brand.description : '')
     };
 
@@ -71,10 +80,10 @@ function BrandManager(props) {
 
         if (!brandExist || brandExist && formAction == 'Edit') {
             if (formAction == 'Copy' || formAction == 'Create')
-                dispatch(saveBrand({ modified: [], created_by: userInfo.name, creation_date: Date.now() + 10800000, name, origin, supplier, phone, description }))
+                dispatch(saveBrand({ modified: [], created_by: userInfo.name, creation_date: Date.now() + 10800000, active, name, origin, supplier, phone, image, description }))
             else {
                 // set modified
-                dispatch(saveBrand({ modified: modifiedArray(brandExist), created_by: brandExist.created_by, creation_date: userInfo.creation_date, _id, name, origin, supplier, phone, description }))
+                dispatch(saveBrand({ modified: modifiedArray(brandExist), created_by: brandExist.created_by, creation_date: userInfo.creation_date, _id, active, name, origin, supplier, phone, image, description }))
             }
         } else if (nameExist) {
             setFormAlert('The brand name already exists.')
@@ -105,7 +114,23 @@ function BrandManager(props) {
 
     const showHistoryHandler = (brand) => {
         setHistoryVisible(true)
-        setHistoryDetails(brand)
+        setBrandValues(brand)
+    }
+
+    const activationHandler = (e, brand) => {
+        e.preventDefault()
+        if (brand.active) {
+            setFormAction('Deactivat')
+            brand.active = false
+        } else {
+            setFormAction('Activat')
+            brand.active = true
+        }
+        brand.modified = [...brand.modified, {
+            modified_date: Date.now() + 10800000,
+            modified_by: userInfo.name, modified_note: ['Activation']
+        }]
+        dispatch(saveBrand(brand))
     }
 
     window.addEventListener('click', (e) => {
@@ -115,6 +140,39 @@ function BrandManager(props) {
             setModelVisible(false)
         }
     })
+
+    const uploadImageHandler = (e) => {
+        e.preventDefault();
+        const bodyFormData = new FormData();
+        bodyFormData.append('image', image);
+        setUploading(true);
+
+        axios
+            //.post('/api/uploads/s3', bodyFormData, {
+            .post('/api/uploads', bodyFormData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            })
+            .then((response) => {
+                setImage(response.data);
+                console.log(response.data)
+                setUploading(false);
+            })
+            .catch((err) => {
+                console.log(err);
+                setUploading(false);
+            });
+    }
+
+    const modifiedNoteHandler = (modified) => {
+        return (
+            (modified.modified_by && modified.modified_by + ' ')
+            + (modified.modified_note[0] && (modified.modified_note[0].includes("'", 0) ? ' commented ' : ' edited '))
+            + modified.modified_note.map(note =>
+                (modified.modified_note.indexOf(note) < (modified.modified_note).length - 1
+                    ? ' ' + note
+                    : (modified.modified_note).length === 1 ? note : ' and ' + note))
+        )
+    }
 
     return (
         <div>
@@ -140,6 +198,32 @@ function BrandManager(props) {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                             ></input>
+                        </li>
+                        <li>
+                            {image &&
+                                <img style={{
+                                    width: '100%',
+                                    maxHeight: '30rem',
+                                    background: '#fff',
+                                    borderRadius: '0.5rem',
+                                    border: '1px #c0c0c0 solid',
+                                    marginBottom: '1rem',
+                                }} src={image} alt='employee' />
+                            }
+                            <label className="label" htmlFor="img">{image && 'Update '}Photo<p className="required">*</p></label>
+                            <input
+                                style={{ cursor: 'pointer' }}
+                                type="file"
+                                name="img"
+                                id="img"
+                                onChange={(e) => {
+                                    setImage(e.target.files[0])
+                                }}
+                            ></input>
+                            <button
+                                className="button primary"
+                                onClick={uploadImageHandler}
+                            >Upload Photo</button>
                         </li>
                         <li>
                             <label className="label" htmlFor="origin">Origin<p className="required">*</p></label>
@@ -199,6 +283,8 @@ function BrandManager(props) {
             <table className="table">
                 <thead>
                     <tr>
+                        <th>Active</th>
+                        <th>Photo</th>
                         <th>Brand</th>
                         <th>Origin</th>
                         <th>Supplier</th>
@@ -209,6 +295,22 @@ function BrandManager(props) {
                 <tbody>
                     {brand.map((brand) => (
                         <tr key={brand._id}>
+                            <td className='td-active'>
+                                <input
+                                    className='switch'
+                                    type="checkbox"
+                                    name={brand._id}
+                                    id="active s2"
+                                    value={brand.active}
+                                    checked={brand.active}
+                                    onChange={(e) => activationHandler(e, brand)}
+                                ></input>
+                            </td>
+                            <td style={{ width: '8rem', textAlign: 'center', paddingTop: '0.5rem' }}>
+                                <img
+                                    className='employee-image'
+                                    src={brand.image} alt={brand.name} />
+                            </td>
                             <td>{brand.name}</td>
                             <td>{brand.origin}</td>
                             <td>{brand.supplier}</td>
@@ -217,9 +319,7 @@ function BrandManager(props) {
                                 <button className="table-btns" onClick={() => editHandler(brand)}>Edit</button>
                                 <button className="table-btns" onClick={(e) => deleteHandler(e, brand._id)}>Delete</button>
                                 <button className="table-btns" onClick={() => copyHandler(brand)}>Copy</button>
-                                <button className="table-btns" onClick={() => showHistoryHandler(brand)}>History
-                                <FontAwesome style={{ cursor: 'pointer' }} className='fas fa-exclamation-circle' />
-                                </button>
+                                <button className="table-btns" onClick={() => showHistoryHandler(brand)}>History</button>
                             </td>
                         </tr>
                     ))}
@@ -228,34 +328,31 @@ function BrandManager(props) {
             {
                 historyVisible &&
                 <div className='range'>
-                    <div className='range-overlay'>
+                    <div className='range-overlay history-overlay' style={{ zIndex: '4' }}>
                         <div className='range-form'>
+                            <div className='history-title' style={{ margin: '1rem' }}>{brandValues.name} History</div>
                             <table className="range-table">
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Admin</th>
+                                        <th style={{ width: '15rem' }}>Date</th>
                                         <th>Note</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr key={historyDetails._id}>
-                                        <td>{historyDetails.creation_date && historyDetails.creation_date.split("T", 1) + '  '
-                                            + historyDetails.creation_date.slice(historyDetails.creation_date.indexOf('T') + 1, -1).slice(0, 5)}
+                                    <tr key={brandValues._id}>
+                                        <td>{brandValues.creation_date && brandValues.creation_date.split("T", 1) + '  '
+                                            + brandValues.creation_date.slice(brandValues.creation_date.indexOf('T') + 1, -1).slice(0, 5)}
                                         </td>
-                                        <td>{historyDetails.created_by && historyDetails.created_by}</td>
-                                        <td>Brand was Created</td>
+                                        <td>{brandValues.created_by && brandValues.created_by} added {brandValues.firstName + ' ' + brandValues.lastName}.</td>
                                     </tr>
-                                    {historyDetails.modified &&
-                                        historyDetails.modified.map(modified => (
+                                    {brandValues.modified &&
+                                        brandValues.modified.map(modified => (
                                             <tr>
                                                 <td>{modified.modified_date && modified.modified_date.split("T", 1) + '  '
                                                     + modified.modified_date.slice(modified.modified_date.indexOf('T') + 1, -1).slice(0, 5)}
                                                 </td>
-                                                <td>{modified.modified_by && modified.modified_by}</td>
-                                                <td>{modified.modified_note.map(note =>
-                                                    (modified.modified_note.indexOf(note) < (modified.modified_note).length - 1 ? ((modified.modified_note).length === 2 ? note + ' ' : note + ', ') : ((modified.modified_note).length === 1 ? note + ' ' : 'and ' + note + ' ')))
-                                                }was Edited</td>
+                                                <td>{modifiedNoteHandler(modified)}
+                                                </td>
                                             </tr>
                                         ))}
                                 </tbody>
