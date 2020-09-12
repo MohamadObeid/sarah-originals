@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import axios from "axios"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-    faComments, faTimes, faPaperPlane, faMinus, faImage,
-    faThumbsUp, faThumbsDown, faChevronRight, faAngleRight
+    faComments, faTimes, faPaperPlane,
+    faThumbsUp, faThumbsDown, faAngleRight
 } from '@fortawesome/free-solid-svg-icons'
 import {
     faThumbsUp as farThumbsUp, faThumbsDown as farThumbsDown, faPaperPlane as farPaperPlane,
     faImage as farImage, faComments as farComments,
 } from '@fortawesome/free-regular-svg-icons'
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, connectAdvanced } from "react-redux";
 import {
     listChat, saveChat, deleteChat, detailsChat,
     listLiveUser, saveLiveUser, deleteLiveUser, detailsLiveUser
@@ -93,7 +93,6 @@ function Chatbox() {
         if (userInfo && userInfo.isCallCenterAgent) {
             refreshLiveUsers()
         } else dispatch(listLiveUser())
-        //dispatch(listChat())
         return () => {
             //
         }
@@ -109,12 +108,14 @@ function Chatbox() {
 
     useEffect(() => {
         if (liveUserList && userInfo && startChatVisible) {
-            liveUserList.map(liveUser => {
-                //dispatch(deleteLiveUser(liveUser._id))
-                if (liveUser.userId === userInfo._id) {
-                    lunchLiveChat(liveUser)
-                }
-            })
+            if (!liveUserSave) {
+                liveUserList.map(liveUser => {
+                    //dispatch(deleteLiveUser(liveUser._id))
+                    if (liveUser.userId === userInfo._id) {
+                        lunchLiveChat(liveUser)
+                    }
+                })
+            } else lunchLiveChat(liveUserSave)
         }
 
         if (userDetails && !chatboxVisible && chatDetails) {
@@ -132,7 +133,7 @@ function Chatbox() {
                 chatDetails.users = [...chatDetails.users, {
                     id: userInfo._id,
                     name: userInfo.name,
-                    isAgent: userInfo.isCallCenterAgent ? true : false,
+                    isAgent: userInfo.isCallCenterAgent || userInfo.isAgent ? true : false,
                     image: userInfo.image && userInfo.image,
                     typing: false
                 }]
@@ -161,17 +162,11 @@ function Chatbox() {
                 openChatBoxHandler()
             }
             chatDetails.users.map(user => {
-                user.isAgent ? setUserVisible(true) : setUserVisible(false)
+                user.isAgent && setUserVisible(true)
             })
             if (chatDetails.rate === 'good') { setGood(true); setBad(false) }
             if (chatDetails.rate === 'bad') { setGood(false); setBad(true) }
         }
-
-        /*if (chatList) {
-          chatList.map(chat => {
-            dispatch(deleteChat(chat._id))
-          })
-        }*/
 
         return () => {
             //

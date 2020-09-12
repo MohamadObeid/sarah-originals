@@ -28,6 +28,8 @@ import {
     CLEAR_LIVE_USER_LIST,
     CLEAR_LIVE_USER_SAVE,
     CLEAR_CHAT_DETAILS,
+    CLEAR_CHAT_SAVE,
+    PASS_LIVE_USER,
 } from "../constants/constants";
 
 function chatListReducer(state = { chat: undefined }, action) {
@@ -69,6 +71,11 @@ function chatSaveReducer(state = { chat: undefined }, action) {
                 loading: false,
                 error: action.payload,
             };
+        case CLEAR_CHAT_SAVE:
+            return {
+                success: false,
+                chat: action.payload,
+            }
         default:
             return state;
     }
@@ -170,6 +177,10 @@ function liveUserSaveReducer(state = { liveUser: undefined }, action) {
             return {
                 liveUser: action.payload,
             };
+        case PASS_LIVE_USER:
+            return {
+                liveUser: action.payload,
+            }
         default:
             return state;
     }

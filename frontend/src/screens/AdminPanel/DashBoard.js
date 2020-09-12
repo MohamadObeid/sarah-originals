@@ -23,6 +23,7 @@ import EmployeeManager from './EmployeeManager'
 import OrdersManager from './OrdersManager'
 import AssignmentManager from './AssignmentManager'
 import AttendanceManager from './AttendanceManager'
+import ChatManager from "./ChatManager";
 
 import { listProducts } from "../../actions/productActions"
 import { listCategory } from "../../actions/categoryActions"
@@ -36,6 +37,7 @@ import { listReviews } from "../../actions/reviewActions"
 import { listOrders } from "../../actions/orderActions"
 import { listAssignment } from "../../actions/assignmentActions"
 import { listAttendance } from "../../actions/attendanceActions"
+import { listChat, listLiveUser } from "../../actions/chatActions"
 
 function DashBoard(props) {
 
@@ -54,6 +56,7 @@ function DashBoard(props) {
   const [assignmentsVisible, setAssignmentsVisible] = useState(false)
   const [ordersVisible, setOrdersVisible] = useState(false)
   const [attendanceVisible, setAttendanceVisible] = useState(false)
+  const [chatVisible, setChatVisible] = useState(false)
 
   const dispatch = useDispatch();
 
@@ -80,6 +83,7 @@ function DashBoard(props) {
     reviewsVisible && dispatch(listReviews())
     assignmentsVisible && dispatch(listAssignment())
     attendanceVisible && dispatch(listAttendance())
+    if (chatVisible) { dispatch(listChat()); dispatch(listLiveUser()) }
     return () => {
       //
     };
@@ -95,7 +99,8 @@ function DashBoard(props) {
     employeeVisible,
     reviewsVisible,
     attendanceVisible,
-    userInfo
+    userInfo,
+    chatVisible
   ])
 
   return (
@@ -131,6 +136,7 @@ function DashBoard(props) {
             setAssignmentsVisible(false)
             setOrdersVisible(false)
             setAttendanceVisible(false)
+            setChatVisible(false)
           }}>
             <h4 className="control-title">
               <FontAwesomeIcon
@@ -151,6 +157,7 @@ function DashBoard(props) {
             setAssignmentsVisible(false)
             setOrdersVisible(false)
             setAttendanceVisible(false)
+            setChatVisible(false)
           }}>
             <h4 className="control-title">
               <FontAwesomeIcon
@@ -171,6 +178,7 @@ function DashBoard(props) {
             setAssignmentsVisible(true)
             setOrdersVisible(false)
             setAttendanceVisible(false)
+            setChatVisible(false)
           }}>
             <h4 className="control-title">
               <FontAwesomeIcon
@@ -191,6 +199,7 @@ function DashBoard(props) {
             setAssignmentsVisible(false)
             setOrdersVisible(false)
             setAttendanceVisible(true)
+            setChatVisible(false)
           }}>
             <h4 className="control-title">
               <FontAwesomeIcon
@@ -211,6 +220,7 @@ function DashBoard(props) {
             setAssignmentsVisible(false)
             setOrdersVisible(true)
             setAttendanceVisible(false)
+            setChatVisible(false)
           }}>
             <h4 className="control-title">
               <FontAwesomeIcon
@@ -231,6 +241,7 @@ function DashBoard(props) {
             setAssignmentsVisible(false)
             setOrdersVisible(false)
             setAttendanceVisible(false)
+            setChatVisible(false)
           }}>
             <h4 className="control-title">
               <FontAwesomeIcon
@@ -251,6 +262,7 @@ function DashBoard(props) {
             setAssignmentsVisible(false)
             setOrdersVisible(false)
             setAttendanceVisible(false)
+            setChatVisible(false)
           }}>
             <h4 className="control-title">
               <FontAwesomeIcon
@@ -271,6 +283,7 @@ function DashBoard(props) {
             setAssignmentsVisible(false)
             setOrdersVisible(false)
             setAttendanceVisible(false)
+            setChatVisible(false)
           }}>
             <h4 className="control-title">
               <FontAwesomeIcon
@@ -291,6 +304,7 @@ function DashBoard(props) {
             setAssignmentsVisible(false)
             setOrdersVisible(false)
             setAttendanceVisible(false)
+            setChatVisible(false)
           }}>
             <h4 className="control-title">
               <FontAwesomeIcon
@@ -311,6 +325,7 @@ function DashBoard(props) {
             setAssignmentsVisible(false)
             setOrdersVisible(false)
             setAttendanceVisible(false)
+            setChatVisible(false)
           }}>
             <h4 className="control-title">
               <FontAwesomeIcon
@@ -331,6 +346,7 @@ function DashBoard(props) {
             setAssignmentsVisible(false)
             setOrdersVisible(false)
             setAttendanceVisible(false)
+            setChatVisible(false)
           }}>
             <h4 className="control-title">
               <FontAwesomeIcon
@@ -351,6 +367,7 @@ function DashBoard(props) {
             setAssignmentsVisible(false)
             setOrdersVisible(false)
             setAttendanceVisible(false)
+            setChatVisible(false)
           }}>
             <h4 className="control-title">
               <FontAwesomeIcon
@@ -366,11 +383,12 @@ function DashBoard(props) {
             setDeliveryVisible(false)
             setPaymentVisible(false)
             setUsersVisible(false)
-            setReviewsVisible(true)
+            setReviewsVisible(false)
             setEmployeeVisible(false)
             setAssignmentsVisible(false)
             setOrdersVisible(false)
             setAttendanceVisible(false)
+            setChatVisible(true)
           }}>
             <h4 className="control-title">
               <FontAwesomeIcon
@@ -416,6 +434,9 @@ function DashBoard(props) {
 
       {/* Attendance */}
       {attendanceVisible && <AttendanceManager />}
+
+      {/* Chat */}
+      {chatVisible && <ChatManager />}
 
     </div>
   );

@@ -28,6 +28,7 @@ import {
     CLEAR_LIVE_USER_LIST,
     CLEAR_LIVE_USER_SAVE,
     CLEAR_CHAT_DETAILS,
+    CLEAR_CHAT_SAVE,
 } from "../constants/constants"
 
 const listChat = () => async (dispatch) => {
@@ -41,7 +42,9 @@ const listChat = () => async (dispatch) => {
 }
 
 const saveChat = (chat) => async (dispatch) => {
-    try {
+    if (chat === 'clear') {
+        dispatch({ type: CLEAR_CHAT_SAVE, payload: undefined });
+    } else try {
         dispatch({ type: CHAT_SAVE_REQUEST, payload: chat });
         // update
         if (chat._id) {
@@ -92,8 +95,8 @@ const detailsChat = (_id) => async (dispatch) => {
 
 // live chat
 
-const listLiveUser = (clear) => async (dispatch) => {
-    if (clear === 'clear') {
+const listLiveUser = (liveUser) => async (dispatch) => {
+    if (liveUser === 'clear') {
         dispatch({ type: CLEAR_LIVE_USER_LIST, payload: undefined });
     } else try {
         dispatch({ type: LIVE_USER_LIST_REQUEST })
