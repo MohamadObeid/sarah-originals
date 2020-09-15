@@ -9,7 +9,7 @@ import {
     faThumbsUp as farThumbsUp, faThumbsDown as farThumbsDown, faPaperPlane as farPaperPlane,
     faImage as farImage, faComments as farComments,
 } from '@fortawesome/free-regular-svg-icons'
-import { useDispatch, useSelector, connectAdvanced } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
     listChat, saveChat, deleteChat, detailsChat,
     listLiveUser, saveLiveUser, deleteLiveUser, detailsLiveUser
@@ -35,7 +35,6 @@ function Chatbox() {
     const [chatId, setChatId] = useState()
     const [modified, setModified] = useState(undefined)
     const [modifiedNote, setModifiedNote] = useState()
-    const [userTyping, setUserTyping] = useState()
     const [image, setImage] = useState(undefined)
     const [good, setGood] = useState(false)
     const [bad, setBad] = useState(false)
@@ -50,9 +49,14 @@ function Chatbox() {
     const refreshChat = async () => {
         const { data } = await axios.get("/api/chat/" + chatId)
         dispatch({ type: CHAT_DETAILS_SUCCESS, payload: data })
-        if (data[0].endDate) {
-            dispatch(detailsChat('clear'))
+        var declined
+        data[0].users.map(user => {
+            if (user.id === userInfo._id && user.isLive === false) declined = true
+        })
+        if (declined) {
+            console.log('dog')
             endChatExtender()
+            dispatch(detailsChat('clear'))
             userInfo.isCallCenterAgent && refreshLiveUsers()
             return
         }
@@ -62,30 +66,29 @@ function Chatbox() {
     const refreshLiveUsers = async () => {
         const { data } = await axios.get("/api/live");
         dispatch({ type: LIVE_USER_LIST_SUCCESS, payload: data })
-        var agent = undefined
+        var agent
         data && data.map(liveUser => {
-            if (liveUser.agent === userInfo.name) {
-                agent = userInfo.name
-                setChatboxVisible(false)
-                lunchLiveChat(liveUser)
-                return
-            }
+            liveUser.agent && liveUser.agent.map(agt => {
+                if (agt === userInfo.name) {
+                    agent = true
+                    return
+                }
+            })
+            if (agent) return
         })
         if (!agent) {
             data && data.map(liveUser => {
                 if (!liveUser.agent) {
-                    agent = userInfo.name
-                    dispatch(saveLiveUser({ ...liveUser, agent: agent }))
+                    dispatch(saveLiveUser({ ...liveUser, agent: [userInfo.name] }))
                     setChatboxVisible(false)
-                    lunchLiveChat(liveUser)
-                    console.log('agent')
+                    dispatch(listLiveUser())
+                    tick.play(1.0)
+                    agent = true
                     return
                 }
             })
         }
-        if (agent) {
-            return
-        }
+        if (agent) return
         setTimeout(refreshLiveUsers, 3000)
     }
 
@@ -99,11 +102,11 @@ function Chatbox() {
     }, [])
 
     const lunchLiveChat = async (liveUser) => {
-        setStartChatVisible(false)
         dispatch(detailsChat(liveUser.chatId))
         setChatId(liveUser.chatId)
         setUserDetails(liveUser)
         dispatch(detailsLiveUser(liveUser._id))
+        setStartChatVisible(false)
     }
 
     useEffect(() => {
@@ -113,19 +116,27 @@ function Chatbox() {
                     //dispatch(deleteLiveUser(liveUser._id))
                     if (liveUser.userId === userInfo._id) {
                         lunchLiveChat(liveUser)
+                    } else {
+                        liveUser.agent && liveUser.agent.map(agt => {
+                            if (agt === userInfo.name)
+                                lunchLiveChat(liveUser)
+                        })
                     }
+
                 })
-            } else lunchLiveChat(liveUserSave)
+            } else if (liveUserSave) lunchLiveChat(liveUserSave)
         }
 
         if (userDetails && !chatboxVisible && chatDetails) {
-            setChatboxVisible(true)
             var userExist
             chatDetails.users.map(user => {
                 if (user.id === userInfo._id) {
-                    user.typing = false
-                    dispatch(saveChat(chatDetails))
+                    if (user.typing === true) {
+                        user.typing = false
+                        dispatch(saveChat(chatDetails))
+                    }
                     userExist = true
+                    return
                 }
             })
 
@@ -133,12 +144,14 @@ function Chatbox() {
                 chatDetails.users = [...chatDetails.users, {
                     id: userInfo._id,
                     name: userInfo.name,
-                    isAgent: userInfo.isCallCenterAgent || userInfo.isAgent ? true : false,
+                    isAgent: (userInfo.isCallCenterAgent || userInfo.isAgent) ? true : false,
                     image: userInfo.image && userInfo.image,
-                    typing: false
+                    typing: false,
+                    isLive: true
                 }]
                 dispatch(saveChat(chatDetails))
             }
+            setChatboxVisible(true)
             refreshChat()
         }
 
@@ -220,7 +233,7 @@ function Chatbox() {
         e.preventDefault()
         var newChat = {}
         var currentDate = Date.now() + 10800000
-        newChat.active = false
+        newChat.active = true
         newChat.creation_date = currentDate
         newChat.created_by = userInfo ? userInfo.name : `user${currentDate}`
         newChat.created_by_id = userInfo ? userInfo._id : currentDate
@@ -233,20 +246,47 @@ function Chatbox() {
         dispatch(listLiveUser())
     }
 
-    const endChatHandler = async (e, userDetails) => {
+    const endChatHandler = async (e) => {
         e.preventDefault()
-        chatDetails.modified = [...modified, {
-            modified_date: Date.now() + 10800000,
-            modified_by: userInfo ? userInfo.name : chatDetails.created_by,
-            modified_note: 'Chat Ended By: ' + userInfo.name,
-        }]
-        await dispatch(saveChat({ ...chatDetails, endDate: Date.now() + 10800000 }))
-        dispatch(deleteLiveUser(liveUserDetails._id))
-        endChatExtender()
+        var agents = 0
+        chatDetails.users.map(user => {
+            user.isLive && user.isAgent && agents++
+        })
+        if (agents === 1 || liveUserDetails.userId === userInfo._id) {
+            chatDetails.active = false
+            chatDetails.modified = [...modified, {
+                modified_date: Date.now() + 10800000,
+                modified_by: userInfo.name,
+                modified_note: 'Ended Chat',
+            }]
+            chatDetails.users.map(user => {
+                user.isLive = false
+            })
+            await dispatch(saveChat({ ...chatDetails, endDate: Date.now() + 10800000 }))
+            dispatch(deleteLiveUser(liveUserDetails._id))
+        } else {
+            chatDetails.modified = [...modified, {
+                modified_date: Date.now() + 10800000,
+                modified_by: userInfo.name,
+                modified_note: userInfo.name + ' left Chat',
+            }]
+            chatDetails.users.map(user => {
+                if (user.id === userInfo._id) {
+                    user.isLive = false
+                    return
+                }
+            })
+            await dispatch(saveChat(chatDetails))
+            const { data } = await axios.get("/api/live/" + liveUserDetails._id)
+            var editedLiveUser = data[0].agent.filter(agent => agent != userInfo.name)
+            console.log(editedLiveUser)
+            liveUserDetails.agent = editedLiveUser
+            await dispatch(saveLiveUser(liveUserDetails))
+        }
     }
 
-    const endChatExtender = () => {
-        dispatch(listLiveUser('clear'))
+    const endChatExtender = async () => {
+        await dispatch(listLiveUser('clear'))
         dispatch(saveLiveUser('clear'))
         closeChatBoxHandler()
         setModified(undefined)
@@ -382,9 +422,9 @@ function Chatbox() {
 
             {
                 chatboxVisible &&
-                <div className={`chatbox ${!userVisible && 'height'}`}>
+                <div className='chatbox'>
                     {startChatVisible &&
-                        <div className={`chatbox-1 startchat ${!userVisible && 'height'}`}>
+                        <div className='chatbox-1 startchat'>
                             {userInfo && userInfo.isCallCenterAgent
                                 ? <div className='endchat-container'>
                                     <div className='endchat-text'>There is no Live Users available for chat.</div>
@@ -405,12 +445,12 @@ function Chatbox() {
                     }
 
                     {endChatVisible &&
-                        <div className={`chatbox-1 ${!userVisible && 'height'}`}>
+                        <div className='chatbox-1'>
                             <div className='endchat-container'>
                                 <div className='endchat-text'>Do You Want to End Chat?</div>
                                 <div className='endchat-btns'>
                                     <button
-                                        onClick={(e) => endChatHandler(e, userDetails)}
+                                        onClick={(e) => endChatHandler(e)}
                                         className='endchat-yes'>Yes</button>
                                     <button
                                         onClick={() => setEndChatVisible(false)}
@@ -420,7 +460,7 @@ function Chatbox() {
                         </div>
                     }
                     <div style={{ position: 'relative', textAlign: 'center' }}>
-                        {image && <div className={`chatbox-1 ${!userVisible && 'height'}`}>
+                        {image && <div className='chatbox-1'>
                             <div className='endchat-container' style={{ top: '10rem' }}>
                                 <img className='chatbox-send-image' src={image} alt='image' />
                                 <div className='endchat-btns'>
@@ -442,16 +482,16 @@ function Chatbox() {
                             className='chatbox-fa-times fa-lg' icon={faTimes} />
                     </div>
                     {chatDetails && chatDetails.users.map(user => (
-                        user.isAgent &&
+                        user.isAgent && user.isLive &&
                         <div className='chatbox-user'>
                             <img src={user.image} alt='image' className='chatbox-user-img' />
                             <div className='chabox-username'>{user.name}</div>
                             <FontAwesomeIcon
-                                onClick={(e) => !userInfo.isCallCenterAgent && rateGood(e)}
+                                onClick={(e) => !userInfo.isAgent && !userInfo.isCallCenterAgent && rateGood(e)}
                                 className='chatbox-far-thumbup fa-2x'
                                 icon={good ? faThumbsUp : farThumbsUp} />
                             <FontAwesomeIcon
-                                onClick={(e) => !userInfo.isCallCenterAgent && rateBad(e)}
+                                onClick={(e) => !userInfo.isAgent && !userInfo.isCallCenterAgent && rateBad(e)}
                                 className='chatbox-far-thumbdown fa-2x'
                                 icon={bad ? faThumbsDown : farThumbsDown} />
                         </div>

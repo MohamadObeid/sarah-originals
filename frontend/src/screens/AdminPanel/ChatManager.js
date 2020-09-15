@@ -3,33 +3,20 @@ import { useSelector, useDispatch } from "react-redux"
 import { saveChat, listChat, deleteChat, detailsChat, saveLiveUser, listLiveUser } from "../../actions/chatActions"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { months } from '../../constants/lists'
-import axios from "axios"
-import { faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons'
-import { PASS_LIVE_USER } from "../../constants/constants"
+import { Popconfirm, message } from 'antd'
+import { faThumbsUp, faThumbsDown, faCircle } from '@fortawesome/free-solid-svg-icons'
+import axios from 'axios'
+import { LIVE_USER_SAVE_SUCCESS } from "../../constants/constants"
 
 function ChatManager(props) {
     const [formAction, setFormAction] = useState('Create')
     const [formNote, setFormNote] = useState()
     const [formNoteVisible, setFormNoteVisible] = useState(false)
-    const [formAlert, setFormAlert] = useState()
     const [formAlertVisible, setFormAlertVisible] = useState()
-    const [modelVisible, setModelVisible] = useState(false)
     const [historyVisible, setHistoryVisible] = useState(false)
-    const [uploading, setUploading] = useState()
-
-    const [_id, setId] = useState()
-    const [modified, setModified] = useState()
-    const [name, setName] = useState()
-    const [origin, setOrigin] = useState()
-    const [supplier, setSupplier] = useState()
-    const [phone, setPhone] = useState()
-    const [description, setDescription] = useState()
     const [chatValues, setChatValues] = useState()
-    const [image, setImage] = useState()
-    const [active, setActive] = useState(false)
 
     const { chat } = useSelector(state => state.chatList)
-    const { success: successSave } = useSelector(state => state.chatSave)
     const { success: successDelete } = useSelector(state => state.chatDelete)
     const { userInfo } = useSelector(state => state.userSignin)
     const { liveUser } = useSelector(state => state.liveUserList)
@@ -38,7 +25,6 @@ function ChatManager(props) {
     useEffect(() => {
         if (successDelete) {
             setFormAlertVisible(false)
-            setModelVisible(false);
             dispatch(listChat())
             setFormNote(`Chat ${formAction}d succefully`)
             setFormNoteVisible(true);
@@ -63,44 +49,41 @@ function ChatManager(props) {
 
     const enterHandler = async (e, chat) => {
         e.preventDefault()
-        if (!(chat.endDate)) {
-            dispatch(detailsChat(chat._id))
+        var userExist
+        chat.users.map(user => {
+            if (user.id === userInfo._id) {
+                userExist = true
+                user.isLive = true
+                return
+            }
+        })
+        if (!userExist) {
             chat.users = [...chat.users, {
                 id: userInfo._id,
                 name: userInfo.name,
                 isAgent: true,
                 image: userInfo.image && userInfo.image,
-                typing: false
+                typing: false,
+                isLive: true
             }]
-            dispatch(saveChat(chat))
-            var user = liveUser.find(user => user.chatId == chat._id)
-            console.log(user)
-            dispatch({ type: PASS_LIVE_USER, payload: user })
-            dispatch(listLiveUser())
+            chat.modified = [...chat.modified, {
+                modified_date: Date.now() + 10800000,
+                modified_by: userInfo && userInfo.name,
+                modified_note: userInfo && userInfo.name + 'started group chat',
+            }]
         }
-    }
-
-    const activationHandler = (e, chat) => {
-        e.preventDefault()
-        if (chat.active) {
-            setFormAction('Deactivat')
-            chat.active = false
-        } else {
-            setFormAction('Activat')
-            chat.active = true
-        }
-        chat.modified = [...chat.modified, {
-            modified_date: Date.now() + 10800000,
-            modified_by: userInfo.name, modified_note: ['Activation']
-        }]
-        dispatch(saveChat(chat))
+        await dispatch(saveChat(chat))
+        var user = liveUser.find(user => user.chatId == chat._id)
+        user.agent = [...user.agent, userInfo.name]
+        const { data } = await axios.put('/api/live/' + user._id, user)
+        dispatch({ type: LIVE_USER_SAVE_SUCCESS, payload: data })
+        dispatch(listLiveUser())
     }
 
     window.addEventListener('click', (e) => {
         const rangeOverlay = document.querySelector('.range-overlay');
         if (e.target === rangeOverlay) {
             setHistoryVisible(false)
-            setModelVisible(false)
         }
     })
 
@@ -129,7 +112,7 @@ function ChatManager(props) {
             {formNoteVisible && <div className="action-note">{formNote}</div>}
             <div className="control-page-header">
                 <h3 className="header-title">Chat Manager</h3>
-                <button type="button" className="header-button">Create chat</button>
+                <button type="button" className="header-button">Start Chat</button>
             </div>
             <table className="table">
                 <thead>
@@ -149,15 +132,7 @@ function ChatManager(props) {
                     {chat && chat.map((chat) => (
                         <tr key={chat._id}>
                             <td className='td-active'>
-                                <input
-                                    className='switch'
-                                    type="checkbox"
-                                    name={chat._id}
-                                    id="active s2"
-                                    value={chat.active}
-                                    checked={chat.active}
-                                    onChange={(e) => activationHandler(e, chat)}
-                                ></input>
+                                <FontAwesomeIcon className={`${chat.active ? 'faCircle' : 'farCircle'}`} icon={faCircle} />
                             </td>
                             <td>{fixDate((chat.creation_date && chat.creation_date.split("T", 1))[0])}</td>
                             <td>{chat.creation_date.slice(chat.creation_date.indexOf('T') + 1, -1).slice(0, 5)}</td>
@@ -171,8 +146,17 @@ function ChatManager(props) {
                                 && <FontAwesomeIcon icon={faThumbsDown} />
                             }</td>
                             <td style={{ width: '21rem' }}>
-                                <button className="table-btns" onClick={(e) => enterHandler(e, chat)}>Enter</button>
-                                <button className="table-btns" onClick={(e) => deleteHandler(e, chat._id)}>Delete</button>
+                                <button className="table-btns"
+                                    onClick={(e) => !(chat.endDate) && enterHandler(e, chat)}
+                                >Enter</button>
+                                <Popconfirm
+                                    title="Are you sure you want to delete this chat?"
+                                    onConfirm={(e) => deleteHandler(e, chat._id)}
+                                    okText="Yes"
+                                    cancelText="No"
+                                >
+                                    <button className="table-btns">Delete</button>
+                                </Popconfirm>
                                 <button className="table-btns" onClick={() => showHistoryHandler(chat)}>History</button>
                             </td>
                         </tr>

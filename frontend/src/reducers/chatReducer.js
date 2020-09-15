@@ -71,11 +71,6 @@ function chatSaveReducer(state = { chat: undefined }, action) {
                 loading: false,
                 error: action.payload,
             };
-        case CLEAR_CHAT_SAVE:
-            return {
-                success: false,
-                chat: action.payload,
-            }
         default:
             return state;
     }
@@ -98,6 +93,11 @@ function chatDeleteReducer(state = { data: undefined }, action) {
                 loading: false,
                 error: action.payload,
             };
+        case CLEAR_CHAT_SAVE:
+            return {
+                success: false,
+                chat: action.payload,
+            }
         default:
             return state;
     }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import { saveCategory, listCategory, deleteCategory } from "../../actions/categoryActions"
 import FontAwesome from 'react-fontawesome'
+import { Popconfirm, message } from 'antd'
 
 function CategoryManager(props) {
     const [formAction, setFormAction] = useState();
@@ -323,7 +324,14 @@ function CategoryManager(props) {
                             </td>
                             <td>
                                 <button className="table-btns" onClick={() => editHandler(cat)}>Edit</button>
-                                <button className="table-btns" onClick={(e) => deleteHandler(e, cat._id)}>Delete</button>
+                                <Popconfirm
+                                    title="Are you sure you want to delete this chat?"
+                                    onConfirm={(e) => deleteHandler(e, cat._id)}
+                                    okText="Yes"
+                                    cancelText="No"
+                                >
+                                    <button className="table-btns">Delete</button>
+                                </Popconfirm>
                                 <button className="table-btns" onClick={(e) => copyHandler(cat)}>Copy</button>
                             </td>
                         </tr>
@@ -372,7 +380,14 @@ function CategoryManager(props) {
                                                 </td>
                                                 <td>
                                                     <button className="table-btns" onClick={() => editHandler(subCategory)}>Edit</button>
-                                                    <button className="table-btns" onClick={(e) => deleteHandler(e, subCategory._id)}>Delete</button>
+                                                    <Popconfirm
+                                                        title="Are you sure you want to delete this chat?"
+                                                        onConfirm={(e) => deleteHandler(e, subCategory._id)}
+                                                        okText="Yes"
+                                                        cancelText="No"
+                                                    >
+                                                        <button className="table-btns">Delete</button>
+                                                    </Popconfirm>
                                                     <button className="table-btns" onClick={(e) => copyHandler(subCategory)}>Copy</button>
                                                 </td>
                                             </tr>
@@ -413,7 +428,14 @@ function CategoryManager(props) {
                                                         <td style={{ maxWidth: '20rem' }}>{category.map(sub => sub.headCategory === subCategory.name && sub.name + ' | ')}</td>
                                                         <td>
                                                             <button className="table-btns" onClick={() => editHandler(subCategory)}>Edit</button>
-                                                            <button className="table-btns" onClick={(e) => deleteHandler(e, subCategory._id)}>Delete</button>
+                                                            <Popconfirm
+                                                                title="Are you sure you want to delete this chat?"
+                                                                onConfirm={(e) => deleteHandler(e, subCategory._id)}
+                                                                okText="Yes"
+                                                                cancelText="No"
+                                                            >
+                                                                <button className="table-btns">Delete</button>
+                                                            </Popconfirm>
                                                             <button className="table-btns" onClick={(e) => copyHandler(subCategory)}>Copy</button>
                                                         </td>
                                                     </tr>

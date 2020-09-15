@@ -42,9 +42,7 @@ const listChat = () => async (dispatch) => {
 }
 
 const saveChat = (chat) => async (dispatch) => {
-    if (chat === 'clear') {
-        dispatch({ type: CLEAR_CHAT_SAVE, payload: undefined });
-    } else try {
+    try {
         dispatch({ type: CHAT_SAVE_REQUEST, payload: chat });
         // update
         if (chat._id) {
@@ -72,7 +70,9 @@ const saveChat = (chat) => async (dispatch) => {
 }
 
 const deleteChat = (_id) => async (dispatch) => {
-    try {
+    if (_id === 'clear') {
+        dispatch({ type: CLEAR_CHAT_SAVE, payload: undefined });
+    } else try {
         dispatch({ type: CHAT_DELETE_REQUEST });
         const { data } = await axios.delete("/api/chat/" + _id)
         dispatch({ type: CHAT_DELETE_SUCCESS, payload: data });

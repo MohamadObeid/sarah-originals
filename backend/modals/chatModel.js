@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const chatSchema = new mongoose.Schema({
-    active: { type: Boolean, required: true, default: false },
+    active: { type: Boolean, required: true, default: true },
     creation_date: { type: Date, required: true, default: Date.now },
     created_by: { type: String, required: true, default: '' },
     created_by_id: { type: String, required: false },
@@ -19,6 +19,7 @@ const chatSchema = new mongoose.Schema({
             image: { type: String, required: false },
             isAgent: { type: Boolean, required: false, default: false },
             typing: { type: Boolean, required: false, default: false },
+            isLive: { type: Boolean, required: false, default: true },
         }], required: false
     },
     endDate: { type: Date, required: false, default: undefined },

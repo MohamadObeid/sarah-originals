@@ -37,7 +37,7 @@ import { listReviews } from "../../actions/reviewActions"
 import { listOrders } from "../../actions/orderActions"
 import { listAssignment } from "../../actions/assignmentActions"
 import { listAttendance } from "../../actions/attendanceActions"
-import { listChat, listLiveUser } from "../../actions/chatActions"
+import { listChat, listLiveUser, saveLiveUser, deleteChat } from "../../actions/chatActions"
 
 function DashBoard(props) {
 
@@ -84,6 +84,7 @@ function DashBoard(props) {
     assignmentsVisible && dispatch(listAssignment())
     attendanceVisible && dispatch(listAttendance())
     if (chatVisible) { dispatch(listChat()); dispatch(listLiveUser()) }
+    else dispatch(deleteChat('clear'))
     return () => {
       //
     };
