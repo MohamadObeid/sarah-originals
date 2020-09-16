@@ -20,14 +20,14 @@ function App() {
   const getIPAddress = async () => {
     await fetch('https://geolocation-db.com/json/7733a990-ebd4-11ea-b9a6-2955706ddbf3')
       .then(res => res.json())
-      .then(IP => { setIP(IP) })
+      .then(IP => { setIP(IP); console.log(IP, 'failed') })
   }
 
   const { userInfo } = useSelector(state => state.userSignin)
   const dispatch = useDispatch()
 
   const refreshActiveUser = () => {
-    dispatch(saveUser({ ...userInfo, active: true, lastActivity: Date.now() + 7200000 }))
+    dispatch(saveUser({ ...userInfo, active: true, lastActivity: { date: Date.now() + 10800000, IPaddress: IP } }))
     setTimeout(refreshActiveUser, 60000)
   }
 

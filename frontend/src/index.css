@@ -648,6 +648,7 @@ textarea {
 .content {
   position: relative;
   padding-left: 0.3rem;
+  font-size: 1.4rem;
 }
 
 .form {

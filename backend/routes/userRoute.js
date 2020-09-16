@@ -40,12 +40,12 @@ router.post("/register", async (req, res) => {
   const newUser = await user.save();
   if (newUser) {
     res.send({
-      _id: newUser.id,
+      _id: newUser._id,
       active: newUser.active,
       lastActivity: newUser.lastActivity,
       name: newUser.name,
       email: newUser.email,
-      phone: req.body.phone,
+      phone: newUser.phone,
       isAdmin: newUser.isAdmin,
       token: getToken(newUser),
       isCallCenterAgent: newUser.isCallCenterAgent,
@@ -66,7 +66,7 @@ router.post("/create", async (req, res) => {
     isAdmin: req.body.isAdmin,
     isCallCenterAgent: req.body.isCallCenterAgent,
     image: req.body.image && req.body.image,
-    employeeId: req.body.employeeId,
+    employeeId: req.body.employeeId && req.body.employeeId,
   })
 
   const newUser = await user.save();
@@ -114,18 +114,31 @@ router.put("/:id", isAuth, async (req, res) => {
   const user = await User.findOne({ _id: req.params.id });
   if (user) {
     user.name = req.body.name;
-    user.active = req.body.active;
-    user.lastActivity = req.body.lastActivity;
+    user.active = req.body.active && req.body.active;
+    user.lastActivity = req.body.lastActivity && req.body.lastActivity;
     user.email = req.body.email;
     user.phone = req.body.phone;
     user.password = req.body.password && req.body.password;
     user.isAdmin = req.body.isAdmin;
     user.isCallCenterAgent = req.body.isCallCenterAgent;
-    user.active = req.body.active;
     user.image = req.body.image && req.body.image;
     user.employeeId = req.body.employeeId && req.body.employeeId;
   }
   const userUpdated = await user.save();
+
+  setTimeout(async () => {
+    const user = await User.findOne({ _id: req.params.id })
+    console.log(user.lastActivity.date)
+    if ((Date.now() + 10800000) - user.lastActivity.date < 60000) {
+      console.log('return')
+      return
+    } else {
+      user.active = false;
+      user.save()
+      console.log(user)
+    }
+  }, 61000)
+
   if (userUpdated) {
     return res.status(200).send({ message: "User has been updated!", data: userUpdated })
   }

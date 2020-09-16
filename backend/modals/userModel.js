@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, dropDups: true },
   phone: { type: String, required: false },
   password: { type: String, required: false },
-  isAdmin: { type: Boolean, required: true, default: false },
+  isAdmin: { type: Boolean, required: false, default: false },
   employeeId: { type: String, required: false },
   image: { type: String, required: false },
   //link employee id to userInfo
@@ -48,8 +48,6 @@ const userSchema = new mongoose.Schema({
       cvv2: { type: Number, required: true, default: null },
     }], required: true, default: []
   },*/
-
-  active: { type: Boolean, required: true, default: false },
 });
 
 const userModel = mongoose.model("User", userSchema);

@@ -30,6 +30,7 @@ function ChatManager(props) {
             setFormNoteVisible(true);
             setInterval(() => setFormNoteVisible(false), 5000)
             setFormAction('')
+            dispatch(deleteChat('clear'))
         }
         return () => {
             //
