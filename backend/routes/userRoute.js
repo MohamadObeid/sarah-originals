@@ -57,7 +57,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-/*router.post("/create", async (req, res) => {
+router.post("/create", async (req, res) => {
   const user = new User({
     name: req.body.name,
     email: req.body.email,
@@ -65,8 +65,8 @@ router.post("/register", async (req, res) => {
     password: req.body.password,
     isAdmin: req.body.isAdmin,
     isCallCenterAgent: req.body.isCallCenterAgent,
-    image: req.body.image,
-    employeeId: req.body.image,
+    image: req.body.image && req.body.image,
+    employeeId: req.body.employeeId,
   })
 
   const newUser = await user.save();
@@ -83,7 +83,7 @@ router.get("/createadmin", async (req, res) => {
       name: "Mohamad Baqer",
       email: "dm@beirutgrouptt.com",
       phone: '70564466',
-      password: "1234",
+      password: "12345",
       isAdmin: true,
       isCallCenterAgent: true
     });
@@ -93,7 +93,7 @@ router.get("/createadmin", async (req, res) => {
   } catch (error) {
     res.send({ msg: error.message });
   }
-});*/
+});
 
 router.get("", async (req, res) => {
   const users = await User.find({});
