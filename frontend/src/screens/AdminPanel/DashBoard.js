@@ -84,7 +84,6 @@ function DashBoard(props) {
     assignmentsVisible && dispatch(listAssignment())
     attendanceVisible && dispatch(listAttendance())
     if (chatVisible) { dispatch(listChat()); dispatch(listLiveUser()) }
-    else dispatch(deleteChat('clear'))
     return () => {
       //
     };

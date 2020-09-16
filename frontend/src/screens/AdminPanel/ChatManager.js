@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux"
 import { saveChat, listChat, deleteChat, detailsChat, saveLiveUser, listLiveUser } from "../../actions/chatActions"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { months } from '../../constants/lists'
-import { Popconfirm, message } from 'antd'
+import { Popconfirm } from 'antd'
 import { faThumbsUp, faThumbsDown, faCircle } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios'
 import { LIVE_USER_SAVE_SUCCESS } from "../../constants/constants"
@@ -69,7 +69,7 @@ function ChatManager(props) {
             chat.modified = [...chat.modified, {
                 modified_date: Date.now() + 10800000,
                 modified_by: userInfo && userInfo.name,
-                modified_note: userInfo && userInfo.name + 'started group chat',
+                modified_note: userInfo && userInfo.name + ' joined',
             }]
         }
         await dispatch(saveChat(chat))
@@ -150,6 +150,7 @@ function ChatManager(props) {
                                     onClick={(e) => !(chat.endDate) && enterHandler(e, chat)}
                                 >Enter</button>
                                 <Popconfirm
+                                    placement="topRight"
                                     title="Are you sure you want to delete this chat?"
                                     onConfirm={(e) => deleteHandler(e, chat._id)}
                                     okText="Yes"

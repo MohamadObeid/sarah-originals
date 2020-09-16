@@ -2056,7 +2056,7 @@ input.checked[type="radio"] {
 
 .chatbox-fa-times {
   position: absolute;
-  top: 0;
+  top: 0.2rem;
   left: 0;
   cursor: pointer;
   color: #ff8000;
@@ -2083,7 +2083,6 @@ input.checked[type="radio"] {
   overscroll-behavior-y: contain;
 }
 .chatbox-msg-container::-webkit-scrollbar {
-  /*display: none;*/
   width: 3px;
 }
 
@@ -2218,13 +2217,16 @@ input.checked[type="radio"] {
 
 .chatbox-unseen-msg {
   position: fixed;
-  bottom: 10rem;
   z-index: 4;
-  font-size: 20px;
+  font-size: 15px;
   z-index: 4;
-  bottom: 5.2rem;
-  right: 3.3rem;
+  bottom: 6rem;
+  right: 2rem;
   color: white;
+  padding: 0 0.8rem;
+  border-radius: 3rem;
+  border: 1px solid white;
+  background-color: #ff4d4f;
   display: inline-flex;
   cursor: pointer;
 }
@@ -2296,11 +2298,12 @@ input.checked[type="radio"] {
     width: 25rem;
   }
   .chatbox-unseen-msg {
-    bottom: 10rem;
+    bottom: 45.7vh;
     z-index: 12;
-    font-size: 15px;
+    font-size: 12px;
     top: 51vh;
-    right: 0.7rem;
+    right: 0.3rem;
+    padding: 0 0.6rem;
   }
 }
 
@@ -2339,10 +2342,16 @@ input.checked[type="radio"] {
   align-items: center;
   background-color: white;
   box-shadow: 0 0 2px rgba(33, 33, 33, 0.603);
-  padding: 1rem;
+  padding: 0.6rem 0.5rem 0.1rem 1rem;
   margin: 0.5rem 0;
   border-radius: 0.5rem;
   position: relative;
+  overflow-x: scroll;
+  overflow-wrap: nowrap;
+}
+
+.chatbox-user::-webkit-scrollbar {
+  display: none;
 }
 
 .chatbox-far-thumbup {
@@ -2363,7 +2372,8 @@ input.checked[type="radio"] {
 }
 
 .chabox-username {
-  padding-left: 0.5rem;
+  font-size: 1rem;
+  margin: 0;
 }
 
 .chatbox-user-img {
@@ -2384,8 +2394,5 @@ input.checked[type="radio"] {
   }
   .chatbox-notavailable {
     width: 25rem;
-  }
-  .chabox-username {
-    width: 13rem;
   }
 }

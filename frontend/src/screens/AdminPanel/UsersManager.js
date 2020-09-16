@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { listUsers, deleteUser, saveUser } from "../../actions/userActions";
 import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircle } from "@fortawesome/free-solid-svg-icons";
 
 function UsersManager(props) {
     const [formAction, setFormAction] = useState()
@@ -17,7 +19,6 @@ function UsersManager(props) {
     const [phone, setPhone] = useState()
     const [password, setPassword] = useState()
     const [isAdmin, setIsAdmin] = useState(false)
-    const [active, setActive] = useState(false)
     const [isCallCenterAgent, setIsCallCenterAgent] = useState(false)
     const [employeeId, setEmployeeId] = useState()
     const [image, setImage] = useState()
@@ -60,7 +61,6 @@ function UsersManager(props) {
         setPhone(user.phone ? user.phone : '')
         setPassword(user.password ? user.password : '')
         setIsAdmin(user.isAdmin ? user.isAdmin : false)
-        setActive(user.active ? user.active : false)
         setIsCallCenterAgent(user.isCallCenterAgent ? user.isCallCenterAgent : false)
         setEmployeeId(user.employeeId ? user.employeeId : undefined)
         setImage(user.image ? user.image : '')
@@ -68,24 +68,12 @@ function UsersManager(props) {
 
     const submitHandler = (e) => {
         e.preventDefault()
-        const user = { _id, name, email, phone, password, isAdmin, active, isCallCenterAgent, image, employeeId }
+        const user = { _id, name, email, phone, password, isAdmin, isCallCenterAgent, image, employeeId }
         formAction === 'Copy' && delete user._id
         if (name != '' && email != '' && phone && password != '') {
             dispatch(saveUser(user))
         }
         else setFormAlertVisible(true)
-    }
-
-    const activationHandler = (e, user) => {
-        e.preventDefault()
-        if (user.active) {
-            setFormAction('Deactivat')
-            user.active = false
-        } else {
-            setFormAction('Activat')
-            user.active = true
-        }
-        dispatch(saveUser({ ...user, activation: true }))
     }
 
     const createHandler = () => {
@@ -240,15 +228,7 @@ function UsersManager(props) {
                     {users && users.map((user) => (
                         <tr key={user._id}>
                             <td className='td-active'>
-                                <input
-                                    className='switch'
-                                    type='checkbox'
-                                    name={user._id}
-                                    id='active s2'
-                                    value={user.active}
-                                    checked={user.active}
-                                    onChange={(e) => activationHandler(e, user)}
-                                ></input>
+                                <FontAwesomeIcon className={`${user.active ? 'faCircle' : 'farCircle'}`} icon={faCircle} />
                             </td>
                             <td>{user.name}</td>
                             <td>{user.email}</td>

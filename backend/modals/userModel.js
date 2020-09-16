@@ -2,10 +2,15 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
   createdOn: { type: Date, required: false, default: Date.now },
+  active: { type: Boolean, required: false, default: true },
+  lastActivity: {
+    date: { type: Date, required: false, default: Date.now },
+    IPaddress: { type: String, required: false },
+  },
   name: { type: String, required: true, default: '' },
   email: { type: String, required: true, unique: true, dropDups: true },
   phone: { type: String, required: false },
-  password: { type: String, required: true },
+  password: { type: String, required: false },
   isAdmin: { type: Boolean, required: true, default: false },
   employeeId: { type: String, required: false },
   image: { type: String, required: false },

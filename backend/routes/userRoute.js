@@ -13,6 +13,8 @@ router.post("/signin", async (req, res) => {
   if (signinUser) {
     res.send({
       _id: signinUser.id,
+      active: signinUser.active,
+      lastActivity: signinUser.lastActivity,
       name: signinUser.name,
       phone: signinUser.phone,
       email: signinUser.email,
@@ -39,6 +41,8 @@ router.post("/register", async (req, res) => {
   if (newUser) {
     res.send({
       _id: newUser.id,
+      active: newUser.active,
+      lastActivity: newUser.lastActivity,
       name: newUser.name,
       email: newUser.email,
       phone: req.body.phone,
@@ -53,7 +57,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/create", async (req, res) => {
+/*router.post("/create", async (req, res) => {
   const user = new User({
     name: req.body.name,
     email: req.body.email,
@@ -89,7 +93,7 @@ router.get("/createadmin", async (req, res) => {
   } catch (error) {
     res.send({ msg: error.message });
   }
-});
+});*/
 
 router.get("", async (req, res) => {
   const users = await User.find({});
@@ -108,13 +112,13 @@ router.delete("/:id", isAuth, isAdmin, async (req, res) => {
 
 router.put("/:id", isAuth, async (req, res) => {
   const user = await User.findOne({ _id: req.params.id });
-  if (user.activation) {
-    user.active = req.body.active;
-  } else if (user) {
+  if (user) {
     user.name = req.body.name;
+    user.active = req.body.active;
+    user.lastActivity = req.body.lastActivity;
     user.email = req.body.email;
     user.phone = req.body.phone;
-    user.password = req.body.password;
+    user.password = req.body.password && req.body.password;
     user.isAdmin = req.body.isAdmin;
     user.isCallCenterAgent = req.body.isCallCenterAgent;
     user.active = req.body.active;

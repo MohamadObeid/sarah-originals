@@ -17,7 +17,7 @@ function RegisterScreen(props) {
 
     const dispatch = useDispatch()
     useEffect(() => {
-        if (userInfo.name) {
+        if (userInfo && userInfo.name) {
             props.history.push(redirect)
         }
         return () => {

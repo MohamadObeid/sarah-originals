@@ -17,6 +17,7 @@ import {
 import { CHAT_DETAILS_SUCCESS, CHAT_SAVE_SUCCESS, LIVE_USER_LIST_SUCCESS } from "../../constants/constants";
 import audio from '../../sounds/swiftly.mp3'
 import UIfx from 'uifx';
+import { Popconfirm } from 'antd'
 
 function Chatbox() {
     const dispatch = useDispatch()
@@ -99,7 +100,7 @@ function Chatbox() {
         return () => {
             //
         }
-    }, [])
+    }, [userInfo])
 
     const lunchLiveChat = async (liveUser) => {
         dispatch(detailsChat(liveUser.chatId))
@@ -242,7 +243,6 @@ function Chatbox() {
             name: userInfo ? userInfo.name : newChat.created_by,
         }]
         await dispatch(saveChat(newChat))
-        setChatboxVisible(false)
         dispatch(listLiveUser())
     }
 
@@ -268,7 +268,7 @@ function Chatbox() {
             chatDetails.modified = [...modified, {
                 modified_date: Date.now() + 10800000,
                 modified_by: userInfo.name,
-                modified_note: userInfo.name + ' left Chat',
+                modified_note: userInfo.name + ' left',
             }]
             chatDetails.users.map(user => {
                 if (user.id === userInfo._id) {
@@ -404,46 +404,49 @@ function Chatbox() {
     return (
         <div>
             <div style={{ position: 'relative' }}>
-                <div className='chat-btn'
-                    onClick={() => {
-                        !chatboxVisible
-                            ? openChatBoxHandler()
-                            : closeChatBoxHandler()
-                    }}>
-                    <FontAwesomeIcon
-                        className='fa-comments fa-2x'
-                        icon={faComments} />
-                </div>
-                {unseenVisible && unseen > 0 &&
-                    <div className='chatbox-unseen-msg'>
-                        {unseen}
-                    </div>}
+                {chatDetails
+                    ? <div className='chat-btn'>
+                        <FontAwesomeIcon
+                            className='fa-comments fa-2x'
+                            icon={faComments}
+                            onClick={() => {
+                                !chatboxVisible
+                                    ? openChatBoxHandler()
+                                    : closeChatBoxHandler()
+                            }} />
+                        {unseenVisible && unseen > 0 &&
+                            <div className='chatbox-unseen-msg'
+                                onClick={() => {
+                                    !chatboxVisible
+                                        ? openChatBoxHandler()
+                                        : closeChatBoxHandler()
+                                }}>
+                                {unseen}
+                            </div>}
+                    </div>
+                    : <Popconfirm
+                        title="Do you need Help?"
+                        placement="leftBottom"
+                        onConfirm={(e) => {
+                            !chatboxVisible
+                                ? userInfo && !userInfo.isCallCenterAgent
+                                && startChatHandler(e)
+                                : closeChatBoxHandler()
+                        }}
+                        okText="Start Live Chat"
+                    >
+                        <div className='chat-btn'>
+                            <FontAwesomeIcon
+                                className='fa-comments fa-2x'
+                                icon={faComments} />
+                        </div>
+
+                    </Popconfirm>}
             </div>
 
             {
                 chatboxVisible &&
                 <div className='chatbox'>
-                    {startChatVisible &&
-                        <div className='chatbox-1 startchat'>
-                            {userInfo && userInfo.isCallCenterAgent
-                                ? <div className='endchat-container'>
-                                    <div className='endchat-text'>There is no Live Users available for chat.</div>
-                                </div>
-                                : <div className='endchat-container'>
-                                    <div className='endchat-text'>Do You Need Help?</div>
-                                    <div className='endchat-btns'>
-                                        <button
-                                            onClick={(e) => userInfo && !userInfo.isCallCenterAgent
-                                                && startChatHandler(e)}
-                                            className='endchat-yes'>Yes</button>
-                                        <button
-                                            onClick={() => setChatboxVisible(false)}
-                                            className='endchat-no'>No</button>
-                                    </div>
-                                </div>}
-                        </div>
-                    }
-
                     {endChatVisible &&
                         <div className='chatbox-1'>
                             <div className='endchat-container'>
@@ -460,17 +463,15 @@ function Chatbox() {
                         </div>
                     }
                     <div style={{ position: 'relative', textAlign: 'center' }}>
-                        {image && <div className='chatbox-1'>
-                            <div className='endchat-container' style={{ top: '10rem' }}>
-                                <img className='chatbox-send-image' src={image} alt='image' />
-                                <div className='endchat-btns'>
-                                    <button
-                                        onClick={(e) => sendImageHandler(e)}
-                                        className='endchat-yes'>Send</button>
-                                    <button
-                                        onClick={(e) => cancelImageHandler(e)}
-                                        className='endchat-no'>Cancel</button>
-                                </div>
+                        {image && <div className='endchat-container' style={{ top: '10rem' }}>
+                            <img className='chatbox-send-image' src={image} alt='image' />
+                            <div className='endchat-btns'>
+                                <button
+                                    onClick={(e) => sendImageHandler(e)}
+                                    className='endchat-yes'>Send</button>
+                                <button
+                                    onClick={(e) => cancelImageHandler(e)}
+                                    className='endchat-no'>Cancel</button>
                             </div>
                         </div>}
                         <div className='chatbox-title'>Live Chat</div>
@@ -481,31 +482,35 @@ function Chatbox() {
                             onClick={() => setEndChatVisible(true)}
                             className='chatbox-fa-times fa-lg' icon={faTimes} />
                     </div>
-                    {chatDetails && chatDetails.users.map(user => (
-                        user.isAgent && user.isLive &&
+                    {chatDetails && chatDetails.users &&
                         <div className='chatbox-user'>
-                            <img src={user.image} alt='image' className='chatbox-user-img' />
-                            <div className='chabox-username'>{user.name}</div>
-                            <FontAwesomeIcon
-                                onClick={(e) => !userInfo.isAgent && !userInfo.isCallCenterAgent && rateGood(e)}
-                                className='chatbox-far-thumbup fa-2x'
-                                icon={good ? faThumbsUp : farThumbsUp} />
-                            <FontAwesomeIcon
-                                onClick={(e) => !userInfo.isAgent && !userInfo.isCallCenterAgent && rateBad(e)}
-                                className='chatbox-far-thumbdown fa-2x'
-                                icon={bad ? faThumbsDown : farThumbsDown} />
-                        </div>
-                    ))}
+                            {chatDetails.users.map(user => (
+                                user.isAgent && user.isLive &&
+                                <div style={{ textAlign: 'center', marginRight: '0.5rem' }}>
+                                    <img src={user.image} alt='image' className='chatbox-user-img' />
+                                    <div className='chabox-username'>{user.name}</div>
+                                    {/*<FontAwesomeIcon
+                                    onClick={(e) => !userInfo.isAgent && !userInfo.isCallCenterAgent && rateGood(e)}
+                                    className='chatbox-far-thumbup fa-2x'
+                                    icon={good ? faThumbsUp : farThumbsUp} />
+                                <FontAwesomeIcon
+                                    onClick={(e) => !userInfo.isAgent && !userInfo.isCallCenterAgent && rateBad(e)}
+                                    className='chatbox-far-thumbdown fa-2x'
+                                icon={bad ? faThumbsDown : farThumbsDown} />*/}
+                                </div>
+                            ))}
+                        </div>}
                     {chatDetails && chatDetails.users.length === 1 &&
                         < div className='chatbox-notavailable'>All of our agents are busy at the moment.<br />
                         Please stay online and we will get to you within less than 02:00 min</div>
                     }
-                    {chatDetails && chatDetails.users.map(user => (
-                        user.id !== userInfo._id && user.typing &&
-                        <div className='chatbox-typing'>{user.name + ' is typing...'}</div>
-                    ))}
                     <div className='chatbox-msg-container'
                         onScroll={() => setScrolling(true)}>
+
+                        {chatDetails && chatDetails.users.map(user => (
+                            user.id !== userInfo._id && user.typing &&
+                            <div className='chatbox-typing'>{user.name + ' is typing...'}</div>
+                        ))}
                         {modified && modified.map(mod => (
                             <div className='chatbox-msg-line'>
                                 <div className='chatbox-username'>{mod.modified_by}</div>

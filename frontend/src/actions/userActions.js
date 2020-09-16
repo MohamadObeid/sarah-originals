@@ -51,21 +51,20 @@ const saveUser = (user) => async (dispatch, getState) => {
         }
         else {
             if (user._id) {
-
                 const { data } = await axios.put('/api/users/' + user._id, user, {
                     headers: { 'Authorization': 'Bearer ' + userInfo.token }
                 });
                 dispatch({ type: USER_SAVE_SUCCESS, payload: data })
-
                 // re-signin
-                if (user._id === userInfo._id) {
+                if (user._id === userInfo._id && !user.active) {
                     cookie.remove('userInfo')
                     let { data: signinData } = await axios.post("/api/users/signin",
                         { email: data.data.email, password: data.data.password })
                     dispatch({ type: USER_SIGNIN_SUCCESS, payload: signinData })
                     signinData = { ...signinData, signinDate: Date.now() }
                     cookie.set('userInfo', JSON.stringify(signinData))
-                    dispatch(listLiveUser())
+                    //for call centers in chatbox
+                    signinData.isCallCenterAgent && dispatch(listLiveUser())
                 }
 
             } else {
@@ -78,7 +77,7 @@ const saveUser = (user) => async (dispatch, getState) => {
     }
 }
 
-const register = (user) => async (dispatch, getState) => {
+const register = (user) => async (dispatch) => {
     dispatch({ type: USER_REGISTER_REQUEST, payload: user });
 
     try {
@@ -90,7 +89,6 @@ const register = (user) => async (dispatch, getState) => {
         dispatch({ type: USER_SIGNIN_SUCCESS, payload: signinData })
         signinData = { ...signinData, signinDate: Date.now() }
         cookie.set('userInfo', JSON.stringify(signinData))
-        dispatch(listLiveUser())
 
     } catch (error) {
         dispatch({ type: USER_REGISTER_FAIL, payload: error.message })

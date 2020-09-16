@@ -95,16 +95,13 @@ import {
   reviewSaveReducer,
   reviewDeleteReducer,
 } from "./reducers/reviewReducer";
+import { useDispatch } from "react-redux";
 
 const cartItems = cookie.getJSON("cartItems") || [];
-//
-let userInfo = cookie.getJSON("userInfo") || null;
-if (userInfo && Date.now() - userInfo.signinDate > 172800000) {
-  userInfo = null
-  cookie.remove('userInfo')
-}
+const userInfo = cookie.getJSON("userInfo") || null;
 const address = cookie.getJSON("address") || undefined;
 const paymentMethod = cookie.getJSON("paymentMethod") || undefined;
+
 const initialState = {
   cart: { cartItems },
   userSignin: { userInfo },

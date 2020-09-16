@@ -65,7 +65,7 @@ function Navbar() {
                         <FontAwesome name='fa-cart-plus' className="fas fa-cart-plus fa-2x" />
                     </Link>
                     {
-                        userInfo ?
+                        (userInfo && userInfo.name) ?
                             <Link className="header-link-user" to='/profile'>
                                 Hi, {userInfo.name.split(" ")[0]}</Link> :
                             <Link className="header-link-user" to="/signin">Sign In</Link>
