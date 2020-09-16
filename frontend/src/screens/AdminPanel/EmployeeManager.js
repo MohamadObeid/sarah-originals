@@ -1587,7 +1587,7 @@ function EmployeeManager(props) {
                                         onChange={(e) => activationHandler(e, employee)}
                                     ></input>
                                 </td>
-                                <td style={{ width: '8rem', textAlign: 'center', paddingTop: '0.5rem' }}>
+                                <td>
                                     <img
                                         className='employee-image'
                                         src={employee.image} alt='employee' />

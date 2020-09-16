@@ -26,8 +26,9 @@ function App() {
   const { userInfo } = useSelector(state => state.userSignin)
   const dispatch = useDispatch()
 
-  const refreshActiveUser = () => {
-    dispatch(saveUser({ ...userInfo, active: true, lastActivity: { date: Date.now() + 10800000, IPaddress: IP } }))
+  const refreshActiveUser = async () => {
+    await dispatch(saveUser({ ...userInfo, active: true, lastActivity: { date: Date.now() + 10800000, IPaddress: IP } }))
+    dispatch(saveUser('clear'))
     setTimeout(refreshActiveUser, 60000)
   }
 

@@ -25,14 +25,14 @@ function UsersManager(props) {
 
     const { users } = useSelector(state => state.usersList)
 
-    const { success: successSave } = useSelector(state => state.userSave)
+    const { success: successSave, userInfo } = useSelector(state => state.userSave)
     const { success: successDelete } = useSelector(state => state.userDelete)
     const { employees: employeeList } = useSelector(state => state.employeeList)
 
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (successSave && formAction || successDelete) {
+        if (successSave && !userInfo.active || successDelete) { //!.active to stop reloading on success
             setFormAlertVisible(false)
             setModelVisible(false)
             dispatch(listUsers())
@@ -40,7 +40,7 @@ function UsersManager(props) {
             setActionNoteVisible(true)
             setInterval(() => setActionNoteVisible(false), 5000)
             setFormAction('')
-            dispatch(saveUser('clear'))
+            successSave && dispatch(saveUser('clear'))
         }
         employeeId && employeeList.map(employee => {
             if (employee._id === employeeId) {

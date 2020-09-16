@@ -29,7 +29,7 @@ const signin = (email, password) => async (dispatch) => {
     try {
         let { data } = await axios.post("/api/users/signin", { email, password })
         dispatch({ type: USER_SIGNIN_SUCCESS, payload: data });
-        data = { ...data, signinDate: Date.now() }
+        data = { ...data, signinDate: Date.now() + 10800000 }
         cookie.set('userInfo', JSON.stringify(data));
     } catch (error) {
         dispatch({ type: USER_SIGNIN_FAIL, payload: error.message })
@@ -80,7 +80,7 @@ const register = (user) => async (dispatch) => {
         let { data: signinData } = await axios.post("/api/users/signin",
             { email: data.email, password: data.password })
         dispatch({ type: USER_SIGNIN_SUCCESS, payload: signinData })
-        signinData = { ...signinData, signinDate: Date.now() }
+        signinData = { ...signinData, signinDate: Date.now() + 10800000 }
         cookie.set('userInfo', JSON.stringify(signinData))
 
     } catch (error) {

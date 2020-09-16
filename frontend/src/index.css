@@ -58,6 +58,7 @@ textarea {
   grid-template-columns: 1fr;
   grid-template-rows: 5rem 1fr 5rem;
   min-height: 100vh;
+  font-size: 1.4rem;
 }
 
 .header {
