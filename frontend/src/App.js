@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter, Route } from "react-router-dom";
 import "./index.css";
 import HomeScreen from "./screens/HomeScreen";
@@ -10,9 +10,37 @@ import RegisterScreen from "./screens/RegisterScreen";
 import DashBoard from "./screens/AdminPanel/DashBoard";
 import NavBar from "./screens/Components/NavBar";
 import ProfileScreen from './screens/ProfileScreen';
-import Chatbox from './screens/Components/Chatbox'
+import Chatbox from './screens/Components/Chatbox';
+import { useDispatch, useSelector } from "react-redux";
+import { saveUser } from "./actions/userActions";
 
 function App() {
+  const [IP, setIP] = useState()
+
+  const getIPAddress = async () => {
+    await fetch('https://geolocation-db.com/json/7733a990-ebd4-11ea-b9a6-2955706ddbf3')
+      .then(res => res.json())
+      .then(IP => { setIP(IP) })
+  }
+
+  const { userInfo } = useSelector(state => state.userSignin)
+  const dispatch = useDispatch()
+
+  const refreshActiveUser = () => {
+    dispatch(saveUser({ ...userInfo, active: true, lastActivity: Date.now() + 7200000 }))
+    setTimeout(refreshActiveUser, 60000)
+  }
+
+  useEffect(() => {
+    getIPAddress()
+    if (userInfo) {
+      console.log('set Active User once')
+      refreshActiveUser()
+    }
+    return () => {
+      //
+    };
+  }, [])
 
   return (
     <BrowserRouter>
