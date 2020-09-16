@@ -37,36 +37,37 @@ const signin = (email, password) => async (dispatch) => {
 }
 
 const saveUser = (user) => async (dispatch, getState) => {
-    dispatch({ type: USER_SAVE_REQUEST, payload: user });
-    const { userSignin: { userInfo } } = getState();
-
     if (user === 'clear') {
         dispatch({ type: CLEAR_SAVE_USER, payload: undefined });
-    } else try {
-        if (user._id) {
-            const { data } = await axios.put('/api/users/' + user._id, user, {
-                headers: { 'Authorization': 'Bearer ' + userInfo.token }
-            });
-            dispatch({ type: USER_SAVE_SUCCESS, payload: data })
-            // re-signin
-            if (user._id === userInfo._id && !user.active) {
-                console.log('is not activation action')
-                cookie.remove('userInfo')
-                let { data: signinData } = await axios.post("/api/users/signin",
-                    { email: data.data.email, password: data.data.password })
-                dispatch({ type: USER_SIGNIN_SUCCESS, payload: signinData })
-                signinData = { ...signinData, signinDate: Date.now() }
-                cookie.set('userInfo', JSON.stringify(signinData))
-                //for call centers in chatbox
-                signinData.isCallCenterAgent && dispatch(listLiveUser())
-            }
+    } else {
+        dispatch({ type: USER_SAVE_REQUEST, payload: user });
+        const { userSignin: { userInfo } } = getState();
+        try {
+            if (user._id) {
+                const { data } = await axios.put('/api/users/' + user._id, user, {
+                    headers: { 'Authorization': 'Bearer ' + userInfo.token }
+                });
+                dispatch({ type: USER_SAVE_SUCCESS, payload: data })
+                // re-signin
+                if (user._id === userInfo._id && !user.active) {
+                    console.log('is not activation action')
+                    cookie.remove('userInfo')
+                    let { data: signinData } = await axios.post("/api/users/signin",
+                        { email: data.data.email, password: data.data.password })
+                    dispatch({ type: USER_SIGNIN_SUCCESS, payload: signinData })
+                    signinData = { ...signinData, signinDate: Date.now() }
+                    cookie.set('userInfo', JSON.stringify(signinData))
+                    //for call centers in chatbox
+                    signinData.isCallCenterAgent && dispatch(listLiveUser())
+                }
 
-        } else {
-            const { data } = await axios.post("/api/users/create", user)
-            dispatch({ type: USER_SAVE_SUCCESS, payload: data });
+            } else {
+                const { data } = await axios.post("/api/users/create", user)
+                dispatch({ type: USER_SAVE_SUCCESS, payload: data });
+            }
+        } catch (error) {
+            dispatch({ type: USER_SAVE_FAIL, payload: error.message })
         }
-    } catch (error) {
-        dispatch({ type: USER_SAVE_FAIL, payload: error.message })
     }
 }
 
@@ -88,10 +89,14 @@ const register = (user) => async (dispatch) => {
     }
 }
 
-const listUsers = () => async (dispatch) => {
+const listUsers = () => async (dispatch, getState) => {
     try {
         dispatch({ type: USERS_LIST_REQUEST });
-        const { data } = await axios.get("/api/users");
+        const { userSignin: { userInfo } } = getState();
+
+        const { data } = await axios.get("/api/users", {
+            headers: { Authorization: 'Bearer ' + userInfo.token }
+        });
         dispatch({ type: USERS_LIST_SUCCESS, payload: data });
     } catch (error) {
         dispatch({ type: USERS_LIST_FAIL, payload: error.message });

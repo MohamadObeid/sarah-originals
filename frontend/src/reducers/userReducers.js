@@ -39,7 +39,7 @@ function userSaveReducer(state = { userInfo: {} }, action) {
         case USER_SIGNIN_FAIL:
             return { loading: false, error: action.payload }
         case CLEAR_SAVE_USER:
-            return { success: false }
+            return { success: false, userInfo: undefined }
         default:
             return state;
     }

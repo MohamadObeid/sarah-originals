@@ -13,8 +13,8 @@ router.post("/signin", async (req, res) => {
   if (signinUser) {
     res.send({
       _id: signinUser.id,
-      active: signinUser.active,
       lastActivity: signinUser.lastActivity,
+      password: signinUser.password,
       name: signinUser.name,
       phone: signinUser.phone,
       email: signinUser.email,
@@ -41,7 +41,6 @@ router.post("/register", async (req, res) => {
   if (newUser) {
     res.send({
       _id: newUser._id,
-      active: newUser.active,
       lastActivity: newUser.lastActivity,
       name: newUser.name,
       email: newUser.email,
@@ -95,7 +94,7 @@ router.get("/createadmin", async (req, res) => {
   }
 });
 
-router.get("", async (req, res) => {
+router.get("", isAuth, isAdmin, async (req, res) => {
   const users = await User.find({});
   res.send(users);
 });
