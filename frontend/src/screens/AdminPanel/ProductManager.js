@@ -193,8 +193,8 @@ function ProductManager() {
         setUploading(true);
 
         axios
-            //.post('/api/uploads/s3', bodyFormData, {
-            .post('/api/uploads', bodyFormData, {
+            .post('/api/uploads/s3', bodyFormData, {
+                //.post('/api/uploads', bodyFormData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
             .then((response) => {
