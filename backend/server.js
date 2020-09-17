@@ -3,6 +3,11 @@ import config from "./config";
 import path from 'path';
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
+import Grid from 'gridfs-stream'
+import multer from 'multer';
+import crypto from 'crypto';
+import GridFsStorage from 'multer-gridfs-storage';
+
 import userRoute from "./routes/userRoute";
 import productRoute from "./routes/productRoute";
 import orderRoute from './routes/orderRoute';
@@ -16,6 +21,7 @@ import attendanceRoute from './routes/attendanceRoute';
 import uploadRoute from './routes/uploadRoute';
 import chatRoute from './routes/chatRoute';
 import liveChatRoute from './routes/liveUserRoute';
+import imageRoute from './routes/imageRoute';
 
 const mongodbUrl = config.MONGODB_URL;
 mongoose
@@ -25,10 +31,47 @@ mongoose
     useCreateIndex: true,
     useFindAndModify: false,
   })
-  .catch((error) => console.log(error.reason));
+  .catch((error) => console.log(error.reason))
 
 const app = express();
 
+/*const conn = mongoose.createConnection(mongodbUrl, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+
+var gfs
+conn.once('open', function () {
+  // Init stream
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads')
+  // all set!
+})
+
+var storage = new GridFsStorage({
+  url: mongodbUrl,
+  file: (req, file) => {
+    return new Promise((resolve, reject) => {
+      crypto.randomBytes(16, (err, buf) => {
+        if (err) {
+          return reject(err)
+        }
+        const filename = buf.toString('hex') + path.extname(file.originalname)
+        const fileInfo = {
+          filename: filename,
+          bucketName: 'uploads',
+        }
+        resolve(fileInfo)
+      })
+    })
+  }
+})
+const upload = multer({ storage })
+app.post('/api/uploads', upload.single('image'), (req, res) => {
+  res.send(gfs.files)
+})*/
+
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 
 app.use("/api/products", productRoute);
@@ -56,6 +99,8 @@ app.use("/api/attendance", attendanceRoute);
 app.use("/api/chat", chatRoute);
 
 app.use("/api/live", liveChatRoute);
+
+app.use("/api/image", imageRoute);
 
 app.use('/uploads', express.static(path.join(__dirname, '/../uploads')));
 

@@ -1,5 +1,6 @@
 import express from 'express';
 import multer from 'multer';
+import Image from '../modals/imageModel'
 /*import { isAuth } from '../util';
 import multerS3 from 'multer-s3';
 import aws from 'aws-sdk';

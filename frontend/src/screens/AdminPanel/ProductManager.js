@@ -199,7 +199,7 @@ function ProductManager() {
             })
             .then((response) => {
                 setImage(response.data);
-                console.log(response.data)
+                console.log('response: ' + response.data)
                 setUploading(false)
             })
             .catch((err) => {
@@ -418,8 +418,8 @@ function ProductManager() {
                             <input
                                 style={{ cursor: 'pointer' }}
                                 type="file"
-                                name="img"
-                                id="img"
+                                name="image"
+                                id="image"
                                 onChange={(e) => {
                                     setImage(e.target.files[0])
                                 }}
