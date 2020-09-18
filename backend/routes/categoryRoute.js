@@ -11,15 +11,7 @@ router.get("", async (req, res) => {
 
 
 router.post("", isAuth, isAdmin, async (req, res) => {
-    const category = new Category({
-        active: req.body.active,
-        created_by: req.body.created_by,
-        name: req.body.name,
-        headCategory: req.body.headCategory,
-        isSubCategory: req.body.isSubCategory,
-        brand: req.body.brand,
-        description: req.body.description,
-    });
+    const category = new Category(req.body);
     const newCategory = await category.save();
     if (newCategory) {
         // 201 is code of creating an item
@@ -36,6 +28,7 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
         category.active = req.body.active;
     } else if (category) {
         category.created_by = req.body.created_by;
+        category.image = req.body.image;
         category.name = req.body.name;
         category.headCategory = req.body.headCategory;
         category.isSubCategory = req.body.isSubCategory;

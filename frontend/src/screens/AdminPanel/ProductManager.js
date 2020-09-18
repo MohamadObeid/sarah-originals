@@ -587,6 +587,7 @@ function ProductManager() {
                 <thead>
                     <tr>
                         <th>Active</th>
+                        <th>Image</th>
                         <th>Name</th>
                         <th>Price</th>
                         <th>Unit</th>
@@ -610,6 +611,11 @@ function ProductManager() {
                                     checked={product.active}
                                     onChange={(e) => activationHandler(e, product)}
                                 ></input>
+                            </td>
+                            <td>
+                                <img
+                                    className='employee-image'
+                                    src={imageUrl + product.image} alt='product' />
                             </td>
                             <td style={{ maxWidth: '20rem' }}>{product.nameEn}</td>
                             <td>{product.priceUsd}</td>

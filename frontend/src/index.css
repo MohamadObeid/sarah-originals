@@ -1983,7 +1983,6 @@ input.checked[type="radio"] {
 }
 
 .employee-image {
-  max-width: 5.5rem;
   max-height: 4.5rem;
   border-radius: 0.5rem;
 }

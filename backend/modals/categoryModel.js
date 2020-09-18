@@ -6,6 +6,7 @@ const categorySchema = new mongoose.Schema({
     created_by: { type: String, required: false, default: '' },
     last_edited: { type: Date, required: false, default: '' },
     edited_by: { type: String, required: false, default: '' },
+    image: { type: String, required: false },
     name: { type: String, required: true },
     headCategory: { type: String, required: false, default: '' },
     isSubCategory: { type: Boolean, default: false, required: true },

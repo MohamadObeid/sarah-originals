@@ -3,8 +3,10 @@ import { useSelector, useDispatch } from "react-redux"
 import { saveCategory, listCategory, deleteCategory } from "../../actions/categoryActions"
 import FontAwesome from 'react-fontawesome'
 import { Popconfirm, message } from 'antd'
+import axios from 'axios'
 
 function CategoryManager(props) {
+    const imageUrl = window.location.origin + '/api/uploads/image/'
     const [formAction, setFormAction] = useState();
     const [formNote, setFormNote] = useState();
     const [formNoteVisible, setFormNoteVisible] = useState(false);
@@ -18,10 +20,12 @@ function CategoryManager(props) {
     const [subCategoryList, setSubCategoryList] = useState();
     const [subSubCategoryVisible, setSubSubCategoryVisible] = useState(false)
     const [subSubCategoryList, setSubSubCategoryList] = useState()
+    const [uploading, setUploading] = useState(false)
 
     const [active, setActive] = useState(false);
     const [_id, setId] = useState();
     const [name, setName] = useState();
+    const [image, setImage] = useState()
     const [headCategory, setHeadCategory] = useState();
     const [isSubCategory, setIsSubCategory] = useState();
     const [brand, setBrand] = useState();
@@ -54,6 +58,7 @@ function CategoryManager(props) {
         setModelVisible(true)
         setId(category._id ? category._id : '')
         setActive(category.active ? category.active : false)
+        setImage(category.image ? category.image : undefined)
         setName(category.name ? category.name : '')
         setHeadCategory(category.headCategory ? category.headCategory : '')
         setIsSubCategory(category.isSubCategory ? category.isSubCategory : false)
@@ -75,7 +80,7 @@ function CategoryManager(props) {
         const categoryExist = category.find(category => category.name == name);
         if (!categoryExist || categoryExist && formAction == 'Edit') {
             if (formAction == 'Copy' || formAction == 'Create') setId(undefined);
-            dispatch(saveCategory({ _id, active, name, headCategory, isSubCategory, brand, description }));
+            dispatch(saveCategory({ _id, active, image, name, headCategory, isSubCategory, brand, description }));
             setSubCategoryFormVisible(false)
         } else {
             setFormAlert('The category name already exists.');
@@ -167,6 +172,36 @@ function CategoryManager(props) {
             : setSubSubCategoryVisible(false)
     }
 
+    const fetchRecent = () => {
+        axios.get('/api/uploads/recent')
+            .then((response) => {
+                setImage(response.data.image.filename);
+            })
+            .catch(err => alert('Error: ' + err));
+    }
+
+    const uploadImageHandler = (e) => {
+        e.preventDefault();
+        const bodyFormData = new FormData();
+        bodyFormData.append('file', image);
+        setUploading(true);
+
+        axios
+            //.post('/api/uploads/s3', bodyFormData, {
+            .post('/api/uploads', bodyFormData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            })
+            .then((response) => {
+                response.data.success && alert('File successfully uploaded');
+                fetchRecent();
+                setUploading(false)
+            })
+            .catch((err) => {
+                console.log(err);
+                setUploading(false);
+            });
+    };
+
     return (
         <div>
             {formNoteVisible && <div className="action-note">{formNote}</div>}
@@ -191,6 +226,32 @@ function CategoryManager(props) {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                             ></input>
+                        </li>
+                        <li>
+                            {image &&
+                                <img style={{
+                                    width: '100%',
+                                    maxHeight: '30rem',
+                                    background: '#fff',
+                                    borderRadius: '0.5rem',
+                                    border: '1px #c0c0c0 solid',
+                                    marginBottom: '1rem',
+                                }} src={imageUrl + image} alt='employee' />
+                            }
+                            <label className="label" htmlFor="img">{image && 'Update '}Photo<p className="required">*</p></label>
+                            <input
+                                style={{ cursor: 'pointer' }}
+                                type="file"
+                                name="img"
+                                id="img"
+                                onChange={(e) => {
+                                    setImage(e.target.files[0])
+                                }}
+                            ></input>
+                            <button
+                                className="button primary"
+                                onClick={uploadImageHandler}
+                            >Upload Photo</button>
                         </li>
                         <li>
                             <div className="is-subcategory" onClick={() => setSubCategoryFormVisible(true)}>
@@ -285,6 +346,7 @@ function CategoryManager(props) {
                 <thead>
                     <tr>
                         <th>Active</th>
+                        <th>Image</th>
                         <th>Category</th>
                         <th>Brands</th>
                         <th>SubCategories</th>
@@ -305,6 +367,11 @@ function CategoryManager(props) {
                                     checked={cat.active}
                                     onChange={(e) => activationHandler(e, cat)}
                                 ></input>
+                            </td>
+                            <td>
+                                <img
+                                    className='employee-image'
+                                    src={imageUrl + cat.image} alt='product' />
                             </td>
                             <td>{cat.name}</td>
                             <td style=
@@ -350,6 +417,7 @@ function CategoryManager(props) {
                                 <thead>
                                     <tr>
                                         <th>Active</th>
+                                        <th>Image</th>
                                         <th>Category</th>
                                         <th>Sub Categories</th>
                                         <th>Actions</th>
@@ -369,6 +437,11 @@ function CategoryManager(props) {
                                                         checked={subCategory.active}
                                                         onChange={(e) => activationHandler(e, subCategory)}
                                                     ></input>
+                                                </td>
+                                                <td>
+                                                    <img
+                                                        className='employee-image'
+                                                        src={imageUrl + subCategory.image} alt='category' />
                                                 </td>
                                                 <td>{subCategory.name}</td>
                                                 <td
@@ -404,6 +477,7 @@ function CategoryManager(props) {
                                         <thead>
                                             <tr>
                                                 <th>Active</th>
+                                                <th>Image</th>
                                                 <th>Category</th>
                                                 <th>Sub Categories</th>
                                                 <th>Actions</th>
@@ -423,6 +497,11 @@ function CategoryManager(props) {
                                                                 checked={subCategory.active}
                                                                 onChange={(e) => activationHandler(e, subCategory)}
                                                             ></input>
+                                                        </td>
+                                                        <td>
+                                                            <img
+                                                                className='employee-image'
+                                                                src={imageUrl + subCategory.image} alt='product' />
                                                         </td>
                                                         <td>{subCategory.name}</td>
                                                         <td style={{ maxWidth: '20rem' }}>{category.map(sub => sub.headCategory === subCategory.name && sub.name + ' | ')}</td>

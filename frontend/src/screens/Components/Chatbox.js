@@ -33,6 +33,7 @@ function Chatbox() {
     const [notTyping, setNotTyping] = useState(true)
     const [userVisible, setUserVisible] = useState(false)
     const [scrolling, setScrolling] = useState(false)
+    const [draftImage, setDraftImage] = useState(undefined)
 
     const [chatId, setChatId] = useState()
     const [modified, setModified] = useState(undefined)
@@ -488,7 +489,7 @@ function Chatbox() {
                             {chatDetails.users.map(user => (
                                 user.isAgent && user.isLive &&
                                 <div style={{ textAlign: 'center', marginRight: '0.5rem' }}>
-                                    <img src={user.image} alt='image' className='chatbox-user-img' />
+                                    <img src={imageUrl + user.image} alt='image' className='chatbox-user-img' />
                                     <div className='chabox-username'>{user.name}</div>
                                     {/*<FontAwesomeIcon
                                     onClick={(e) => !userInfo.isAgent && !userInfo.isCallCenterAgent && rateGood(e)}
@@ -523,7 +524,7 @@ function Chatbox() {
                                                 {linkSibling(mod.modified_note)}</a>
                                             {lastSibling(mod.modified_note)}
                                         </div>
-                                        : mod.modified_note.includes('uploads')
+                                        : mod.modified_note.includes(imageUrl)
                                             ? <img className='chatbox-send-image' src={mod.modified_note} alt={mod.modified_note} />
                                             : mod.modified_note
                                 }</div>
@@ -539,7 +540,7 @@ function Chatbox() {
                                 <FontAwesomeIcon icon={farImage} className='faImage fa-lg' />
                             </label>
                             <input id="file-input" type="file" onChange={(e) => {
-                                setImage(e.target.files[0]);
+                                //setDraftImage(URL.createObjectURL(e.target.files[0]))
                                 uploadImageHandler(e)
                             }} />
                         </div>
