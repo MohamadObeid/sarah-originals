@@ -5,6 +5,7 @@ import FontAwesome from 'react-fontawesome';
 import axios from "axios";
 
 function BrandManager(props) {
+    const imageUrl = window.location.origin + '/api/uploads/image/'
     const [formAction, setFormAction] = useState('Create')
     const [formNote, setFormNote] = useState()
     const [formNoteVisible, setFormNoteVisible] = useState(false)
@@ -141,10 +142,18 @@ function BrandManager(props) {
         }
     })
 
+    const fetchRecent = () => {
+        axios.get('/api/uploads/recent')
+            .then((response) => {
+                setImage(response.data.image.filename);
+            })
+            .catch(err => alert('Error: ' + err));
+    }
+
     const uploadImageHandler = (e) => {
         e.preventDefault();
         const bodyFormData = new FormData();
-        bodyFormData.append('image', image);
+        bodyFormData.append('file', image);
         setUploading(true);
 
         axios
@@ -153,15 +162,15 @@ function BrandManager(props) {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
             .then((response) => {
-                setImage(response.data);
-                console.log(response.data)
-                setUploading(false);
+                response.data.success && alert('File successfully uploaded');
+                fetchRecent();
+                setUploading(false)
             })
             .catch((err) => {
                 console.log(err);
                 setUploading(false);
             });
-    }
+    };
 
     const modifiedNoteHandler = (modified) => {
         return (
@@ -309,7 +318,7 @@ function BrandManager(props) {
                             <td>
                                 <img
                                     className='employee-image'
-                                    src={brand.image} alt={brand.name} />
+                                    src={imageUrl + brand.image} alt={brand.name} />
                             </td>
                             <td>{brand.name}</td>
                             <td>{brand.origin}</td>

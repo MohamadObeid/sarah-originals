@@ -20,6 +20,7 @@ import {
 } from '@fortawesome/free-brands-svg-icons'
 
 function EmployeeManager(props) {
+    const imageUrl = window.location.origin + '/api/uploads/image/'
     var d = new Date()
     var currentYear = d.getFullYear()
     var currentMonth = months[d.getMonth()]
@@ -480,10 +481,18 @@ function EmployeeManager(props) {
         }
     })
 
+    const fetchRecent = () => {
+        axios.get('/api/uploads/recent')
+            .then((response) => {
+                setImage(response.data.image.filename);
+            })
+            .catch(err => alert('Error: ' + err));
+    }
+
     const uploadImageHandler = (e) => {
         e.preventDefault();
         const bodyFormData = new FormData();
-        bodyFormData.append('image', image);
+        bodyFormData.append('file', image);
         setUploading(true);
 
         axios
@@ -492,15 +501,15 @@ function EmployeeManager(props) {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
             .then((response) => {
-                setImage(response.data);
-                console.log(response.data)
-                setUploading(false);
+                response.data.success && alert('File successfully uploaded');
+                fetchRecent();
+                setUploading(false)
             })
             .catch((err) => {
                 console.log(err);
                 setUploading(false);
             });
-    }
+    };
 
     const from = (day) => {
         if (day === 'Monday') return monFrom && monFrom
@@ -734,7 +743,7 @@ function EmployeeManager(props) {
                                     borderRadius: '0.5rem',
                                     border: '1px #c0c0c0 solid',
                                     marginBottom: '1rem',
-                                }} src={image} alt='employee' />
+                                }} src={imageUrl + image} alt='employee' />
                             }
                             <label className="label" htmlFor="img">{image && 'Update '}Photo<p className="required">*</p></label>
                             <input
@@ -1590,7 +1599,7 @@ function EmployeeManager(props) {
                                 <td>
                                     <img
                                         className='employee-image'
-                                        src={employee.image} alt='employee' />
+                                        src={imageUrl + employee.image} alt='employee' />
                                 </td>
                                 <td style={{ maxWidth: '20rem' }}>{employee.firstName + ' ' + employee.lastName}</td>
                                 <td>{employee.phone}</td>

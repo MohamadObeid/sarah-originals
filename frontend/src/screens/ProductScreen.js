@@ -6,6 +6,7 @@ import FontAwesome from 'react-fontawesome';
 import { addToCart, removeFromCart } from "../actions/cartActions";
 
 function ProductScreen(props) {
+  const imageUrl = window.location.origin + '/api/uploads/image/'
   const [qty, setQty] = useState(1);
   const [formNote, setFormNote] = useState('Product Added Succefully');
   const [formNoteVisible, setFormNoteVisible] = useState(false);
@@ -44,7 +45,7 @@ function ProductScreen(props) {
       ) : (
             <div className="details">
               <div className="details-image">
-                <img src={product.image} alt={product.nameEn}></img>
+                <img src={imageUrl + product.image} alt={product.nameEn}></img>
               </div>
               <div className="details-info">
                 <ul>

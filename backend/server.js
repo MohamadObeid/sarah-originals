@@ -72,7 +72,7 @@ app.use("/api/live", liveChatRoute);
 
 //app.use("/api/image", imageRoute);
 
-//app.use('/uploads', express.static(path.join(__dirname, '/../frontend/uploads')));
+app.use('/api/uploads/image', express.static(path.join(__dirname, '/../frontend/uploads')));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

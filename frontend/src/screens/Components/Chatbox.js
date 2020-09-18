@@ -20,6 +20,7 @@ import UIfx from 'uifx';
 import { Popconfirm } from 'antd'
 
 function Chatbox() {
+    const imageUrl = window.location.origin + '/api/uploads/image/'
     const dispatch = useDispatch()
     const tick = new UIfx(audio)
     const [chatboxVisible, setChatboxVisible] = useState(false)
@@ -464,7 +465,7 @@ function Chatbox() {
                     }
                     <div style={{ position: 'relative', textAlign: 'center' }}>
                         {image && <div className='endchat-container' style={{ top: '10rem' }}>
-                            <img className='chatbox-send-image' src={image} alt='image' />
+                            <img className='chatbox-send-image' src={imageUrl + image} alt='image' />
                             <div className='endchat-btns'>
                                 <button
                                     onClick={(e) => sendImageHandler(e)}

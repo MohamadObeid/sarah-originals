@@ -8,6 +8,7 @@ import FontAwesome from 'react-fontawesome';
 import { addToCart, removeFromCart, updateCart } from "../actions/cartActions";
 
 function HomeScreen(props) {
+  const imageUrl = window.location.origin + '/api/uploads/image/'
 
   const swiper = {
     shortSwipes: true,
@@ -94,7 +95,7 @@ function HomeScreen(props) {
               <div>%</div>
             </div>
             <div class="quick-view-image">
-              <img src=${product.image} alt="product" />
+              <img src=${imageUrl + product.image} alt="product" />
             </div>
             <div class='quick-view-details'>
             <table class='quick-view-table'>
@@ -219,7 +220,7 @@ function HomeScreen(props) {
                       </div>
                     }
                     <div className="product-image">
-                      <img src={'http://localhost:5000/api/uploads/image/' + product.image} alt="product"
+                      <img src={imageUrl + product.image} alt="product"
                         onClick={() => handleQuickView(product)} />
                     </div>
                     <div className='product-details-container'>

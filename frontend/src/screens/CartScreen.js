@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import FontAwesome from 'react-fontawesome';
 
 function CartScreen(props) {
+  const imageUrl = window.location.origin + '/api/uploads/image/'
   const [formNote, setFormNote] = useState();
   const [formNoteVisible, setFormNoteVisible] = useState(false);
 
@@ -58,7 +59,7 @@ function CartScreen(props) {
                   <li>
                     <div className="cart-list-items">
                       <div className="cart-image">
-                        <img src={item.image} alt={item.nameEn} />
+                        <img src={imageUrl + item.image} alt={item.nameEn} />
                       </div>
 
                       <div className="cart-name">

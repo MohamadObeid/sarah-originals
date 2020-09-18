@@ -7,6 +7,7 @@ import { productFilters } from '../../constants/filters'
 import { unitList } from '../../constants/lists'
 
 function ProductManager() {
+    const imageUrl = window.location.origin + '/api/uploads/image/'
     const [formAction, setFormAction] = useState();
     const [actionNote, setActionNote] = useState();
     const [actionNoteVisible, setActionNoteVisible] = useState(false);
@@ -421,7 +422,7 @@ function ProductManager() {
                                     borderRadius: '0.5rem',
                                     border: '1px #c0c0c0 solid',
                                     marginBottom: '1rem',
-                                }} src={'http://localhost:5000/api/uploads/image/' + image} alt='product' />
+                                }} src={imageUrl + image} alt='product' />
                             }
                             <label className="label" htmlFor="img">{image && 'Update '}Image<p className="required">*</p></label>
                             <input
