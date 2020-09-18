@@ -141,7 +141,7 @@ function DashBoard(props) {
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faUserCog}
-                style={{ width: '2.5rem', color: 'rgb(60, 60, 60)' }} />
+                style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               User Manager</h4>
           </li>
           <li onClick={() => {
@@ -162,7 +162,7 @@ function DashBoard(props) {
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faAddressCard}
-                style={{ width: '2.5rem', color: 'rgb(60, 60, 60)' }} />
+                style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Employee Profile Manager</h4>
           </li>
           <li onClick={() => {
@@ -183,7 +183,7 @@ function DashBoard(props) {
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faTasks}
-                style={{ width: '2.5rem', color: 'rgb(60, 60, 60)' }} />
+                style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Assignments Manager</h4>
           </li>
           <li onClick={() => {
@@ -204,7 +204,7 @@ function DashBoard(props) {
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faCalendarCheck}
-                style={{ width: '2.5rem', color: 'rgb(60, 60, 60)' }} />
+                style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Attendance Manager</h4>
           </li>
           <li onClick={() => {
@@ -225,7 +225,7 @@ function DashBoard(props) {
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faCartArrowDown}
-                style={{ width: '2.5rem', color: 'rgb(60, 60, 60)' }} />
+                style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Orders Manager</h4>
           </li>
           <li onClick={() => {
@@ -246,7 +246,7 @@ function DashBoard(props) {
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faBoxes}
-                style={{ width: '2.5rem', color: 'rgb(60, 60, 60)' }} />
+                style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Product Manager</h4>
           </li>
           <li onClick={() => {
@@ -267,7 +267,7 @@ function DashBoard(props) {
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faMapMarkedAlt}
-                style={{ width: '2.5rem', color: 'rgb(60, 60, 60)' }} />
+                style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Zone Manager</h4>
           </li>
           <li onClick={() => {
@@ -288,7 +288,7 @@ function DashBoard(props) {
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faTh}
-                style={{ width: '2.5rem', color: 'rgb(60, 60, 60)' }} />
+                style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Category Manager</h4>
           </li>
           <li onClick={() => {
@@ -309,7 +309,7 @@ function DashBoard(props) {
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faThLarge}
-                style={{ width: '2.5rem', color: 'rgb(60, 60, 60)' }} />
+                style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Brand Manager</h4>
           </li>
           <li onClick={() => {
@@ -330,7 +330,7 @@ function DashBoard(props) {
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faTruck}
-                style={{ width: '2.5rem', color: 'rgb(60, 60, 60)' }} />
+                style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Delivery Manager</h4>
           </li>
           <li onClick={() => {
@@ -351,7 +351,7 @@ function DashBoard(props) {
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faDollarSign}
-                style={{ width: '2.5rem', color: 'rgb(60, 60, 60)' }} />
+                style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Payment Manager</h4>
           </li>
           <li onClick={() => {
@@ -372,7 +372,7 @@ function DashBoard(props) {
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faStarHalfAlt}
-                style={{ width: '2.5rem', color: 'rgb(60, 60, 60)' }} />
+                style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Reviews Manager</h4>
           </li>
           <li onClick={() => {
@@ -393,7 +393,7 @@ function DashBoard(props) {
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={farComments}
-                style={{ width: '2.5rem', color: 'rgb(60, 60, 60)' }} />
+                style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Chat Manager</h4>
           </li>
         </ul>

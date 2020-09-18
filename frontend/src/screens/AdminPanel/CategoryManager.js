@@ -56,7 +56,7 @@ function CategoryManager(props) {
     const openModel = async (category) => {
         setFormAlertVisible(false)
         setModelVisible(true)
-        setId(category._id ? category._id : '')
+        setId(category._id ? category._id : undefined)
         setActive(category.active ? category.active : false)
         setImage(category.image ? category.image : undefined)
         setName(category.name ? category.name : '')

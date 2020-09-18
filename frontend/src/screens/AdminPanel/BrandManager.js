@@ -217,9 +217,9 @@ function BrandManager(props) {
                                     borderRadius: '0.5rem',
                                     border: '1px #c0c0c0 solid',
                                     marginBottom: '1rem',
-                                }} src={image} alt='employee' />
+                                }} src={imageUrl + image} alt='employee' />
                             }
-                            <label className="label" htmlFor="img">{image && 'Update '}Photo<p className="required">*</p></label>
+                            <label className="label" htmlFor="img">{image && 'Update '}Image<p className="required">*</p></label>
                             <input
                                 style={{ cursor: 'pointer' }}
                                 type="file"
@@ -293,7 +293,7 @@ function BrandManager(props) {
                 <thead>
                     <tr>
                         <th>Active</th>
-                        <th>Photo</th>
+                        <th>Image</th>
                         <th>Brand</th>
                         <th>Origin</th>
                         <th>Supplier</th>

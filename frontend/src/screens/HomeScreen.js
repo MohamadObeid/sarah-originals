@@ -231,7 +231,7 @@ function HomeScreen(props) {
                       <div className="product-price">
                         <div className={product.discount > 0 && 'before-discount'}>${product.priceUsd}</div>
                         {product.discount > 0 &&
-                          <div className='after-discount'>${product.priceUsd - product.priceUsd * product.discount / 100}</div>
+                          <div className='after-discount'>${Math.round(100 * (product.priceUsd - product.priceUsd * product.discount / 100)) / 100}</div>
                         }
                       </div>
                     </div>

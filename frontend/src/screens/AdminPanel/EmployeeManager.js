@@ -471,6 +471,7 @@ function EmployeeManager(props) {
             dispatch(saveEmployee(employeeValues))
             setCommentVisible(false)
         }
+
     }
 
     window.addEventListener('click', (e) => {
@@ -672,10 +673,6 @@ function EmployeeManager(props) {
             }
         }
         return false
-    }
-
-    const workTimeHandler = (workTime) => {
-
     }
 
     return (
