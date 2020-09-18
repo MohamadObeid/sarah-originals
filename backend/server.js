@@ -3,10 +3,10 @@ import config from "./config";
 import path from 'path';
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
-import Grid from 'gridfs-stream'
-import multer from 'multer';
-import crypto from 'crypto';
-import GridFsStorage from 'multer-gridfs-storage';
+import logger from 'morgan'
+import cors from 'cors';
+import methodOverride from 'method-override'
+mongoose.Promise = require('bluebird');
 
 import userRoute from "./routes/userRoute";
 import productRoute from "./routes/productRoute";
@@ -21,10 +21,10 @@ import attendanceRoute from './routes/attendanceRoute';
 import uploadRoute from './routes/uploadRoute';
 import chatRoute from './routes/chatRoute';
 import liveChatRoute from './routes/liveUserRoute';
-import imageRoute from './routes/imageRoute';
+import imageRouter from './routes/imageRoute';
 
 const mongodbUrl = config.MONGODB_URL;
-mongoose
+const conn = mongoose
   .connect(mongodbUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -35,48 +35,18 @@ mongoose
 
 const app = express();
 
-/*const conn = mongoose.createConnection(mongodbUrl, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-
-var gfs
-conn.once('open', function () {
-  // Init stream
-  gfs = Grid(conn.db, mongoose.mongo);
-  gfs.collection('uploads')
-  // all set!
-})
-
-var storage = new GridFsStorage({
-  url: mongodbUrl,
-  file: (req, file) => {
-    return new Promise((resolve, reject) => {
-      crypto.randomBytes(16, (err, buf) => {
-        if (err) {
-          return reject(err)
-        }
-        const filename = buf.toString('hex') + path.extname(file.originalname)
-        const fileInfo = {
-          filename: filename,
-          bucketName: 'uploads',
-        }
-        resolve(fileInfo)
-      })
-    })
-  }
-})
-const upload = multer({ storage })
-app.post('/api/uploads', upload.single('image'), (req, res) => {
-  res.send(gfs.files)
-})*/
+conn.then(() => {
+  console.log('Connected to database: GridApp');
+}, (err) => console.log(err));
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
+app.use(methodOverride('_method'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use("/api/products", productRoute);
 
-app.use("/api/uploads", uploadRoute);
+app.use("/api/uploads", imageRouter());
 
 app.use("/api/users", userRoute);
 
@@ -100,9 +70,17 @@ app.use("/api/chat", chatRoute);
 
 app.use("/api/live", liveChatRoute);
 
-app.use("/api/image", imageRoute);
+//app.use("/api/image", imageRoute);
 
-app.use('/uploads', express.static(path.join(__dirname, '/../uploads')));
+app.use('/image', express.static(path.join(__dirname, '/../frontend/build')));
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
+
+app.use(cors({ origin: '*' }));
+
+app.use(logger('dev'));
 
 app.use(express.static(path.join(__dirname, '/../frontend/build')));
 
@@ -111,5 +89,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(config.PORT ? config.PORT : 5000, () => {
-  console.log("Server started at http://localhost:config.PORT||5000");
+  console.log("Server started at http://localhost:5000");
 });

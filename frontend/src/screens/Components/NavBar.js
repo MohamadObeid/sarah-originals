@@ -77,7 +77,7 @@ function Navbar() {
                     <h3 className="sidebar-header">Categories</h3>
                     <FontAwesome name="fa-window-close" className="far fa-window-close fa-lg sidebar-close-button" onClick={() => closeSideBar()} />
                     <ul className="sidebar-ul">
-                        {category.map(category => (
+                        {category && category.map(category => (
                             !category.headCategory &&
                             <li key={category._id}>
                                 <Link className="sidebar-link" onMouseOver={(e) => handleHover(e)} to="/products">{category.name}</Link>
@@ -89,7 +89,7 @@ function Navbar() {
                     <aside className="sub-sidebar">
                         <div>
                             <h4 className="sub-sidebar-header">{categoryHovered}</h4>
-                            {category.map(category => (
+                            {category && category.map(category => (
                                 category.headCategory == categoryHovered &&
                                 <ul className="subSidebar-ul">
                                     <li key={category._id}>

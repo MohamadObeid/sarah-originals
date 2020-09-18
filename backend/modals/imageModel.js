@@ -1,12 +1,20 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-var imageSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    desc: { type: String, required: false },
-    img: { data: Buffer, contentType: String }
+const ImageSchema = new Schema({
+    filename: {
+        required: true,
+        type: String,
+    },
+    fileId: {
+        required: true,
+        type: String,
+    },
+    createdAt: {
+        default: Date.now(),
+        type: Date,
+    },
 });
 
-//Image is a model which has a schema imageSchema 
-
-const Image = mongoose.model('Image', imageSchema);
-export default Image;
+const Image = mongoose.model('Image', ImageSchema);
+module.exports = Image;

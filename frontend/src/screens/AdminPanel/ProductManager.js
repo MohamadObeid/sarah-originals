@@ -21,6 +21,7 @@ function ProductManager() {
     const [filterDropdownList, setFilterDropdownList] = useState(productFilters)
     const [historyVisible, setHistoryVisible] = useState(false)
     const [productValues, setProductValues] = useState()
+    const [uploadedImageUrl, setUploadedImageUrl] = useState()
     //const [brandList, setBrandList] = useState()
 
     const [_id, setId] = useState();
@@ -82,7 +83,7 @@ function ProductManager() {
         setActive(product.active ? product.active : false)
         setNameEn(product.nameEn ? product.nameEn : '');
         setNameAr(product.nameAr ? product.nameAr : '');
-        setImage(product.image ? product.image : '');
+        setImage(product.image ? product.image : undefined);
         setBrand(product.brand ? product.brand : '');
         setCategory(product.category ? product.category : []);
         setPriceUsd(product.priceUsd ? product.priceUsd : '');
@@ -96,7 +97,7 @@ function ProductManager() {
         setNewArrival(product.newArrival ? product.newArrival : false)
         setSpecialOffer(product.specialOffer ? product.specialOffer : false)
         // filter dropdown from existed categories
-        let catList = categoryList.map(cat => cat.name);
+        let catList = categoryList && categoryList.map(cat => cat.name);
         (product.category) &&
             (product.category).forEach(cExist => {
                 catList = catList.filter(c => c !== cExist && c)
@@ -186,20 +187,28 @@ function ProductManager() {
         }
     })
 
+    const fetchRecent = () => {
+        axios.get('/api/uploads/recent')
+            .then((response) => {
+                setImage(response.data.image.filename);
+            })
+            .catch(err => alert('Error: ' + err));
+    }
+
     const uploadImageHandler = (e) => {
         e.preventDefault();
         const bodyFormData = new FormData();
-        bodyFormData.append('image', image);
+        bodyFormData.append('file', image);
         setUploading(true);
 
         axios
-            .post('/api/uploads/s3', bodyFormData, {
-                //.post('/api/uploads', bodyFormData, {
+            //.post('/api/uploads/s3', bodyFormData, {
+            .post('/api/uploads', bodyFormData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
             .then((response) => {
-                setImage(response.data);
-                console.log('response: ' + response.data)
+                response.data.success && alert('File successfully uploaded');
+                fetchRecent();
                 setUploading(false)
             })
             .catch((err) => {
@@ -412,7 +421,7 @@ function ProductManager() {
                                     borderRadius: '0.5rem',
                                     border: '1px #c0c0c0 solid',
                                     marginBottom: '1rem',
-                                }} src={image} alt='product' />
+                                }} src={'http://localhost:5000/api/uploads/image/' + image} alt='product' />
                             }
                             <label className="label" htmlFor="img">{image && 'Update '}Image<p className="required">*</p></label>
                             <input
@@ -422,6 +431,7 @@ function ProductManager() {
                                 id="image"
                                 onChange={(e) => {
                                     setImage(e.target.files[0])
+                                    setUploadedImageUrl(URL.createObjectURL(e.target.files[0]))
                                 }}
                             ></input>
                             <button

@@ -219,7 +219,7 @@ function HomeScreen(props) {
                       </div>
                     }
                     <div className="product-image">
-                      <img src={product.image} alt="product"
+                      <img src={'http://localhost:5000/api/uploads/image/' + product.image} alt="product"
                         onClick={() => handleQuickView(product)} />
                     </div>
                     <div className='product-details-container'>
