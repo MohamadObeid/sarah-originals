@@ -58,10 +58,10 @@ function Navbar() {
                 </div>
                 <div className="header-links">
                     <Link className="header-link-cart" to="/cart">
-                        <p className='header-link-item'>
-                            {cartItems.reduce((total, item) => total + item.qty, 0) > 0 &&
-                                cartItems.reduce((total, item) => total + item.qty, 0)}
-                        </p>
+                        {cartItems.reduce((total, item) => total + item.qty, 0) > 0 &&
+                            <p className='header-link-item'>
+                                {cartItems.reduce((total, item) => total + item.qty, 0)}
+                            </p>}
                         <FontAwesome name='fa-cart-plus' className="fas fa-cart-plus fa-2x" />
                     </Link>
                     {

@@ -43,6 +43,14 @@ function App() {
     };
   }, [])
 
+  // hide address bar in mobile
+  window.addEventListener("load", function () {
+    setTimeout(function () {
+      // This hides the address bar:
+      window.scrollTo(0, 1);
+    }, 0);
+  });
+
   return (
     <BrowserRouter>
       <div className="grid-container">
