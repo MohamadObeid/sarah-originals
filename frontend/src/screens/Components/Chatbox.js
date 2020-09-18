@@ -63,7 +63,7 @@ function Chatbox() {
             userInfo.isCallCenterAgent && refreshLiveUsers()
             return
         }
-        setTimeout(refreshChat, 1000)
+        setTimeout(refreshChat, userInfo.isCallCenterAgent ? 1000 : 5000)
     }
 
     const refreshLiveUsers = async () => {
@@ -417,13 +417,15 @@ function Chatbox() {
                                     : closeChatBoxHandler()
                             }} />
                         {unseenVisible && unseen > 0 &&
-                            <div className='chatbox-unseen-msg'
-                                onClick={() => {
-                                    !chatboxVisible
-                                        ? openChatBoxHandler()
-                                        : closeChatBoxHandler()
-                                }}>
-                                {unseen}
+                            <div style={{ position: 'relative' }}>
+                                <div className='chatbox-unseen-msg'
+                                    onClick={() => {
+                                        !chatboxVisible
+                                            ? openChatBoxHandler()
+                                            : closeChatBoxHandler()
+                                    }}>
+                                    {unseen}
+                                </div>
                             </div>}
                     </div>
                     : <Popconfirm

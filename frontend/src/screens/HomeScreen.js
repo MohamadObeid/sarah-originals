@@ -29,18 +29,29 @@ function HomeScreen(props) {
   const [actionNote, setActionNote] = useState('Product Added Succefully');
   const [actionNoteVisible, setActionNoteVisible] = useState(false);
 
-  const productList = useSelector((state) => state.productList);
-  const { products, loading, error } = productList;
+  const { products, loading, error } = useSelector((state) => state.productList);
 
   const { cartItems } = useSelector(state => state.cart);
 
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(listProducts());
+    products && inCartHandler()
     return () => {
       //
     };
-  }, []);
+  }, [])
+
+  const inCartHandler = () => {
+    products.map(product => {
+      cartItems.map(item => {
+        if (item._id === product._id) {
+          toggleCartBtns(product)
+          product.qty = item.qty
+        }
+      })
+    })
+  }
 
   const toggleCartBtns = (product) => {
     if (product.qty === 0) {
@@ -61,7 +72,7 @@ function HomeScreen(props) {
     else {
       dispatch(addToCart(product));
     }
-    setActionNote('added')
+    setActionNote('Product added Successfully')
     setActionNoteVisible(true);
     setInterval(() => setActionNoteVisible(false), 3000);
   }
@@ -71,7 +82,7 @@ function HomeScreen(props) {
     toggleCartBtns(product);
     if (product.qty === 0) {
       dispatch(removeFromCart(product._id))
-      setActionNote('deleted')
+      setActionNote('Product deleted Successfully')
       setActionNoteVisible(true);
       setInterval(() => setActionNoteVisible(false), 3000);
     }
@@ -79,8 +90,14 @@ function HomeScreen(props) {
   }
 
   const handlePlus = (product) => {
-    product.qty++
-    dispatch(updateCart(product));
+    if (product.countInStock > product.qty) {
+      product.qty++
+      dispatch(updateCart(product));
+    } else {
+      setActionNote('Quantity Available in Stock is ' + product.qty)
+      setActionNoteVisible(true);
+      setInterval(() => setActionNoteVisible(false), 3000);
+    }
   }
 
   /* Quick View */
@@ -204,7 +221,7 @@ function HomeScreen(props) {
         <div>
           {actionNoteVisible &&
             <div className="action-note">
-              <div>Product {actionNote} Succefully</div>
+              <div>{actionNote}</div>
             </div>}
           <HeroBanners />
           <div className='quick-view'></div>
@@ -213,6 +230,7 @@ function HomeScreen(props) {
               <Swiper {...swiper}>
                 {products.map((product) => (
                   <div className="product" key={product._id}>
+                    {product.countInStock === 0 && <div className="product-out-of-stock"></div>}
                     {product.discount > 0 &&
                       <div className='product-discount'>
                         <div>{product.discount}</div>
@@ -236,6 +254,7 @@ function HomeScreen(props) {
                       </div>
                     </div>
                     <div className="product-add-to-cart">
+                      {inCartHandler()}
                       <button
                         type="button"
                         className={`add-to-cart-btn ${product.AddToCartClass}`}
