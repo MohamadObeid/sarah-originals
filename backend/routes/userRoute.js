@@ -113,6 +113,7 @@ router.put("/:id", isAuth, async (req, res) => {
   const user = await User.findOne({ _id: req.params.id });
   if (user) {
     user.name = req.body.name;
+    user.active = req.body.active;
     user.lastActivity = req.body.lastActivity && req.body.lastActivity;
     user.email = req.body.email;
     user.phone = req.body.phone;

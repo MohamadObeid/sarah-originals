@@ -429,7 +429,7 @@ function Chatbox() {
                             </div>}
                     </div>
                     : <Popconfirm
-                        title="Do you need Help?"
+                        title={userInfo.isCallCenterAgent ? 'There are no Live users available' : "Do you need Help?"}
                         placement="leftBottom"
                         onConfirm={(e) => {
                             !chatboxVisible
@@ -437,7 +437,7 @@ function Chatbox() {
                                 && startChatHandler(e)
                                 : closeChatBoxHandler()
                         }}
-                        okText="Start Live Chat"
+                        okText={userInfo.isCallCenterAgent ? 'Ok' : "Start Live Chat"}
                     >
                         <div className='chat-btn'>
                             <FontAwesomeIcon
