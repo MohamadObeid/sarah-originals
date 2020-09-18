@@ -37,7 +37,7 @@ const app = express();
 
 conn.then(() => {
   console.log('Connected to database: GridApp');
-}, (err) => console.log(err));
+}, (err) => console.log(err))
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
@@ -72,7 +72,7 @@ app.use("/api/live", liveChatRoute);
 
 //app.use("/api/image", imageRoute);
 
-app.use('/api/uploads/image', express.static(path.join(__dirname, '/../frontend/uploads')));
+//app.use('/api/uploads/image', express.static(path.join(__dirname, '/../frontend/uploads')));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

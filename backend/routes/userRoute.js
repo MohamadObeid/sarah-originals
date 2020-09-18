@@ -126,14 +126,14 @@ router.put("/:id", isAuth, async (req, res) => {
 
   setTimeout(async () => {
     const user = await User.findOne({ _id: req.params.id })
-    console.log(user.lastActivity.date)
-    if ((Date.now() + 10800000) - user.lastActivity.date < 60000) {
-      console.log('return')
+    //console.log(user.lastActivity.date)
+    if ((Date.now() + 10800000) - user.lastActivity.date < 61000) {
+      //console.log('return')
       return
     } else {
       user.active = false;
       user.save()
-      console.log(user)
+      //console.log(user)
     }
   }, 61000)
 

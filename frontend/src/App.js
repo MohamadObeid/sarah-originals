@@ -36,7 +36,7 @@ function App() {
     getIPAddress()
     if (userInfo) {
       console.log('set Active User once')
-      //refreshActiveUser()
+      refreshActiveUser()
     }
     return () => {
       //
