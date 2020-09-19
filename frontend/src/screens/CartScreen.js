@@ -27,8 +27,6 @@ function CartScreen(props) {
     };
   }, [])
 
-
-
   useEffect(() => {
     if (products) {
       cartItems.map(item => {
@@ -123,7 +121,7 @@ function CartScreen(props) {
                       />
                     </div>
 
-                    <div>
+                    <div className='cart-btns'>
                       <button
                         type="button"
                         className="plus plus-cart"
@@ -131,7 +129,7 @@ function CartScreen(props) {
                         onClick={(e) => handleplus(item)}>
                         <FontAwesome className="fas fa-plus" />
                       </button>
-                      <p className="add-to-cart-qty qty-cart count">{item.qty}</p>
+                      <p className="add-to-cart-qty float-bottom count">{item.qty}</p>
                       <button
                         type="button"
                         className="minus minus-cart"

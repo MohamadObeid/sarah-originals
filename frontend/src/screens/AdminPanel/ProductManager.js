@@ -587,7 +587,7 @@ function ProductManager() {
                 <thead>
                     <tr>
                         <th>Active</th>
-                        <th>Image</th>
+                        <th style={{ textAlign: 'center' }}>Image</th>
                         <th>Name</th>
                         <th>Price</th>
                         <th>Unit</th>
@@ -612,7 +612,7 @@ function ProductManager() {
                                     onChange={(e) => activationHandler(e, product)}
                                 ></input>
                             </td>
-                            <td>
+                            <td className='td-img'>
                                 <img
                                     className='employee-image'
                                     src={imageUrl + product.image} alt='product' />

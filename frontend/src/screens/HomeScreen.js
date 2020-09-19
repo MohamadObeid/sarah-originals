@@ -41,6 +41,26 @@ function HomeScreen(props) {
     }
   }, [])
 
+  useEffect(() => {
+    if (products && cartItems) {
+      cartItems.map(item => {
+        products.map(product => {
+          if (product._id === item._id) {
+            if (item.qty > product.countInStock) {
+              console.log(product.countInStock)
+              item.qty = product.countInStock
+            }
+            item.countInStock = product.countInStock
+            return
+          }
+        })
+      })
+    }
+    return () => {
+      //
+    };
+  }, [])
+
   const inCartHandler = () => {
     products.map(product => {
       cartItems.map(item => {
@@ -168,7 +188,7 @@ function HomeScreen(props) {
                     value=${product._id}>
                       -
                   </button>
-                  <p class="add-to-cart-qty count quick-view-count">${product.qty}</p>
+                  <p class="add-to-cart-qty count qty-cart">${product.qty}</p>
                   <button
                     type="button"
                     class="plus  quick-view-plus"
@@ -283,7 +303,7 @@ function HomeScreen(props) {
                           onClick={() => handleMinus(product)}>
                           <FontAwesome className="fas fa-minus" />
                         </button>
-                        <p className="add-to-cart-qty count">{product.qty}</p>
+                        <p className="add-to-cart-qty qty-cart count">{product.qty}</p>
                         <button
                           type="button"
                           className="plus"
