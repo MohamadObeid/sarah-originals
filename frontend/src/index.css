@@ -587,7 +587,9 @@ textarea {
 .cart-list-container {
   list-style-type: none;
   padding: 0 1rem;
-  margin: 0;
+  margin: 0 1rem;
+  border: 1px solid #b6b6b6;
+  border-radius: 0.5rem;
 }
 
 .cart-list-container li {
@@ -601,6 +603,10 @@ textarea {
 .cart-list-container li:first-child {
   display: flex;
   align-items: center;
+}
+
+.cart-list-container li:last-child {
+  border-bottom: 0;
 }
 
 .cart-list-container img {
@@ -669,9 +675,12 @@ textarea {
   justify-content: center;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 700px) {
   .form-products {
     padding-top: 0;
+  }
+  .cart-list-container {
+    margin: 1rem 0;
   }
 }
 

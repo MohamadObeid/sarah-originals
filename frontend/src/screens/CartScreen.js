@@ -6,8 +6,8 @@ import FontAwesome from 'react-fontawesome';
 
 function CartScreen(props) {
   const imageUrl = window.location.origin + '/api/uploads/image/'
-  const [formNote, setFormNote] = useState();
-  const [formNoteVisible, setFormNoteVisible] = useState(false);
+  const [actionNote, setActionNote] = useState();
+  const [actionNoteVisible, setActionNoteVisible] = useState(false);
 
   const { cartItems } = useSelector((state) => state.cart);
 
@@ -20,9 +20,9 @@ function CartScreen(props) {
   const handleMinus = (e, item) => {
     if (item.qty === 0) {
       dispatch(removeFromCart(item._id));
-      setFormNote(`Product Deleted Succefully`);
-      setFormNoteVisible(true);
-      setInterval(() => setFormNoteVisible(false), 3000);
+      setActionNote(`Product Deleted Succefully`);
+      setActionNoteVisible(true);
+      setInterval(() => setActionNoteVisible(false), 3000);
     }
     else {
       dispatch(updateCart(item));
@@ -30,14 +30,25 @@ function CartScreen(props) {
   }
 
   const handleRemove = () => {
-    setFormNote(`Product Deleted Succefully`);
-    setFormNoteVisible(true);
-    setInterval(() => setFormNoteVisible(false), 3000);
+    setActionNote(`Product Deleted Succefully`);
+    setActionNoteVisible(true);
+    setInterval(() => setActionNoteVisible(false), 3000);
+  }
+
+  const handleplus = (item) => {
+    if (item.countInStock > item.qty) {
+      item.qty++
+      dispatch(updateCart(item));
+    } else {
+      setActionNote('Quantity Available in Stock is ' + item.qty)
+      setActionNoteVisible(true);
+      setInterval(() => setActionNoteVisible(false), 3000);
+    }
   }
 
   return (
     <div>
-      {formNoteVisible && <div className="action-note">{formNote}</div>}
+      {actionNoteVisible && <div className="action-note">{actionNote}</div>}
       <div className="back-to-result">
         <Link to="/">
           <FontAwesome name="fa-chevron-left" className="fas fa-chevron-left fa-lg" />
@@ -82,11 +93,7 @@ function CartScreen(props) {
                           type="button"
                           className="plus plus-cart"
                           value={item._id}
-                          onClick={(e) => {
-                            item.qty += 1;
-                            dispatch(updateCart(item));
-                          }
-                          }>
+                          onClick={(e) => handleplus(item)}>
                           <FontAwesome className="fas fa-plus" />
                         </button>
                         <p className="add-to-cart-qty qty-cart count">{item.qty}</p>
