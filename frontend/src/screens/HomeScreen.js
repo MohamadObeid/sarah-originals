@@ -36,21 +36,21 @@ function HomeScreen(props) {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(listProducts());
-    //products && inCartHandler()
+    //products && cartItems && inCartHandler()
     return () => {
       //
     };
   }, [])
 
-  const inCartHandler = (product) => {
-    //products.map(product => {
-    cartItems.map(item => {
-      if (item._id === product._id) {
-        toggleCartBtns(product)
-        product.qty = item.qty
-      }
+  const inCartHandler = () => {
+    products.forEach(product => {
+      cartItems.forEach(item => {
+        if (item._id === product._id) {
+          toggleCartBtns(product)
+          product.qty = item.qty
+        }
+      })
     })
-    //})
   }
 
   const toggleCartBtns = (product) => {
@@ -230,7 +230,6 @@ function HomeScreen(props) {
               <Swiper {...swiper}>
                 {products.map((product) => (
                   <div className="product" key={product._id}>
-                    { inCartHandler(product)}
                     {product.countInStock === 0 && <div className="product-out-of-stock"></div>}
                     {product.discount > 0 &&
                       <div className='product-discount'>
@@ -255,6 +254,7 @@ function HomeScreen(props) {
                       </div>
                     </div>
                     <div className="product-add-to-cart">
+                      {inCartHandler()}
                       <button
                         type="button"
                         className={`add-to-cart-btn ${product.AddToCartClass}`}
