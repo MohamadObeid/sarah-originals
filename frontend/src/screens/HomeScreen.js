@@ -41,7 +41,6 @@ function HomeScreen(props) {
     }
   }, [])
 
-
   const inCartHandler = () => {
     products.map(product => {
       cartItems.map(item => {
@@ -232,6 +231,7 @@ function HomeScreen(props) {
     <div>{error}</div>
   ) : (
         <div>
+          {products && cartItems && inCartHandler()}
           {actionNoteVisible &&
             <div className="action-note">
               <div>{actionNote}</div>
@@ -243,6 +243,7 @@ function HomeScreen(props) {
               <Swiper {...swiper}>
                 {products && cartItems && products.map((product) => (
                   <div className="product" key={product._id}>
+                    {inCartHandler()}
                     {product.countInStock === 0 && <div className="product-out-of-stock"></div>}
                     {product.discount > 0 &&
                       <div className='product-discount'>
@@ -290,7 +291,6 @@ function HomeScreen(props) {
                           onClick={() => handlePlus(product)}>
                           <FontAwesome className="fas fa-plus" />
                         </button>
-                        {inCartHandler()}
                       </div>
                     </div>
                   </div>

@@ -440,7 +440,7 @@ function Chatbox(props) {
                     </div>
                     : <Popconfirm
                         title={userInfo
-                            ? (userInfo.isCallCenterAgent ? 'There are no Live users available' : "Do you need Help?")
+                            ? (userInfo.isCallCenterAgent ? 'There are no Live users available for chat' : "Do you need Help?")
                             : 'Sign In to start Live chat'}
                         placement="leftBottom"
                         onConfirm={(e) => {

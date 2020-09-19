@@ -25,6 +25,11 @@ const attendanceSchema = new mongoose.Schema({
             hours: { type: String, required: false, default: '' },
             reason: { type: String, required: false, default: '' },
         },
+        request: {
+            time: { type: String, required: false, default: '' },
+            reason: { type: String, required: false, default: '' },
+            confirmed: { type: Boolean, required: false, default: false }
+        }
     },
     checkout: {
         time: { type: Date, required: false, default: '' },
@@ -37,10 +42,19 @@ const attendanceSchema = new mongoose.Schema({
             hours: { type: String, required: true, default: '' },
             reason: { type: String, required: true, default: '' },
         },
+        request: {
+            time: { type: String, required: false, default: '' },
+            reason: { type: String, required: false, default: '' },
+            confirmed: { type: Boolean, required: false, default: false }
+        }
     },
     absence: {
         date: { type: Date, required: false, default: '' },
         reason: { type: String, required: true, default: '' },
+        request: {
+            reason: { type: String, required: false, default: '' },
+            confirmed: { type: Boolean, required: false, default: false }
+        }
     },
     note: { type: String, required: true, default: '' },
 })
