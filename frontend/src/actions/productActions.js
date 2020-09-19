@@ -13,6 +13,7 @@ import {
   PRODUCT_DELETE_SUCCESS,
   PRODUCT_DELETE_FAIL,
   PRODUCT_ACTIVATION_SUCCESS,
+  PRODUCTS_DETAILS_SUCCESS
 } from "../constants/constants";
 
 const listProducts = (obj) => async (dispatch) => {
@@ -64,7 +65,11 @@ const deleteProduct = (_id) => async (dispatch, getState) => {
 };
 
 const detailsProduct = (productId) => async (dispatch) => {
-  try {
+  if (Array.isArray(productId)) {
+    const { data } = await axios.post("/api/products/getproducts", productId);
+    dispatch({ type: PRODUCTS_DETAILS_SUCCESS, payload: data });
+  }
+  else try {
     dispatch({ type: PRODUCT_DETAILS_REQUEST, payload: productId });
     const { data } = await axios.get("/api/products/" + productId);
     dispatch({ type: PRODUCT_DETAILS_SUCCESS, payload: data });

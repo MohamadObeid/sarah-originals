@@ -6,6 +6,7 @@ const router = express.Router();
 // The use router gets and posts data from the server according to model.
 
 router.get("", async (req, res) => {
+
   const products = await Product.find({});
   res.send(products)
 });
@@ -15,6 +16,13 @@ router.get("/:id", async (req, res) => {
   const product = await Product.findOne({ _id: productId });
   res.send(product);
 });
+
+router.post("/getproducts", async (req, res) => {
+  const products = await Product.find({ _id: req.body });
+  if (products) {
+    return res.status(201).send(products)
+  }
+})
 
 router.post("", isAuth, isAdmin, async (req, res) => {
   const product = new Product({

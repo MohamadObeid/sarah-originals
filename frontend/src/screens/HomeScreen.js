@@ -36,18 +36,19 @@ function HomeScreen(props) {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(listProducts());
-    //products && cartItems && inCartHandler()
     return () => {
       //
-    };
+    }
   }, [])
 
+
   const inCartHandler = () => {
-    products.forEach(product => {
-      cartItems.forEach(item => {
+    products.map(product => {
+      cartItems.map(item => {
         if (item._id === product._id) {
           toggleCartBtns(product)
           product.qty = item.qty
+          return
         }
       })
     })
@@ -68,13 +69,19 @@ function HomeScreen(props) {
     toggleCartBtns(product);
     const inCart = cartItems.find(item => item._id === product._id)
     if (inCart)
-      dispatch(updateCart(product));
+      dispatch(updateCart({
+        _id: product._id, nameEn: product.nameEn, image: product.image, qty: product.qty,
+        priceUsd: product.priceUsd, unit: product.unit
+      }))
     else {
-      dispatch(addToCart(product));
+      dispatch(addToCart({
+        _id: product._id, nameEn: product.nameEn, image: product.image, qty: product.qty,
+        priceUsd: product.priceUsd, unit: product.unit
+      }))
     }
     setActionNote('Product added Successfully')
-    setActionNoteVisible(true);
-    setInterval(() => setActionNoteVisible(false), 3000);
+    setActionNoteVisible(true)
+    setInterval(() => setActionNoteVisible(false), 3000)
   }
 
   const handleMinus = (product) => {
@@ -82,17 +89,23 @@ function HomeScreen(props) {
     toggleCartBtns(product);
     if (product.qty === 0) {
       dispatch(removeFromCart(product._id))
-      setActionNote('Product deleted Successfully')
+      setActionNote('Product removed Successfully')
       setActionNoteVisible(true);
       setInterval(() => setActionNoteVisible(false), 3000);
     }
-    else dispatch(updateCart(product));
+    else dispatch(updateCart({
+      _id: product._id, nameEn: product.nameEn, image: product.image, qty: product.qty,
+      priceUsd: product.priceUsd, unit: product.unit
+    }));
   }
 
   const handlePlus = (product) => {
     if (product.countInStock > product.qty) {
       product.qty++
-      dispatch(updateCart(product));
+      dispatch(updateCart({
+        _id: product._id, nameEn: product.nameEn, image: product.image, qty: product.qty,
+        priceUsd: product.priceUsd, unit: product.unit
+      }));
     } else {
       setActionNote('Quantity Available in Stock is ' + product.qty)
       setActionNoteVisible(true);
@@ -228,7 +241,7 @@ function HomeScreen(props) {
           <div className="products-slider-container">
             <div className="products">
               <Swiper {...swiper}>
-                {products.map((product) => (
+                {products && cartItems && products.map((product) => (
                   <div className="product" key={product._id}>
                     {product.countInStock === 0 && <div className="product-out-of-stock"></div>}
                     {product.discount > 0 &&
@@ -254,7 +267,6 @@ function HomeScreen(props) {
                       </div>
                     </div>
                     <div className="product-add-to-cart">
-                      {inCartHandler()}
                       <button
                         type="button"
                         className={`add-to-cart-btn ${product.AddToCartClass}`}
@@ -278,6 +290,7 @@ function HomeScreen(props) {
                           onClick={() => handlePlus(product)}>
                           <FontAwesome className="fas fa-plus" />
                         </button>
+                        {inCartHandler()}
                       </div>
                     </div>
                   </div>

@@ -2,8 +2,8 @@ import cookie from "js-cookie";
 import { CART_ADD_ITEM, CART_REMOVE_ITEM, CART_UPDATE_ITEM } from "../constants/constants";
 
 const addToCart = (product) => async (dispatch, getState) => {
-  dispatch({ type: CART_ADD_ITEM, payload: product });
-  const { cart: { cartItems } } = getState();
+  dispatch({ type: CART_ADD_ITEM, payload: product })
+  const { cart: { cartItems } } = getState()
   cookie.set("cartItems", JSON.stringify(cartItems))
 };
 

@@ -95,7 +95,6 @@ import {
   reviewSaveReducer,
   reviewDeleteReducer,
 } from "./reducers/reviewReducer";
-import { useDispatch } from "react-redux";
 
 const cartItems = cookie.getJSON("cartItems") || [];
 const userInfo = cookie.getJSON("userInfo") || null;

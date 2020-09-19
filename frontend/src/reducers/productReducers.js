@@ -13,9 +13,10 @@ import {
   PRODUCT_DELETE_SUCCESS,
   PRODUCT_DELETE_FAIL,
   PRODUCT_ACTIVATION_SUCCESS,
+  PRODUCTS_DETAILS_SUCCESS
 } from "../constants/constants";
 
-function productListReducer(state = { products: [] }, action) {
+function productListReducer(state = { products: undefined }, action) {
   // state = { products: [] } means default value of state is products of empty array
   switch (action.type) {
     case PRODUCT_LIST_REQUEST: // if sending request to server, show loading
@@ -55,6 +56,10 @@ function productDetailsReducer(state = { product: [] }, action) {
         loading: false,
         error: action.payload,
       };
+    case PRODUCTS_DETAILS_SUCCESS:
+      return {
+        product: action.payload,
+      }
     default:
       return state;
   }

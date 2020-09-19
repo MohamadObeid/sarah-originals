@@ -216,7 +216,7 @@ function DashBoard(props) {
             setPaymentVisible(false)
             setUsersVisible(false)
             setReviewsVisible(false)
-            setEmployeeVisible(true)
+            setEmployeeVisible(false)
             setAssignmentsVisible(false)
             setOrdersVisible(true)
             setAttendanceVisible(false)

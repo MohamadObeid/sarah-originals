@@ -588,7 +588,6 @@ textarea {
   list-style-type: none;
   padding: 0 1rem;
   margin: 0 1rem;
-  border: 1px solid #b6b6b6;
   border-radius: 0.5rem;
 }
 
@@ -598,11 +597,14 @@ textarea {
   align-items: flex-end;
   margin-bottom: 1rem;
   border-bottom: 0.1rem #b6b6b6 solid;
+  height: 12rem;
 }
 
 .cart-list-container li:first-child {
   display: flex;
   align-items: center;
+  height: 3rem;
+  padding-left: 1rem;
 }
 
 .cart-list-container li:last-child {
@@ -1214,7 +1216,8 @@ input.checked[type="radio"] {
   }
 
   .add-to-cart-qty {
-    padding: 0.5rem 3rem 0.5rem 3rem;
+    padding: 0.5rem 0;
+    width: 6rem;
     font-size: 1.8rem;
   }
 }
@@ -1351,7 +1354,7 @@ input.checked[type="radio"] {
 }
 
 .quick-view-count {
-  padding: 0.8rem 3rem 0.8rem 3rem;
+  text-align: center;
   margin: 0;
 }
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios"
+import { Redirect } from 'react-router'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
     faComments, faTimes, faPaperPlane,
@@ -19,7 +20,7 @@ import audio from '../../sounds/swiftly.mp3'
 import UIfx from 'uifx';
 import { Popconfirm } from 'antd'
 
-function Chatbox() {
+function Chatbox(props) {
     const imageUrl = window.location.origin + '/api/uploads/image/'
     const dispatch = useDispatch()
     const tick = new UIfx(audio)
@@ -33,7 +34,7 @@ function Chatbox() {
     const [notTyping, setNotTyping] = useState(true)
     const [userVisible, setUserVisible] = useState(false)
     const [scrolling, setScrolling] = useState(false)
-    const [draftImage, setDraftImage] = useState(undefined)
+    const [pushToSignin, setPushToSignin] = useState(false)
 
     const [chatId, setChatId] = useState()
     const [modified, setModified] = useState(undefined)
@@ -48,6 +49,13 @@ function Chatbox() {
     const { liveUser: liveUserSave } = useSelector(state => state.liveUserSave)
     const { liveUser: liveUserList } = useSelector(state => state.liveUserList)
     const { userInfo } = useSelector(state => state.userSignin)
+
+    useEffect(() => {
+        pushToSignin && console.log('pushing')
+        return () => {
+            //
+        }
+    }, [pushToSignin])
 
     const refreshChat = async () => {
         const { data } = await axios.get("/api/chat/" + chatId)
@@ -189,15 +197,15 @@ function Chatbox() {
         }
     }, [chatDetails, chatboxVisible, userDetails, liveUserList, liveUserSave, scrolling])
 
-    const closeChatBoxHandler = async () => {
-        await setUserDetails(undefined)
+    const closeChatBoxHandler = () => {
+        setUserDetails(undefined)
         setChatboxVisible(false)
         setEndChatVisible(false)
         setUnseenVisible(true)
     }
 
-    const openChatBoxHandler = async () => {
-        await setChatboxVisible(true)
+    const openChatBoxHandler = () => {
+        setChatboxVisible(true)
         setUnseenVisible(false)
         setUnseen(0)
         setUserDetails(liveUserDetails)
@@ -205,14 +213,14 @@ function Chatbox() {
         if (t) t.scrollTop = t.scrollHeight
     }
 
-    const sendHandler = async (e, element) => {
+    const sendHandler = async (e) => {
         e.preventDefault()
-        var note
-        if (element) { note = element.value } else note = image
+        //var note
+        //if (element) { note = element.value } else note = image
         chatDetails.modified = [...chatDetails.modified, {
             modified_date: Date.now() + 10800000,
             modified_by: userInfo ? userInfo.name : chatDetails.created_by,
-            modified_note: note,
+            modified_note: modifiedNote,
         }]
         if (!notTyping) {
             chatDetails.users.map(user => {
@@ -322,6 +330,7 @@ function Chatbox() {
         var firstSibling = text.substr(0, text.indexOf('http'))
         return firstSibling
     }
+
     const lastSibling = (text) => {
         var trimedText = text.substr(text.indexOf('http'), text.length)
         if (trimedText.indexOf(' ') > 0) {
@@ -340,9 +349,9 @@ function Chatbox() {
                         dispatch(saveChat(chatDetails))
                     }
                 })
+                setTyping(true)
+                setNotTyping(false)
             }
-            setTyping(true)
-            setNotTyping(false)
         } else {
             if (!notTyping) {
                 chatDetails.users.map(user => {
@@ -351,9 +360,10 @@ function Chatbox() {
                         dispatch(saveChat(chatDetails))
                     }
                 })
+                setTyping(false)
+                setNotTyping(true)
             }
-            setTyping(false)
-            setNotTyping(true)
+            setModifiedNote('')
         }
     }
 
@@ -429,15 +439,20 @@ function Chatbox() {
                             </div>}
                     </div>
                     : <Popconfirm
-                        title={userInfo.isCallCenterAgent ? 'There are no Live users available' : "Do you need Help?"}
+                        title={userInfo
+                            ? (userInfo.isCallCenterAgent ? 'There are no Live users available' : "Do you need Help?")
+                            : 'Sign In to start Live chat'}
                         placement="leftBottom"
                         onConfirm={(e) => {
                             !chatboxVisible
-                                ? userInfo && !userInfo.isCallCenterAgent
-                                && startChatHandler(e)
+                                ? (userInfo
+                                    ? !userInfo.isCallCenterAgent && startChatHandler(e)
+                                    : setPushToSignin(true))
                                 : closeChatBoxHandler()
                         }}
-                        okText={userInfo.isCallCenterAgent ? 'Ok' : "Start Live Chat"}
+                        okText={userInfo
+                            ? userInfo.isCallCenterAgent ? 'Ok' : "Start Live Chat"
+                            : 'Sign In'}
                     >
                         <div className='chat-btn'>
                             <FontAwesomeIcon
@@ -550,19 +565,16 @@ function Chatbox() {
                             className='chatbox-input'
                             value={modifiedNote}
                             onChange={(e) => input(e)}
-                            onKeyPress={(e) => e.key === 'Enter' && chatDetails && sendHandler(e, e.target)}>
+                            onKeyPress={(e) => e.key === 'Enter' && chatDetails && sendHandler(e)}>
                         </textarea>
                         <FontAwesomeIcon
                             onClick={(e) => modifiedNote && chatDetails &&
-                                sendHandler(e,
-                                    e.target.previousElementSibling
-                                        ? e.target.previousElementSibling
-                                        : e.target.parentElement.previousElementSibling
-                                )}
+                                sendHandler(e)}
                             className='chatbox-send' icon={faPaperPlane} />
                     </div>
                 </div>
             }
+            {pushToSignin && <Redirect to={"/signin"} />}
         </div >
     )
 }

@@ -7,6 +7,7 @@ import cookie from 'js-cookie';
 import { toggleOrderScreen } from "../../actions/orderActions";
 
 function PlaceOrder(props) {
+    const imageUrl = window.location.origin + '/api/uploads/image/'
     const dispatch = useDispatch();
 
     const { cartItems } = useSelector(state => state.cart);
@@ -46,7 +47,7 @@ function PlaceOrder(props) {
                                 <li key={item._id}>
                                     <div className="cart-list-items place-order-cart-list-items">
                                         <div className="cart-image place-order-cart-image">
-                                            <img src={item.image} alt={item.nameEn} />
+                                            <img src={imageUrl + item.image} alt={item.nameEn} />
                                         </div>
                                         <div className="cart-name place-order-cart-name">
                                             <div className="item-name place-order-item-name">{item.nameEn}</div>

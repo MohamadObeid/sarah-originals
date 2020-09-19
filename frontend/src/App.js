@@ -14,7 +14,7 @@ import Chatbox from './screens/Components/Chatbox';
 import { useDispatch, useSelector } from "react-redux";
 import { saveUser } from "./actions/userActions";
 
-function App() {
+function App(props) {
   const [IP, setIP] = useState()
 
   const getIPAddress = async () => {

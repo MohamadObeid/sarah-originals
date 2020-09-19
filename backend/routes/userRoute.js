@@ -128,7 +128,7 @@ router.put("/:id", isAuth, async (req, res) => {
   setTimeout(async () => {
     const user = await User.findOne({ _id: req.params.id })
     //console.log(user.lastActivity.date)
-    if ((Date.now() + 10800000) - user.lastActivity.date < 61000) {
+    if ((Date.now() + 10800000) - user.lastActivity.date < 60000) {
       //console.log('return')
       return
     } else {

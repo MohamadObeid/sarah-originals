@@ -40,7 +40,6 @@ function UsersManager(props) {
             setActionNoteVisible(true)
             setInterval(() => setActionNoteVisible(false), 5000)
             setFormAction('')
-            successSave && dispatch(saveUser('clear'))
         }
         employeeId && employeeList.map(employee => {
             if (employee._id === employeeId) {
