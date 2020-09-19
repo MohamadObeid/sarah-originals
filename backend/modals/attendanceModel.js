@@ -28,7 +28,7 @@ const attendanceSchema = new mongoose.Schema({
         request: {
             time: { type: String, required: false, default: '' },
             reason: { type: String, required: false, default: '' },
-            confirmed: { type: Boolean, required: false, default: false }
+            confirmation: { type: Boolean, required: false, default: false }
         }
     },
     checkout: {
@@ -45,7 +45,7 @@ const attendanceSchema = new mongoose.Schema({
         request: {
             time: { type: String, required: false, default: '' },
             reason: { type: String, required: false, default: '' },
-            confirmed: { type: Boolean, required: false, default: false }
+            confirmation: { type: Boolean, required: false, default: false }
         }
     },
     absence: {
@@ -53,7 +53,7 @@ const attendanceSchema = new mongoose.Schema({
         reason: { type: String, required: true, default: '' },
         request: {
             reason: { type: String, required: false, default: '' },
-            confirmed: { type: Boolean, required: false, default: false }
+            confirmation: { type: Boolean, required: false, default: false }
         }
     },
     note: { type: String, required: true, default: '' },

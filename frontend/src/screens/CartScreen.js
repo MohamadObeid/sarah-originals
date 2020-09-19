@@ -33,11 +33,14 @@ function CartScreen(props) {
     if (products) {
       cartItems.map(item => {
         products.map(product => {
-          if (item.qty > product.countInStock) {
-            console.log(product.countInStock)
-            item.qty = product.countInStock
+          if (product._id === item._id) {
+            if (item.qty > product.countInStock) {
+              console.log(product.countInStock)
+              item.qty = product.countInStock
+            }
+            item.countInStock = product.countInStock
+            return
           }
-          item.countInStock = product.countInStock
         })
       })
     }
@@ -69,7 +72,7 @@ function CartScreen(props) {
   }
 
   const handleplus = (item) => {
-    if (item.countInStock >= item.qty) {
+    if (item.countInStock > item.qty) {
       item.qty++
       dispatch(updateCart(item));
     } else {

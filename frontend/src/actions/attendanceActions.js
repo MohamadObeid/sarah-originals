@@ -11,7 +11,8 @@ import {
     ATTENDANCE_DELETE_FAIL,
     ATTENDANCE_DETAILS_REQUEST,
     ATTENDANCE_DETAILS_SUCCESS,
-    ATTENDANCE_DETAILS_FAIL
+    ATTENDANCE_DETAILS_FAIL,
+    ATTENDANCE_SAVE_CLEAR
 } from "../constants/constants";
 
 const listAttendance = () => async (dispatch) => {
@@ -25,7 +26,9 @@ const listAttendance = () => async (dispatch) => {
 }
 
 const saveAttendance = (attendance) => async (dispatch, getState) => {
-    try {
+    if (attendance === 'clear') {
+        dispatch({ type: ATTENDANCE_SAVE_CLEAR, payload: undefined })
+    } else try {
         const { userSignin: { userInfo } } = getState()
         dispatch({ type: ATTENDANCE_SAVE_REQUEST, payload: attendance });
 

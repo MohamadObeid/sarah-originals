@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import FontAwesome from 'react-fontawesome'
-import axios from 'axios';
+import axios from 'axios'
 import { listAttendance, saveAttendance, deleteAttendance } from '../../actions/attendanceActions'
 import { days, months, years, weekDays } from '../../constants/lists'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -13,7 +13,7 @@ function AttendanceManager(props) {
     var currentYear = d.getFullYear()
     var currentMonth = months[d.getMonth()]
     var currentDay = d.getDate()
-    var currentWeekDay = weekDays[d.getDay() - 1]
+    var currentWeekDay = weekDays[d.getDay()]
     var currentHour = d.getHours()
     var currentMinutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes()
     var currentSeconds = d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds()
@@ -47,6 +47,10 @@ function AttendanceManager(props) {
     const [checkinOverTime, setCheckinOverTime] = useState()
     const [checkinOverTimeHours, setCheckinOverTimeHours] = useState()
     const [checkinOverTimeReason, setCheckinOverTimeReason] = useState()
+    const [checkinRequest, setCheckinRequest] = useState()
+    const [checkinRequestTime, setCheckinRequestTime] = useState()
+    const [checkinRequestReason, setCheckinRequestReason] = useState()
+    const [checkinRequestConfirmation, setCheckinRequestConfirmation] = useState()
     const [checkout, setCheckout] = useState()
     const [checkoutTime, setCheckoutTime] = useState()
     const [checkoutLocation, setCheckoutLocation] = useState()
@@ -56,21 +60,26 @@ function AttendanceManager(props) {
     const [checkoutOverTime, setCheckoutOverTime] = useState()
     const [checkoutOverTimeHours, setCheckoutOverTimeHours] = useState()
     const [checkoutOverTimeReason, setCheckoutOverTimeReason] = useState()
+    const [checkoutRequestTime, setCheckoutRequestTime] = useState()
+    const [checkoutRequestReason, setCheckoutRequestReason] = useState()
+    const [checkoutRequestConfirmation, setCheckoutRequestConfirmation] = useState()
     const [absence, setAbsence] = useState()
     const [absenceDate, setAbsenceDate] = useState()
     const [absenceReason, setAbsenceReason] = useState()
+    const [absenceRequest, setAbsenceRequest] = useState()
+    const [absenceRequestReason, setAbsenceRequestReason] = useState()
+    const [absenceRequestConfirmation, setAbsenceRequestConfirmation] = useState()
     const [note, setNote] = useState()
 
     const { success: successSave } = useSelector(state => state.attendanceSave)
     const { success: successDelete } = useSelector(state => state.attendanceDelete)
     const { employees } = useSelector(state => state.employeeList)
-    const { attendance } = useSelector(state => state.attendanceList)
+    const { attendance: attendanceList } = useSelector(state => state.attendanceList)
     const { userInfo } = useSelector(state => state.userSignin)
 
     const dispatch = useDispatch()
     useEffect(() => {
-
-        if (successSave && formAction || successDelete) {
+        if (successSave || successDelete) {
             setFormAlertVisible(false)
             setModelVisible(false)
             dispatch(listAttendance())
@@ -78,11 +87,12 @@ function AttendanceManager(props) {
             setActionNoteVisible(true)
             setInterval(() => setActionNoteVisible(false), 5000)
             setFormAction('')
+            dispatch(saveAttendance('clear'))
         }
         return () => {
             //
         }
-    }, [attendance, successSave, successDelete])
+    }, [successSave, successDelete])
 
     const openModel = (attendance) => {
         setModelVisible(true)

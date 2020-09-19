@@ -10,7 +10,7 @@ import {
     ATTENDANCE_DELETE_FAIL,
     ATTENDANCE_DETAILS_REQUEST,
     ATTENDANCE_DETAILS_SUCCESS,
-    ATTENDANCE_DETAILS_FAIL
+    ATTENDANCE_DETAILS_FAIL, ATTENDANCE_SAVE_CLEAR
 } from "../constants/constants";
 
 function attendanceListReducer(state = { attendance: [] }, action) {
@@ -52,6 +52,10 @@ function attendanceSaveReducer(state = { attendance: {} }, action) {
                 loading: false,
                 error: action.payload,
             };
+        case ATTENDANCE_SAVE_CLEAR:
+            return {
+                success: false
+            }
         default:
             return state;
     }
