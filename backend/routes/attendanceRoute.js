@@ -34,6 +34,7 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
         attendance.modified = req.body.modified && req.body.modified;
         attendance.employeeId = req.body.employeeId && req.body.employeeId;
         attendance.employeeName = req.body.employeeName && req.body.employeeName;
+        attendance.employeeImage = req.body.employeeImage && req.body.employeeImage;
         attendance.date = req.body.date && req.body.date;
         attendance.weekDay = req.body.weekDay && req.body.weekDay;
         attendance.checkin = req.body.checkin && req.body.checkin;

@@ -2,55 +2,55 @@ import mongoose from "mongoose"
 
 const attendanceSchema = new mongoose.Schema({
     creation_date: { type: Date, required: false, default: Date.now },
-    created_by: { type: String, required: false, default: '' },
+    created_by: { type: String, required: false },
     modified: {
         type: [{
-            modified_date: { type: Date, required: false, default: '' },
-            modified_by: { type: String, required: false, default: '' },
-            modified_note: { type: Array, required: false, default: [] },
+            modified_date: { type: Date, required: false },
+            modified_by: { type: String, required: false },
+            modified_note: { type: Array, required: false },
         }], required: false, default: []
     },
-    employeeId: { type: String, required: true, default: '' },
-    employeeName: { type: String, required: true, default: '' },
-    date: { type: String, required: true, default: '' },
-    weekDay: { type: String, required: true, default: '' },
+    employeeId: { type: String, required: true },
+    employeeName: { type: String, required: true },
+    employeeImage: { type: String, required: false },
+    date: { type: String, required: true },
+    weekDay: { type: String, required: true },
     checkin: {
-        time: { type: String, required: false, default: '' },
-        location: { type: Date, required: false, default: '' },
+        time: { type: String, required: false },
+        location: { type: Date, required: false },
         lateness: {
-            hours: { type: String, required: false, default: '' },
-            reason: { type: String, required: false, default: '' },
+            hours: { type: String, required: false },
+            reason: { type: String, required: false },
         },
         overTime: {
-            hours: { type: String, required: false, default: '' },
-            reason: { type: String, required: false, default: '' },
+            hours: { type: String, required: false },
+            reason: { type: String, required: false },
         },
         request: {
-            time: { type: String, required: false, default: '' },
-            reason: { type: String, required: false, default: '' },
+            time: { type: String, required: false },
+            reason: { type: String, required: false },
             confirmation: { type: Boolean, required: false, default: false }
         }
     },
     checkout: {
-        time: { type: Date, required: false, default: '' },
-        location: { type: Date, required: false, default: '' },
+        time: { type: Date, required: false },
+        location: { type: Date, required: false },
         earliness: {
-            hours: { type: String, required: true, default: '' },
-            reason: { type: String, required: true, default: '' },
+            hours: { type: String, required: false },
+            reason: { type: String, required: false },
         },
         overTime: {
-            hours: { type: String, required: true, default: '' },
-            reason: { type: String, required: true, default: '' },
+            hours: { type: String, required: false },
+            reason: { type: String, required: false },
         },
         request: {
-            time: { type: String, required: false, default: '' },
-            reason: { type: String, required: false, default: '' },
+            time: { type: String, required: false },
+            reason: { type: String, required: false },
             confirmation: { type: Boolean, required: false, default: false }
         }
     },
     absence: {
-        date: { type: Date, required: false, default: '' },
-        reason: { type: String, required: true, default: '' },
+        reason: { type: String, required: true },
         request: {
             reason: { type: String, required: false, default: '' },
             confirmation: { type: Boolean, required: false, default: false }

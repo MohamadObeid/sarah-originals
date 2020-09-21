@@ -64,7 +64,7 @@ function CartScreen(props) {
   }
 
   const handleRemove = () => {
-    setActionNote(`Product Deleted Succefully`);
+    setActionNote(`Product Removed Succefully`);
     setActionNoteVisible(true);
     setInterval(() => setActionNoteVisible(false), 3000);
   }

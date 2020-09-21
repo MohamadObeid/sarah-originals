@@ -133,7 +133,6 @@ function Chatbox(props) {
                                 lunchLiveChat(liveUser)
                         })
                     }
-
                 })
             } else if (liveUserSave) lunchLiveChat(liveUserSave)
         }

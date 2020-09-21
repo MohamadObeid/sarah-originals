@@ -27,15 +27,13 @@ function App(props) {
   const dispatch = useDispatch()
 
   const refreshActiveUser = async () => {
-    await dispatch(saveUser({ ...userInfo, active: true, lastActivity: { date: Date.now() + 10800000, IPaddress: IP } }))
-    dispatch(saveUser('clear'))
+    await dispatch(saveUser({ ...userInfo, active: true, lastActivity: { date: Date.now() + 10800000, IPaddress: IP }, activation: true }))
     setTimeout(refreshActiveUser, 60000)
   }
 
   useEffect(() => {
     getIPAddress()
     if (userInfo) {
-      console.log('set Active User once')
       refreshActiveUser()
     }
     return () => {
@@ -44,12 +42,12 @@ function App(props) {
   }, [])
 
   // hide address bar in mobile
-  window.addEventListener("load", function () {
+  /*window.addEventListener("load", function () {
     setTimeout(function () {
       // This hides the address bar:
       window.scrollTo(0, 1);
     }, 0);
-  });
+  });*/
 
   return (
     <BrowserRouter>

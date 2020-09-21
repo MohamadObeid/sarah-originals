@@ -346,7 +346,7 @@ function CategoryManager(props) {
                 <thead>
                     <tr>
                         <th>Active</th>
-                        <th>Image</th>
+                        <th style={{ textAlign: 'center' }}>Image</th>
                         <th>Category</th>
                         <th>Brands</th>
                         <th>SubCategories</th>
@@ -368,7 +368,7 @@ function CategoryManager(props) {
                                     onChange={(e) => activationHandler(e, cat)}
                                 ></input>
                             </td>
-                            <td>
+                            <td className='td-img'>
                                 <img
                                     className='employee-image'
                                     src={imageUrl + cat.image} alt='product' />
@@ -417,7 +417,7 @@ function CategoryManager(props) {
                                 <thead>
                                     <tr>
                                         <th>Active</th>
-                                        <th>Image</th>
+                                        <th style={{ textAlign: 'center' }}>Image</th>
                                         <th>Category</th>
                                         <th>Sub Categories</th>
                                         <th>Actions</th>
@@ -438,7 +438,7 @@ function CategoryManager(props) {
                                                         onChange={(e) => activationHandler(e, subCategory)}
                                                     ></input>
                                                 </td>
-                                                <td>
+                                                <td className='td-img'>
                                                     <img
                                                         className='employee-image'
                                                         src={imageUrl + subCategory.image} alt='category' />
@@ -477,7 +477,7 @@ function CategoryManager(props) {
                                         <thead>
                                             <tr>
                                                 <th>Active</th>
-                                                <th>Image</th>
+                                                <th style={{ textAlign: 'center' }}>Image</th>
                                                 <th>Category</th>
                                                 <th>Sub Categories</th>
                                                 <th>Actions</th>
@@ -498,7 +498,7 @@ function CategoryManager(props) {
                                                                 onChange={(e) => activationHandler(e, subCategory)}
                                                             ></input>
                                                         </td>
-                                                        <td>
+                                                        <td className='td-img'>
                                                             <img
                                                                 className='employee-image'
                                                                 src={imageUrl + subCategory.image} alt='product' />

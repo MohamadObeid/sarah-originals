@@ -619,6 +619,7 @@ textarea {
 .cart-image {
   flex: 1 1;
   margin: 1rem;
+  min-width: 10rem;
 }
 
 .cart-name {
@@ -1206,6 +1207,12 @@ input.checked[type="radio"] {
   height: 1rem;
 }
 
+@media screen and (max-width: 700px) {
+  .cart-btns {
+    margin-right: 0rem;
+  }
+}
+
 @media screen and (min-width: 700px) {
   .add-to-cart-btn {
     padding: 1rem 4rem 1rem 4rem;
@@ -1754,7 +1761,7 @@ input.checked[type="radio"] {
 
 .td-img {
   text-align: center;
-  width: 5rem;
+  width: 9rem;
 }
 
 .flex-div {
@@ -2432,4 +2439,13 @@ input.checked[type="radio"] {
   .chatbox-notavailable {
     width: 25rem;
   }
+}
+
+/* attendance */
+
+.fieldset {
+  border: 1px solid #c0c0c0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: #f9f9f9;
 }

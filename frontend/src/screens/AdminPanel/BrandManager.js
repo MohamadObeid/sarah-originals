@@ -293,7 +293,7 @@ function BrandManager(props) {
                 <thead>
                     <tr>
                         <th>Active</th>
-                        <th>Image</th>
+                        <th style={{ textAlign: 'center' }}>Image</th>
                         <th>Brand</th>
                         <th>Origin</th>
                         <th>Supplier</th>
@@ -315,7 +315,7 @@ function BrandManager(props) {
                                     onChange={(e) => activationHandler(e, brand)}
                                 ></input>
                             </td>
-                            <td>
+                            <td className='td-img'>
                                 <img
                                     className='employee-image'
                                     src={imageUrl + brand.image} alt={brand.name} />

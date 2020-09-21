@@ -35,11 +35,11 @@ function userSaveReducer(state = { userInfo: {} }, action) {
         case USER_SAVE_SUCCESS:
             return { loading: false, success: true, userInfo: action.payload }
         case USER_ACTIVATION_SUCCESS:
-            return { loading: false, success: true, userInfo: action.payload }
+            return { loading: false, activate: true, success: false, userInfo: action.payload }
         case USER_SIGNIN_FAIL:
             return { loading: false, error: action.payload }
         case CLEAR_SAVE_USER:
-            return { success: false, userInfo: undefined }
+            return { success: false, userInfo: undefined, activate: false }
         default:
             return state;
     }

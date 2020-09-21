@@ -44,23 +44,29 @@ const saveUser = (user) => async (dispatch, getState) => {
         const { userSignin: { userInfo } } = getState();
         try {
             if (user._id) {
-                const { data } = await axios.put('/api/users/' + user._id, user, {
-                    headers: { 'Authorization': 'Bearer ' + userInfo.token }
-                });
-                dispatch({ type: USER_SAVE_SUCCESS, payload: data })
-                // re-signin
-                if (user._id === userInfo._id && !user.active) {
-                    console.log('is not activation action')
-                    cookie.remove('userInfo')
-                    let { data: signinData } = await axios.post("/api/users/signin",
-                        { email: data.data.email, password: data.data.password })
-                    dispatch({ type: USER_SIGNIN_SUCCESS, payload: signinData })
-                    signinData = { ...signinData, signinDate: Date.now() }
-                    cookie.set('userInfo', JSON.stringify(signinData))
-                    //for call centers in chatbox
-                    signinData.isCallCenterAgent && dispatch(listLiveUser())
+                if (user.activation) {
+                    const { data } = await axios.put('/api/users/' + user._id, user, {
+                        headers: { 'Authorization': 'Bearer ' + userInfo.token }
+                    })
+                    dispatch({ type: USER_ACTIVATION_SUCCESS, payload: data })
+                } else {
+                    const { data } = await axios.put('/api/users/' + user._id, user, {
+                        headers: { 'Authorization': 'Bearer ' + userInfo.token }
+                    })
+                    dispatch({ type: USER_SAVE_SUCCESS, payload: data })
+                    // re-signin
+                    if (user._id === userInfo._id && !user.active) {
+                        console.log('is not activation action')
+                        cookie.remove('userInfo')
+                        let { data: signinData } = await axios.post("/api/users/signin",
+                            { email: data.data.email, password: data.data.password })
+                        dispatch({ type: USER_SIGNIN_SUCCESS, payload: signinData })
+                        signinData = { ...signinData, signinDate: Date.now() }
+                        cookie.set('userInfo', JSON.stringify(signinData))
+                        //for call centers in chatbox
+                        signinData.isCallCenterAgent && dispatch(listLiveUser())
+                    }
                 }
-
             } else {
                 const { data } = await axios.post("/api/users/create", user)
                 dispatch({ type: USER_SAVE_SUCCESS, payload: data });

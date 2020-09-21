@@ -1569,7 +1569,7 @@ function EmployeeManager(props) {
                 <thead>
                     <tr>
                         <th>Active</th>
-                        <th>Photo</th>
+                        <th style={{ textAlign: 'center' }}>Photo</th>
                         <th>Name</th>
                         <th>Phone</th>
                         <th>Position</th>
@@ -1593,7 +1593,7 @@ function EmployeeManager(props) {
                                         onChange={(e) => activationHandler(e, employee)}
                                     ></input>
                                 </td>
-                                <td>
+                                <td className='td-img'>
                                     <img
                                         className='employee-image'
                                         src={imageUrl + employee.image} alt='employee' />

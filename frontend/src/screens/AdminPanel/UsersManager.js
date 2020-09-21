@@ -20,19 +20,20 @@ function UsersManager(props) {
     const [password, setPassword] = useState()
     const [isAdmin, setIsAdmin] = useState(false)
     const [isCallCenterAgent, setIsCallCenterAgent] = useState(false)
+    const [isAttendanceManager, setIsAttendanceManager] = useState(false)
     const [employeeId, setEmployeeId] = useState()
     const [image, setImage] = useState()
 
     const { users } = useSelector(state => state.usersList)
 
-    const { success: successSave, userInfo } = useSelector(state => state.userSave)
+    const { success: successSave, activate } = useSelector(state => state.userSave)
     const { success: successDelete } = useSelector(state => state.userDelete)
     const { employees: employeeList } = useSelector(state => state.employeeList)
 
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (successSave && !userInfo.active || successDelete) { //!.active to stop reloading on success
+        if (successSave || successDelete) { //!.active to stop reloading on success
             setFormAlertVisible(false)
             setModelVisible(false)
             dispatch(listUsers())
@@ -40,6 +41,7 @@ function UsersManager(props) {
             setActionNoteVisible(true)
             setInterval(() => setActionNoteVisible(false), 5000)
             setFormAction('')
+            dispatch(saveUser('clear'))
         }
         employeeId && employeeList.map(employee => {
             if (employee._id === employeeId) {
@@ -50,7 +52,7 @@ function UsersManager(props) {
         return () => {
             //
         };
-    }, [successSave, successDelete, employeeId]);
+    }, [successSave, successDelete, employeeId, activate]);
 
     const openModel = async (user) => {
         setModelVisible(true)
@@ -61,13 +63,14 @@ function UsersManager(props) {
         setPassword(user.password ? user.password : '')
         setIsAdmin(user.isAdmin ? user.isAdmin : false)
         setIsCallCenterAgent(user.isCallCenterAgent ? user.isCallCenterAgent : false)
+        setIsAttendanceManager(user.isAttendanceManager ? user.isAttendanceManager : false)
         setEmployeeId(user.employeeId ? user.employeeId : undefined)
         setImage(user.image ? user.image : '')
     };
 
     const submitHandler = (e) => {
         e.preventDefault()
-        const user = { _id, name, email, phone, password, isAdmin, isCallCenterAgent, image, employeeId }
+        const user = { _id, name, email, phone, password, isAdmin, isCallCenterAgent, isAttendanceManager, image, employeeId }
         formAction === 'Copy' && delete user._id
         if (name != '' && email != '' && phone && password != '') {
             dispatch(saveUser(user))
@@ -194,7 +197,19 @@ function UsersManager(props) {
                                 checked={isCallCenterAgent}
                                 onChange={(e) => setIsCallCenterAgent(e.target.checked)}
                             ></input>
-                            <label className="label switch-label" htmlFor="isAdmin">Is Call Center Agent?</label>
+                            <label className="label switch-label" htmlFor="isCallCenterAgent">Is Call Center Agent?</label>
+                        </div>
+                        <div className='li-users'>
+                            <input
+                                className='switch'
+                                type="checkbox"
+                                name="isAttendanceManager"
+                                id="isAttendanceManager s2"
+                                value={isAttendanceManager}
+                                checked={isAttendanceManager}
+                                onChange={(e) => setIsAttendanceManager(e.target.checked)}
+                            ></input>
+                            <label className="label switch-label" htmlFor="isAttendanceManager">Is Attendance Manager?</label>
                         </div>
                         <li>
                             {formAlertVisible && <div className="invalid">{formAlert}</div>}

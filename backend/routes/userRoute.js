@@ -13,6 +13,7 @@ router.post("/signin", async (req, res) => {
   if (signinUser) {
     res.send({
       _id: signinUser.id,
+      active: true,
       lastActivity: signinUser.lastActivity,
       password: signinUser.password,
       name: signinUser.name,
@@ -21,6 +22,7 @@ router.post("/signin", async (req, res) => {
       isAdmin: signinUser.isAdmin,
       token: getToken(signinUser),
       isCallCenterAgent: signinUser.isCallCenterAgent,
+      isAttendanceManager: signinUser.isAttendanceManager,
       image: signinUser.image,
       employeeId: signinUser.employeeId,
     });
@@ -35,6 +37,7 @@ router.post("/register", async (req, res) => {
     email: req.body.email,
     phone: req.body.phone,
     password: req.body.password,
+    active: true
   })
 
   const newUser = await user.save();
@@ -42,12 +45,14 @@ router.post("/register", async (req, res) => {
     res.send({
       _id: newUser._id,
       lastActivity: newUser.lastActivity,
+      active: newUser.active,
       name: newUser.name,
       email: newUser.email,
       phone: newUser.phone,
       isAdmin: newUser.isAdmin,
       token: getToken(newUser),
       isCallCenterAgent: newUser.isCallCenterAgent,
+      isAttendanceManager: newUser.isAttendanceManager,
       image: newUser.image && newUser.image,
       employeeId: newUser.employeeId && newUser.employeeId,
     });
@@ -59,11 +64,13 @@ router.post("/register", async (req, res) => {
 router.post("/create", async (req, res) => {
   const user = new User({
     name: req.body.name,
+    active: req.body.active,
     email: req.body.email,
     phone: req.body.phone,
     password: req.body.password,
     isAdmin: req.body.isAdmin,
     isCallCenterAgent: req.body.isCallCenterAgent,
+    isAttendanceManager: req.body.isAttendanceManager,
     image: req.body.image && req.body.image,
     employeeId: req.body.employeeId && req.body.employeeId,
   })
@@ -80,11 +87,13 @@ router.get("/createadmin", async (req, res) => {
   try {
     const user = new User({
       name: "Mohamad Baqer",
+      active: true,
       email: "dm@beirutgrouptt.com",
       phone: '70564466',
       password: "12345",
       isAdmin: true,
-      isCallCenterAgent: true
+      isCallCenterAgent: true,
+      isAttendanceManager: true,
     });
 
     const newUser = await user.save();
@@ -111,7 +120,24 @@ router.delete("/:id", isAuth, isAdmin, async (req, res) => {
 
 router.put("/:id", isAuth, async (req, res) => {
   const user = await User.findOne({ _id: req.params.id });
-  if (user) {
+  if (req.body.activation) {
+    user.active = true
+    user.lastActivity = req.body.lastActivity
+
+    setTimeout(async () => {
+      const user = await User.findOne({ _id: req.params.id })
+      //console.log(user.lastActivity.date)
+      if ((Date.now() + 10800000) - user.lastActivity.date < 60000) {
+        console.log('return')
+        return
+      } else {
+        console.log((Date.now() + 10800000) - user.lastActivity.date)
+        user.active = false;
+        user.save()
+        //console.log(user)
+      }
+    }, 62000)
+  } else if (user) {
     user.name = req.body.name;
     user.active = req.body.active;
     user.lastActivity = req.body.lastActivity && req.body.lastActivity;
@@ -120,24 +146,11 @@ router.put("/:id", isAuth, async (req, res) => {
     user.password = req.body.password && req.body.password;
     user.isAdmin = req.body.isAdmin;
     user.isCallCenterAgent = req.body.isCallCenterAgent;
+    user.isAttendanceManager = req.body.isAttendanceManager;
     user.image = req.body.image && req.body.image;
     user.employeeId = req.body.employeeId && req.body.employeeId;
   }
   const userUpdated = await user.save();
-
-  setTimeout(async () => {
-    const user = await User.findOne({ _id: req.params.id })
-    //console.log(user.lastActivity.date)
-    if ((Date.now() + 10800000) - user.lastActivity.date < 60000) {
-      //console.log('return')
-      return
-    } else {
-      user.active = false;
-      user.save()
-      //console.log(user)
-    }
-  }, 61000)
-
   if (userUpdated) {
     return res.status(200).send({ message: "User has been updated!", data: userUpdated })
   }
