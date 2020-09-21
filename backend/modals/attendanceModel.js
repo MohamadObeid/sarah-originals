@@ -14,9 +14,9 @@ const attendanceSchema = new mongoose.Schema({
     employeeName: { type: String, required: true },
     employeeImage: { type: String, required: false },
     date: { type: String, required: true },
-    weekDay: { type: String, required: true },
     checkin: {
         time: { type: String, required: false },
+        record: { type: String, required: false },
         location: { type: Date, required: false },
         lateness: {
             hours: { type: String, required: false },
@@ -29,11 +29,13 @@ const attendanceSchema = new mongoose.Schema({
         request: {
             time: { type: String, required: false },
             reason: { type: String, required: false },
+            status: { type: String, required: false },
             confirmation: { type: Boolean, required: false, default: false }
         }
     },
     checkout: {
         time: { type: Date, required: false },
+        record: { type: String, required: false },
         location: { type: Date, required: false },
         earliness: {
             hours: { type: String, required: false },
@@ -46,6 +48,7 @@ const attendanceSchema = new mongoose.Schema({
         request: {
             time: { type: String, required: false },
             reason: { type: String, required: false },
+            status: { type: String, required: false },
             confirmation: { type: Boolean, required: false, default: false }
         }
     },
@@ -53,6 +56,7 @@ const attendanceSchema = new mongoose.Schema({
         reason: { type: String, required: true },
         request: {
             reason: { type: String, required: false, default: '' },
+            status: { type: String, required: false },
             confirmation: { type: Boolean, required: false, default: false }
         }
     },

@@ -82,7 +82,7 @@ export const years = [1940, 1941, 1942, 1943, 1944, 1945, 1946, 1947, 1948, 1949
     2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028,
     2029, 2030, 2031, 2032, 2033, 2034, 2035, 2036, 2037, 2038, 2039, 2040]
 
-export const salaryTypes = ['Month', 'Week', 'Day', 'Assignment', 'Order', 'Hour', '% Sales']
+export const salaryTypes = ['Month', 'Week', 'Day', 'Assignment', 'Order', 'Hour', 'Sales']
 
 export const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 

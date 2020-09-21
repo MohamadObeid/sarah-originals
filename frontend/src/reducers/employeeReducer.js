@@ -84,7 +84,7 @@ function employeeDeleteReducer(state = { data: {} }, action) {
     }
 }
 
-function employeeDetailsReducer(state = { employee: [] }, action) {
+function employeeDetailsReducer(state = { employee: undefined }, action) {
     switch (action.type) {
         case EMPLOYEE_DETAILS_REQUEST:
             return {

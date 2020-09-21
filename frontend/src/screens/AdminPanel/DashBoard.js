@@ -32,7 +32,7 @@ import { listUsers } from "../../actions/userActions"
 import { listZone } from "../../actions/zoneActions"
 import { listDelivery } from "../../actions/deliveryActions"
 import { listPayment } from "../../actions/paymentActions"
-import { listEmployees } from "../../actions/employeeActions"
+import { detailsEmployee, listEmployees } from "../../actions/employeeActions"
 import { listReviews } from "../../actions/reviewActions"
 import { listOrders } from "../../actions/orderActions"
 import { listAssignment } from "../../actions/assignmentActions"
@@ -41,8 +41,8 @@ import { listChat, listLiveUser, saveLiveUser, deleteChat } from "../../actions/
 
 function DashBoard(props) {
 
-  const userSignin = useSelector(state => state.userSignin);
-  const { userInfo } = userSignin;
+  const { userInfo } = useSelector(state => state.userSignin);
+  const { employees } = useSelector(state => state.employeeList)
 
   const [productVisible, setProductVisible] = useState(false)
   const [zoneVisible, setZoneVisible] = useState(false)
@@ -82,7 +82,11 @@ function DashBoard(props) {
     ordersVisible && dispatch(listOrders())
     reviewsVisible && dispatch(listReviews())
     assignmentsVisible && dispatch(listAssignment())
-    attendanceVisible && dispatch(listAttendance())
+    if (attendanceVisible) {
+      dispatch(listAttendance());
+      !employees && dispatch(listEmployees());
+      userInfo && dispatch(detailsEmployee(userInfo.employeeId))
+    }
     if (chatVisible) { dispatch(listChat()); dispatch(listLiveUser()) }
     return () => {
       //
@@ -194,7 +198,7 @@ function DashBoard(props) {
             setDeliveryVisible(false)
             setPaymentVisible(false)
             setUsersVisible(false)
-            setReviewsVisible(true)
+            setReviewsVisible(false)
             setEmployeeVisible(false)
             setAssignmentsVisible(false)
             setOrdersVisible(false)

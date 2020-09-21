@@ -36,10 +36,10 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
         attendance.employeeName = req.body.employeeName && req.body.employeeName;
         attendance.employeeImage = req.body.employeeImage && req.body.employeeImage;
         attendance.date = req.body.date && req.body.date;
-        attendance.weekDay = req.body.weekDay && req.body.weekDay;
         attendance.checkin = req.body.checkin && req.body.checkin;
         attendance.checkout = req.body.checkout && req.body.checkout;
         attendance.absence = req.body.absence && req.body.absence;
+        attendance.note = req.body.note && req.body.note;
     }
     const attendanceUpdated = await attendance.save();
 
