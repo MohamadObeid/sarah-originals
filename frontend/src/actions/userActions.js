@@ -21,18 +21,22 @@ import {
     USER_DETAILS_REQUEST,
     USER_DETAILS_SUCCESS,
     USER_DETAILS_FAIL,
-    CLEAR_SAVE_USER
+    CLEAR_SAVE_USER, CLEAR_SIGNIN_USER
 } from '../constants/constants';
 
 const signin = (email, password) => async (dispatch) => {
-    dispatch({ type: USER_SIGNIN_REQUEST, payload: { email, password } });
-    try {
-        let { data } = await axios.post("/api/users/signin", { email, password })
-        dispatch({ type: USER_SIGNIN_SUCCESS, payload: data });
-        data = { ...data, signinDate: Date.now() + 10800000 }
-        cookie.set('userInfo', JSON.stringify(data));
-    } catch (error) {
-        dispatch({ type: USER_SIGNIN_FAIL, payload: error.message })
+    if (email === 'clear') {
+        dispatch({ type: CLEAR_SIGNIN_USER, payload: undefined });
+    } else {
+        dispatch({ type: USER_SIGNIN_REQUEST, payload: { email, password } });
+        try {
+            let { data } = await axios.post("/api/users/signin", { email, password })
+            dispatch({ type: USER_SIGNIN_SUCCESS, payload: data });
+            data = { ...data, signinDate: Date.now() + 10800000 }
+            cookie.set('userInfo', JSON.stringify(data));
+        } catch (error) {
+            dispatch({ type: USER_SIGNIN_FAIL, payload: error.message })
+        }
     }
 }
 

@@ -9,6 +9,8 @@ router.post("/signin", async (req, res) => {
   const signinUser = await User.findOne({
     email: req.body.email,
     password: req.body.password,
+    active: true,
+    lastActivity: Date.now() + 10800000
   });
   if (signinUser) {
     res.send({

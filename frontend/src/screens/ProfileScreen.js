@@ -100,7 +100,7 @@ function ProfileScreen(props) {
 
     const handleSignout = (e) => {
         cookie.remove('userInfo')
-        dispatch(signin())
+        dispatch(signin('clear',))
         props.history.push('/')
     }
 
