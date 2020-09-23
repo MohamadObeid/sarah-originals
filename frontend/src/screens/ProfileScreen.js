@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Link } from "react-router-dom"
 import { detailsUser, saveUser, signin } from '../actions/userActions'
-import cookie, { set } from "js-cookie"
+import cookie from "js-cookie"
 import FontAwesome from 'react-fontawesome'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUserEdit, faUnlockAlt, faHistory, faStar, faWallet, faSignOutAlt } from '@fortawesome/free-solid-svg-icons'
@@ -100,7 +100,7 @@ function ProfileScreen(props) {
 
     const handleSignout = (e) => {
         cookie.remove('userInfo')
-        dispatch(signin('clear',))
+        dispatch(signin('clear', undefined, undefined))
         props.history.push('/')
     }
 

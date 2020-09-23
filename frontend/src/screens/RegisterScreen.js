@@ -5,6 +5,23 @@ import { register, signin } from "../actions/userActions";
 import FontAwesome from 'react-fontawesome';
 
 function RegisterScreen(props) {
+    const [IP, setIP] = useState()
+
+    const getIPAddress = async () => {
+        await fetch('https://geolocation-db.com/json/7733a990-ebd4-11ea-b9a6-2955706ddbf3')
+            .then(res => res.json())
+            .then(IP => {
+                setIP(IP)
+            })
+    }
+
+    useEffect(() => {
+        getIPAddress()
+        return () => {
+            //
+        };
+    }, [])
+
     const [name, setName] = useState()
     const [email, setEmail] = useState()
     const [phone, setPhone] = useState()
@@ -28,8 +45,10 @@ function RegisterScreen(props) {
     const submitHandler = (e) => {
         e.preventDefault()
         if (name && email && password && phone && rePassword == password) {
-            dispatch(register({ name: name, email: email, phone: phone, password: password, isAdmin: false }));
-            dispatch(signin(email, password))
+            dispatch(register({
+                name: name, email: email, phone: phone, password: password, isAdmin: false,
+                IP: (IP.country_name + ', ' + IP.city)
+            }))
         }
     }
 

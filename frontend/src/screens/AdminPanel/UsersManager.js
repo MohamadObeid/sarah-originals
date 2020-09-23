@@ -26,7 +26,7 @@ function UsersManager(props) {
 
     const { users } = useSelector(state => state.usersList)
 
-    const { success: successSave, activate } = useSelector(state => state.userSave)
+    const { success: successSave } = useSelector(state => state.userSave)
     const { success: successDelete } = useSelector(state => state.userDelete)
     const { employees: employeeList } = useSelector(state => state.employeeList)
 
@@ -52,7 +52,7 @@ function UsersManager(props) {
         return () => {
             //
         };
-    }, [successSave, successDelete, employeeId, activate]);
+    }, [successSave, successDelete, employeeId]);
 
     const openModel = async (user) => {
         setModelVisible(true)

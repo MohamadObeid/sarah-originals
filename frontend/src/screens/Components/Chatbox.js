@@ -65,7 +65,6 @@ function Chatbox(props) {
             if (user.id === userInfo._id && user.isLive === false) declined = true
         })
         if (declined) {
-            console.log('dog')
             endChatExtender()
             dispatch(detailsChat('clear'))
             userInfo.isCallCenterAgent && refreshLiveUsers()
@@ -100,17 +99,16 @@ function Chatbox(props) {
             })
         }
         if (agent) return
-        setTimeout(refreshLiveUsers, 3000)
+        console.log(userInfo)
+        if (userInfo.isCallCenterAgent) { setTimeout(refreshLiveUsers, 3000) }
     }
 
     useEffect(() => {
-        if (userInfo && userInfo.isCallCenterAgent) {
-            refreshLiveUsers()
-        } else dispatch(listLiveUser())
+        userInfo && refreshLiveUsers()
         return () => {
             //
         }
-    }, [userInfo])
+    }, [])
 
     const lunchLiveChat = async (liveUser) => {
         dispatch(detailsChat(liveUser.chatId))

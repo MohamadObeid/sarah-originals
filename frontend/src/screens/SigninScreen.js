@@ -6,17 +6,41 @@ import FontAwesome from 'react-fontawesome';
 import CheckoutSteps from "./Components/CheckoutSteps";
 
 function SigninScreen(props) {
-  const [email, setEmail] = useState(""); // useState is set default state value empty
+
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const userSignin = useSelector(state => state.userSignin);
-  const { loading, userInfo, error } = userSignin;
+  const { loading, userInfo, error } = useSelector(state => state.userSignin);
+
+  const dispatch = useDispatch()
+  const [IP, setIP] = useState()
+
+  const getIPAddress = async () => {
+    await fetch('https://geolocation-db.com/json/7733a990-ebd4-11ea-b9a6-2955706ddbf3')
+      .then(res => res.json())
+      .then(IP => {
+        setIP(IP.country_name + ', ' + IP.city)
+        console.log(IP)
+      })
+  }
+
+  const refreshActiveUser = async () => {
+    await dispatch(signin(email, password, IP))
+    setTimeout(refreshActiveUser, 30000)
+  }
 
   // props.location.search is everything written in the path after the page path
   const redirect = props.location.search ? props.location.search.split('=')[1] : '/';
 
-  const dispatch = useDispatch();
+  useEffect(() => {
+    getIPAddress()
+    return () => {
+      //
+    }
+  }, [])
+
   useEffect(() => {
     if (userInfo) {
+      //setTimeout(refreshActiveUser, 30000)
       props.history.push(redirect)
     }
     return () => {
@@ -27,8 +51,8 @@ function SigninScreen(props) {
   // when user press on signin, submithandler is gonna run
   const submitHandler = (e) => {
     e.preventDefault(); // prevents from refreshing when submiting
-    dispatch(signin(email, password))
-  };
+    dispatch(signin(email, password, IP))
+  }
 
   return (
     <div>

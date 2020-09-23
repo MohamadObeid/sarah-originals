@@ -12,30 +12,33 @@ import NavBar from "./screens/Components/NavBar";
 import ProfileScreen from './screens/ProfileScreen';
 import Chatbox from './screens/Components/Chatbox';
 import { useDispatch, useSelector } from "react-redux";
-import { saveUser } from "./actions/userActions";
+import { signin } from "./actions/userActions";
 
 function App(props) {
-  const [IP, setIP] = useState()
+
+  const dispatch = useDispatch()
+  //const [IP, setIP] = useState()
+  var IPaddress
+
+  const { userInfo } = useSelector(state => state.userSignin)
 
   const getIPAddress = async () => {
     await fetch('https://geolocation-db.com/json/7733a990-ebd4-11ea-b9a6-2955706ddbf3')
       .then(res => res.json())
-      .then(IP => { setIP(IP); console.log(IP, 'failed') })
+      .then(IP => {
+        IPaddress = IP.country_name + ', ' + IP.city
+        console.log('refresh Active User')
+        userInfo && refreshActiveUser()
+      })
   }
 
-  const { userInfo } = useSelector(state => state.userSignin)
-  const dispatch = useDispatch()
-
   const refreshActiveUser = async () => {
-    await dispatch(saveUser({ ...userInfo, active: true, lastActivity: { date: Date.now() + 10800000, IPaddress: IP }, activation: true }))
-    setTimeout(refreshActiveUser, 60000)
+    await dispatch(signin(userInfo.email, userInfo.password, IPaddress))
+    setTimeout(refreshActiveUser, 30000)
   }
 
   useEffect(() => {
     getIPAddress()
-    if (userInfo) {
-      refreshActiveUser()
-    }
     return () => {
       //
     };

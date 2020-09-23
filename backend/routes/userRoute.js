@@ -6,18 +6,25 @@ import { isAuth, isAdmin } from '../util';
 const router = express.Router();
 
 router.post("/signin", async (req, res) => {
-  const signinUser = await User.findOne({
+  var signinUser = await User.findOne({
     email: req.body.email,
     password: req.body.password,
-    active: true,
-    lastActivity: Date.now() + 10800000
-  });
+  })
+
   if (signinUser) {
+    var lastIndex = signinUser.activity.length - 1
+    if (signinUser.active && signinUser.activity[lastIndex].end) {
+      signinUser.activity = [...signinUser.activity, { start: Date.now() + 10800000, IP: req.body.IP }]
+    } else signinUser.activity = [...signinUser.activity, { start: Date.now() + 10800000, end: Date.now() + 21000000, IP: req.body.IP }]
+    signinUser.active = true
+    signinUser.lastActivity = Date.now() + 10800000
+    signinUser = await signinUser.save()
     res.send({
       _id: signinUser.id,
-      active: true,
-      lastActivity: signinUser.lastActivity,
+      active: signinUser.active,
       password: signinUser.password,
+      lastActivity: signinUser.lastActivity,
+      activity: signinUser.activity,
       name: signinUser.name,
       phone: signinUser.phone,
       email: signinUser.email,
@@ -27,11 +34,30 @@ router.post("/signin", async (req, res) => {
       isAttendanceManager: signinUser.isAttendanceManager,
       image: signinUser.image,
       employeeId: signinUser.employeeId,
-    });
+    })
+
+    setTimeout(async () => {
+      const user = await User.findOne({
+        email: req.body.email,
+        password: req.body.password,
+      })
+      if ((Date.now() + 10800000) - user.lastActivity < 30000) {
+        console.log('return')
+        return
+      } else {
+        console.log((Date.now() + 10800000) - user.lastActivity)
+        var lastIndex = user.activity.length - 1
+        user.activity[lastIndex].end = Date.now() + 10800000
+        user.active = false
+        user.save()
+        //console.log(user)
+      }
+    }, 31000)
+
   } else {
     res.status(401).send({ msg: "Invalid Email or Password." });
   }
-});
+})
 
 router.post("/register", async (req, res) => {
   const user = new User({
@@ -39,6 +65,7 @@ router.post("/register", async (req, res) => {
     email: req.body.email,
     phone: req.body.phone,
     password: req.body.password,
+    activity: [{ date: Date.now() + 10800000, IPaddress: req.body.IP }],
     active: true
   })
 
@@ -46,7 +73,7 @@ router.post("/register", async (req, res) => {
   if (newUser) {
     res.send({
       _id: newUser._id,
-      lastActivity: newUser.lastActivity,
+      activity: newUser.activity,
       active: newUser.active,
       name: newUser.name,
       email: newUser.email,
@@ -122,27 +149,10 @@ router.delete("/:id", isAuth, isAdmin, async (req, res) => {
 
 router.put("/:id", isAuth, async (req, res) => {
   const user = await User.findOne({ _id: req.params.id });
-  if (req.body.activation) {
-    user.active = true
-    user.lastActivity = req.body.lastActivity
-
-    setTimeout(async () => {
-      const user = await User.findOne({ _id: req.params.id })
-      //console.log(user.lastActivity.date)
-      if ((Date.now() + 10800000) - user.lastActivity.date < 60000) {
-        console.log('return')
-        return
-      } else {
-        console.log((Date.now() + 10800000) - user.lastActivity.date)
-        user.active = false;
-        user.save()
-        //console.log(user)
-      }
-    }, 62000)
-  } else if (user) {
+  if (user) {
     user.name = req.body.name;
     user.active = req.body.active;
-    user.lastActivity = req.body.lastActivity && req.body.lastActivity;
+    user.activity = req.body.activity && req.body.activity;
     user.email = req.body.email;
     user.phone = req.body.phone;
     user.password = req.body.password && req.body.password;

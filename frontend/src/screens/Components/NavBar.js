@@ -36,7 +36,6 @@ function Navbar() {
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(listCategory());
-        dispatch(listCategory());
         return () => {
             //
         };

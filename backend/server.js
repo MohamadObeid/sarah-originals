@@ -6,7 +6,7 @@ import bodyParser from "body-parser";
 import logger from 'morgan'
 import cors from 'cors';
 import methodOverride from 'method-override'
-mongoose.Promise = require('bluebird');
+//mongoose.Promise = require('bluebird');
 
 import userRoute from "./routes/userRoute";
 import productRoute from "./routes/productRoute";
@@ -18,31 +18,28 @@ import paymentRoute from './routes/paymentRoute';
 import deliveryRoute from './routes/deliveryRoute';
 import employeeRoute from './routes/employeeRoute';
 import attendanceRoute from './routes/attendanceRoute';
-import uploadRoute from './routes/uploadRoute';
+//import uploadRoute from './routes/uploadRoute';
 import chatRoute from './routes/chatRoute';
 import liveChatRoute from './routes/liveUserRoute';
 import imageRouter from './routes/imageRoute';
 
 const mongodbUrl = config.MONGODB_URL;
-const conn = mongoose
-  .connect(mongodbUrl, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-  })
+
+mongoose.connect(mongodbUrl, {
+  useUnifiedTopology: true,
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+})
   .catch((error) => console.log(error.reason))
+  .then(() => console.log('Connected to database: GridApp'))
 
 const app = express();
-
-conn.then(() => {
-  console.log('Connected to database: GridApp');
-}, (err) => console.log(err))
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 app.use(methodOverride('_method'));
-app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.static(path.join(__dirname, 'public')))
 
 app.use("/api/products", productRoute);
 

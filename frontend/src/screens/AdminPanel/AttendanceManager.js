@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import FontAwesome from 'react-fontawesome'
-import axios from 'axios'
 import { listAttendance, saveAttendance, deleteAttendance } from '../../actions/attendanceActions'
 import { detailsEmployee } from '../../actions/employeeActions'
 import { days, months, years, weekDays } from '../../constants/lists'

@@ -10,19 +10,19 @@ const router = express.Router();
 
 function imageRouter() {
     const mongodbUrl = config.MONGODB_URL;
+
     const connect = mongoose.createConnection(mongodbUrl, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
-    });
-
-    let gfs;
-
+    })
     connect.once('open', () => {
         // initialize stream
         gfs = new mongoose.mongo.GridFSBucket(connect.db, {
-            bucketName: "uploads"
-        });
-    });
+            bucketName: "uploads",
+        })
+    })
+
+    let gfs;
 
     const storage = new GridFsStorage({
         url: mongodbUrl,
@@ -40,6 +40,9 @@ function imageRouter() {
                     resolve(fileInfo);
                 });
             });
+        },
+        options: {
+            useUnifiedTopology: true,
         }
     })
 
