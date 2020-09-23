@@ -61,14 +61,14 @@ function DashBoard(props) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!userInfo) {
+    !userInfo &&
       props.history.push("/signin?redirect=dashboard")
-    }
 
     if (productVisible) {
       dispatch(listProducts())
       dispatch(listBrand())
-    };
+    }
+
     if (categoryVisible) {
       dispatch(listCategory())
       dispatch(listBrand())
@@ -103,13 +103,11 @@ function DashBoard(props) {
     employeeVisible,
     reviewsVisible,
     attendanceVisible,
-    userInfo,
     chatVisible
   ])
 
   return (
-    (userInfo &&
-      (userInfo.isAdmin || userInfo.email === 'dm@beirutgrouptt.com')) &&
+    userInfo && (userInfo.isAdmin || userInfo.email === 'dm@beirutgrouptt.com') &&
     <div className="content">
       <form className="form-control">
         <ul className="form-control-container">

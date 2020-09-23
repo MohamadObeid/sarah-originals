@@ -6,53 +6,73 @@ import { isAuth, isAdmin } from '../util';
 const router = express.Router();
 
 router.post("/signin", async (req, res) => {
-  var signinUser = await User.findOne({
+  var user = await User.findOne({
     email: req.body.email,
     password: req.body.password,
   })
 
-  if (signinUser) {
-    var lastIndex = signinUser.activity.length - 1
-    if (signinUser.active && signinUser.activity[lastIndex].end) {
-      signinUser.activity = [...signinUser.activity, { start: Date.now() + 10800000, IP: req.body.IP }]
-    } //else signinUser.activity = [...signinUser.activity, { start: Date.now() + 10800000, end: Date.now() + 21000000, IP: req.body.IP }]
-    signinUser.active = true
-    signinUser.lastActivity = Date.now() + 10800000
-    signinUser = await signinUser.save()
-    res.send({
-      _id: signinUser.id,
-      active: signinUser.active,
-      password: signinUser.password,
-      lastActivity: signinUser.lastActivity,
-      activity: signinUser.activity,
-      name: signinUser.name,
-      phone: signinUser.phone,
-      email: signinUser.email,
-      isAdmin: signinUser.isAdmin,
-      token: getToken(signinUser),
-      isCallCenterAgent: signinUser.isCallCenterAgent,
-      isAttendanceManager: signinUser.isAttendanceManager,
-      image: signinUser.image,
-      employeeId: signinUser.employeeId,
-    })
+  var lastIndex = user.activity.length - 1
 
+  if (user) {
+    if (req.body.request === 'signout') { // signout request
+      user.activity[lastIndex].end = Date.now() + 10800000
+      user.lastActivity = Date.now() + 10800000
+      user.active = false
+      user = await user.save()
+      //console.log(user.email + ' request signout')
+      return res.send(undefined)
+
+    } else if (req.body.request === 'signin') { //signin request
+      user.active = true;
+      user.lastActivity = Date.now() + 10800000
+      user.activity = [...user.activity, { start: Date.now() + 10800000, IP: req.body.IP }]
+      user = await user.save()
+      //console.log(user.email + ' request signin')
+
+    } else if (!user.activity[lastIndex].end && user.active) { //set user Active
+      user.active = true
+      user.lastActivity = Date.now() + 10800000
+      user = await user.save()
+      //console.log(user.email + ' set Active')
+    }
+
+    user.active &&
+      res.send({
+        _id: user.id,
+        active: user.active,
+        password: user.password,
+        lastActivity: user.lastActivity,
+        name: user.name,
+        phone: user.phone,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        token: getToken(user),
+        isCallCenterAgent: user.isCallCenterAgent,
+        isAttendanceManager: user.isAttendanceManager,
+        image: user.image,
+        employeeId: user.employeeId,
+      })
+
+    // set user inactive
     setTimeout(async () => {
       const user = await User.findOne({
         email: req.body.email,
         password: req.body.password,
       })
-      if ((Date.now() + 10800000) - user.lastActivity < 30000) {
-        console.log('return')
-        return
-      } else {
-        console.log((Date.now() + 10800000) - user.lastActivity)
-        var lastIndex = user.activity.length - 1
-        user.activity[lastIndex].end = Date.now() + 10800000
-        user.active = false
-        user.save()
-        //console.log(user)
+      if (user.active) {
+        if ((Date.now() + 10800000) - user.lastActivity < 30000) {
+          //console.log(user.email + ' return')
+          return
+        } else {
+          //console.log((Date.now() + 10800000) - user.lastActivity)
+          var lastIndex = user.activity.length - 1
+          user.activity[lastIndex].end = Date.now() + 10800000
+          user.active = false
+          user.save()
+          //console.log(user)
+        }
       }
-    }, 31000)
+    }, 33000)
 
   } else {
     res.status(401).send({ msg: "Invalid Email or Password." });

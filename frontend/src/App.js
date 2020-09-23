@@ -13,6 +13,8 @@ import ProfileScreen from './screens/ProfileScreen';
 import Chatbox from './screens/Components/Chatbox';
 import { useDispatch, useSelector } from "react-redux";
 import { signin } from "./actions/userActions";
+import axios from "axios";
+import { USER_SIGNIN_SUCCESS } from "./constants/constants";
 
 function App(props) {
 
@@ -27,14 +29,19 @@ function App(props) {
       .then(res => res.json())
       .then(IP => {
         IPaddress = IP.country_name + ', ' + IP.city
-        console.log('refresh Active User')
-        userInfo && refreshActiveUser()
       })
+    if (userInfo) {
+      await dispatch(signin({ email: userInfo.email, password: userInfo.password, IPaddress, request: 'signin' }))
+      setTimeout(refreshActiveUser, 30000)
+    }
   }
 
   const refreshActiveUser = async () => {
-    await dispatch(signin(userInfo.email, userInfo.password, IPaddress))
-    setTimeout(refreshActiveUser, 30000)
+    let { data } = await axios.post("/api/users/signin",
+      { email: userInfo.email, password: userInfo.password, IPaddress })
+    dispatch({ type: USER_SIGNIN_SUCCESS, payload: data })
+    data.active &&
+      setTimeout(refreshActiveUser, 30000)
   }
 
   useEffect(() => {

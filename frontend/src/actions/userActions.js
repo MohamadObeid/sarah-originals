@@ -24,21 +24,16 @@ import {
     CLEAR_SIGNIN_USER,
 } from '../constants/constants';
 
-const signin = (email, password, IP) => async (dispatch, getState) => {
-    if (email === 'clear') {
+const signin = (user) => async (dispatch, getState) => {
+    if (user.request === 'clear') {
         dispatch({ type: CLEAR_SIGNIN_USER, payload: undefined })
     } else {
         const { userSignin: { userInfo } } = getState();
         dispatch({ type: USER_SIGNIN_REQUEST, payload: userInfo })
         try {
-            let { data } = await axios.post("/api/users/signin", { email, password, IP })
-            dispatch({ type: USER_SIGNIN_SUCCESS, payload: data });
-            cookie.set('userInfo', JSON.stringify({
-                email: data.email, password: data.password,
-                isCallCenterAgent: data.isCallCenterAgent,
-                name: data.name, employeeId: data.employeeId,
-                _id: data._id, image: data.image,
-            }));
+            let { data } = await axios.post("/api/users/signin", user)
+            dispatch({ type: USER_SIGNIN_SUCCESS, payload: data })
+            data && cookie.set('userInfo', JSON.stringify(data));
         } catch (error) {
             dispatch({ type: USER_SIGNIN_FAIL, payload: error.message })
         }

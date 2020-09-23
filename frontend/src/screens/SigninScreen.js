@@ -4,6 +4,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { signin } from "../actions/userActions";
 import FontAwesome from 'react-fontawesome';
 import CheckoutSteps from "./Components/CheckoutSteps";
+import Axios from "axios";
+import { USER_SIGNIN_SUCCESS } from "../constants/constants";
 
 function SigninScreen(props) {
 
@@ -12,20 +14,22 @@ function SigninScreen(props) {
   const { loading, userInfo, error } = useSelector(state => state.userSignin);
 
   const dispatch = useDispatch()
-  const [IP, setIP] = useState()
+  var IPaddress
 
   const getIPAddress = async () => {
     await fetch('https://geolocation-db.com/json/7733a990-ebd4-11ea-b9a6-2955706ddbf3')
       .then(res => res.json())
       .then(IP => {
-        setIP(IP.country_name + ', ' + IP.city)
-        console.log(IP)
+        IPaddress = IP.country_name + ', ' + IP.city
       })
   }
 
   const refreshActiveUser = async () => {
-    await dispatch(signin(email, password, IP))
-    setTimeout(refreshActiveUser, 30000)
+    let { data } = await Axios.post("/api/users/signin",
+      { email: userInfo.email, password: userInfo.password, IPaddress })
+    dispatch({ type: USER_SIGNIN_SUCCESS, payload: data })
+    data.active &&
+      setTimeout(refreshActiveUser, 30000)
   }
 
   // props.location.search is everything written in the path after the page path
@@ -40,7 +44,7 @@ function SigninScreen(props) {
 
   useEffect(() => {
     if (userInfo) {
-      //setTimeout(refreshActiveUser, 30000)
+      setTimeout(refreshActiveUser, 29000)
       props.history.push(redirect)
     }
     return () => {
@@ -51,7 +55,7 @@ function SigninScreen(props) {
   // when user press on signin, submithandler is gonna run
   const submitHandler = (e) => {
     e.preventDefault(); // prevents from refreshing when submiting
-    dispatch(signin(email, password, IP))
+    dispatch(signin({ email, password, IP: IPaddress, request: 'signin' }))
   }
 
   return (

@@ -4,8 +4,19 @@ import { listUsers, deleteUser, saveUser } from "../../actions/userActions";
 import FontAwesome from 'react-fontawesome';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle } from "@fortawesome/free-solid-svg-icons";
+import { months, weekDays } from '../../constants/lists'
 
 function UsersManager(props) {
+    var d = new Date()
+    var currentYear = d.getFullYear()
+    var currentMonthNum = d.getMonth() + 1
+    var currentMonth = months[d.getMonth()]
+    var currentDay = d.getDate()
+    var currentWeekDay = weekDays[d.getDay()]
+    var currentHour = d.getHours()
+    var currentMinutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes()
+    var currentSeconds = d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds()
+
     const [formAction, setFormAction] = useState()
     const [actionNote, setActionNote] = useState()
     const [actionNoteVisible, setActionNoteVisible] = useState(false)
@@ -96,6 +107,52 @@ function UsersManager(props) {
     const copyHandler = (user) => {
         setFormAction('Copy')
         openModel(user)
+    }
+
+    // return today, yesterday, days ago, and time
+    const dayConverter = (date, active) => {
+
+        if (date) {
+            var dateNum = date.split("T", 1)[0]
+            var time = date.slice(date.indexOf('T') + 1, -1).slice(0, 9)
+            var dateDay = dateNum.slice(8, 10)
+            var dateMonth = dateNum.slice(5, 7)
+            var dateYear = dateNum.slice(0, 4)
+            var timeHour = time.slice(0, 2)
+            var timeMin = time.slice(3, 5)
+            var timeSec = time.slice(6, 8)
+
+            var yearDiff = parseInt(currentYear) - parseInt(dateYear)
+            var yearStatus = yearDiff === 1 ? 'Last year' : yearDiff + ' years ago'
+            var monthDiff = parseInt(currentMonthNum) - parseInt(dateMonth)
+            var monthStatus = monthDiff === 1 ? 'Last month' : monthDiff + ' months ago'
+            var dayDiff = parseInt(currentDay) - parseInt(dateDay)
+            var dayStatus = dayDiff === 1 ? 'Yesterday' : dayDiff + ' days ago'
+            var hourDiff = parseInt(currentHour) - parseInt(timeHour)
+            var hourStatus = hourDiff === 1 ? 'Last hour' : hourDiff + ' hours ago'
+            var minDiff = parseInt(currentMinutes) - parseInt(timeMin)
+            var minStatus = minDiff === 1 ? 'Last minute' : minDiff + ' min ago'
+            var secDiff = parseInt(currentSeconds) - parseInt(timeSec)
+            var secStatus = secDiff <= 32 ? 'Online' : secDiff + ' sec ago'
+
+            var status = 'Online'
+
+            if (!active) {
+                if (yearDiff === 0) {
+                    if (monthDiff === 0) {
+                        if (dayDiff === 0) {
+                            if (hourDiff === 0) {
+                                if (minDiff === 0) {
+                                    status = secStatus
+                                } else if (minDiff < 59) status = minStatus
+                            } else if (hourDiff < 23) status = hourStatus
+                        } else if (dayDiff < 29) status = dayStatus
+                    } else if (monthDiff < 11) status = monthStatus
+                } else status = yearStatus
+            }
+
+            return status
+        }
     }
 
     return (
@@ -230,6 +287,7 @@ function UsersManager(props) {
                 <thead>
                     <tr>
                         <th>Active</th>
+                        <th>Last Activity</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
@@ -244,6 +302,7 @@ function UsersManager(props) {
                             <td className='td-active'>
                                 <FontAwesomeIcon className={`${user.active ? 'faCircle' : 'farCircle'}`} icon={faCircle} />
                             </td>
+                            <td>{dayConverter(user.lastActivity, user.active)}</td>
                             <td>{user.name}</td>
                             <td>{user.email}</td>
                             <td>{user.phone}</td>
