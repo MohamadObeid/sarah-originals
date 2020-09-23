@@ -39,7 +39,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 app.use(methodOverride('_method'));
-//app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public')))
 
 app.use("/api/products", productRoute);
 
@@ -69,7 +69,7 @@ app.use("/api/live", liveChatRoute);
 
 //app.use("/api/image", imageRoute);
 
-//app.use('/api/uploads/image', express.static(path.join(__dirname, '/../frontend/uploads')));
+app.use('/api/uploads/image', express.static(path.join(__dirname, '/../frontend/uploads')));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
