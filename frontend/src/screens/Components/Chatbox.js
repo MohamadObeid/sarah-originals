@@ -99,7 +99,6 @@ function Chatbox(props) {
             })
         }
         if (agent) return
-        console.log(userInfo)
         if (userInfo.isCallCenterAgent) { setTimeout(refreshLiveUsers, 3000) }
     }
 
