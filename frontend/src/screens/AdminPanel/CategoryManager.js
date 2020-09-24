@@ -416,7 +416,7 @@ function CategoryManager(props) {
                             <table className="range-table">
                                 <thead>
                                     <tr>
-                                        <th>Active</th>
+                                        <th style={{ paddingRight: '0.5rem' }}>Active</th>
                                         <th style={{ textAlign: 'center' }}>Image</th>
                                         <th>Category</th>
                                         <th>Sub Categories</th>

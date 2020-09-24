@@ -358,7 +358,7 @@ function ZoneManager(props) {
             <table className="table">
                 <thead>
                     <tr>
-                        <th>Active</th>
+                        <th style={{ paddingRight: '0.5rem' }}>Active</th>
                         <th>Zone</th>
                         <th>Region</th>
                         <th>Actions</th>

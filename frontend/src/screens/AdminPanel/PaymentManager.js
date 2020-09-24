@@ -391,7 +391,7 @@ function PaymentManager(props) {
             <table className="table">
                 <thead>
                     <tr>
-                        <th>Active</th>
+                        <th style={{ paddingRight: '0.5rem' }}>Active</th>
                         <th>Title</th>
                         <th>Zone</th>
                         <th>Type</th>

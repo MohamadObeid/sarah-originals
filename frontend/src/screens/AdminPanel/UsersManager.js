@@ -133,7 +133,7 @@ function UsersManager(props) {
             var minDiff = parseInt(currentMinutes) - parseInt(timeMin)
             var minStatus = minDiff === 1 ? 'Last minute' : minDiff + ' min ago'
             var secDiff = parseInt(currentSeconds) - parseInt(timeSec)
-            var secStatus = secDiff <= 32 ? 'Online' : secDiff + ' sec ago'
+            var secStatus = secDiff <= 1 ? 'Online' : secDiff + ' sec ago'
 
             var status = 'Online'
 
@@ -286,7 +286,7 @@ function UsersManager(props) {
             <table className="table">
                 <thead>
                     <tr>
-                        <th>Active</th>
+                        <th style={{ paddingRight: '0.5rem' }}>Active</th>
                         <th>Last Activity</th>
                         <th>Name</th>
                         <th>Email</th>

@@ -1568,7 +1568,7 @@ function EmployeeManager(props) {
             <table className="table">
                 <thead>
                     <tr>
-                        <th>Active</th>
+                        <th style={{ paddingRight: '0.5rem' }}>Active</th>
                         <th style={{ textAlign: 'center' }}>Photo</th>
                         <th>Name</th>
                         <th>Phone</th>

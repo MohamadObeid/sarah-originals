@@ -118,7 +118,7 @@ function ChatManager(props) {
             <table className="table">
                 <thead>
                     <tr>
-                        <th>Active</th>
+                        <th style={{ paddingRight: '0.5rem' }}>Active</th>
                         <th>Date</th>
                         <th>Start</th>
                         <th>End</th>

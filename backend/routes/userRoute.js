@@ -19,38 +19,39 @@ router.post("/signin", async (req, res) => {
       user.lastActivity = Date.now() + 10800000
       user.active = false
       user = await user.save()
-      //console.log(user.email + ' request signout')
+      console.log(user.email + ' request signout')
       return res.send(undefined)
 
     } else if (req.body.request === 'signin') { //signin request
-      user.active = true;
+      if (!user.activity[lastIndex].end) user.activity[lastIndex].end = Date.now() + 10800000
+      user.active = true
       user.lastActivity = Date.now() + 10800000
       user.activity = [...user.activity, { start: Date.now() + 10800000, IP: req.body.IP }]
       user = await user.save()
-      //console.log(user.email + ' request signin')
+      console.log(user.email + ' request signin')
 
     } else if (!user.activity[lastIndex].end && user.active) { //set user Active
       user.active = true
       user.lastActivity = Date.now() + 10800000
       user = await user.save()
-      //console.log(user.email + ' set Active')
+      console.log(user.email + ' set Active')
     }
 
     user.active &&
       res.send({
-        _id: user.id,
-        active: user.active,
+        _id: user._id,
+        //activity: user.activity,
         password: user.password,
-        lastActivity: user.lastActivity,
+        active: user.active,
         name: user.name,
-        phone: user.phone,
         email: user.email,
+        phone: user.phone,
         isAdmin: user.isAdmin,
         token: getToken(user),
         isCallCenterAgent: user.isCallCenterAgent,
         isAttendanceManager: user.isAttendanceManager,
-        image: user.image,
-        employeeId: user.employeeId,
+        image: user.image && user.image,
+        employeeId: user.employeeId && user.employeeId,
       })
 
     // set user inactive
@@ -61,10 +62,10 @@ router.post("/signin", async (req, res) => {
       })
       if (user.active) {
         if ((Date.now() + 10800000) - user.lastActivity < 30000) {
-          //console.log(user.email + ' return')
+          console.log(user.email + ' return')
           return
         } else {
-          //console.log((Date.now() + 10800000) - user.lastActivity)
+          console.log((Date.now() + 10800000) - user.lastActivity)
           var lastIndex = user.activity.length - 1
           user.activity[lastIndex].end = Date.now() + 10800000
           user.active = false
@@ -72,7 +73,7 @@ router.post("/signin", async (req, res) => {
           //console.log(user)
         }
       }
-    }, 33000)
+    }, 35000)
 
   } else {
     res.status(401).send({ msg: "Invalid Email or Password." });
@@ -93,7 +94,8 @@ router.post("/register", async (req, res) => {
   if (newUser) {
     res.send({
       _id: newUser._id,
-      activity: newUser.activity,
+      //activity: newUser.activity,
+      password: newUser.password,
       active: newUser.active,
       name: newUser.name,
       email: newUser.email,
