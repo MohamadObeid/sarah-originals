@@ -6,6 +6,7 @@ import FontAwesome from 'react-fontawesome';
 import CheckoutSteps from "./Components/CheckoutSteps";
 import Axios from "axios";
 import { USER_SIGNIN_SUCCESS } from "../constants/constants";
+import { listLiveUser } from "../actions/chatActions";
 
 function SigninScreen(props) {
 
@@ -29,7 +30,7 @@ function SigninScreen(props) {
       { email: userInfo.email, password: userInfo.password, IPaddress })
     dispatch({ type: USER_SIGNIN_SUCCESS, payload: data })
     data.active &&
-      setTimeout(refreshActiveUser, 30000)
+      setTimeout(refreshActiveUser, 25000)
   }
 
   // props.location.search is everything written in the path after the page path
@@ -44,7 +45,8 @@ function SigninScreen(props) {
 
   useEffect(() => {
     if (userInfo) {
-      setTimeout(refreshActiveUser, 29000)
+      setTimeout(refreshActiveUser, 25000)
+      dispatch(listLiveUser())
       props.history.push(redirect)
     }
     return () => {

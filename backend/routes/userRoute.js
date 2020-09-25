@@ -23,15 +23,17 @@ router.post("/signin", async (req, res) => {
       return res.send(undefined)
 
     } else if (req.body.request === 'signin') { //signin request
-      if (!user.activity[lastIndex].end) user.activity[lastIndex].end = Date.now() + 10800000
-      user.active = true
+      if (!user.active) {
+        if (!user.activity[lastIndex].end)
+          user.activity[lastIndex].end = Date.now() + 10800000
+        user.active = true
+        user.activity = [...user.activity, { start: Date.now() + 10800000, IP: req.body.IP }]
+      }
       user.lastActivity = Date.now() + 10800000
-      user.activity = [...user.activity, { start: Date.now() + 10800000, IP: req.body.IP }]
       user = await user.save()
       console.log(user.email + ' request signin')
 
     } else if (!user.activity[lastIndex].end && user.active) { //set user Active
-      user.active = true
       user.lastActivity = Date.now() + 10800000
       user = await user.save()
       console.log(user.email + ' set Active')
@@ -73,7 +75,7 @@ router.post("/signin", async (req, res) => {
           //console.log(user)
         }
       }
-    }, 35000)
+    }, 30000)
 
   } else {
     res.status(401).send({ msg: "Invalid Email or Password." });

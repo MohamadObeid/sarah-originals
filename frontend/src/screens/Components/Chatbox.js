@@ -74,7 +74,7 @@ function Chatbox(props) {
     }
 
     const refreshLiveUsers = async () => {
-        const { data } = await axios.get("/api/live");
+        const { data } = await axios.get("/api/live")
         dispatch({ type: LIVE_USER_LIST_SUCCESS, payload: data })
         var agent
         data && data.map(liveUser => {
@@ -492,10 +492,10 @@ function Chatbox(props) {
                         <div className='chatbox-title'>Live Chat</div>
                         <FontAwesomeIcon
                             onClick={() => closeChatBoxHandler()}
-                            className='chatbox-fa-minus fa-2x' icon={faAngleRight} />
+                            className='chatbox-fa-minus fa-3x' icon={faAngleRight} />
                         <FontAwesomeIcon
                             onClick={() => setEndChatVisible(true)}
-                            className='chatbox-fa-times fa-lg' icon={faTimes} />
+                            className='chatbox-fa-times fa-2x' icon={faTimes} />
                     </div>
                     {chatDetails && chatDetails.users &&
                         <div className='chatbox-user'>

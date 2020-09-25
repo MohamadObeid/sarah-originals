@@ -122,18 +122,23 @@ function UsersManager(props) {
             var timeMin = time.slice(3, 5)
             var timeSec = time.slice(6, 8)
 
-            var yearDiff = parseInt(currentYear) - parseInt(dateYear)
-            var yearStatus = yearDiff === 1 ? 'Last year' : yearDiff + ' years ago'
-            var monthDiff = parseInt(currentMonthNum) - parseInt(dateMonth)
-            var monthStatus = monthDiff === 1 ? 'Last month' : monthDiff + ' months ago'
-            var dayDiff = parseInt(currentDay) - parseInt(dateDay)
-            var dayStatus = dayDiff === 1 ? 'Yesterday' : dayDiff + ' days ago'
-            var hourDiff = parseInt(currentHour) - parseInt(timeHour)
-            var hourStatus = hourDiff === 1 ? 'Last hour' : hourDiff + ' hours ago'
-            var minDiff = parseInt(currentMinutes) - parseInt(timeMin)
-            var minStatus = minDiff === 1 ? 'Last minute' : minDiff + ' min ago'
-            var secDiff = parseInt(currentSeconds) - parseInt(timeSec)
+            var secDiff = (parseInt(currentSeconds) > parseInt(timeSec))
+                ? (parseInt(currentSeconds) - parseInt(timeSec))
+                : 60 + (parseInt(currentSeconds) - parseInt(timeSec))
+            var minDiff = (parseInt(currentMinutes) - parseInt(timeMin))
+            var hourDiff = (parseInt(currentHour) - parseInt(timeHour))
+            var dayDiff = (parseInt(currentDay) - parseInt(dateDay))
+            var monthDiff = (parseInt(currentMonthNum) - parseInt(dateMonth))
+            var yearDiff = (parseInt(currentYear) - parseInt(dateYear))
+
             var secStatus = secDiff <= 1 ? 'Online' : secDiff + ' sec ago'
+            var minStatus = (minDiff === 1) ? 'Last minute' : Math.abs(minDiff) + ' min ago'
+            var hourStatus = (hourDiff === 1) ? 'Last hour' : Math.abs(hourDiff) + ' hours ago'
+            var dayStatus = (dayDiff === 1 && hourDiff >= 24)
+                ? 'Yesterday' : (dayDiff === 1 && hourDiff < 24)
+                    ? hourStatus : Math.abs(dayDiff) + ' days ago'
+            var monthStatus = (monthDiff === 1) ? 'Last month' : Math.abs(monthDiff) + ' months ago'
+            var yearStatus = (yearDiff === 1) ? 'Last year' : yearDiff + ' years ago'
 
             var status = 'Online'
 

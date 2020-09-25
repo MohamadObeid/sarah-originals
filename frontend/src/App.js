@@ -32,7 +32,7 @@ function App(props) {
       })
     if (userInfo) {
       await dispatch(signin({ email: userInfo.email, password: userInfo.password, IPaddress, request: 'signin' }))
-      setTimeout(refreshActiveUser, 30000)
+      setTimeout(refreshActiveUser, 25000)
     }
   }
 
@@ -41,7 +41,7 @@ function App(props) {
       { email: userInfo.email, password: userInfo.password, IPaddress })
     dispatch({ type: USER_SIGNIN_SUCCESS, payload: data })
     data.active &&
-      setTimeout(refreshActiveUser, 30000)
+      setTimeout(refreshActiveUser, 25000)
   }
 
   useEffect(() => {

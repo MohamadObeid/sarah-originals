@@ -63,48 +63,84 @@ function DashBoard(props) {
   useEffect(() => {
     !userInfo &&
       props.history.push("/signin?redirect=dashboard")
-
-    if (productVisible) {
-      dispatch(listProducts())
-      dispatch(listBrand())
-    }
-
-    if (categoryVisible) {
-      dispatch(listCategory())
-      dispatch(listBrand())
-    }
-    brandVisible && dispatch(listBrand())
-    if (usersVisible) { dispatch(listUsers()); dispatch(listEmployees()) }
-    zoneVisible && dispatch(listZone())
-    deliveryVisible && dispatch(listDelivery())
-    paymentVisible && dispatch(listPayment())
-    employeeVisible && dispatch(listEmployees())
-    ordersVisible && dispatch(listOrders())
-    reviewsVisible && dispatch(listReviews())
-    assignmentsVisible && dispatch(listAssignment())
-    if (attendanceVisible) {
-      dispatch(listAttendance());
-      !employees && dispatch(listEmployees());
-      userInfo && dispatch(detailsEmployee(userInfo.employeeId))
-    }
-    if (chatVisible) { dispatch(listChat()); dispatch(listLiveUser()) }
     return () => {
       //
     };
-  }, [
-    productVisible,
-    categoryVisible,
-    brandVisible,
-    usersVisible,
-    zoneVisible,
-    deliveryVisible,
-    paymentVisible,
-    assignmentsVisible,
-    employeeVisible,
-    reviewsVisible,
-    attendanceVisible,
-    chatVisible
-  ])
+  }, [])
+
+  const managerHandler = (manager) => {
+    if (manager === 'user') {
+      dispatch(listUsers())
+      dispatch(listEmployees())
+      setUsersVisible(true)
+
+    } else setUsersVisible(false)
+
+    if (manager === 'employee') {
+      dispatch(listEmployees())
+      setEmployeeVisible(true)
+    } else setEmployeeVisible(false)
+
+    if (manager === 'assignment') {
+      dispatch(listAssignment())
+      setAssignmentsVisible(true)
+    } else setAssignmentsVisible(false)
+
+    if (manager === 'attendance') {
+      dispatch(listAttendance())
+      !employees && dispatch(listEmployees())
+      userInfo && dispatch(detailsEmployee(userInfo.employeeId))
+      setAttendanceVisible(true)
+    } else setAttendanceVisible(false)
+
+    if (manager === 'order') {
+      dispatch(listOrders())
+      setOrdersVisible(true)
+    } else setOrdersVisible(false)
+
+    if (manager === 'product') {
+      dispatch(listProducts())
+      dispatch(listBrand())
+      setProductVisible(true)
+    } else setProductVisible(false)
+
+    if (manager === 'zone') {
+      dispatch(listZone())
+      setZoneVisible(true)
+    } else setZoneVisible(false)
+
+    if (manager === 'category') {
+      dispatch(listCategory())
+      dispatch(listBrand())
+      setCategoryVisible(true)
+    } else setCategoryVisible(false)
+
+    if (manager === 'brand') {
+      dispatch(listBrand())
+      setBrandVisible(true)
+    } else setBrandVisible(false)
+
+    if (manager === 'delivery') {
+      dispatch(listDelivery())
+      setDeliveryVisible(true)
+    } else setDeliveryVisible(false)
+
+    if (manager === 'payment') {
+      dispatch(listPayment())
+      setPaymentVisible(true)
+    } else setPaymentVisible(false)
+
+    if (manager === 'review') {
+      dispatch(listReviews())
+      setReviewsVisible(true)
+    } else setReviewsVisible(false)
+
+    if (manager === 'chat') {
+      dispatch(listChat());
+      dispatch(listLiveUser())
+      setChatVisible(true)
+    } else setChatVisible(false)
+  }
 
   return (
     userInfo && (userInfo.isAdmin || userInfo.email === 'dm@beirutgrouptt.com') &&
@@ -125,273 +161,91 @@ function DashBoard(props) {
             </div>
             <div className="header-links-manager">Welcome Manager</div>
           </li>
-          <li onClick={() => {
-            setCategoryVisible(false)
-            setProductVisible(false)
-            setZoneVisible(false)
-            setBrandVisible(false)
-            setDeliveryVisible(false)
-            setPaymentVisible(false)
-            setUsersVisible(true)
-            setReviewsVisible(false)
-            setEmployeeVisible(false)
-            setAssignmentsVisible(false)
-            setOrdersVisible(false)
-            setAttendanceVisible(false)
-            setChatVisible(false)
-          }}>
+          <li onClick={() => managerHandler('user')}>
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faUserCog}
                 style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               User Manager</h4>
           </li>
-          <li onClick={() => {
-            setCategoryVisible(false)
-            setProductVisible(false)
-            setZoneVisible(false)
-            setBrandVisible(false)
-            setDeliveryVisible(false)
-            setPaymentVisible(false)
-            setUsersVisible(false)
-            setReviewsVisible(false)
-            setEmployeeVisible(true)
-            setAssignmentsVisible(false)
-            setOrdersVisible(false)
-            setAttendanceVisible(false)
-            setChatVisible(false)
-          }}>
+          <li onClick={() => managerHandler('employee')}>
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faAddressCard}
                 style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Employee Profile Manager</h4>
           </li>
-          <li onClick={() => {
-            setCategoryVisible(false)
-            setProductVisible(false)
-            setZoneVisible(false)
-            setBrandVisible(false)
-            setDeliveryVisible(false)
-            setPaymentVisible(false)
-            setUsersVisible(false)
-            setReviewsVisible(false)
-            setEmployeeVisible(false)
-            setAssignmentsVisible(true)
-            setOrdersVisible(false)
-            setAttendanceVisible(false)
-            setChatVisible(false)
-          }}>
+          <li onClick={() => managerHandler('assignment')}>
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faTasks}
                 style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Assignments Manager</h4>
           </li>
-          <li onClick={() => {
-            setCategoryVisible(false)
-            setProductVisible(false)
-            setZoneVisible(false)
-            setBrandVisible(false)
-            setDeliveryVisible(false)
-            setPaymentVisible(false)
-            setUsersVisible(false)
-            setReviewsVisible(false)
-            setEmployeeVisible(false)
-            setAssignmentsVisible(false)
-            setOrdersVisible(false)
-            setAttendanceVisible(true)
-            setChatVisible(false)
-          }}>
+          <li onClick={() => managerHandler('attendance')}>
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faCalendarCheck}
                 style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Attendance Manager</h4>
           </li>
-          <li onClick={() => {
-            setCategoryVisible(false)
-            setProductVisible(false)
-            setZoneVisible(false)
-            setBrandVisible(false)
-            setDeliveryVisible(false)
-            setPaymentVisible(false)
-            setUsersVisible(false)
-            setReviewsVisible(false)
-            setEmployeeVisible(false)
-            setAssignmentsVisible(false)
-            setOrdersVisible(true)
-            setAttendanceVisible(false)
-            setChatVisible(false)
-          }}>
+          <li onClick={() => managerHandler('order')}>
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faCartArrowDown}
                 style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Orders Manager</h4>
           </li>
-          <li onClick={() => {
-            setProductVisible(true)
-            setZoneVisible(false)
-            setCategoryVisible(false)
-            setDeliveryVisible(false)
-            setPaymentVisible(false)
-            setBrandVisible(false)
-            setUsersVisible(false)
-            setReviewsVisible(false)
-            setEmployeeVisible(false)
-            setAssignmentsVisible(false)
-            setOrdersVisible(false)
-            setAttendanceVisible(false)
-            setChatVisible(false)
-          }}>
+          <li onClick={() => managerHandler('product')}>
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faBoxes}
                 style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Product Manager</h4>
           </li>
-          <li onClick={() => {
-            setZoneVisible(true)
-            setProductVisible(false)
-            setCategoryVisible(false)
-            setBrandVisible(false)
-            setDeliveryVisible(false)
-            setPaymentVisible(false)
-            setUsersVisible(false)
-            setReviewsVisible(false)
-            setEmployeeVisible(false)
-            setAssignmentsVisible(false)
-            setOrdersVisible(false)
-            setAttendanceVisible(false)
-            setChatVisible(false)
-          }}>
+          <li onClick={() => managerHandler('zone')}>
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faMapMarkedAlt}
                 style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Zone Manager</h4>
           </li>
-          <li onClick={() => {
-            setCategoryVisible(true)
-            setProductVisible(false)
-            setZoneVisible(false)
-            setBrandVisible(false)
-            setDeliveryVisible(false)
-            setPaymentVisible(false)
-            setUsersVisible(false)
-            setReviewsVisible(false)
-            setEmployeeVisible(false)
-            setAssignmentsVisible(false)
-            setOrdersVisible(false)
-            setAttendanceVisible(false)
-            setChatVisible(false)
-          }}>
+          <li onClick={() => managerHandler('category')}>
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faTh}
                 style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Category Manager</h4>
           </li>
-          <li onClick={() => {
-            setCategoryVisible(false)
-            setProductVisible(false)
-            setZoneVisible(false)
-            setBrandVisible(true)
-            setDeliveryVisible(false)
-            setPaymentVisible(false)
-            setUsersVisible(false)
-            setReviewsVisible(false)
-            setEmployeeVisible(false)
-            setAssignmentsVisible(false)
-            setOrdersVisible(false)
-            setAttendanceVisible(false)
-            setChatVisible(false)
-          }}>
+          <li onClick={() => managerHandler('brand')}>
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faThLarge}
                 style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Brand Manager</h4>
           </li>
-          <li onClick={() => {
-            setCategoryVisible(false)
-            setProductVisible(false)
-            setZoneVisible(false)
-            setBrandVisible(false)
-            setDeliveryVisible(true)
-            setPaymentVisible(false)
-            setUsersVisible(false)
-            setReviewsVisible(false)
-            setEmployeeVisible(false)
-            setAssignmentsVisible(false)
-            setOrdersVisible(false)
-            setAttendanceVisible(false)
-            setChatVisible(false)
-          }}>
+          <li onClick={() => managerHandler('delivery')}>
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faTruck}
                 style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Delivery Manager</h4>
           </li>
-          <li onClick={() => {
-            setCategoryVisible(false)
-            setProductVisible(false)
-            setZoneVisible(false)
-            setBrandVisible(false)
-            setDeliveryVisible(false)
-            setPaymentVisible(true)
-            setUsersVisible(false)
-            setReviewsVisible(false)
-            setEmployeeVisible(false)
-            setAssignmentsVisible(false)
-            setOrdersVisible(false)
-            setAttendanceVisible(false)
-            setChatVisible(false)
-          }}>
+          <li onClick={() => managerHandler('payment')}>
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faDollarSign}
                 style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Payment Manager</h4>
           </li>
-          <li onClick={() => {
-            setCategoryVisible(false)
-            setProductVisible(false)
-            setZoneVisible(false)
-            setBrandVisible(false)
-            setDeliveryVisible(false)
-            setPaymentVisible(false)
-            setUsersVisible(false)
-            setReviewsVisible(true)
-            setEmployeeVisible(false)
-            setAssignmentsVisible(false)
-            setOrdersVisible(false)
-            setAttendanceVisible(false)
-            setChatVisible(false)
-          }}>
+          <li onClick={() => managerHandler('review')}>
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={faStarHalfAlt}
                 style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Reviews Manager</h4>
           </li>
-          <li onClick={() => {
-            setCategoryVisible(false)
-            setProductVisible(false)
-            setZoneVisible(false)
-            setBrandVisible(false)
-            setDeliveryVisible(false)
-            setPaymentVisible(false)
-            setUsersVisible(false)
-            setReviewsVisible(false)
-            setEmployeeVisible(false)
-            setAssignmentsVisible(false)
-            setOrdersVisible(false)
-            setAttendanceVisible(false)
-            setChatVisible(true)
-          }}>
+          <li onClick={() => managerHandler('chat')}>
             <h4 className="control-title">
               <FontAwesomeIcon
                 icon={farComments}
