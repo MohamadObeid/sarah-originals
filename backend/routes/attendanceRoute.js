@@ -36,17 +36,19 @@ router.post("", isAuth, isAdmin, async (req, res) => {
 router.put("/:id", isAuth, isAdmin, async (req, res) => {
     const attendance = await Attendance.findOne({ _id: req.params.id });
     if (attendance) {
-        attendance.creation_date = req.body.creation_date && req.body.creation_date;
-        attendance.created_by = req.body.created_by && req.body.created_by;
-        attendance.modified = req.body.modified && req.body.modified;
-        attendance.employeeId = req.body.employeeId && req.body.employeeId;
-        attendance.employeeName = req.body.employeeName && req.body.employeeName;
-        attendance.employeeImage = req.body.employeeImage && req.body.employeeImage;
-        attendance.date = req.body.date && req.body.date;
-        attendance.checkin = req.body.checkin && req.body.checkin;
-        attendance.checkout = req.body.checkout && req.body.checkout;
-        attendance.absence = req.body.absence && req.body.absence;
-        attendance.note = req.body.note && req.body.note;
+        attendance.creation_date = req.body.creation_date ? req.body.creation_date : attendance.creation_date;
+        attendance.created_by = req.body.created_by ? req.body.created_by : attendance.created_by;
+        attendance.modified = req.body.modified ? req.body.modified : attendance.modified;
+        attendance.employeeId = req.body.employeeId ? req.body.employeeId : attendance.employeeId;
+        attendance.employeeName = req.body.employeeName ? req.body.employeeName : attendance.employeeName;
+        attendance.employeeImage = req.body.employeeImage ? req.body.employeeImage : attendance.employeeImage;
+        attendance.date = req.body.date ? req.body.date : attendance.date;
+        attendance.checkin = req.body.checkin ? req.body.checkin : attendance.checkin;
+        attendance.checkout = req.body.checkout ? req.body.checkout : attendance.checkout;
+        attendance.absence = req.body.absence ? req.body.absence : attendance.absence;
+        attendance.note = req.body.note ? req.body.note : attendance.note;
+        attendance.workTimeHours = req.body.workTimeHours ? req.body.workTimeHours : attendance.workTimeHours;
+        attendance.workHoursRecorded = req.body.workHoursRecorded ? req.body.workHoursRecorded : attendance.workHoursRecorded;
     }
     const attendanceUpdated = await attendance.save();
 

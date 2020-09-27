@@ -40,7 +40,6 @@ const signin = (user) => async (dispatch, getState) => {
                 employeeId: data.employeeId,
                 token: data.token
             }));
-            console.log('cookies saved')
         } catch (error) {
             dispatch({ type: USER_SIGNIN_FAIL, payload: error.message })
         }

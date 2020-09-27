@@ -11,9 +11,11 @@ const attendanceSchema = new mongoose.Schema({
         }], required: false
     },
     employeeId: { type: String, required: true },
-    employeeName: { type: String, required: true },
+    employeeName: { type: String, required: false },
     employeeImage: { type: String, required: false },
-    date: { type: String, required: true },
+    date: { type: String, required: false },
+    workTimeHours: { type: String, required: false },
+    workHoursRecorded: { type: String, required: false },
     checkin: {
         workTime: { type: String, required: false },
         record: { type: String, required: false },
@@ -34,7 +36,7 @@ const attendanceSchema = new mongoose.Schema({
         }
     },
     checkout: {
-        workTime: { type: Date, required: false },
+        workTime: { type: String, required: false },
         record: { type: String, required: false },
         location: { type: String, required: false },
         earliness: {
