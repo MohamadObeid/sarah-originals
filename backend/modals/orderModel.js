@@ -2,12 +2,14 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
     status: {
+        confirmed: { type: Boolean, required: false, default: false },
         canceled: { type: Boolean, required: false, default: false },
-        confirmed: {
+        rejected: { type: Boolean, required: false, default: false },
+        confirmation: {
             type: [{
-                cart: { type: String, required: true, default: '' },
-                delivery: { type: String, required: true, default: '' },
-                payment: { type: String, required: true, default: '' },
+                cart: { type: String, required: false },
+                delivery: { type: String, required: false },
+                payment: { type: String, required: false },
             }], required: true, default: []
         },
         returned: {

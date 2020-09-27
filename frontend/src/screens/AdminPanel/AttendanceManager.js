@@ -111,7 +111,8 @@ function AttendanceManager(props) {
         if (successSave || successDelete) {
             setFormAlertVisible(false)
             setModelVisible(false)
-            dispatch(listAttendance(userInfo.employeeId))
+            userInfo.isAttendanceManager ? dispatch(listAttendance())
+                : dispatch(listAttendance(userInfo.employeeId))
             setActionNote(`Attendance ${successSave ? 'recorded' : 'deleted'} succefully`)
             setActionNoteVisible(true)
             setInterval(() => setActionNoteVisible(false), 5000)
@@ -288,7 +289,6 @@ function AttendanceManager(props) {
 
     const checkinStatus = () => {
         var workTime = workTimeStart()
-        console.log('worktime ' + workTime)
         var timeDiff
         if (workTime) {
             timeDiff = workTime ? timeDiffCalc(currentHour + ':' + currentMinutes, workTime) : undefined
@@ -306,7 +306,7 @@ function AttendanceManager(props) {
         e.preventDefault()
         var workTimeHours = undefined
         if (workTimeStart() && workTimeEnd())
-            workTimeHours = timeDiffCalc(workTimeStart, workTimeEnd)
+            workTimeHours = timeDiffCalc(workTimeStart(), workTimeEnd())
         const data = checkinStatus()
         const lateness = data.lateness
         const overTime = data.overTime
@@ -443,6 +443,15 @@ function AttendanceManager(props) {
     const checkInOutButton = () => {
         if (attendanceList) {
             var lastIndex = attendanceList.length - 1
+            if (attendanceList[lastIndex].employeeId === userInfo.employeeId)
+                lastIndex = attendanceList.length - 1
+            else {
+                lastIndex = 0
+                attendanceList.map(att => {
+                    if (attendanceList.indexOf(att) > lastIndex && att.employeeId === userInfo.employeeId)
+                        lastIndex = attendanceList.indexOf(att)
+                })
+            }
             if (attendanceList[lastIndex].date == currentDate) {
                 if (!attendanceList[lastIndex].checkout) return 'Check out'
                 else if (!attendanceList[lastIndex].checkout.record) return 'Check out'
@@ -699,7 +708,7 @@ function AttendanceManager(props) {
                     <tr>
                         <th style={{ width: '18rem' }}>Name</th>
                         <th style={{ textAlign: 'center' }}>Photo</th>
-                        <th style={{ width: '12rem' }}>Date</th>
+                        <th style={{ width: '13rem' }}>Date</th>
                         <th style={{ textAlign: 'center', width: '8rem' }} colspan="2">Check In</th>
                         <th style={{ width: '20rem' }}></th>
                         <th style={{ textAlign: 'center', width: '8rem' }} colspan="2">Check Out</th>
@@ -726,7 +735,7 @@ function AttendanceManager(props) {
                                         <ReactTooltip id={attendance._id + 'checkin'} place="top" effect="solid">
                                             {attendance.checkin.workTime
                                                 ? showTimeTooltip(attendance.checkin, 'checkin') +
-                                                ' | Work Start Time' + attendance.checkin.workTime
+                                                ' | Work Start Time ' + attendance.checkin.workTime
                                                 : 'Not Working Day'}
                                         </ReactTooltip>
                                     </div>

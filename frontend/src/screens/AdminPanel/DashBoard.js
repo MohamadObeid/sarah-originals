@@ -87,7 +87,9 @@ function DashBoard(props) {
     } else setAssignmentsVisible(false)
 
     if (manager === 'attendance') {
-      dispatch(listAttendance(userInfo.employeeId))
+      userInfo.isAttendanceManager ?
+        dispatch(listAttendance())
+        : dispatch(listAttendance(userInfo.employeeId))
       //!employees && dispatch(listEmployees())
       dispatch(detailsEmployee(userInfo.employeeId))
       setAttendanceVisible(true)
