@@ -1,5 +1,6 @@
 // This constants are action types of dispatching server, and used for reducers.
 // They are declared in a separated file, since they are used in more than 1 file.
+export const CURRENT_TIME = 'CURRENT_TIME'
 export const GET_CURRENT_TIME = 'GET_CURRENT_TIME'
 export const PRODUCT_LIST_REQUEST = "PRODUCT_LIST_REQUEST";
 export const PRODUCT_LIST_SUCCESS = "PRODUCT_LIST_SUCCESS";
@@ -170,6 +171,7 @@ export const EMPLOYEE_DELETE_FAIL = 'EMPLOYEE_DELETE_FAIL'
 export const EMPLOYEE_DETAILS_REQUEST = 'EMPLOYEE_DETAILS_REQUEST'
 export const EMPLOYEE_DETAILS_SUCCESS = 'EMPLOYEE_DETAILS_SUCCESS'
 export const EMPLOYEE_DETAILS_FAIL = 'EMPLOYEE_DETAILS_FAIL'
+export const CLEAR_EMPLOYEE_DELETE = 'CLEAR_EMPLOYEE_DELETE'
 
 // Attendance
 

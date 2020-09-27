@@ -15,14 +15,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { signin } from "./actions/userActions";
 import axios from "axios";
 import { USER_SIGNIN_SUCCESS } from "./constants/constants";
+import { clock } from './actions/timeActions'
 
 function App(props) {
 
   const dispatch = useDispatch()
-  //const [IP, setIP] = useState()
   var IPaddress
 
   const { userInfo } = useSelector(state => state.userSignin)
+  const { time } = useSelector(state => state.clock)
 
   const getIPAddress = async () => {
     await fetch('https://geolocation-db.com/json/7733a990-ebd4-11ea-b9a6-2955706ddbf3')
@@ -44,7 +45,13 @@ function App(props) {
       setTimeout(refreshActiveUser, 25000)
   }
 
+  const refreshClock = () => {
+    dispatch(clock())
+    setTimeout(refreshClock, 1000)
+  }
+
   useEffect(() => {
+    !time && refreshClock()
     getIPAddress()
     return () => {
       //

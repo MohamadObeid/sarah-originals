@@ -1,7 +1,7 @@
 import { combineReducers, createStore, applyMiddleware, compose } from "redux";
 import thunk from "redux-thunk";
 import cookie from "js-cookie";
-import { timeReducer } from './reducers/timeReducer'
+import { clockReducer, timeReducer } from './reducers/timeReducer'
 import {
   productListReducer,
   productDetailsReducer,
@@ -110,6 +110,7 @@ const initialState = {
 
 const reducer = combineReducers({
   time: timeReducer,
+  clock: clockReducer,
 
   productList: productListReducer,
   productDetails: productDetailsReducer,

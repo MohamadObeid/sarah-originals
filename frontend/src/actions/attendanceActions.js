@@ -15,11 +15,19 @@ import {
     ATTENDANCE_SAVE_CLEAR
 } from "../constants/constants";
 
-const listAttendance = () => async (dispatch) => {
+const listAttendance = (employeeId) => async (dispatch, getState) => {
     try {
+        const { userSignin: { userInfo } } = getState()
         dispatch({ type: ATTENDANCE_LIST_REQUEST })
-        const { data } = await axios.get("/api/attendance");
-        dispatch({ type: ATTENDANCE_LIST_SUCCESS, payload: data })
+        if (employeeId) {
+            const { data } = await axios.post("/api/attendance/getAttendance", { employeeId }, {
+                headers: { 'Authorization': 'Bearer ' + userInfo.token }
+            })
+            dispatch({ type: ATTENDANCE_LIST_SUCCESS, payload: data })
+        } else {
+            const { data } = await axios.get("/api/attendance");
+            dispatch({ type: ATTENDANCE_LIST_SUCCESS, payload: data })
+        }
     } catch (error) {
         dispatch({ type: ATTENDANCE_LIST_FAIL, payload: error.message })
     }
@@ -30,8 +38,7 @@ const saveAttendance = (attendance) => async (dispatch, getState) => {
         dispatch({ type: ATTENDANCE_SAVE_CLEAR, payload: undefined })
     } else try {
         const { userSignin: { userInfo } } = getState()
-        dispatch({ type: ATTENDANCE_SAVE_REQUEST, payload: attendance });
-
+        dispatch({ type: ATTENDANCE_SAVE_REQUEST, payload: attendance })
         // update
         if (attendance._id) {
             const { data } = await axios.put('/api/attendance/' + attendance._id, attendance, {

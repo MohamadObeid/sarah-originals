@@ -5,9 +5,11 @@ import { listAttendance, saveAttendance, deleteAttendance } from '../../actions/
 import { detailsEmployee } from '../../actions/employeeActions'
 import { days, months, years, weekDays } from '../../constants/lists'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTimes, faCircle } from '@fortawesome/free-solid-svg-icons'
+import { faTimes, faCircle, faEnvelopeOpenText } from '@fortawesome/free-solid-svg-icons'
 import { } from '@fortawesome/free-brands-svg-icons'
 import ReactTooltip from "react-tooltip"
+import { timeDiffCalc } from '../../methods/methods'
+import { Modal } from 'antd'
 
 function AttendanceManager(props) {
     const [IP, setIP] = useState()
@@ -15,12 +17,11 @@ function AttendanceManager(props) {
     const getIPAddress = async () => {
         await fetch('https://geolocation-db.com/json/7733a990-ebd4-11ea-b9a6-2955706ddbf3')
             .then(res => res.json())
-            .then(IP => { setIP(IP); console.log(IP, 'failed') })
+            .then(IP => { setIP(IP) })
     }
 
     useEffect(() => {
         getIPAddress()
-        userInfo && dispatch(detailsEmployee(userInfo.employeeId))
         return () => {
             //
         };
@@ -32,7 +33,7 @@ function AttendanceManager(props) {
     var currentMonth = months[d.getMonth()]
     var currentDay = d.getDate()
     var currentWeekDay = weekDays[d.getDay()]
-    var currentHour = d.getHours()
+    var currentHour = d.getHours() < 10 ? '0' + d.getHours() : d.getHours()
     var currentMinutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes()
     var currentSeconds = d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds()
 
@@ -52,6 +53,7 @@ function AttendanceManager(props) {
     const [commentVisible, setCommentVisible] = useState(false)
     const [comment, setComment] = useState()
     const [isAbsent, setIsAbsent] = useState(false)
+    const [reasonModalVisible, setReasonModalVisible] = useState(false)
 
     const [_id, setId] = useState()
     const [modified, setModified] = useState()
@@ -102,13 +104,14 @@ function AttendanceManager(props) {
     const { attendance: attendanceList } = useSelector(state => state.attendanceList)
     const { userInfo } = useSelector(state => state.userSignin)
     const { employee } = useSelector(state => state.employeeDetails)
+    const { time } = useSelector(state => state.clock)
 
     const dispatch = useDispatch()
     useEffect(() => {
         if (successSave || successDelete) {
             setFormAlertVisible(false)
             setModelVisible(false)
-            dispatch(listAttendance())
+            dispatch(listAttendance(userInfo.employeeId))
             setActionNote(`Attendance ${formAction}ed succefully`)
             setActionNoteVisible(true)
             setInterval(() => setActionNoteVisible(false), 5000)
@@ -248,11 +251,22 @@ function AttendanceManager(props) {
     }
 
     const submitHandler = (e) => {
+
+    }
+
+    const checkInOutHandler = (e) => {
         e.preventDefault()
         const attendanceExist = attendanceList ? attendanceList.find(attendance => attendance._id === _id) : undefined
-        const checkingout = attendanceList ? attendanceList.find(attendance => attendance.date === currentDate && attendance.employeeId === userInfo.employeeId && !attendance.checkout) : undefined
-        if (checkingout) { checkoutHandler(checkingout) }
-        else if (!attendanceExist && !checkingout) { checkinHandler() }
+        const isCheckout = attendanceList ? attendanceList.find(attendance => attendance.date === currentDate && attendance.employeeId === userInfo.employeeId && !attendance.checkout) : undefined
+        if (isCheckout) { checkoutHandler(isCheckout) }
+        else if (!attendanceExist && !isCheckout) {
+            const data = latenessOverTime()
+            const lateness = data.lateness
+            const overTime = data.overTime
+            if (lateness || overTime)
+                setReasonModalVisible(true)
+            else checkinHandler()
+        }
         else if (attendanceExist) { requestHandler(attendanceExist) }
     }
 
@@ -260,102 +274,118 @@ function AttendanceManager(props) {
 
     }
 
-    const checkinHandler = () => {
-        var workTime = workTimeEnd()
-        var timeDiff = timeDiffCalc(currentHour + ':' + currentMinutes, workTime)
+    const latenessOverTime = () => {
+        var workTime = workTimeStart()
+        var timeDiff = workTime && timeDiffCalc(currentHour + ':' + currentMinutes, workTime)
         var lateness = false
         var overTime = false
         if (timeDiff.sign) {
-            timeDiff = timeDiff.diff;
+            timeDiff = timeDiff.diff
             lateness = true
         } else if (timeDiff !== '00:00') overTime = true
+        return { lateness: lateness, overTime: overTime, timeDiff: timeDiff, workTime: workTime }
+    }
 
+    const checkinHandler = (e) => {
+        e.preventDefault()
+        const data = latenessOverTime()
+        const lateness = data.lateness
+        const overTime = data.overTime
+        const timeDiff = data.timeDiff
+        const workTime = data.workTime
         dispatch(saveAttendance({
             creation_date: Date.now() + 10800000,
             created_by: employee.firstName + ' ' + employee.lastName,
             employeeId: employee._id,
-            employeeName: employeeName ? employeeName : (employee.firstName + ' ' + employee.lastName),
+            employeeName: employee.firstName + ' ' + employee.lastName,
             employeeImage: employeeImage ? employeeImage : employee.image,
             date: currentDate,
             checkin: {
-                time: workTime, record: currentHour + ':' + currentMinutes, location: IP.country_name + ' ' + IP.state,
-                lateness: lateness && { hours: timeDiff, reason: checkinLatenessReason },
-                overTime: overTime && { hours: timeDiff, reason: checkinOverTimeReason },
+                workTime: workTime,
+                record: currentHour + ':' + currentMinutes,
+                location: IP.country_name + ', ' + IP.city,
+                lateness: lateness ? { hours: timeDiff, reason: checkinLatenessReason } : undefined,
+                overTime: overTime ? { hours: timeDiff, reason: checkinOverTimeReason } : undefined,
             }
         }))
+        setReasonModalVisible(false)
     }
 
-    const checkoutHandler = (checkout) => {
+    const earlinessOverTime = () => {
         var workTime = workTimeEnd()
-        var timeDiff = timeDiffCalc(workTime, currentHour + ':' + currentMinutes)
+        var timeDiff = workTime && timeDiffCalc(workTime, currentHour + ':' + currentMinutes)
         var earliness = false
         var overTime = false
         if (timeDiff.sign) {
-            timeDiff = timeDiff.diff;
+            timeDiff = timeDiff.diff
             earliness = true
         } else if (timeDiff !== '00:00') overTime = true
+        return { earliness: earliness, overTime: overTime, timeDiff: timeDiff, workTime: workTime }
+    }
+
+    const checkoutHandler = (checkout) => {
+        //e.preventDefault()
+        const data = earlinessOverTime()
+        const earliness = data.earliness
+        const overTime = data.overTime
+        const timeDiff = data.timeDiff
+        const workTime = data.workTime
         dispatch(saveAttendance({
             _id: checkout._id,
             modified, checkout: {
-                time: workTime, record: currentHour + ':' + currentMinutes, location: IP.country_name + ' ' + IP.state,
-                earliness: earliness && { hours: timeDiff, reason: checkoutEarlinessReason },
-                overTime: overTime && { hours: timeDiff, reason: checkoutOverTimeReason },
+                workTime: workTime, record: currentHour + ':' + currentMinutes, location: IP.country_name + ', ' + IP.city,
+                earliness: earliness ? { hours: timeDiff, reason: checkoutEarlinessReason } : undefined,
+                overTime: overTime ? { hours: timeDiff, reason: checkoutOverTimeReason } : undefined,
                 //request: { time: checkoutRequestTime, reason: checkoutRequestReason, status: checkoutRequestStatus }
             },
         }))
     }
 
-    const timeDiffCalc = (from, to) => {
-        var fromHour = from.slice(0, 2)
-        var fromMin = from.slice(3, 5)
-        var toHour = to.slice(0, 2)
-        var toMin = to.slice(3, 5)
-        if (fromHour === toHour) {
-            if (toMin > fromMin) { return '00:' + ((toMin - fromMin) ? '0' + (toMin - fromMin) : (toMin - fromMin)) }
-            else if (toMin < fromMin) { return { sign: '-', diff: '00:' + ((fromMin - toMin) < 10 ? '0' + (fromMin - toMin) : (fromMin - toMin)) } }
-            else if (toMin === fromMin) return '00:00'
-        } else if (toHour > fromHour) {
-            if (toMin < fromMin) { return (((toHour - fromHour - 1) < 10 ? '0' + (toHour - fromHour - 1) : (toHour - fromHour - 1)) + ':' + (60 - fromMin + parseInt(toMin))) }
-            else if (toMin === fromMin) { return (((toHour - fromHour) < 10 ? '0' + (toHour - fromHour) : '0' + (toHour - fromHour)) + ':00') }
-            else if (toMin > fromMin) { return (((toHour - fromHour) < 10 ? '0' + (toHour - fromHour) : (toHour - fromHour)) + ':' + ((toMin - fromMin) < 10 ? '0' + (toMin - fromMin) : (toMin - fromMin))) }
-        } else if (toHour < fromHour) {
-            if (toMin > fromMin) { return ({ sign: '-', diff: ((fromHour - toHour - 1) < 10 ? '0' + (fromHour - toHour - 1) : (fromHour - toHour - 1)) + ':' + (60 - toMin + parseInt(fromMin)) }) }
-            else if (toMin === fromMin) { return ({ sign: '-', diff: ((fromHour - toHour) < 10 ? '0' + (fromHour - toHour) : '0' + (fromHour - toHour)) + ':00' }) }
-            else if (toMin < fromMin) { return ({ sign: '-', diff: ((fromHour - toHour) < 10 ? '0' + (fromHour - toHour) : (fromHour - toHour)) + ':' + ((fromMin - toMin) < 10 ? '0' + (fromMin - toMin) : (fromMin - toMin)) }) }
-        }
-    }
-
     const workTimeEnd = () => {
-        if (currentWeekDay === 'Monday') return employee.workTime.mon.to
-        else if (currentWeekDay === 'Tuesday') return employee.workTime.tue.to
-        else if (currentWeekDay === 'Wednesday') return employee.workTime.wed.to
-        else if (currentWeekDay === 'Thursday') return employee.workTime.thu.to
-        else if (currentWeekDay === 'Friday') return employee.workTime.fri.to
-        else if (currentWeekDay === 'Saturday') return employee.workTime.sat.to
-        else if (currentWeekDay === 'Sunday') return employee.workTime.sun.to
+        if (employee) {
+            if (currentWeekDay === 'Monday') return employee.workTime.mon.to
+            else if (currentWeekDay === 'Tuesday') return employee.workTime.tue.to
+            else if (currentWeekDay === 'Wednesday') return employee.workTime.wed.to
+            else if (currentWeekDay === 'Thursday') return employee.workTime.thu.to
+            else if (currentWeekDay === 'Friday') return employee.workTime.fri.to
+            else if (currentWeekDay === 'Saturday') return employee.workTime.sat.to
+            else if (currentWeekDay === 'Sunday') return employee.workTime.sun.to
+        } return false
     }
 
     const workTimeStart = () => {
-        if (currentWeekDay === 'Monday') return employee.workTime.mon.from
-        else if (currentWeekDay === 'Tuesday') return employee.workTime.tue.from
-        else if (currentWeekDay === 'Wednesday') return employee.workTime.wed.from
-        else if (currentWeekDay === 'Thursday') return employee.workTime.thu.from
-        else if (currentWeekDay === 'Friday') return employee.workTime.fri.from
-        else if (currentWeekDay === 'Saturday') return employee.workTime.sat.from
-        else if (currentWeekDay === 'Sunday') return employee.workTime.sun.from
+        if (employee) {
+            if (currentWeekDay === 'Monday') return employee.workTime.mon && employee.workTime.mon.from
+            else if (currentWeekDay === 'Tuesday') return employee.workTime.tue && employee.workTime.tue.from
+            else if (currentWeekDay === 'Wednesday') return employee.workTime && employee.workTime.wed.from
+            else if (currentWeekDay === 'Thursday') return employee.workTime.thu && employee.workTime.thu.from
+            else if (currentWeekDay === 'Friday') return employee.workTime.fri && employee.workTime.fri.from
+            else if (currentWeekDay === 'Saturday') return employee.workTime.sat && employee.workTime.sat.from
+            else if (currentWeekDay === 'Sunday') return employee.workTime.sun && employee.workTime.sun.from
+        } return false
     }
 
     const createHandler = (e) => {
         setModelVisible(true)
     }
 
-    const showTimeTooltip = (checkin) => {
-        if (!checkin.lateness && !checkin.overTime) {
-            return 'On Time'
-        } else if (checkin.lateness && checkin.lateness.hours) {
-            return 'Late: ' + checkin.lateness.hours
-        } else if (checkin.overTime && checkin.overTime.hours) {
-            return 'Over Time: ' + checkin.overTime.hours
+    const showTimeTooltip = (time, status) => {
+        if (status === 'checkin') {
+            if (!time.lateness && !time.overTime) {
+                return 'On Time'
+            } else if (time.lateness && time.lateness.hours) {
+                return 'Late: ' + time.lateness.hours + ' hours'
+            } else if (time.overTime && time.overTime.hours) {
+                return 'Over Time: ' + time.overTime.hours
+            }
+        } else if (status === 'checkout') {
+            if (!time.earliness && !time.overTime) {
+                return 'On Time'
+            } else if (time.earliness && time.earliness.hours) {
+                return 'Early Leave: ' + time.earliness.hours + ' hours'
+            } else if (time.overTime && time.overTime.hours) {
+                return 'Over Time: ' + time.overTime.hours
+            }
         }
     }
 
@@ -365,13 +395,70 @@ function AttendanceManager(props) {
         else if (checkin.overTime && checkin.overTime.hours) return 'green'
     }
 
+    const checkInOutButton = () => {
+        if (attendanceList) {
+            var lastIndex = attendanceList.length - 1
+            if (attendanceList[lastIndex].date == currentDate
+                && !attendanceList[lastIndex].checkout)
+                return 'Check out'
+        }
+        return 'Check in'
+    }
+
+    const modalTitle = () => {
+        if (latenessOverTime().lateness) return 'Lateness Reason'
+        else if (latenessOverTime().overTime) return 'OverTime Reason'
+    }
+
+    const deleteHandler = (e, _id) => {
+        e.preventDefault();
+        setFormAction('Delete')
+        dispatch(deleteAttendance(_id));
+    }
+
+    const showHistoryHandler = (attendance) => {
+
+    }
+
+    const editHandler = (attendance) => {
+
+    }
+
     return (
         <div>
             {actionNoteVisible && <div className="action-note">{actionNote}</div>}
             <div className="control-page-header">
                 <h3 className="header-title">Attendance Manager</h3>
-                <button type="button" className="header-button" onClick={() => createHandler()}>Create Attendance</button>
+                <button type="button"
+                    className="header-button checkin-btn"
+                    onClick={(e) => checkInOutHandler(e)}>
+                    {checkInOutButton()}<br />
+                    <div className={`timer ${checkInOutButton() === 'Check in' &&
+                        (latenessOverTime().lateness) && 'red-background'}`}
+                    >{time.slice(10, time.length)}</div>
+                </button>
             </div>
+            {reasonModalVisible &&
+                <Modal
+                    title={modalTitle()}
+                    visible={reasonModalVisible}
+                    onOk={(e) => checkinHandler(e)}
+                    //confirmLoading={checkinHandler}
+                    onCancel={() => setReasonModalVisible(false)}
+                >
+                    <textarea
+                        style={{ width: '45rem' }}
+                        type="text"
+                        name="checkinReason"
+                        id="checkinReason"
+                        onChange={(e) => {
+                            (latenessOverTime().lateness) ?
+                                setCheckinLatenessReason(e.target.value)
+                                : (latenessOverTime().overTime)
+                                && setCheckinOverTimeReason(e.target.value)
+                        }}
+                    ></textarea>
+                </Modal>}
             {
                 modelVisible &&
                 <form className="form-form" onSubmit={(e) => submitHandler(e)}>
@@ -545,15 +632,13 @@ function AttendanceManager(props) {
             <table className="table">
                 <thead>
                     <tr>
-                        <th>Name</th>
+                        <th style={{ width: '18rem' }}>Name</th>
                         <th style={{ textAlign: 'center' }}>Photo</th>
-                        <th>Date</th>
-                        <th>Check In</th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th>Check Out</th>
-                        <th>Request</th>
+                        <th style={{ width: '12rem' }}>Date</th>
+                        <th style={{ textAlign: 'center', width: '8rem' }} colspan="2">Check In</th>
+                        <th style={{ width: '20rem' }}></th>
+                        <th style={{ textAlign: 'center', width: '8rem' }} colspan="2">Check Out</th>
+                        <th style={{ textAlign: 'center', width: '7rem' }}>Request</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -561,23 +646,45 @@ function AttendanceManager(props) {
                     {attendanceList &&
                         attendanceList.map((attendance) => (
                             <tr key={attendance._id}>
-                                <td>{attendance.name}</td>
+                                <td>{attendance.employeeName}</td>
                                 <td className='td-img'>
                                     <img
-                                        className='attendance-image'
-                                        src={imageUrl + attendance.image} alt='employee' />
+                                        className='employee-image'
+                                        src={imageUrl + attendance.employeeImage} alt='employee' />
                                 </td>
                                 <td>{attendance.date}</td>
-                                <td>{attendance.checkin.time}</td>
-                                <td style={{ textAlign: 'center' }}>
-                                    <div><FontAwesomeIcon data-tip data-for={attendance.checkin}
+                                <td style={{ textAlign: 'center' }}>{attendance.checkin.record}</td>
+                                <td style={{ textAlign: 'end', width: '2rem' }}>
+                                    <div><FontAwesomeIcon data-tip data-for={attendance._id + 'checkin'}
                                         className={`faCircle ${FaCircleColor(attendance.checkin)}`}
                                         icon={faCircle} />
-                                        {attendance.checkin && <ReactTooltip id={attendance.checkin} place="top" effect="solid">
-                                            {showTimeTooltip(attendance.checkin)}<br />
-                                                Location: {attendance.checkin.location}
-                                        </ReactTooltip>}
+                                        {attendance.checkin &&
+                                            <ReactTooltip id={attendance._id + 'checkin'} place="top" effect="solid">
+                                                {showTimeTooltip(attendance.checkin, 'checkin')}
+                                            </ReactTooltip>}
                                     </div>
+                                </td>
+                                <td style={{ position: 'relative' }}><i class="line"></i></td>
+                                <td style={{ width: '2rem' }}>
+                                    <div><FontAwesomeIcon data-tip data-for={attendance._id + 'checkout'}
+                                        className={`faCircle ${FaCircleColor(attendance.checkout)}`}
+                                        icon={faCircle} />
+                                        {attendance.checkout &&
+                                            <ReactTooltip id={attendance._id + 'checkout'} place="top" effect="solid">
+                                                {showTimeTooltip(attendance.checkout, 'checkout')}
+                                            </ReactTooltip>}
+                                    </div>
+                                </td>
+                                <td style={{ textAlign: 'center' }}>{attendance.checkout ? attendance.checkout.record : '--:--'}</td>
+                                <td style={{ textAlign: 'center' }}>
+                                    <FontAwesomeIcon icon={faEnvelopeOpenText}
+                                        style={{ cursor: 'pointer' }}
+                                        className='fa-lg' />
+                                </td>
+                                <td>
+                                    <button className="table-btns" onClick={() => editHandler(attendance)}>Edit</button>
+                                    <button className="table-btns" onClick={(e) => deleteHandler(e, attendance._id)}>Delete</button>
+                                    <button className="table-btns" onClick={() => showHistoryHandler(attendance)}>History</button>
                                 </td>
                             </tr>
                         ))}

@@ -1,4 +1,4 @@
-import { GET_CURRENT_TIME } from "../constants/constants"
+import { CURRENT_TIME, GET_CURRENT_TIME } from "../constants/constants"
 import { weekDays } from '../constants/lists'
 
 function timeReducer(state = { time: undefined }, action) {
@@ -15,4 +15,15 @@ function timeReducer(state = { time: undefined }, action) {
     } else return state
 }
 
-export { timeReducer }
+function clockReducer(state = { time: undefined }, action) {
+    switch (action.type) {
+        case CURRENT_TIME:
+            return {
+                loading: false,
+                time: action.payload,
+            };
+        default:
+            return state;
+    }
+}
+export { timeReducer, clockReducer }

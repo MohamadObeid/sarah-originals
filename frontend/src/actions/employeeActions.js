@@ -12,7 +12,7 @@ import {
     EMPLOYEE_DETAILS_REQUEST,
     EMPLOYEE_DETAILS_SUCCESS,
     EMPLOYEE_DETAILS_FAIL,
-    EMPLOYEE_SAVE_CLEAR
+    EMPLOYEE_SAVE_CLEAR, CLEAR_EMPLOYEE_DELETE
 } from "../constants/constants"
 
 const listEmployees = () => async (dispatch) => {
@@ -54,7 +54,9 @@ const saveEmployee = (employee) => async (dispatch, getState) => {
 };
 
 const deleteEmployee = (_id) => async (dispatch, getState) => {
-    try {
+    if (_id === 'clear') {
+        dispatch({ type: CLEAR_EMPLOYEE_DELETE })
+    } else try {
         dispatch({ type: EMPLOYEE_DELETE_REQUEST });
         const { userSignin: { userInfo } } = getState();
         const { data } = await axios.delete("/api/employee/" + _id, {

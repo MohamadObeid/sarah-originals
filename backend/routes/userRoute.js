@@ -11,8 +11,8 @@ router.post("/signin", async (req, res) => {
     password: req.body.password,
   })
 
-  var lastIndex = user.activity.length - 1
-
+  var lastIndex = user.activity.length ? user.activity.length - 1 : 0
+  //console.log(user)
   if (user) {
     if (req.body.request === 'signout') { // signout request
       user.activity[lastIndex].end = Date.now() + 10800000
@@ -24,8 +24,11 @@ router.post("/signin", async (req, res) => {
 
     } else if (req.body.request === 'signin') { //signin request
       if (!user.active) {
-        if (!user.activity[lastIndex].end)
-          user.activity[lastIndex].end = Date.now() + 10800000
+        if (lastIndex > 0 && !user.activity[lastIndex].end)
+          user.activity[lastIndex].end = user.lastActivity + 25000
+        user.active = true
+        user.activity = [...user.activity, { start: Date.now() + 10800000, IP: req.body.IP }]
+      } if (lastIndex === 0) {
         user.active = true
         user.activity = [...user.activity, { start: Date.now() + 10800000, IP: req.body.IP }]
       }
@@ -157,7 +160,19 @@ router.get("/createadmin", async (req, res) => {
 });
 
 router.get("", isAuth, isAdmin, async (req, res) => {
-  const users = await User.find({});
+  const users = await User.find({})
+  res.send(users);
+});
+
+router.post("", isAuth, isAdmin, async (req, res) => {
+  var users = await User.find({ employeeId: req.body })
+  users = users.map(user => {
+    return {
+      employeeId: user.employeeId,
+      active: user.active,
+      lastActivity: user.lastActivity
+    }
+  })
   res.send(users);
 });
 

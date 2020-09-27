@@ -13,12 +13,11 @@ import {
     ATTENDANCE_DETAILS_FAIL, ATTENDANCE_SAVE_CLEAR
 } from "../constants/constants";
 
-function attendanceListReducer(state = { attendance: [] }, action) {
+function attendanceListReducer(state = { attendance: undefined }, action) {
     switch (action.type) {
         case ATTENDANCE_LIST_REQUEST:
             return {
-                loading: true,
-                attendance: [],
+                loading: true
             };
         case ATTENDANCE_LIST_SUCCESS:
             return {
@@ -35,7 +34,7 @@ function attendanceListReducer(state = { attendance: [] }, action) {
     }
 }
 
-function attendanceSaveReducer(state = { attendance: {} }, action) {
+function attendanceSaveReducer(state = { attendance: undefined }, action) {
     switch (action.type) {
         case ATTENDANCE_SAVE_REQUEST:
             return {
@@ -83,7 +82,7 @@ function attendanceDeleteReducer(state = { data: {} }, action) {
     }
 }
 
-function attendanceDetailsReducer(state = { attendance: {} }, action) {
+function attendanceDetailsReducer(state = { attendance: undefined }, action) {
     switch (action.type) {
         case ATTENDANCE_DETAILS_REQUEST:
             return {

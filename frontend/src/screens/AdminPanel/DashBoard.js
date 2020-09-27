@@ -7,7 +7,7 @@ import {
   faThLarge, faTruck, faDoorOpen, faStarHalfAlt, faAddressCard, faCartArrowDown,
   faDollarSign,
   faCalendarCheck,
-  faTasks
+  faTasks, faChartLine
 } from '@fortawesome/free-solid-svg-icons'
 import { faComments as farComments } from '@fortawesome/free-regular-svg-icons'
 
@@ -87,9 +87,9 @@ function DashBoard(props) {
     } else setAssignmentsVisible(false)
 
     if (manager === 'attendance') {
-      dispatch(listAttendance())
-      !employees && dispatch(listEmployees())
-      userInfo && dispatch(detailsEmployee(userInfo.employeeId))
+      dispatch(listAttendance(userInfo.employeeId))
+      //!employees && dispatch(listEmployees())
+      dispatch(detailsEmployee(userInfo.employeeId))
       setAttendanceVisible(true)
     } else setAttendanceVisible(false)
 
@@ -167,6 +167,13 @@ function DashBoard(props) {
                 icon={faUserCog}
                 style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               User Manager</h4>
+          </li>
+          <li onClick={() => managerHandler('activity')}>
+            <h4 className="control-title">
+              <FontAwesomeIcon
+                icon={faChartLine}
+                style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
+              Activity Manager</h4>
           </li>
           <li onClick={() => managerHandler('employee')}>
             <h4 className="control-title">

@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get("", async (req, res) => {
     const attendance = await Attendance.find({});
-    res.send(attendance);
+    attendance.length > 0 ? res.send(attendance) : res.send(undefined)
 });
 
 router.get("/:id", async (req, res) => {
@@ -15,9 +15,16 @@ router.get("/:id", async (req, res) => {
     res.send(attendance);
 });
 
+router.post("/getAttendance", async (req, res) => {
+    const employeeId = req.body.employeeId
+    const attendance = await Attendance.find({ employeeId: employeeId })
+    attendance.length > 0 ? res.send(attendance) : res.send(undefined)
+});
+
 router.post("", isAuth, isAdmin, async (req, res) => {
     const attendance = new Attendance(req.body)
     const newAttendance = await attendance.save()
+    console.log(newAttendance)
     if (newAttendance) {
         return res.status(201).send({ message: "New Attendance created!", data: newAttendance })
     }

@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux"
 import ReactTooltip from "react-tooltip"
 import FontAwesome from 'react-fontawesome'
 import axios from 'axios';
-import { listEmployees, saveEmployee, deleteEmployee } from '../../actions/employeeActions'
+import { listEmployees, saveEmployee, deleteEmployee, detailsEmployee } from '../../actions/employeeActions'
 import {
     nameTitles, days, months, years, jobPositions, salaryTypes, weekDays, interestsList,
     maritalStatusList, drivingLicenseList
@@ -18,6 +18,8 @@ import { faCircle as farCircle } from '@fortawesome/free-regular-svg-icons'
 import {
     faFacebookSquare, faYoutube, faInstagram
 } from '@fortawesome/free-brands-svg-icons'
+import { detailsUser, listUsers } from "../../actions/userActions";
+import { dayConverter } from "../../methods/methods";
 
 function EmployeeManager(props) {
     const imageUrl = window.location.origin + '/api/uploads/image/'
@@ -128,8 +130,19 @@ function EmployeeManager(props) {
     const { success: successDelete } = useSelector(state => state.employeeDelete)
     const { employees } = useSelector(state => state.employeeList)
     const { userInfo } = useSelector(state => state.userSignin)
+    const { users: userList } = useSelector(state => state.usersList)
 
     const dispatch = useDispatch()
+
+    useEffect(() => {
+        if (employees) {
+            const employeeList = employees.map(employee => employee._id)
+            dispatch(listUsers(employeeList))
+        }
+        return () => {
+            //
+        }
+    }, [employees])
 
     useEffect(() => {
 
@@ -142,6 +155,7 @@ function EmployeeManager(props) {
             setInterval(() => setActionNoteVisible(false), 5000)
             setFormAction('')
             dispatch(saveEmployee('clear'))
+            dispatch(deleteEmployee('clear'))
         }
         return () => {
             //
@@ -445,6 +459,7 @@ function EmployeeManager(props) {
 
     const deleteHandler = (e, _id) => {
         e.preventDefault();
+        setFormAction('Delete')
         dispatch(deleteEmployee(_id));
     }
 
@@ -1569,6 +1584,7 @@ function EmployeeManager(props) {
                 <thead>
                     <tr>
                         <th style={{ paddingRight: '0.5rem' }}>Active</th>
+                        <th>Last Activity</th>
                         <th style={{ textAlign: 'center' }}>Photo</th>
                         <th>Name</th>
                         <th>Phone</th>
@@ -1593,6 +1609,8 @@ function EmployeeManager(props) {
                                         onChange={(e) => activationHandler(e, employee)}
                                     ></input>
                                 </td>
+                                <td>{userList && userList.map(user => user.employeeId === employee._id
+                                    && dayConverter(user.lastActivity, user.active))}</td>
                                 <td className='td-img'>
                                     <img
                                         className='employee-image'

@@ -93,7 +93,7 @@ function usersListReducer(state = { users: [] }, action) {
     }
 }
 
-function userDetailsReducer(state = { user: {} }, action) {
+function userDetailsReducer(state = { user: undefined }, action) {
     switch (action.type) {
         case USER_DETAILS_REQUEST:
             return {

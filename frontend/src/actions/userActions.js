@@ -33,7 +33,14 @@ const signin = (user) => async (dispatch, getState) => {
         try {
             let { data } = await axios.post("/api/users/signin", user)
             dispatch({ type: USER_SIGNIN_SUCCESS, payload: data })
-            data && cookie.set('userInfo', JSON.stringify(data));
+            data && cookie.set('userInfo', JSON.stringify({
+                email: data.email,
+                password: data.password,
+                name: data.name,
+                employeeId: data.employeeId,
+                token: data.token
+            }));
+            console.log('cookies saved')
         } catch (error) {
             dispatch({ type: USER_SIGNIN_FAIL, payload: error.message })
         }
@@ -101,15 +108,22 @@ const register = (user) => async (dispatch) => {
     }
 }
 
-const listUsers = () => async (dispatch, getState) => {
+const listUsers = (userList) => async (dispatch, getState) => {
     try {
         dispatch({ type: USERS_LIST_REQUEST });
         const { userSignin: { userInfo } } = getState();
 
-        const { data } = await axios.get("/api/users", {
-            headers: { Authorization: 'Bearer ' + userInfo.token }
-        });
-        dispatch({ type: USERS_LIST_SUCCESS, payload: data });
+        if (userList) {
+            const { data } = await axios.post("/api/users", userList, {
+                headers: { Authorization: 'Bearer ' + userInfo.token }
+            })
+            dispatch({ type: USERS_LIST_SUCCESS, payload: data })
+        } else {
+            const { data } = await axios.get("/api/users", {
+                headers: { Authorization: 'Bearer ' + userInfo.token }
+            })
+            dispatch({ type: USERS_LIST_SUCCESS, payload: data })
+        }
     } catch (error) {
         dispatch({ type: USERS_LIST_FAIL, payload: error.message });
     }

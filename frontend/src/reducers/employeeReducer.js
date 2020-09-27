@@ -11,15 +11,15 @@ import {
     EMPLOYEE_DETAILS_REQUEST,
     EMPLOYEE_DETAILS_SUCCESS,
     EMPLOYEE_DETAILS_FAIL,
-    EMPLOYEE_SAVE_CLEAR
+    EMPLOYEE_SAVE_CLEAR,
+    CLEAR_EMPLOYEE_DELETE
 } from "../constants/constants";
 
-function employeeListReducer(state = { employees: [] }, action) {
+function employeeListReducer(state = { employees: undefined }, action) {
     switch (action.type) {
         case EMPLOYEE_LIST_REQUEST:
             return {
-                loading: true,
-                employees: [],
+                loading: true
             };
         case EMPLOYEE_LIST_SUCCESS:
             return {
@@ -79,6 +79,8 @@ function employeeDeleteReducer(state = { data: {} }, action) {
                 loading: false,
                 error: action.payload,
             };
+        case CLEAR_EMPLOYEE_DELETE:
+            return { success: false }
         default:
             return state;
     }
@@ -93,7 +95,7 @@ function employeeDetailsReducer(state = { employee: undefined }, action) {
         case EMPLOYEE_DETAILS_SUCCESS:
             return {
                 loading: false,
-                employee: action.payload,
+                employee: action.payload[0],
             };
         case EMPLOYEE_DETAILS_FAIL:
             return {

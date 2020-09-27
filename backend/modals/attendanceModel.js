@@ -8,16 +8,16 @@ const attendanceSchema = new mongoose.Schema({
             modified_date: { type: Date, required: false },
             modified_by: { type: String, required: false },
             modified_note: { type: Array, required: false },
-        }], required: false, default: []
+        }], required: false
     },
     employeeId: { type: String, required: true },
     employeeName: { type: String, required: true },
     employeeImage: { type: String, required: false },
     date: { type: String, required: true },
     checkin: {
-        time: { type: String, required: false },
+        workTime: { type: String, required: false },
         record: { type: String, required: false },
-        location: { type: Date, required: false },
+        location: { type: String, required: false },
         lateness: {
             hours: { type: String, required: false },
             reason: { type: String, required: false },
@@ -30,13 +30,13 @@ const attendanceSchema = new mongoose.Schema({
             time: { type: String, required: false },
             reason: { type: String, required: false },
             status: { type: String, required: false },
-            confirmation: { type: Boolean, required: false, default: false }
+            confirmation: { type: Boolean, required: false }
         }
     },
     checkout: {
-        time: { type: Date, required: false },
+        workTime: { type: Date, required: false },
         record: { type: String, required: false },
-        location: { type: Date, required: false },
+        location: { type: String, required: false },
         earliness: {
             hours: { type: String, required: false },
             reason: { type: String, required: false },
@@ -49,18 +49,18 @@ const attendanceSchema = new mongoose.Schema({
             time: { type: String, required: false },
             reason: { type: String, required: false },
             status: { type: String, required: false },
-            confirmation: { type: Boolean, required: false, default: false }
+            confirmation: { type: Boolean, required: false }
         }
     },
     absence: {
-        reason: { type: String, required: true },
+        reason: { type: String, required: false },
         request: {
-            reason: { type: String, required: false, default: '' },
+            reason: { type: String, required: false },
             status: { type: String, required: false },
-            confirmation: { type: Boolean, required: false, default: false }
+            confirmation: { type: Boolean, required: false }
         }
     },
-    note: { type: String, required: true, default: '' },
+    note: { type: String, required: false },
 })
 
 const Attendance = mongoose.model("Attendance", attendanceSchema);
