@@ -10,6 +10,7 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "ejs": "^3.1.5",
+    "execa": "^4.0.3",
     "express": "^4.17.1",
     "gridfs-stream": "^1.1.1",
     "jsonwebtoken": "^8.5.1",
@@ -19,6 +20,7 @@
     "multer": "^1.4.2",
     "multer-gridfs-storage": "^4.2.0",
     "multer-s3": "^2.9.0",
+    "node-wifi": "^2.0.13",
     "package": "^1.0.1",
     "react-router-dom": "^5.2.0"
   },

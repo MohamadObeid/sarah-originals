@@ -6,106 +6,136 @@ const orderSchema = new mongoose.Schema({
         canceled: { type: Boolean, required: false, default: false },
         rejected: { type: Boolean, required: false, default: false },
         confirmation: {
-            type: [{
-                cart: { type: String, required: false },
-                delivery: { type: String, required: false },
-                payment: { type: String, required: false },
-            }], required: true, default: []
+            cartItmes: { type: String, required: false },
+            delivery: { type: String, required: false },
+            payment: { type: String, required: false },
         },
-        returned: {
-            type: [{
-                cart: { type: String, required: true, default: '' },
-                delivery: { type: String, required: true, default: '' },
-                payment: { type: String, required: true, default: '' },
-            }], required: true, default: []
+        return: {
+            cartItmes: { type: String, required: false },
+            delivery: { type: String, required: false },
+            payment: { type: String, required: false },
         },
     },
-    created_on: { type: Date, required: true, default: Date.now },
-    created_by: { type: String, required: true, default: '' },
+    creation_date: { type: Date, required: false, default: Date.now },
+    created_by: { type: String, required: false },
 
-    assigned_to: {
-        name: { type: String, required: true, default: '' },
-        date: { type: String, required: true, default: '' },
+    operatedBy: {
+        date: { type: String, required: false },
+        employeeName: { type: String, required: false },
+        employeeId: { type: String, required: false },
+        note: { type: String, required: false },
     },
 
     customer: {
-        name: { type: String, required: true },
-        email: { type: String, required: true, default: '' },
-        phone: { type: Number, required: true, default: null },
+        name: { type: String, required: false },
+        email: { type: String, required: false },
+        phone: { type: String, required: false },
+        IP: { type: String, required: false },
     },
 
     payment: {
         type: [{
-            isRefund: { type: Boolean, required: true, default: false },
-            title: { type: String, required: true, default: '' },
-            type: { type: String, required: true, default: '' },
-            address: { type: String, required: true, default: '' },
+            collectAt: { type: String, required: false },
+            isRefund: { type: Boolean, required: false, default: false },
+            title: { type: String, required: false },
+            method: { type: String, required: false },
+            address: { type: String, required: false },
+
             assignedTo: {
-                name: { type: String, required: true, default: '' },
-                date: { type: String, required: true, default: '' },
+                date: { type: String, required: false },
+                employeeName: { type: String, required: false },
+                employeeId: { type: String, required: false },
+                note: { type: String, required: false },
             },
-            done_by: {
-                name: { type: String, required: true, default: '' },
-                date: { type: String, required: true, default: '' },
+
+            accomplishedBy: {
+                date: { type: String, required: false },
+                employeeName: { type: String, required: false },
+                employeeId: { type: String, required: false },
+                note: { type: String, required: false },
             },
-            charge: { type: Number, required: true, default: null },
-            adminNote: { type: String, required: false, default: '' },
-        }], required: false, default: []
+
+            charge: { type: Number, required: false },
+            adminNote: { type: String, required: false },
+        }], required: false
     },
 
     delivery: {
         type: [{
-            isReturn: { type: Boolean, required: true, default: false },
-            title: { type: String, required: true, default: '' },
-            type: { type: String, required: true, default: '' },
-            duration: { type: Number, required: true, default: 0 },
-            address: { type: String, required: true, default: '' },
+            deliverAt: { type: String, required: false },
+            isReturn: { type: Boolean, required: false, default: false },
+            title: { type: String, required: false },
+            method: { type: String, required: false },
+            duration: { type: String, required: false },
+            address: { type: String, required: false },
+
             assignedTo: {
-                name: { type: String, required: true, default: '' },
-                date: { type: String, required: true, default: '' },
+                date: { type: String, required: false },
+                employeeName: { type: String, required: false },
+                employeeId: { type: String, required: false },
+                note: { type: String, required: false },
             },
-            doneBy: {
-                name: { type: String, required: true, default: '' },
-                date: { type: String, required: true, default: '' },
+
+            accomplishedBy: {
+                date: { type: String, required: false },
+                employeeName: { type: String, required: false },
+                employeeId: { type: String, required: false },
+                note: { type: String, required: false },
             },
-            charge: { type: Number, required: true, default: null },
-            adminNote: { type: String, required: false, default: '' },
-        }], required: false, default: []
+
+            charge: { type: String, required: false },
+            note: { type: String, required: false },
+        }], required: false
     },
 
-    cart_itmes: {
+    cartItmes: {
         type: [{
-            isReturn: { type: Boolean, required: true, default: false },
+            isReturn: { type: Boolean, required: false, default: false },
             items: {
                 type: [{
-                    nameEn: { type: String, required: true },
-                    image: { type: String, required: true },
+                    nameEn: { type: String, required: false },
+                    image: { type: String, required: false },
                     brand: { type: String, required: false },
-                    category: { type: Array, required: true, default: [] },
-                    unit: { type: String, default: '', required: true },
-                    discount: { type: Number, default: 0, required: true },
-                    count: { type: Number, default: 0, required: true },
-                    priceUsd: { type: Number, default: 0, required: true }
-                }], required: true, default: []
+                    category: { type: Array, required: false },
+                    unit: { type: String, required: false },
+                    discount: { type: String, required: false },
+                    count: { type: String, required: false },
+                    priceUsd: { type: String, required: false },
+                    refundable: { type: Boolean, required: false },
+                }], required: false
             },
 
-            assigned_to: {
-                name: { type: String, required: true, default: '' },
-                date: { type: String, required: true, default: '' },
+            assignedTo: {
+                date: { type: String, required: false },
+                employeeName: { type: String, required: false },
+                employeeId: { type: String, required: false },
+                note: { type: String, required: false },
             },
-            done_by: {
-                name: { type: String, required: true, default: '' },
-                date: { type: String, required: true, default: '' },
+
+            accomplishedBy: {
+                date: { type: String, required: false },
+                employeeName: { type: String, required: false },
+                employeeId: { type: String, required: false },
+                note: { type: String, required: false },
             },
-            count: { type: Number, required: true },
-            value: { type: Number, required: true },
-            admin_note: { type: String, required: false, default: '' },
-        }], required: false, default: []
+
+            itemsCount: { type: Number, required: false },
+            itemsAmount: { type: Number, required: false },
+            note: { type: String, required: false },
+        }], required: false
     },
 
-    total_value: { type: Number, required: true },
-    customer_note: { type: String, required: false },
-    admin_note: { type: String, required: false },
+    // callCenter: {
+    // type: {[
+    //      agent: {}    
+    //      issue: {}
+    //      sensitivityLvl: {}   
+    // ]}, required: false
+    // },
+
+    totalAmount: { type: Number, required: true },
+    customerNote: { type: String, required: false },
+    adminNote: { type: String, required: false },
 });
 
 const Order = mongoose.model("Order", orderSchema);
@@ -120,3 +150,5 @@ export default Order;
 // cartItems: preparing, ready
 // payment status: pending payment(case not paid), paid, notpaid(case delivered but not paid), canceled, refunded, not refunded
 // delivery status: on road, delivered, notDelivered
+// delivery method
+// payment method: cash - check - credit card - pos

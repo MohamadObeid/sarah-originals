@@ -23,6 +23,43 @@ import chatRoute from './routes/chatRoute';
 import liveChatRoute from './routes/liveUserRoute';
 import imageRouter from './routes/imageRoute';
 
+import wifi from 'node-wifi'
+
+wifi.init({
+  iface: null // network interface, choose a random wifi interface if set to null
+});
+
+var wifiAvailable
+
+wifi.scan(function (err, networks) {
+  if (err) {
+    console.log(err);
+  } else {
+    //console.log(networks);
+    wifiAvailable = networks
+    wifiAvailable.map(wf => {
+      if (wf.ssid === 'OBEID')
+        wifiAvailable = wf
+      return
+    })
+    //console.log(wifiAvailable)
+  }
+})
+
+wifi.getCurrentConnections(function (err, currentConnections) {
+  if (err) {
+    console.log(err);
+  } else console.log(currentConnections[0])
+})
+
+wifi.connect({ ssid: "OBEID", password: "12345678900" }, function (err) {
+  if (err) {
+    console.log(err)
+  } else console.log("Connected")
+})
+
+///////////////////////////////////////////////////////
+
 const mongodbUrl = config.MONGODB_URL;
 
 mongoose.connect(mongodbUrl, {
