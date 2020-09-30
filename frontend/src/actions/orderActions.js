@@ -1,23 +1,23 @@
 import axios from "axios";
-import cookie, { set } from "js-cookie";
+import cookie from "js-cookie";
 import {
+    SAVE_DELIVERY_ADDRESS,
+    TOGGLE_ORDER_SCREEN,
+    SAVE_PAYMENT_METHOD,
     ORDER_LIST_SUCCESS,
     ORDER_LIST_FAIL,
     ORDER_LIST_REQUEST,
-    SAVE_DELIVERY_ADDRESS,
-    TOGGLE_ORDER_SCREEN,
-    SAVE_PAYMENT_METHOD
+    ORDER_SAVE_FAIL,
+    ORDER_SAVE_SUCCESS,
+    ORDER_SAVE_REQUEST,
+    ORDER_DELETE_REQUEST,
+    ORDER_DELETE_SUCCESS,
+    ORDER_DELETE_FAIL,
+    ORDER_DETAILS_REQUEST,
+    ORDER_DETAILS_SUCCESS,
+    ORDER_DETAILS_FAIL,
+    ORDER_SAVE_CLEAR
 } from "../constants/constants";
-
-const listOrders = () => async (dispatch) => {
-    try {
-        dispatch({ type: ORDER_LIST_REQUEST })
-        const { data } = await axios.get("/api/order");
-        dispatch({ type: ORDER_LIST_SUCCESS, payload: data })
-    } catch (error) {
-        dispatch({ type: ORDER_LIST_FAIL, payload: error.message })
-    }
-}
 
 const saveAddress = (addressItem) => (dispatch, getState) => {
     dispatch({ type: SAVE_DELIVERY_ADDRESS, payload: addressItem })
@@ -35,9 +35,72 @@ const toggleOrderScreen = (orderScreen) => (dispatch) => {
     dispatch({ type: TOGGLE_ORDER_SCREEN, payload: orderScreen })
 }
 
+const listOrders = () => async (dispatch) => {
+    try {
+        dispatch({ type: ORDER_LIST_REQUEST })
+        const { data } = await axios.get("/api/order");
+        dispatch({ type: ORDER_LIST_SUCCESS, payload: data })
+    } catch (error) {
+        dispatch({ type: ORDER_LIST_FAIL, payload: error.message })
+    }
+}
+
+const saveOrder = (order) => async (dispatch, getState) => {
+    if (order === 'clear') {
+        dispatch({ type: ORDER_SAVE_CLEAR, payload: undefined })
+    } else try {
+        const { userSignin: { userInfo } } = getState()
+        dispatch({ type: ORDER_SAVE_REQUEST, payload: order })
+        // update
+        if (order._id) {
+            const { data } = await axios.put('/api/order   /' + order._id, order, {
+                headers: { 'Authorization': 'Bearer ' + userInfo.token }
+            });
+            dispatch({ type: ORDER_SAVE_SUCCESS, payload: data })
+        }
+
+        // new
+        else {
+            const { data } = await axios.post('/api/order  ', order, {
+                headers: { 'Authorization': 'Bearer ' + userInfo.token }
+            });
+            dispatch({ type: ORDER_SAVE_SUCCESS, payload: data })
+        }
+
+    } catch (error) {
+        dispatch({ type: ORDER_SAVE_FAIL, payload: error.message })
+    }
+};
+
+const deleteOrder = (_id) => async (dispatch, getState) => {
+    try {
+        dispatch({ type: ORDER_DELETE_REQUEST });
+        const { userSignin: { userInfo } } = getState();
+        const { data } = await axios.delete("/api/order/" + _id, {
+            headers: { Authorization: 'Bearer ' + userInfo.token }
+        });
+        dispatch({ type: ORDER_DELETE_SUCCESS, payload: data });
+    } catch (error) {
+        dispatch({ type: ORDER_DELETE_FAIL, payload: error.message });
+    }
+};
+
+const detailsOrder = (_id) => async (dispatch) => {
+    try {
+        dispatch({ type: ORDER_DETAILS_REQUEST, payload: _id })
+        const { data } = await axios.get("/api/order   /" + _id)
+        dispatch({ type: ORDER_DETAILS_SUCCESS, payload: data })
+    } catch (error) {
+        dispatch({ type: ORDER_DETAILS_FAIL, payload: error.message })
+    }
+}
+
 export {
     saveAddress,
     savePaymentMethod,
     toggleOrderScreen,
-    listOrders
+    listOrders,
+    saveOrder,
+    deleteOrder,
+    detailsOrder
 };

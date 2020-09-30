@@ -1,16 +1,15 @@
 import { months, weekDays } from '../constants/lists'
 
-var d = new Date()
-var currentYear = d.getFullYear()
-var currentMonthNum = d.getMonth() + 1
-var currentMonth = months[d.getMonth()]
-var currentDay = d.getDate()
-var currentWeekDay = weekDays[d.getDay()]
-var currentHour = d.getHours()
-var currentMinutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes()
-var currentSeconds = d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds()
-
 const dayConverter = (date, active) => {
+    var d = new Date()
+    var currentYear = d.getFullYear()
+    var currentMonthNum = d.getMonth() + 1
+    var currentMonth = months[d.getMonth()]
+    var currentDay = d.getDate()
+    var currentWeekDay = weekDays[d.getDay()]
+    var currentHour = d.getHours()
+    var currentMinutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes()
+    var currentSeconds = d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds()
 
     if (date) {
         var dateNum = date.split("T", 1)[0]
@@ -71,10 +70,10 @@ const dayConverter = (date, active) => {
 }
 
 const timeDiffCalc = (from, to) => { //time format ex.: 01:20
-    var fromHour = from.slice(0, 2)
-    var fromMin = from.slice(3, 5)
-    var toHour = to.slice(0, 2)
-    var toMin = to.slice(3, 5)
+    var fromHour = parseInt(from.slice(0, 2))
+    var fromMin = parseInt(from.slice(3, 5))
+    var toHour = parseInt(to.slice(0, 2))
+    var toMin = parseInt(to.slice(3, 5))
     if (fromHour === toHour) {
         if (toMin > fromMin) { return '00:' + ((toMin - fromMin) < 10 ? '0' + (toMin - fromMin) : (toMin - fromMin)) }
         else if (toMin < fromMin) { return { sign: 'late', diff: '00:' + ((fromMin - toMin) < 10 ? '0' + (fromMin - toMin) : (fromMin - toMin)) } }

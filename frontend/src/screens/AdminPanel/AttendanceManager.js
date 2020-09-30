@@ -5,8 +5,7 @@ import { listAttendance, saveAttendance, deleteAttendance } from '../../actions/
 import { detailsEmployee } from '../../actions/employeeActions'
 import { days, months, years, weekDays } from '../../constants/lists'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTimes, faCircle, faEnvelopeOpenText } from '@fortawesome/free-solid-svg-icons'
-import { } from '@fortawesome/free-brands-svg-icons'
+import { faTimes, faCircle, faEnvelopeOpenText, faPlus, faEnvelope } from '@fortawesome/free-solid-svg-icons'
 import ReactTooltip from "react-tooltip"
 import { timeDiffCalc } from '../../methods/methods'
 import { Modal, Popconfirm } from 'antd'
@@ -55,6 +54,8 @@ function AttendanceManager(props) {
     const [comment, setComment] = useState()
     const [isAbsent, setIsAbsent] = useState(false)
     const [reasonModalVisible, setReasonModalVisible] = useState({ visibility: false })
+    const [requestVisible, setRequestVisible] = useState(false)
+    const [requestAnswerVisible, setRequestAnswerVisible] = useState(false)
 
     const [_id, setId] = useState()
     const [modified, setModified] = useState()
@@ -98,6 +99,8 @@ function AttendanceManager(props) {
     const [absenceRequestReason, setAbsenceRequestReason] = useState()
     const [absenceRequestConfirmation, setAbsenceRequestConfirmation] = useState()
     const [note, setNote] = useState()
+    const [requestText, setRequestText] = useState()
+    const [requestAnswer, setRequestAnswer] = useState()
 
     const { success: successSave } = useSelector(state => state.attendanceSave)
     const { success: successDelete } = useSelector(state => state.attendanceDelete)
@@ -284,8 +287,20 @@ function AttendanceManager(props) {
         //else if (attendanceExist) { requestHandler(attendanceExist) }
     }
 
-    const requestHandler = (attendance) => {
-
+    const requestHandler = (e, attendance) => {
+        if (requestText && requestText !== '') {
+            e.preventDefault()
+            requestAnswerVisible && setRequestAnswerVisible(false)
+            dispatch(saveAttendance({
+                _id: _id,
+                request: [...attendance.request, {
+                    date: currentDate,
+                    text: requestText,
+                    status: 'pending'
+                }]
+            }))
+            setRequestVisible(false)
+        }
     }
 
     const checkinStatus = () => {
@@ -456,6 +471,7 @@ function AttendanceManager(props) {
             if (attendanceList[lastIndex].date == currentDate) {
                 if (!attendanceList[lastIndex].checkout) return 'Check out'
                 else if (!attendanceList[lastIndex].checkout.record) return 'Check out'
+                else if (attendanceList[lastIndex].checkout.record) return 'Check in'
             } else return 'Check in'
         } else return 'Check in'
         return undefined
@@ -498,6 +514,70 @@ function AttendanceManager(props) {
                 && setCheckoutOverTimeReason(e.target.value))
     }
 
+    const timeDurationAtWork = (attendance) => {
+        var hours = time.slice(11, 13)
+        var minutes = time.slice(14, 16)
+        var seconds = time.slice(17, 19)
+
+        if (hours.includes(':')) {
+            hours = '0' + time.slice(11, 12)
+            minutes = time.slice(13, 15)
+            seconds = time.slice(16, 18)
+        }
+
+        if (time.includes('PM')) hours = parseInt(hours) + 12
+        const format24 = hours + ':' + minutes
+
+        return attendance.workHoursRecorded ? attendance.workHoursRecorded + ' hrs'
+            : attendance.date === currentDate && !attendance.workHoursRecorded &&
+            (typeof timeDiffCalc(attendance.checkin.record, format24) === 'object' ?
+                timeDiffCalc(attendance.checkin.record, format24).diff :
+                timeDiffCalc(attendance.checkin.record, format24))
+            + ':' + seconds + ' hrs'
+    }
+
+    const setFontAwesome = (attendance) => {
+        const length = attendance.request.length
+        const lastRequest = attendance.request[length - 1]
+        return (
+            length > 0
+                ? <FontAwesomeIcon icon={
+                    lastRequest.status === 'pending'
+                        ? faEnvelope
+                        : faEnvelopeOpenText}
+                    style={{ cursor: 'pointer' }}
+                    className='fa-lg'
+                    onClick={() => {
+                        setRequestAnswerVisible(true)
+                        setId(attendance._id)
+                    }} />
+                : attendance.employeeId === userInfo.employeeId
+                && <FontAwesomeIcon icon={faPlus}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                        setRequestVisible(true)
+                        setId(attendance._id)
+                    }} />)
+    }
+
+    const requestAnswerHandler = (e, attendance) => {
+        e.preventDefault()
+        var lastRequest = attendance.request[attendance.request.length - 1]
+        attendance.request[attendance.request.length - 1] = {
+            ...lastRequest,
+            manager: userInfo.name,
+            answer: requestAnswer,
+            status: 'read'
+        }
+        dispatch(saveAttendance({
+            _id: _id,
+            request: attendance.request
+        }))
+        setId(undefined)
+        setRequestAnswer(undefined)
+        setRequestAnswerVisible(false)
+    }
+
     return (
         <div>
             {actionNoteVisible && <div className="action-note">{actionNote}</div>}
@@ -527,7 +607,7 @@ function AttendanceManager(props) {
                     onCancel={() => setReasonModalVisible({ visibility: false })}
                 >
                     <textarea
-                        style={{ width: '45rem' }}
+                        style={{ width: '47rem' }}
                         type="text"
                         name="checkinReason"
                         id="checkinReason"
@@ -710,9 +790,9 @@ function AttendanceManager(props) {
                         <th style={{ width: '18rem' }}>Name</th>
                         <th style={{ textAlign: 'center' }}>Photo</th>
                         <th style={{ width: '13rem' }}>Date</th>
-                        <th style={{ textAlign: 'center', width: '8rem' }} colspan="2">Check In</th>
+                        <th style={{ textAlign: 'center', width: '8rem' }} colSpan="2">Check In</th>
                         <th style={{ width: '20rem' }}></th>
-                        <th style={{ textAlign: 'center', width: '8rem' }} colspan="2">Check Out</th>
+                        <th style={{ textAlign: 'center', width: '8rem' }} colSpan="2">Check Out</th>
                         <th style={{ textAlign: 'center', width: '7rem' }}>Request</th>
                         <th>Actions</th>
                     </tr>
@@ -741,9 +821,11 @@ function AttendanceManager(props) {
                                         </ReactTooltip>
                                     </div>
                                 </td>
-                                <td style={{ position: 'relative' }}><p class="line">
-                                    {attendance.workHoursRecorded && attendance.workHoursRecorded + ' hrs'}
-                                </p></td>
+                                <td style={{ position: 'relative' }}>
+                                    <p className={`line ${!attendance.workHoursRecorded && 'highlight'}`}>
+                                        {timeDurationAtWork(attendance)}
+                                    </p>
+                                </td>
                                 <td style={{ width: '2rem' }}>
                                     {attendance.checkout && attendance.checkout.record &&
                                         <div><FontAwesomeIcon data-tip data-for={attendance._id + 'checkout'}
@@ -761,10 +843,67 @@ function AttendanceManager(props) {
                                     {attendance.checkout && attendance.checkout.record ? attendance.checkout.record : '--:--'}
                                 </td>
                                 <td style={{ textAlign: 'center' }}>
-                                    <FontAwesomeIcon icon={faEnvelopeOpenText}
-                                        style={{ cursor: 'pointer' }}
-                                        className='fa-lg' />
+                                    {setFontAwesome(attendance)}
                                 </td>
+                                {requestAnswerVisible && attendance._id === _id &&
+                                    <Modal
+                                        title='Request Form'
+                                        visible={requestAnswerVisible}
+                                        onOk={(e) => userInfo.isAttendanceManager
+                                            ? (!attendance.request[attendance.request.length - 1].answer
+                                                ? requestAnswerHandler(e, attendance)
+                                                : setRequestAnswerVisible(false))
+                                            : attendance.request[attendance.request.length - 1].answer
+                                            && setRequestVisible(true)}
+                                        onCancel={() => {
+                                            setRequestAnswerVisible(false)
+                                            setRequestAnswer(undefined)
+                                        }}
+                                        okText={userInfo.isAttendanceManager
+                                            ? 'Send' : 'Add Request'}
+                                    >{attendance.request.map(req => (
+                                        <div>
+                                            <div className='request-line'>
+                                                <div className='request-user'>{attendance.employeeName}</div>
+                                                {req.text}
+                                            </div>
+                                            {req.manager &&
+                                                <div className='request-line'>
+                                                    <div className='request-user'>{req.manager}</div>
+                                                    {req.answer}
+                                                </div>}
+                                        </div>
+                                    ))}
+                                        {userInfo.isAttendanceManager && !attendance.request[attendance.request.length - 1].answer &&
+                                            <div style={{ margin: '1rem' }}>
+                                                <label htmlFor={'requestReply'}>Reply</label>
+                                                <textarea
+                                                    style={{ width: '45rem' }}
+                                                    type="text"
+                                                    name='requestReply'
+                                                    id='requestReply'
+                                                    onChange={(e) => setRequestAnswer(e.target.value)}
+                                                ></textarea>
+                                            </div>}
+                                    </Modal>}
+                                {requestVisible && attendance._id === _id &&
+                                    <Modal
+                                        title='Request Form'
+                                        visible={requestVisible}
+                                        onOk={(e) => requestHandler(e, attendance)}
+                                        onCancel={() => {
+                                            setRequestVisible(false)
+                                            setRequestText(undefined)
+                                        }}
+                                    >
+                                        <textarea
+                                            style={{ width: '47rem' }}
+                                            type="text"
+                                            name="checkinReason"
+                                            id="checkinReason"
+                                            onChange={(e) => setRequestText(e.target.value)}
+                                        ></textarea>
+                                    </Modal>}
                                 <td>
                                     <button className="table-btns" onClick={() => editHandler(attendance)}>Edit</button>
                                     <Popconfirm

@@ -38,7 +38,8 @@ const signin = (user) => async (dispatch, getState) => {
                 password: data.password,
                 name: data.name,
                 employeeId: data.employeeId,
-                token: data.token
+                token: data.token,
+                isCallCenterAgent: data.isCallCenterAgent
             }));
         } catch (error) {
             dispatch({ type: USER_SIGNIN_FAIL, payload: error.message })

@@ -28,12 +28,6 @@ const attendanceSchema = new mongoose.Schema({
             hours: { type: String, required: false },
             reason: { type: String, required: false },
         },
-        request: {
-            time: { type: String, required: false },
-            reason: { type: String, required: false },
-            status: { type: String, required: false },
-            confirmation: { type: Boolean, required: false }
-        }
     },
     checkout: {
         workTime: { type: String, required: false },
@@ -47,24 +41,26 @@ const attendanceSchema = new mongoose.Schema({
             hours: { type: String, required: false },
             reason: { type: String, required: false },
         },
-        request: {
-            time: { type: String, required: false },
-            reason: { type: String, required: false },
-            status: { type: String, required: false },
-            confirmation: { type: Boolean, required: false }
-        }
     },
     absence: {
+        isAbsent: { type: Boolean, required: false },
         reason: { type: String, required: false },
-        request: {
-            reason: { type: String, required: false },
-            status: { type: String, required: false },
-            confirmation: { type: Boolean, required: false }
-        }
     },
+    request: {
+        type: [{
+            date: { type: String, required: false },
+            manager: { type: String, required: false },
+            text: { type: String, required: false },
+            answer: { type: String, required: false },
+            status: { type: String, required: false },
+        }], required: false
+    },
+
     note: { type: String, required: false },
 })
 
 const Attendance = mongoose.model("Attendance", attendanceSchema);
 
 export default Attendance
+
+// request status: unread, read, approved, rejected, canceled

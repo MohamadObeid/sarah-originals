@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
   //link employee id to userInfo
   isCallCenterAgent: { type: Boolean, required: false },
   isAttendanceManager: { type: Boolean, required: false },
+  isOrderManager: { type: Boolean, required: false },
   //checkin: { type: Array, required: false },
 
 

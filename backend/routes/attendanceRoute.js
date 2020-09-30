@@ -35,6 +35,7 @@ router.post("", isAuth, isAdmin, async (req, res) => {
 
 router.put("/:id", isAuth, isAdmin, async (req, res) => {
     const attendance = await Attendance.findOne({ _id: req.params.id });
+
     if (attendance) {
         attendance.creation_date = req.body.creation_date ? req.body.creation_date : attendance.creation_date;
         attendance.created_by = req.body.created_by ? req.body.created_by : attendance.created_by;
@@ -49,6 +50,7 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
         attendance.note = req.body.note ? req.body.note : attendance.note;
         attendance.workTimeHours = req.body.workTimeHours ? req.body.workTimeHours : attendance.workTimeHours;
         attendance.workHoursRecorded = req.body.workHoursRecorded ? req.body.workHoursRecorded : attendance.workHoursRecorded;
+        attendance.request = req.body.request ? req.body.request : attendance.request;
     }
     const attendanceUpdated = await attendance.save();
 

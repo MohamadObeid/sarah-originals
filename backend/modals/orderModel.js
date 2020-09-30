@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
     status: {
+        placed: { type: Boolean, required: false, default: false },
         confirmed: { type: Boolean, required: false, default: false },
         canceled: { type: Boolean, required: false, default: false },
         rejected: { type: Boolean, required: false, default: false },

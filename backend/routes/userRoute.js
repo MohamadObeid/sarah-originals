@@ -55,6 +55,7 @@ router.post("/signin", async (req, res) => {
         token: getToken(user),
         isCallCenterAgent: user.isCallCenterAgent,
         isAttendanceManager: user.isAttendanceManager,
+        isOrderManager: user.isOrderManager,
         image: user.image && user.image,
         employeeId: user.employeeId && user.employeeId,
       })
@@ -109,6 +110,7 @@ router.post("/register", async (req, res) => {
       token: getToken(newUser),
       isCallCenterAgent: newUser.isCallCenterAgent,
       isAttendanceManager: newUser.isAttendanceManager,
+      isOrderManager: newUser.isOrderManager,
       image: newUser.image && newUser.image,
       employeeId: newUser.employeeId && newUser.employeeId,
     });
@@ -117,7 +119,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/create", async (req, res) => {
+/*router.post("/create", async (req, res) => {
   const user = new User({
     name: req.body.name,
     active: req.body.active,
@@ -127,6 +129,7 @@ router.post("/create", async (req, res) => {
     isAdmin: req.body.isAdmin,
     isCallCenterAgent: req.body.isCallCenterAgent,
     isAttendanceManager: req.body.isAttendanceManager,
+    isOrderManager: req.body.isOrderManager,
     image: req.body.image && req.body.image,
     employeeId: req.body.employeeId && req.body.employeeId,
   })
@@ -150,6 +153,7 @@ router.get("/createadmin", async (req, res) => {
       isAdmin: true,
       isCallCenterAgent: true,
       isAttendanceManager: true,
+      isOrder
     });
 
     const newUser = await user.save();
@@ -157,7 +161,7 @@ router.get("/createadmin", async (req, res) => {
   } catch (error) {
     res.send({ msg: error.message });
   }
-});
+});*/
 
 router.get("", isAuth, isAdmin, async (req, res) => {
   const users = await User.find({})
@@ -173,7 +177,7 @@ router.post("", isAuth, isAdmin, async (req, res) => {
       lastActivity: user.lastActivity
     }
   })
-  res.send(users);
+  res.send(users)
 });
 
 router.delete("/:id", isAuth, isAdmin, async (req, res) => {
@@ -198,6 +202,7 @@ router.put("/:id", isAuth, async (req, res) => {
     user.isAdmin = req.body.isAdmin;
     user.isCallCenterAgent = req.body.isCallCenterAgent;
     user.isAttendanceManager = req.body.isAttendanceManager;
+    user.isOrderManager = req.body.isOrderManager;
     user.image = req.body.image && req.body.image;
     user.employeeId = req.body.employeeId && req.body.employeeId;
   }

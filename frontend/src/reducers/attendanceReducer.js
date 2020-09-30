@@ -30,7 +30,7 @@ function attendanceListReducer(state = { attendance: undefined }, action) {
                 error: action.payload,
             };
         default:
-            return state;
+            return state
     }
 }
 
@@ -108,4 +108,4 @@ export {
     attendanceSaveReducer,
     attendanceDeleteReducer,
     attendanceDetailsReducer
-};
+}
