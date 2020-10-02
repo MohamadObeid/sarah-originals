@@ -23,9 +23,9 @@ function ProductScreen(props) {
   }, []);
 
   const handleAddToCart = () => {
-    setFormNoteVisible(true);
-    setInterval(() => setFormNoteVisible(false), 5000);
-    dispatch(addToCart(product._id, qty))
+    setFormNoteVisible(true)
+    setInterval(() => setFormNoteVisible(false), 5000)
+    dispatch(addToCart({ _id: product._id, qty }))
     /*props.history.push("/cart/" + props.match.params.id + "?qty=" + qty);*/
   };
 
@@ -80,11 +80,13 @@ function ProductScreen(props) {
                     <select
                       value={qty}
                       onChange={(e) => {
-                        setQty(e.target.value);
+                        setQty(e.target.selectedIndex ?
+                          e.target.options[e.target.selectedIndex].value :
+                          e.target.value)
                       }}
                     >
                       {[...Array(product.countInStock).keys()].map((i) => (
-                        <option key={product._id} value={i + 1}>
+                        <option key={i + 1} value={i + 1}>
                           {i + 1}
                         </option>
                       ))}

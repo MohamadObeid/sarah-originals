@@ -16,11 +16,13 @@ import { signin } from "./actions/userActions";
 import axios from "axios";
 import { USER_SIGNIN_SUCCESS } from "./constants/constants";
 import { clock } from './actions/timeActions'
+import cookie from "js-cookie";
 
 function App(props) {
 
   const dispatch = useDispatch()
   var IPaddress
+  var refresh
 
   const { userInfo } = useSelector(state => state.userSignin)
   const { time } = useSelector(state => state.clock)
@@ -38,11 +40,14 @@ function App(props) {
   }
 
   const refreshActiveUser = async () => {
-    let { data } = await axios.post("/api/users/signin",
-      { email: userInfo.email, password: userInfo.password, IPaddress })
-    dispatch({ type: USER_SIGNIN_SUCCESS, payload: data })
-    data.active &&
-      setTimeout(refreshActiveUser, 25000)
+    const userInfo = cookie.getJSON("userInfo") || undefined
+    if (userInfo) {
+      let { data } = await axios.post("/api/users/signin",
+        { email: userInfo.email, password: userInfo.password, IPaddress })
+      dispatch({ type: USER_SIGNIN_SUCCESS, payload: data })
+      if (data.active)
+        refresh = setTimeout(refreshActiveUser, 25000)
+    }
   }
 
   const refreshClock = () => {

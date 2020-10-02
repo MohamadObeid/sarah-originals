@@ -1,4 +1,11 @@
+import axios from 'axios'
 import { months, weekDays } from '../constants/lists'
+import cookie from "js-cookie";
+import { listLiveUser, saveLiveUser } from '../actions/chatActions';
+import audio from '../sounds/swiftly.mp3'
+import UIfx from 'uifx';
+import { LIVE_USER_LIST_SUCCESS } from '../constants/constants';
+const tick = new UIfx(audio)
 
 const dayConverter = (date, active) => {
     var d = new Date()
@@ -73,14 +80,16 @@ const timeDiffCalc = (from, to) => { //time format ex.: 01:20
     var fromHour = parseInt(from.slice(0, 2))
     var fromMin = parseInt(from.slice(3, 5))
     var toHour = parseInt(to.slice(0, 2))
-    var toMin = parseInt(to.slice(3, 5))
+    var toMin = toHour === 0 ? parseInt(to.slice(2, 4)) : parseInt(to.slice(3, 5))
+    //console.log(fromMin, toHour)
+
     if (fromHour === toHour) {
         if (toMin > fromMin) { return '00:' + ((toMin - fromMin) < 10 ? '0' + (toMin - fromMin) : (toMin - fromMin)) }
         else if (toMin < fromMin) { return { sign: 'late', diff: '00:' + ((fromMin - toMin) < 10 ? '0' + (fromMin - toMin) : (fromMin - toMin)) } }
         else if (toMin === fromMin) return '00:00'
     } else if (toHour > fromHour) {
         if (toMin < fromMin) { return (((toHour - fromHour - 1) < 10 ? '0' + (toHour - fromHour - 1) : (toHour - fromHour - 1)) + ':' + (60 - fromMin + parseInt(toMin))) }
-        else if (toMin === fromMin) { return (((toHour - fromHour) < 10 ? '0' + (toHour - fromHour) : '0' + (toHour - fromHour)) + ':00') }
+        else if (toMin === fromMin) { return (((toHour - fromHour) < 10 ? '0' + (toHour - fromHour) : (toHour - fromHour)) + ':00') }
         else if (toMin > fromMin) { return (((toHour - fromHour) < 10 ? '0' + (toHour - fromHour) : (toHour - fromHour)) + ':' + ((toMin - fromMin) < 10 ? '0' + (toMin - fromMin) : (toMin - fromMin))) }
     } else if (toHour < fromHour) {
         if (toMin > fromMin) { return ({ sign: 'late', diff: ((fromHour - toHour - 1) < 10 ? '0' + (fromHour - toHour - 1) : (fromHour - toHour - 1)) + ':' + (60 - toMin + parseInt(fromMin)) }) }
@@ -89,4 +98,36 @@ const timeDiffCalc = (from, to) => { //time format ex.: 01:20
     }
 }
 
-export { dayConverter, timeDiffCalc }
+const refreshLiveUsers = () => async (dispatch) => {
+    const userInfo = cookie.getJSON("userInfo") || undefined
+    const { data } = await axios.get("/api/live")
+    dispatch({ type: LIVE_USER_LIST_SUCCESS, payload: data })
+    var agent
+    data && data.map(liveUser => {
+        liveUser.agent && liveUser.agent.map(agt => {
+            if (agt === userInfo.name) {
+                agent = true
+                return
+            }
+        })
+        if (agent) return
+    })
+    if (!agent) {
+        data && data.map(liveUser => {
+            if (!liveUser.agent) { // set me as agent for this user
+                dispatch(saveLiveUser({ ...liveUser, agent: [userInfo.name] }))
+                //setChatboxVisible(false)
+                dispatch(listLiveUser())
+                tick.play(1.0)
+                agent = true
+                return
+            }
+        })
+    }
+    if (agent) return
+    if (userInfo && userInfo.isCallCenterAgent) setTimeout(() => {
+        dispatch(refreshLiveUsers())
+    }, 3000)
+}
+
+export { dayConverter, timeDiffCalc, refreshLiveUsers }

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import { listCategory } from '../../actions/categoryActions';
 import FontAwesome from 'react-fontawesome';
+import { listProducts } from '../../actions/productActions';
 
 function Navbar() {
 
@@ -10,7 +11,7 @@ function Navbar() {
     const { cartItems } = useSelector(state => state.cart);
 
     const [subSidebarVisible, setSubSidebarVisible] = useState(false);
-    const [categoryHovered, setCategoryHovered] = useState();
+    const [categoryHovered, setCategoryHovered] = useState()
 
     const openSideBar = () => {
         document.querySelector('.sidebar').classList.add('open');

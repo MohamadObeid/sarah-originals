@@ -34,10 +34,12 @@ const signin = (user) => async (dispatch, getState) => {
             let { data } = await axios.post("/api/users/signin", user)
             dispatch({ type: USER_SIGNIN_SUCCESS, payload: data })
             data && cookie.set('userInfo', JSON.stringify({
+                _id: data._id,
                 email: data.email,
                 password: data.password,
                 name: data.name,
                 employeeId: data.employeeId,
+                image: data.image,
                 token: data.token,
                 isCallCenterAgent: data.isCallCenterAgent
             }));
@@ -97,10 +99,13 @@ const register = (user) => async (dispatch) => {
         dispatch({ type: USER_SIGNIN_SUCCESS, payload: signinData })
         signinData = { ...signinData, signinDate: Date.now() + 10800000 }
         cookie.set('userInfo', JSON.stringify({
-            email: signinData.email, password: signinData.password,
+            email: signinData.email,
+            password: signinData.password,
             isCallCenterAgent: signinData.isCallCenterAgent,
-            name: signinData.name, employeeId: signinData.employeeId,
-            _id: signinData._id, image: signinData.image,
+            name: signinData.name,
+            employeeId: signinData.employeeId,
+            _id: signinData._id,
+            image: signinData.image,
         }))
 
     } catch (error) {

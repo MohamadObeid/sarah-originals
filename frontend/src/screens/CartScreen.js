@@ -11,7 +11,8 @@ function CartScreen(props) {
   const [actionNoteVisible, setActionNoteVisible] = useState(false);
 
   const { cartItems } = useSelector((state) => state.cart)
-  const { product: products } = useSelector(state => state.productDetails)
+  const { product: productList } = useSelector(state => state.productDetails)
+  const [products, setProducts] = useState([])
 
   const dispatch = useDispatch();
 
@@ -20,7 +21,8 @@ function CartScreen(props) {
       const IDList = cartItems.map(item => {
         return item._id
       })
-      dispatch(detailsProduct(IDList))
+      IDList.length > 0 &&
+        dispatch(detailsProduct(IDList))
     }
     return () => {
       //
@@ -28,24 +30,25 @@ function CartScreen(props) {
   }, [])
 
   useEffect(() => {
-    if (products) {
+    if (productList.length > 0 && cartItems) {
       cartItems.map(item => {
-        products.map(product => {
+        productList.map(product => {
           if (product._id === item._id) {
             if (item.qty > product.countInStock) {
-              console.log(product.countInStock)
               item.qty = product.countInStock
             }
+            product.qty = item.qty
             item.countInStock = product.countInStock
             return
           }
         })
       })
+      setProducts(productList)
     }
     return () => {
       //
     };
-  }, [products])
+  }, [productList])
 
   const checkoutHandler = () => {
     props.history.push("/signin?redirect=order");
@@ -53,7 +56,8 @@ function CartScreen(props) {
 
   const handleMinus = (e, item) => {
     if (item.qty === 0) {
-      dispatch(removeFromCart(item._id));
+      dispatch(removeFromCart(item._id))
+      setProducts(products.filter(product => { return product._id !== item._id && product }))
       setActionNote(`Product Deleted Succefully`);
       setActionNoteVisible(true);
       setInterval(() => setActionNoteVisible(false), 3000);
@@ -63,7 +67,9 @@ function CartScreen(props) {
     }
   }
 
-  const handleRemove = () => {
+  const handleRemove = (item) => {
+    dispatch(removeFromCart(item._id))
+    setProducts(products.filter(product => { return product._id !== item._id && product }))
     setActionNote(`Product Removed Succefully`);
     setActionNoteVisible(true);
     setInterval(() => setActionNoteVisible(false), 3000);
@@ -96,10 +102,10 @@ function CartScreen(props) {
               <h4>Shopping Cart</h4>
             </li>
 
-            {cartItems.length == 0 ? (
+            {products.length === 0 ? (
               <div style={{ paddingLeft: '1rem' }}>Cart is Empty</div>
-            ) : (cartItems &&
-              cartItems.map((item) => (
+            ) : (products &&
+              products.map((item) => (
                 item && item.qty > 0 &&
                 <li>
                   <div className="cart-list-items">
@@ -114,10 +120,7 @@ function CartScreen(props) {
                         ${item.priceUsd}<p className="cart-price-unit">/{item.unit}</p>
                       </div>
                       <FontAwesome className="fas fa-trash fa-lg"
-                        onClick={() => {
-                          dispatch(removeFromCart(item._id))
-                          handleRemove();
-                        }}
+                        onClick={() => handleRemove(item)}
                       />
                     </div>
 
@@ -150,14 +153,14 @@ function CartScreen(props) {
         </div>
         <div className="cart-action">
           <h3>
-            Subtotal ( {cartItems.reduce((total, item) => total + item.qty, 0)}{" "}
+            Subtotal ( {products.reduce((total, item) => total + item.qty, 0)}{" "}
             items ): $
-            {cartItems.reduce((sum, item) => sum + item.priceUsd * item.qty, 0)}
+            {products.reduce((sum, item) => sum + item.priceUsd * item.qty, 0)}
           </h3>
           <button
             onClick={checkoutHandler}
             className="button primary"
-            disabled={cartItems.length == 0}
+            disabled={products.length == 0}
           >
             Proceed To Checkout
         </button>

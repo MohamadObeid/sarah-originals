@@ -19,6 +19,8 @@ import { CHAT_DETAILS_SUCCESS, CHAT_SAVE_SUCCESS, LIVE_USER_LIST_SUCCESS } from 
 import audio from '../../sounds/swiftly.mp3'
 import UIfx from 'uifx';
 import { Popconfirm } from 'antd'
+import cookie from "js-cookie";
+import { refreshLiveUsers } from "../../methods/methods";
 
 function Chatbox(props) {
     const imageUrl = window.location.origin + '/api/uploads/image/'
@@ -48,7 +50,8 @@ function Chatbox(props) {
     const { liveUser: liveUserDetails } = useSelector(state => state.liveUserDetails)
     const { liveUser: liveUserSave } = useSelector(state => state.liveUserSave)
     const { liveUser: liveUserList } = useSelector(state => state.liveUserList)
-    const { userInfo } = useSelector(state => state.userSignin)
+    //const { userInfo } = useSelector(state => state.userSignin)
+    const userInfo = cookie.getJSON("userInfo")
 
     useEffect(() => {
         pushToSignin && console.log('pushing')
@@ -67,49 +70,21 @@ function Chatbox(props) {
         if (declined) {
             endChatExtender()
             dispatch(detailsChat('clear'))
-            userInfo.isCallCenterAgent && refreshLiveUsers()
+            userInfo.isCallCenterAgent && dispatch(refreshLiveUsers())
             return
         }
         setTimeout(refreshChat, userInfo.isCallCenterAgent ? 1000 : 5000)
     }
 
-    const refreshLiveUsers = async () => {
-        const { data } = await axios.get("/api/live")
-        dispatch({ type: LIVE_USER_LIST_SUCCESS, payload: data })
-        var agent
-        data && data.map(liveUser => {
-            liveUser.agent && liveUser.agent.map(agt => {
-                if (agt === userInfo.name) {
-                    agent = true
-                    return
-                }
-            })
-            if (agent) return
-        })
-        if (!agent) {
-            data && data.map(liveUser => {
-                if (!liveUser.agent) {
-                    dispatch(saveLiveUser({ ...liveUser, agent: [userInfo.name] }))
-                    setChatboxVisible(false)
-                    dispatch(listLiveUser())
-                    tick.play(1.0)
-                    agent = true
-                    return
-                }
-            })
-        }
-        if (agent) return
-        if (userInfo.isCallCenterAgent) { setTimeout(refreshLiveUsers, 3000) }
-    }
-
     useEffect(() => {
-        userInfo && refreshLiveUsers()
+        userInfo && dispatch(refreshLiveUsers())
         return () => {
             //
         }
     }, [])
 
     const lunchLiveChat = async (liveUser) => {
+        setChatboxVisible(false)
         dispatch(detailsChat(liveUser.chatId))
         setChatId(liveUser.chatId)
         setUserDetails(liveUser)
@@ -196,8 +171,8 @@ function Chatbox(props) {
     const closeChatBoxHandler = () => {
         setUserDetails(undefined)
         setChatboxVisible(false)
-        setEndChatVisible(false)
         setUnseenVisible(true)
+        setEndChatVisible(false)
     }
 
     const openChatBoxHandler = () => {
@@ -254,6 +229,7 @@ function Chatbox(props) {
 
     const endChatHandler = async (e) => {
         e.preventDefault()
+        endChatExtender()
         var agents = 0
         chatDetails.users.map(user => {
             user.isLive && user.isAgent && agents++
@@ -285,7 +261,7 @@ function Chatbox(props) {
             await dispatch(saveChat(chatDetails))
             const { data } = await axios.get("/api/live/" + liveUserDetails._id)
             var editedLiveUser = data[0].agent.filter(agent => agent != userInfo.name)
-            console.log(editedLiveUser)
+            //console.log(editedLiveUser)
             liveUserDetails.agent = editedLiveUser
             await dispatch(saveLiveUser(liveUserDetails))
         }

@@ -2146,6 +2146,7 @@ input.checked[type="radio"] {
   padding: 0.5rem;
   border-radius: 0.5rem;
   overflow-x: hide;
+  border-radius: 0.5rem;
 }
 
 .chatbox-msg-line:last-child {

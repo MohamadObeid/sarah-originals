@@ -89,13 +89,11 @@ function HomeScreen(props) {
     const inCart = cartItems.find(item => item._id === product._id)
     if (inCart)
       dispatch(updateCart({
-        _id: product._id, nameEn: product.nameEn, image: product.image, qty: product.qty,
-        priceUsd: product.priceUsd, unit: product.unit
+        _id: product._id, qty: product.qty,
       }))
     else {
       dispatch(addToCart({
-        _id: product._id, nameEn: product.nameEn, image: product.image, qty: product.qty,
-        priceUsd: product.priceUsd, unit: product.unit
+        _id: product._id, qty: product.qty,
       }))
     }
     setActionNote('Product added Successfully')
@@ -281,7 +279,7 @@ function HomeScreen(props) {
                       </div>
                       <div className="product-brand">{product.brand}</div>
                       <div className="product-price">
-                        <div className={product.discount > 0 && 'before-discount'}>${product.priceUsd}</div>
+                        <div className={product.discount > 0 ? 'before-discount' : 'nothing'}>${product.priceUsd}</div>
                         {product.discount > 0 &&
                           <div className='after-discount'>${Math.round(100 * (product.priceUsd - product.priceUsd * product.discount / 100)) / 100}</div>
                         }
@@ -301,7 +299,7 @@ function HomeScreen(props) {
                           className="minus"
                           value={product._id}
                           onClick={() => handleMinus(product)}>
-                          <FontAwesome className="fas fa-minus" />
+                          <FontAwesome name='fa-minus' className="fas fa-minus" />
                         </button>
                         <p className="add-to-cart-qty qty-cart count">{product.qty}</p>
                         <button
@@ -309,7 +307,7 @@ function HomeScreen(props) {
                           className="plus"
                           value={product._id}
                           onClick={() => handlePlus(product)}>
-                          <FontAwesome className="fas fa-plus" />
+                          <FontAwesome name='fa-plus' className="fas fa-plus" />
                         </button>
                       </div>
                     </div>

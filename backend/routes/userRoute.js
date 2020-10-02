@@ -40,6 +40,13 @@ router.post("/signin", async (req, res) => {
       user.lastActivity = Date.now() + 10800000
       user = await user.save()
       console.log(user.email + ' set Active')
+
+    } else if (user.activity[lastIndex].end && !user.active) {
+      user.active = true
+      user.activity = [...user.activity, { start: Date.now() + 10800000, IP: req.body.IP }]
+      user.lastActivity = Date.now() + 10800000
+      user = await user.save()
+      console.log(user.email + ' resignin')
     }
 
     user.active &&

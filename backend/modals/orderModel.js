@@ -2,19 +2,20 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
     status: {
+        cancelRequest: { type: Boolean, required: false, default: false },
+        returnRequest: { type: Boolean, required: false, default: false },
         placed: { type: Boolean, required: false, default: false },
+        completed: { type: Boolean, required: false, default: false },
         confirmed: { type: Boolean, required: false, default: false },
         canceled: { type: Boolean, required: false, default: false },
         rejected: { type: Boolean, required: false, default: false },
-        confirmation: {
-            cartItmes: { type: String, required: false },
-            delivery: { type: String, required: false },
-            payment: { type: String, required: false },
-        },
-        return: {
-            cartItmes: { type: String, required: false },
-            delivery: { type: String, required: false },
-            payment: { type: String, required: false },
+        accomplishment: {
+            type: [{
+                isReturn: { type: Boolean, required: false, default: false },
+                cart: { type: String, required: false },
+                delivery: { type: String, required: false },
+                payment: { type: String, required: false },
+            }], required: false
         },
     },
     creation_date: { type: Date, required: false, default: Date.now },
@@ -24,19 +25,17 @@ const orderSchema = new mongoose.Schema({
         date: { type: String, required: false },
         employeeName: { type: String, required: false },
         employeeId: { type: String, required: false },
-        note: { type: String, required: false },
     },
 
-    customer: {
+    customerDetails: {
+        userId: { type: String, required: false },
         name: { type: String, required: false },
-        email: { type: String, required: false },
         phone: { type: String, required: false },
-        IP: { type: String, required: false },
     },
 
     payment: {
         type: [{
-            collectAt: { type: String, required: false },
+            collectOn: { type: String, required: false }, //date
             isRefund: { type: Boolean, required: false, default: false },
             title: { type: String, required: false },
             method: { type: String, required: false },
@@ -46,24 +45,29 @@ const orderSchema = new mongoose.Schema({
                 date: { type: String, required: false },
                 employeeName: { type: String, required: false },
                 employeeId: { type: String, required: false },
-                note: { type: String, required: false },
             },
 
-            accomplishedBy: {
+            doneBy: {
                 date: { type: String, required: false },
                 employeeName: { type: String, required: false },
                 employeeId: { type: String, required: false },
-                note: { type: String, required: false },
             },
 
             charge: { type: Number, required: false },
-            adminNote: { type: String, required: false },
+
+            note: {
+                type: [{
+                    employeeName: { type: String, required: false },
+                    text: { type: String, required: false },
+                    date: { type: String, required: false },
+                }], required: false
+            },
         }], required: false
     },
 
     delivery: {
         type: [{
-            deliverAt: { type: String, required: false },
+            deliverOn: { type: String, required: false }, //date
             isReturn: { type: Boolean, required: false, default: false },
             title: { type: String, required: false },
             method: { type: String, required: false },
@@ -74,33 +78,38 @@ const orderSchema = new mongoose.Schema({
                 date: { type: String, required: false },
                 employeeName: { type: String, required: false },
                 employeeId: { type: String, required: false },
-                note: { type: String, required: false },
             },
 
-            accomplishedBy: {
+            doneBy: {
                 date: { type: String, required: false },
                 employeeName: { type: String, required: false },
                 employeeId: { type: String, required: false },
-                note: { type: String, required: false },
             },
 
             charge: { type: String, required: false },
-            note: { type: String, required: false },
+
+            note: {
+                type: [{
+                    employeeName: { type: String, required: false },
+                    text: { type: String, required: false },
+                    date: { type: String, required: false },
+                }], required: false
+            },
         }], required: false
     },
 
-    cartItmes: {
+    cart: {
         type: [{
             isReturn: { type: Boolean, required: false, default: false },
             items: {
                 type: [{
+                    _id: { type: String, required: false },
                     nameEn: { type: String, required: false },
                     image: { type: String, required: false },
                     brand: { type: String, required: false },
-                    category: { type: Array, required: false },
                     unit: { type: String, required: false },
                     discount: { type: String, required: false },
-                    count: { type: String, required: false },
+                    qty: { type: String, required: false },
                     priceUsd: { type: String, required: false },
                     refundable: { type: Boolean, required: false },
                 }], required: false
@@ -110,19 +119,24 @@ const orderSchema = new mongoose.Schema({
                 date: { type: String, required: false },
                 employeeName: { type: String, required: false },
                 employeeId: { type: String, required: false },
-                note: { type: String, required: false },
             },
 
-            accomplishedBy: {
+            doneBy: {
                 date: { type: String, required: false },
                 employeeName: { type: String, required: false },
                 employeeId: { type: String, required: false },
-                note: { type: String, required: false },
             },
 
-            itemsCount: { type: Number, required: false },
-            itemsAmount: { type: Number, required: false },
-            note: { type: String, required: false },
+            qty: { type: Number, required: false },
+            amount: { type: Number, required: false },
+
+            note: {
+                type: [{
+                    employeeName: { type: String, required: false },
+                    text: { type: String, required: false },
+                    date: { type: String, required: false },
+                }], required: false
+            },
         }], required: false
     },
 

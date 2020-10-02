@@ -6,7 +6,8 @@ import FontAwesome from 'react-fontawesome';
 import CheckoutSteps from "./Components/CheckoutSteps";
 import Axios from "axios";
 import { USER_SIGNIN_SUCCESS } from "../constants/constants";
-import { listLiveUser } from "../actions/chatActions";
+import cookie from "js-cookie";
+import { refreshLiveUsers } from "../methods/methods";
 
 function SigninScreen(props) {
 
@@ -23,14 +24,21 @@ function SigninScreen(props) {
       .then(IP => {
         IPaddress = IP.country_name + ', ' + IP.city
       })
+    if (userInfo) {
+      await dispatch(signin({ email: userInfo.email, password: userInfo.password, IPaddress, request: 'signin' }))
+      setTimeout(refreshActiveUser, 25000)
+    }
   }
 
   const refreshActiveUser = async () => {
-    let { data } = await Axios.post("/api/users/signin",
-      { email: userInfo.email, password: userInfo.password, IPaddress })
-    dispatch({ type: USER_SIGNIN_SUCCESS, payload: data })
-    data.active &&
-      setTimeout(refreshActiveUser, 25000)
+    const userInfo = cookie.getJSON("userInfo") || undefined
+    if (userInfo) {
+      let { data } = await Axios.post("/api/users/signin",
+        { email: userInfo.email, password: userInfo.password, IPaddress })
+      dispatch({ type: USER_SIGNIN_SUCCESS, payload: data })
+      data.active &&
+        setTimeout(refreshActiveUser, 25000)
+    }
   }
 
   // props.location.search is everything written in the path after the page path
@@ -45,19 +53,17 @@ function SigninScreen(props) {
 
   useEffect(() => {
     if (userInfo) {
-      setTimeout(refreshActiveUser, 25000)
-      dispatch(listLiveUser())
       props.history.push(redirect)
     }
     return () => {
       //
-    };
-  }, [userInfo]);
+    }
+  }, [userInfo])
 
-  // when user press on signin, submithandler is gonna run
-  const submitHandler = (e) => {
-    e.preventDefault(); // prevents from refreshing when submiting
-    dispatch(signin({ email, password, IP: IPaddress, request: 'signin' }))
+  const submitHandler = async (e) => {
+    e.preventDefault()
+    await dispatch(signin({ email, password, IP: IPaddress, request: 'signin' }))
+    dispatch(refreshLiveUsers())
   }
 
   return (

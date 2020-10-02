@@ -48,6 +48,8 @@ import {
   paymentMethodReducer,
   orderScreenReducer,
   orderListReducer,
+  orderSaveReducer,
+  orderDeleteReducer
 } from "./reducers/orderReducer";
 
 import {
@@ -152,6 +154,8 @@ const reducer = combineReducers({
 
   orderScreen: orderScreenReducer,
   orderList: orderListReducer,
+  orderSave: orderSaveReducer,
+  orderDelete: orderDeleteReducer,
 
   employeeList: employeeListReducer,
   employeeDetails: employeeDetailsReducer,

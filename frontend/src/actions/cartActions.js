@@ -14,7 +14,7 @@ const removeFromCart = (itemId) => async (dispatch, getState) => {
 };
 
 const updateCart = (item) => async (dispatch, getState) => {
-  dispatch({ type: CART_UPDATE_ITEM, payload: item });
+  dispatch({ type: CART_UPDATE_ITEM, payload: { _id: item._id, qty: item.qty } });
   const { cart: { cartItems } } = getState();
   cookie.set("cartItems", JSON.stringify(cartItems));
 };
