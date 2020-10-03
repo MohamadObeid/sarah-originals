@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { listUsers, deleteUser, saveUser } from "../../actions/userActions";
 import FontAwesome from 'react-fontawesome';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircle, faEdit, faPencilAlt, faPlusCircle, faTrash, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCircle, faEdit, faPlusCircle, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { dayConverter } from '../../methods/methods'
 
 function UsersManager(props) {
@@ -15,7 +15,6 @@ function UsersManager(props) {
     const [formAlertVisible, setFormAlertVisible] = useState(false)
     const [modelVisible, setModelVisible] = useState(false)
     const [addressVisible, setAddressVisible] = useState()
-    const [newAddress, setNewAddress] = useState()
 
     const [_id, setId] = useState()
     const [name, setName] = useState()
@@ -132,10 +131,6 @@ function UsersManager(props) {
         }
     }
 
-    const deleteAddress = (e) => {
-
-    }
-
     return (
         <div>
             {actionNoteVisible && <div className="action-note">{actionNote}</div>}
@@ -233,7 +228,7 @@ function UsersManager(props) {
                                                 setAddress(
                                                     [...address, { city: city, region: region, building: building }]
                                                 )
-                                        }}>Save Address</button>
+                                        }}>Add Address</button>
                                 </div>}
                         </li>
                         {address.length > 0 &&

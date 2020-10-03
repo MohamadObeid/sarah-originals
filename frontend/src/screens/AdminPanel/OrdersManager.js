@@ -3,7 +3,9 @@ import { useSelector, useDispatch } from "react-redux"
 import { months, weekDays } from '../../constants/lists'
 import { deleteOrder, listOrders, saveOrder } from '../../actions/orderActions'
 import FontAwesome from "react-fontawesome";
-import { getUser } from "../../actions/userActions";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faPlusCircle, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { getUser, saveUser } from "../../actions/userActions";
 
 function OrdersManager(props) {
     const imageUrl = window.location.origin + '/api/uploads/image/'
@@ -46,7 +48,7 @@ function OrdersManager(props) {
     const [invoiceAmount, setInvoiceAmount] = useState() //
     const [confirmation, setConfirmation] = useState() //
     const [request, setRequest] = useState() //
-    const [address, setAddress] = useState()
+    const [address, setAddress] = useState([])
 
     /*const [placed, setPlaced] = useState()
     const [confirmed, setConfirmed] = useState()
@@ -100,6 +102,12 @@ function OrdersManager(props) {
     const [cartQty, setCartQty] = useState()
     const [cartAmount, setCartAmount] = useState()
     const [cartNote, setCartNote] = useState()
+
+    //
+    const [city, setCity] = useState()
+    const [region, setRegion] = useState()
+    const [building, setBuilding] = useState()
+    const [addressVisible, setAddressVisible] = useState()
     //
 
     const { time } = useSelector(state => state.clock)
@@ -287,8 +295,19 @@ function OrdersManager(props) {
                 }))
             }
         }
+        userModified() &&
+            dispatch(saveUser({ _id: customerUserId, address: address, name: customerName }))
     }
 
+    const userModified = () => {
+        if (user.name != customerName) return true
+        user.address.map(add => {
+            var i = user.address.indexOf(add)
+            if (add.city !== address[i].city || add.region !== address[i].region || add.building !== address[i].building)
+                return true
+        })
+        if (address.length !== user.address.length) return true
+    }
 
     const createHandler = (e) => {
         setModelVisible(true)
@@ -304,6 +323,26 @@ function OrdersManager(props) {
     const searchUser = (e) => {
         e.preventDefault()
         dispatch(getUser(customerPhone))
+    }
+
+
+    const showAddressEditor = (add) => {
+        if (add && addressVisible !== address.indexOf(add)) {
+            setCity(add.city)
+            setRegion(add.region)
+            setBuilding(add.building)
+            setAddressVisible(address.indexOf(add))
+        } else if (!add && addressVisible !== 'newAddress') {
+            setCity(undefined)
+            setRegion(undefined)
+            setBuilding(undefined)
+            setAddressVisible('newAddress')
+        } else {
+            setCity(undefined)
+            setRegion(undefined)
+            setBuilding(undefined)
+            setAddressVisible()
+        }
     }
 
     return (
@@ -359,14 +398,143 @@ function OrdersManager(props) {
                             ></input>
                         </li>
                         <li>
+                            <div className='flex-align'>
+                                <FontAwesomeIcon
+                                    onClick={() => showAddressEditor(undefined)}
+                                    className='cursor-color-margin fa-lg'
+                                    icon={faPlusCircle} />
+                                <div>New Address</div>
+                            </div>
+                            {addressVisible === 'newAddress' &&
+                                <div className='address-details'>
+                                    <label className="label" htmlFor="city">City<p className="required">*</p></label>
+                                    <input
+                                        type="text"
+                                        name="city"
+                                        id="city"
+                                        value={city}
+                                        onChange={(e) => setCity(e.target.value)}
+                                    ></input>
+                                    <label className="label" htmlFor="region">Region<p className="required">*</p></label>
+                                    <textarea
+                                        type="text"
+                                        name="region"
+                                        id="region"
+                                        value={region}
+                                        onChange={(e) => setRegion(e.target.value)}
+                                    ></textarea>
+                                    <label className="label" htmlFor="building">Building<p className="required">*</p></label>
+                                    <input
+                                        type="text"
+                                        name="building"
+                                        id="building"
+                                        value={building}
+                                        onChange={(e) => setBuilding(e.target.value)}
+                                    ></input>
+                                    <button className='button width'
+                                        onClick={(e) => {
+                                            e.preventDefault()
+                                            city && region && building &&
+                                                setAddress(
+                                                    [...address, { city: city, region: region, building: building }]
+                                                )
+                                        }}>Add Address</button>
+                                </div>}
+                        </li>
+                        {address.length > 0 &&
+                            <li className='border-padding'>
+                                {address.map((add) => (
+                                    <div>
+                                        <div className='flex-align'>
+                                            <div className="label margin-right">
+                                                Address {address.indexOf(add) + 1}</div>
+                                            <FontAwesomeIcon icon={faTrashAlt}
+                                                className='cursor-color-absolute right'
+                                                onClick={(e) => {
+                                                    e.preventDefault()
+                                                    address.splice(address.indexOf(add), 1)
+                                                }} />
+                                            <FontAwesomeIcon icon={faEdit}
+                                                className='cursor-color-absolute'
+                                                onClick={() => showAddressEditor(add)} />
+                                        </div>
+                                        <div className='user-address'
+                                            key={address.indexOf(add)}
+                                            value={add}>
+                                            {add.city + ', ' +
+                                                add.region + ', ' +
+                                                add.building}
+                                        </div>
+                                        {addressVisible === address.indexOf(add) &&
+                                            <div className='address-details'>
+                                                <label className="label" htmlFor="city">City<p className="required">*</p></label>
+                                                <input
+                                                    type="text"
+                                                    name="city"
+                                                    id="city"
+                                                    value={city}
+                                                    onChange={(e) => {
+                                                        setCity(e.target.value)
+                                                        var i = address.indexOf(add)
+                                                        address[i] = {
+                                                            ...address[i],
+                                                            city: e.target.value
+                                                        }
+                                                        setAddress(address)
+                                                        setDeliveryAddress(undefined)
+                                                    }}
+                                                ></input>
+                                                <label className="label" htmlFor="region">Region<p className="required">*</p></label>
+                                                <textarea
+                                                    type="text"
+                                                    name="region"
+                                                    id="region"
+                                                    value={region}
+                                                    onChange={(e) => {
+                                                        setRegion(e.target.value)
+                                                        var i = address.indexOf(add)
+                                                        address[i] = {
+                                                            ...address[i],
+                                                            region: e.target.value
+                                                        }
+                                                        setAddress(address)
+                                                        setDeliveryAddress(undefined)
+                                                    }}
+                                                ></textarea>
+                                                <label className="label" htmlFor="building">Building<p className="required">*</p></label>
+                                                <input
+                                                    type="text"
+                                                    name="building"
+                                                    id="building"
+                                                    value={building}
+                                                    onChange={(e) => {
+                                                        setBuilding(e.target.value)
+                                                        var i = address.indexOf(add)
+                                                        address[i] = {
+                                                            ...address[i],
+                                                            building: e.target.value
+                                                        }
+                                                        setAddress(address)
+                                                        setDeliveryAddress(undefined)
+                                                    }}
+                                                ></input>
+                                            </div>}
+                                    </div>
+                                ))}
+                            </li>}
+                        <li>
                             <div className="label">Delivery Address</div>
                             <select
-                                value={address}
+                                value={deliveryAddress}
                                 onChange={(e) => {
                                     setDeliveryAddress(
                                         e.target.selectedIndex ?
                                             e.target.options[e.target.selectedIndex].value :
-                                            e.target.value);
+                                            e.target.value)
+                                    setPaymentAddress(
+                                        e.target.selectedIndex ?
+                                            e.target.options[e.target.selectedIndex].value :
+                                            e.target.value)
                                 }}
                             >
                                 <option key='' value=''>
@@ -374,8 +542,32 @@ function OrdersManager(props) {
                                 </option>
                                 {address
                                     && address.map((add) => (
-                                        <option key={address.indexOf(add)} value={add}>
-                                            {add.city + ', ' + add.region + ', ' + add.building}
+                                        <option key={address.indexOf(add)}
+                                            value={add.city + ', ' + add.region + ', ' + add.building}>
+                                            {'Address ' + (address.indexOf(add) + 1)}
+                                        </option>
+                                    ))}
+                            </select>
+                        </li>
+                        <li>
+                            <div className="label">Payment Address</div>
+                            <select
+                                value={paymentAddress}
+                                onChange={(e) => {
+                                    setPaymentAddress(
+                                        e.target.selectedIndex ?
+                                            e.target.options[e.target.selectedIndex].value :
+                                            e.target.value)
+                                }}
+                            >
+                                <option key='' value=''>
+                                    Select...
+                                </option>
+                                {address
+                                    && address.map((add) => (
+                                        <option key={address.indexOf(add)}
+                                            value={add.city + ', ' + add.region + ', ' + add.building}>
+                                            {'Address ' + (address.indexOf(add) + 1)}
                                         </option>
                                     ))}
                             </select>
@@ -392,6 +584,7 @@ function OrdersManager(props) {
                                 Back
                             </button>
                         </li>
+
                     </ul>
                 </form>
             }
