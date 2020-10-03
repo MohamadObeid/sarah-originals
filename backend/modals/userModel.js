@@ -35,17 +35,17 @@ const userSchema = new mongoose.Schema({
     longitude: { type: String, required: true, default: '' },
     latitude: { type: String, required: true, default: '' },
     city: { type: String, required: true, default: '' },
-  },
+  },*/
 
-  deliveryAddress: {
+  address: {
     type: [{
-      city: { type: String, required: true, default: '' },
-      region: { type: String, required: true, default: '' },
-      building: { type: String, required: true, default: '' },
-    }], required: true, default: []
+      city: { type: String, required: false },
+      region: { type: String, required: false },
+      building: { type: String, required: false },
+    }], required: false, default: []
   },
 
-  creditCard: {
+  /*creditCard: {
     type: [{
       bankName: { type: String, required: true, default: '' },
       cardNumber: { type: Number, required: true, default: null },

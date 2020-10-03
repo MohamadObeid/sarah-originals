@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { listUsers, deleteUser, saveUser } from "../../actions/userActions";
 import FontAwesome from 'react-fontawesome';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircle } from "@fortawesome/free-solid-svg-icons";
+import { faCircle, faEdit, faPencilAlt, faPlusCircle, faTrash, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { dayConverter } from '../../methods/methods'
 
 function UsersManager(props) {
@@ -14,6 +14,8 @@ function UsersManager(props) {
     const [formAlert, setFormAlert] = useState('Kindly fill all required blanks!')
     const [formAlertVisible, setFormAlertVisible] = useState(false)
     const [modelVisible, setModelVisible] = useState(false)
+    const [addressVisible, setAddressVisible] = useState()
+    const [newAddress, setNewAddress] = useState()
 
     const [_id, setId] = useState()
     const [name, setName] = useState()
@@ -25,6 +27,7 @@ function UsersManager(props) {
     const [isAttendanceManager, setIsAttendanceManager] = useState(false)
     const [employeeId, setEmployeeId] = useState()
     const [image, setImage] = useState()
+    const [address, setAddress] = useState(0)
 
     const { users } = useSelector(state => state.usersList)
 
@@ -58,23 +61,26 @@ function UsersManager(props) {
 
     const openModel = async (user) => {
         setModelVisible(true)
-        setId(user._id ? user._id : '')
-        setName(user.name ? user.name : '')
-        setEmail(user.email ? user.email : '')
-        setPhone(user.phone ? user.phone : '')
-        setPassword(user.password ? user.password : '')
+        setAddressVisible()
+        setId(user._id ? user._id : undefined)
+        setName(user.name ? user.name : undefined)
+        setEmail(user.email ? user.email : undefined)
+        setPhone(user.phone ? user.phone : undefined)
+        setPassword(user.password ? user.password : undefined)
         setIsAdmin(user.isAdmin ? user.isAdmin : false)
         setIsCallCenterAgent(user.isCallCenterAgent ? user.isCallCenterAgent : false)
         setIsAttendanceManager(user.isAttendanceManager ? user.isAttendanceManager : false)
         setEmployeeId(user.employeeId ? user.employeeId : undefined)
-        setImage(user.image ? user.image : '')
+        setImage(user.image ? user.image : undefined)
+        //console.log(user.address)
+        setAddress(user.address ? user.address : undefined)
     };
 
     const submitHandler = (e) => {
         e.preventDefault()
-        const user = { _id, name, email, phone, password, isAdmin, isCallCenterAgent, isAttendanceManager, image, employeeId }
+        const user = { _id, name, email, phone, password, isAdmin, isCallCenterAgent, isAttendanceManager, image, employeeId, address }
         formAction === 'Copy' && delete user._id
-        if (name != '' && email != '' && phone && password != '') {
+        if (name !== '' && email !== '' && phone && password !== '') {
             dispatch(saveUser(user))
         }
         else setFormAlertVisible(true)
@@ -101,6 +107,34 @@ function UsersManager(props) {
     }
 
     // return today, yesterday, days ago, and time
+    //var addIndex = 0
+    //var newAddress = {}
+    const [city, setCity] = useState()
+    const [region, setRegion] = useState()
+    const [building, setBuilding] = useState()
+
+    const showAddressEditor = (add) => {
+        if (add && addressVisible !== address.indexOf(add)) {
+            setCity(add.city)
+            setRegion(add.region)
+            setBuilding(add.building)
+            setAddressVisible(address.indexOf(add))
+        } else if (!add && addressVisible !== 'newAddress') {
+            setCity(undefined)
+            setRegion(undefined)
+            setBuilding(undefined)
+            setAddressVisible('newAddress')
+        } else {
+            setCity(undefined)
+            setRegion(undefined)
+            setBuilding(undefined)
+            setAddressVisible()
+        }
+    }
+
+    const deleteAddress = (e) => {
+
+    }
 
     return (
         <div>
@@ -113,7 +147,8 @@ function UsersManager(props) {
                 modelVisible &&
                 <form className="form-form" onSubmit={(e) => submitHandler(e)}>
                     <ul className="form-container-manager">
-                        <FontAwesome name="fa-window-close" className="far fa-window-close fa-lg" onClick={() => setModelVisible(false)} />
+                        <FontAwesome name="fa-window-close" className="far fa-window-close fa-lg"
+                            onClick={() => { setModelVisible(false); setAddressVisible() }} />
                         <li>
                             <h2>{formAction == 'Copy' ? 'Create' : formAction} User</h2>
                         </li>
@@ -157,6 +192,128 @@ function UsersManager(props) {
                                 onChange={(e) => setPassword(e.target.value)}
                             ></input>
                         </li>
+                        <li>
+                            <div className='flex-align'>
+                                <FontAwesomeIcon
+                                    onClick={() => showAddressEditor(undefined)}
+                                    className='cursor-color-margin fa-lg'
+                                    icon={faPlusCircle} />
+                                <div>New Address</div>
+                            </div>
+                            {addressVisible === 'newAddress' &&
+                                <div className='address-details'>
+                                    <label className="label" htmlFor="city">City<p className="required">*</p></label>
+                                    <input
+                                        type="text"
+                                        name="city"
+                                        id="city"
+                                        value={city}
+                                        onChange={(e) => setCity(e.target.value)}
+                                    ></input>
+                                    <label className="label" htmlFor="region">Region<p className="required">*</p></label>
+                                    <textarea
+                                        type="text"
+                                        name="region"
+                                        id="region"
+                                        value={region}
+                                        onChange={(e) => setRegion(e.target.value)}
+                                    ></textarea>
+                                    <label className="label" htmlFor="building">Building<p className="required">*</p></label>
+                                    <input
+                                        type="text"
+                                        name="building"
+                                        id="building"
+                                        value={building}
+                                        onChange={(e) => setBuilding(e.target.value)}
+                                    ></input>
+                                    <button className='button width'
+                                        onClick={(e) => {
+                                            e.preventDefault()
+                                            city && region && building &&
+                                                setAddress(
+                                                    [...address, { city: city, region: region, building: building }]
+                                                )
+                                        }}>Save Address</button>
+                                </div>}
+                        </li>
+                        {address.length > 0 &&
+                            <li className='border-padding'>
+                                {address.map((add) => (
+                                    <div>
+                                        <div className='flex-align'>
+                                            <div className="label margin-right">
+                                                Address {address.indexOf(add) + 1}</div>
+                                            <FontAwesomeIcon icon={faTrashAlt}
+                                                className='cursor-color-absolute right'
+                                                onClick={(e) => {
+                                                    e.preventDefault()
+                                                    address.splice(address.indexOf(add), 1)
+                                                }} />
+                                            <FontAwesomeIcon icon={faEdit}
+                                                className='cursor-color-absolute'
+                                                onClick={() => showAddressEditor(add)} />
+                                        </div>
+                                        <div className='user-address'
+                                            key={address.indexOf(add)}
+                                            value={add}>
+                                            {add.city + ', ' +
+                                                add.region + ', ' +
+                                                add.building}
+                                        </div>
+                                        {addressVisible === address.indexOf(add) &&
+                                            <div className='address-details'>
+                                                <label className="label" htmlFor="city">City<p className="required">*</p></label>
+                                                <input
+                                                    type="text"
+                                                    name="city"
+                                                    id="city"
+                                                    value={city}
+                                                    onChange={(e) => {
+                                                        setCity(e.target.value)
+                                                        var i = address.indexOf(add)
+                                                        address[i] = {
+                                                            ...address[i],
+                                                            city: e.target.value
+                                                        }
+                                                        setAddress(address)
+                                                    }}
+                                                ></input>
+                                                <label className="label" htmlFor="region">Region<p className="required">*</p></label>
+                                                <textarea
+                                                    type="text"
+                                                    name="region"
+                                                    id="region"
+                                                    value={region}
+                                                    onChange={(e) => {
+                                                        setRegion(e.target.value)
+                                                        var i = address.indexOf(add)
+                                                        address[i] = {
+                                                            ...address[i],
+                                                            region: e.target.value
+                                                        }
+                                                        setAddress(address)
+                                                    }}
+                                                ></textarea>
+                                                <label className="label" htmlFor="building">Building<p className="required">*</p></label>
+                                                <input
+                                                    type="text"
+                                                    name="building"
+                                                    id="building"
+                                                    value={building}
+                                                    onChange={(e) => {
+                                                        setBuilding(e.target.value)
+                                                        var i = address.indexOf(add)
+                                                        address[i] = {
+                                                            ...address[i],
+                                                            building: e.target.value
+                                                        }
+                                                        setAddress(address)
+                                                    }}
+                                                ></input>
+                                            </div>}
+                                    </div>
+                                ))}
+                            </li>}
                         <div className='li-users'>
                             <input
                                 className='switch'
@@ -223,7 +380,8 @@ function UsersManager(props) {
                                         formAction == 'Edit' ? 'Save' : formAction
                                 }
                             </button>
-                            <button type="button" className="button secondary" onClick={() => setModelVisible(false)}>
+                            <button type="button" className="button secondary"
+                                onClick={() => { setModelVisible(false); setAddressVisible() }}>
                                 Back
                             </button>
                         </li>
@@ -264,7 +422,7 @@ function UsersManager(props) {
                     ))}
                 </tbody>
             </table>
-        </div>
+        </div >
     );
 }
 

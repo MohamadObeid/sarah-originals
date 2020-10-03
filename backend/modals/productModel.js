@@ -29,6 +29,8 @@ const productSchema = new mongoose.Schema({
   newArrival: { type: Boolean, required: true, default: false },
   specialOffer: { type: Boolean, required: true, default: false },
   discount: { type: Number, default: 0, required: true },
+  cancellable: { type: Boolean, required: false, default: false },
+  refundable: { type: Boolean, required: false, default: false },
 });
 
 const Product = mongoose.model("Product", productSchema);

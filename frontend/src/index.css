@@ -41,6 +41,7 @@ body::-webkit-scrollbar-thumb {
 textarea {
   border-radius: 0.5rem;
   border: 1px solid #c0c0c0;
+  padding: 1rem;
 }
 
 .required {
@@ -2521,4 +2522,84 @@ input.checked[type="radio"] {
 
 .request-user {
   font-size: 1.1rem;
+}
+
+/*//////////////////////////////////////////*/
+/*Orders*/
+
+.orders-user-phone {
+  width: 68%;
+  margin-right: 5%;
+}
+
+.orders-search-btn {
+  width: 30%;
+  height: 100%;
+}
+
+.order-phone-search {
+  height: 4.4rem;
+  display: flex;
+  align-items: flex-end;
+}
+
+.user-address {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #c0c0c0;
+  margin-bottom: 0.5rem;
+}
+
+.flex-align {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.margin-right {
+  margin-right: 1rem;
+}
+
+.cursor-color-absolute {
+  cursor: pointer;
+  position: absolute;
+  color: #f0c040;
+  right: 0;
+}
+
+.cursor-color-margin {
+  cursor: pointer;
+  color: #f0c040;
+  margin-right: 0.5rem;
+}
+
+.border-padding {
+  border-radius: 0.5rem;
+  border: 1px solid #c0c0c0;
+  padding: 0.5rem;
+}
+
+.address-details {
+  padding: 1.5rem 1rem;
+}
+
+.address-details input,
+textarea {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.address-details textarea {
+  height: 10rem;
+}
+
+.width {
+  width: 100%;
+  font-size: 1.3rem;
+  padding: 0.8rem;
+}
+
+.right {
+  color: red;
+  right: 2.5rem;
 }

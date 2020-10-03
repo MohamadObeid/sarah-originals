@@ -59,15 +59,25 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
     if (order) {
         order.creation_date = req.body.creation_date ? req.body.creation_date : order.creation_date;
         order.created_by = req.body.created_by ? req.body.created_by : order.created_by;
-        order.status = req.body.status ? req.body.status : order.status;
-        order.operatedBy = req.body.operatedBy ? req.body.operatedBy : order.operatedBy;
-        order.customer = req.body.customer ? req.body.customer : order.customer;
-        order.payment = req.body.payment ? req.body.payment : order.payment;
-        order.delivery = req.body.delivery ? req.body.delivery : order.delivery;
-        order.cartItems = req.body.cartItems ? req.body.cartItems : order.cartItems;
-        order.totalAmount = req.body.totalAmount ? req.body.totalAmount : order.totalAmount;
+        order.closed = req.body.closed ? req.body.closed : order.closed;
+        order.phone = req.body.phone ? req.body.phone : order.phone;
+        order.name = req.body.name ? req.body.name : order.name;
+        order.userId = req.body.userId ? req.body.userId : order.userId;
+        order.email = req.body.email ? req.body.email : order.email;
+        order.deliveryAddress = req.body.deliveryAddress ? req.body.deliveryAddress : order.deliveryAddress;
+        order.paymentAddress = req.body.paymentAddress ? req.body.paymentAddress : order.paymentAddress;
+        order.request = req.body.request ? req.body.request : order.request;
+        order.invoiceAmount = req.body.invoiceAmount ? req.body.invoiceAmount : order.invoiceAmount;
         order.customerNote = req.body.customerNote ? req.body.customerNote : order.customerNote;
         order.adminNote = req.body.adminNote ? req.body.adminNote : order.adminNote;
+        //order.status = req.body.status ? req.body.status : order.status;
+        //order.operatedBy = req.body.operatedBy ? req.body.operatedBy : order.operatedBy;
+        //order.payment = req.body.payment ? req.body.payment : order.payment;
+        //order.delivery = req.body.delivery ? req.body.delivery : order.delivery;
+        //order.cartItems = req.body.cartItems ? req.body.cartItems : order.cartItems;
+        //order.totalAmount = req.body.totalAmount ? req.body.totalAmount : order.totalAmount;
+        //order.customerNote = req.body.customerNote ? req.body.customerNote : order.customerNote;
+        //order.adminNote = req.body.adminNote ? req.body.adminNote : order.adminNote;
     }
     const orderUpdated = await order.save()
 

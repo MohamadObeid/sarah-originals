@@ -34,14 +34,15 @@ const signin = (user) => async (dispatch, getState) => {
             let { data } = await axios.post("/api/users/signin", user)
             dispatch({ type: USER_SIGNIN_SUCCESS, payload: data })
             data && cookie.set('userInfo', JSON.stringify({
-                _id: data._id,
                 email: data.email,
                 password: data.password,
+                isCallCenterAgent: data.isCallCenterAgent,
                 name: data.name,
                 employeeId: data.employeeId,
+                _id: data._id,
                 image: data.image,
+                isAdmin: data.isAdmin,
                 token: data.token,
-                isCallCenterAgent: data.isCallCenterAgent
             }));
         } catch (error) {
             dispatch({ type: USER_SIGNIN_FAIL, payload: error.message })
@@ -68,10 +69,15 @@ const saveUser = (user) => async (dispatch, getState) => {
                         { email: data.data.email, password: data.data.password })
                     dispatch({ type: USER_SIGNIN_SUCCESS, payload: signinData })
                     cookie.set('userInfo', JSON.stringify({
-                        email: signinData.email, password: signinData.password,
+                        email: signinData.email,
+                        password: signinData.password,
                         isCallCenterAgent: signinData.isCallCenterAgent,
-                        name: signinData.name, employeeId: signinData.employeeId,
-                        _id: signinData._id, image: signinData.image,
+                        name: signinData.name,
+                        employeeId: signinData.employeeId,
+                        _id: signinData._id,
+                        image: signinData.image,
+                        isAdmin: signinData.isAdmin,
+                        token: signinData.token,
                     }))
                     //for call centers in chatbox
                     signinData.isCallCenterAgent && dispatch(listLiveUser())
@@ -106,6 +112,8 @@ const register = (user) => async (dispatch) => {
             employeeId: signinData.employeeId,
             _id: signinData._id,
             image: signinData.image,
+            isAdmin: signinData.isAdmin,
+            token: signinData.token,
         }))
 
     } catch (error) {
@@ -150,12 +158,27 @@ const deleteUser = (_id) => async (dispatch, getState) => {
 
 const detailsUser = (_id) => async (dispatch) => {
     try {
-        dispatch({ type: USER_DETAILS_REQUEST });
-        const { data } = await axios.get("/api/users/" + _id);
-        dispatch({ type: USER_DETAILS_SUCCESS, payload: data });
+        dispatch({ type: USER_DETAILS_REQUEST })
+        const { data } = await axios.get("/api/users/" + _id)
+        dispatch({ type: USER_DETAILS_SUCCESS, payload: data })
     } catch (error) {
-        dispatch({ type: USER_DETAILS_FAIL, payload: error.message });
+        dispatch({ type: USER_DETAILS_FAIL, payload: error.message })
+    }
+}
+
+const getUser = (phone) => async (dispatch, getState) => {
+    try {
+        dispatch({ type: USER_DETAILS_REQUEST })
+        const { userSignin: { userInfo } } = getState()
+
+        const { data } = await axios.post("/api/users/getUser", { phone: phone }, {
+            headers: { Authorization: 'Bearer ' + userInfo.token }
+        })
+
+        dispatch({ type: USER_DETAILS_SUCCESS, payload: data })
+    } catch (error) {
+        dispatch({ type: USER_DETAILS_FAIL, payload: error.message })
     }
 };
 
-export { signin, register, listUsers, deleteUser, saveUser, detailsUser };
+export { signin, register, listUsers, deleteUser, saveUser, detailsUser, getUser }

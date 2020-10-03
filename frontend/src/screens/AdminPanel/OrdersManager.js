@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux"
 import { months, weekDays } from '../../constants/lists'
-import { listOrders, saveOrder } from '../../actions/orderActions'
+import { deleteOrder, listOrders, saveOrder } from '../../actions/orderActions'
+import FontAwesome from "react-fontawesome";
+import { getUser } from "../../actions/userActions";
 
 function OrdersManager(props) {
     const imageUrl = window.location.origin + '/api/uploads/image/'
+    /*
     var d = new Date()
     var currentYear = d.getFullYear()
     var currentMonth = months[d.getMonth()]
@@ -13,10 +16,10 @@ function OrdersManager(props) {
     var currentHour = d.getHours() < 10 ? '0' + d.getHours() : d.getHours()
     var currentMinutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes()
     var currentSeconds = d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds()
-
     var currentDate = currentWeekDay.slice(0, 3) + ' ' + currentDay + ' ' + currentMonth + ' ' + currentYear
+    */
 
-    const [formAction, setFormAction] = useState('recorded')
+    const [formAction, setFormAction] = useState('Create')
     const [actionNote, setActionNote] = useState()
     const [actionNoteVisible, setActionNoteVisible] = useState(false)
     const [formAlert, setFormAlert] = useState('Kindly fill all required blanks!')
@@ -27,16 +30,34 @@ function OrdersManager(props) {
 
     const [_id, setId] = useState()
     const [status, setStatus] = useState()
-    const [placed, setPlaced] = useState()
+    const [closed, setClosed] = useState() //
+    const [customerName, setCustomerName] = useState() //
+    const [customerUserId, setCustomerUserId] = useState() //
+    const [customerPhone, setCustomerPhone] = useState()//
+    const [customerEmail, setCustomerEmail] = useState() //
+    const [isPlace, setIsPlace] = useState() //
+    const [isReturn, setIsReturn] = useState()//
+    const [isCancel, setIsCancel] = useState() //
+    const [isPrepare, setIsPrepare] = useState() //
+    const [placement, setPlacement] = useState() //
+    const [paymentStatus, setPaymentStatus] = useState() //
+    const [deliveryStatus, setDeliveryStatus] = useState() //
+    const [cartStatus, setCartStatus] = useState() //
+    const [invoiceAmount, setInvoiceAmount] = useState() //
+    const [confirmation, setConfirmation] = useState() //
+    const [request, setRequest] = useState() //
+    const [address, setAddress] = useState()
+
+    /*const [placed, setPlaced] = useState()
     const [confirmed, setConfirmed] = useState()
     const [canceled, setCanceled] = useState()
     const [rejected, setRejected] = useState()
     const [completed, setCompleted] = useState()
     const [cancelRequest, setCancelRequest] = useState()
     const [returnRequest, setReturnRequest] = useState()
-    const [accomplishment, setAccomplishment] = useState()
+    const [accomplishment, setAccomplishment] = useState()*/
     const [operatedBy, setOperatedBy] = useState()
-    const [customerDetails, setCustomerDetails] = useState()
+    const [customer, setcustomer] = useState()
     const [totalAmount, setTotalAmount] = useState()
     const [customerNote, setCustomerNote] = useState()
     const [adminNote, setAdminNote] = useState()
@@ -54,7 +75,6 @@ function OrdersManager(props) {
     // delivery
     const [delivery, setDelivery] = useState()
     const [deliverOn, setDeliverOn] = useState()
-    const [isReturn, setIsReturn] = useState()
     const [deliveryTitle, setDeliveryTitle] = useState()
     const [deliveryMethod, setDeliveryMethod] = useState()
     const [deliveryDuration, setDeliveryDuration] = useState()
@@ -88,6 +108,7 @@ function OrdersManager(props) {
     const { orders } = useSelector(state => state.orderList)
     const { userInfo } = useSelector(state => state.userSignin)
     const { cartItems } = useSelector(state => state.cart)
+    const { user } = useSelector(state => state.userDetails)
 
     const dispatch = useDispatch()
     useEffect(() => {
@@ -106,48 +127,80 @@ function OrdersManager(props) {
         }
     }, [])
 
+    useEffect(() => {
+        if (user) {
+            setCustomerUserId(user._id)
+            setCustomerPhone(user.phone)
+            setCustomerEmail(user.email)
+            setAddress(user.address)
+            setCustomerName(user.name)
+        }
+        return () => {
+            //
+        }
+    }, [user])
+
     const openOrderModel = (order) => {
 
         setModelVisible(true)
         setId(order._id ? order._id : undefined)
-        setStatus(order.status ? order.status : undefined)
-        setPlaced(order.status.place ? order.status.placed : false)
+        setRequest(order.request ? order.request : [])
+
+        if (order.request) {
+            setIsPrepare(order.request.isPrepare ? order.request.isPrepare : undefined)
+            setIsPlace(order.request.isPlace ? order.request.isPlace : undefined)
+            setIsCancel(order.request.isCancel ? order.request.isCancel : undefined)
+            setIsReturn(order.request.isReturn ? order.request.isReturn : undefined)
+        }
+
+        setPaymentStatus(order.paymentStatus ? order.paymentStatus : undefined)
+        setDeliveryStatus(order.deliveryStatus ? order.deliveryStatus : undefined)
+        setCartStatus(order.cartStatus ? order.cartStatus : undefined)
+
+        /*setPlaced(order.status.place ? order.status.placed : false)
         setCompleted(order.status.completed ? order.status.completed : undefined)
         setConfirmed(order.status.confirmed ? order.status.confirmed : undefined)
         setRejected(order.status.rejected ? order.status.rejected : undefined)
-        setCanceled(order.status.canceled ? order.status.canceled : undefined)
-        setCancelRequest(order.status.cancelRequest ? order.status.cancelRequest : undefined)
-        setReturnRequest(order.status.returnRequest ? order.status.returnRequest : undefined)
-        setAccomplishment(order.status.accomplishment ? order.status.accomplishment : undefined)
-        setOperatedBy(order.operatedBy ? order.operatedBy : undefined)
-        setCustomerDetails(order.customerDetails ? order.customerDetails : undefined)
+        setCanceled(order.status.canceled ? order.status.canceled : undefined)*/
+
+        //setOperatedBy(order.operatedBy ? order.operatedBy : undefined)
+        setcustomer(order.customer ? order.customer : undefined)
+        if (order.customer) {
+            setCustomerUserId(order.customer.userId ? order.customer.userId : undefined)
+            setCustomerName(order.customer.name ? order.customer.name : undefined)
+            setCustomerPhone(order.customer.phone ? order.customer.phone : undefined)
+            setCustomerEmail(order.customer.email ? order.customer.email : undefined)
+            setDeliveryAddress(order.customer.deliveryAddress ? order.customer.deliveryAddress : undefined)
+            setPaymentAddress(order.customer.paymentAddress ? order.customer.paymentAddress : undefined)
+        } else {
+            setCustomerUserId(undefined)
+            setCustomerPhone(undefined)
+            setCustomerEmail(undefined)
+            setDeliveryAddress(undefined)
+            setCustomerName(undefined)
+        }
+        /*
         setPayment(order.payment ? order.payment : undefined)
         setDelivery(order.delivery ? order.delivery : undefined)
         setCart(order.cart ? order.cart : undefined)
 
         if (order.payment) {
             setcollectOn(order.payment.collectOn ? order.payment.collectOn : undefined)
-            setIsRefund(order.payment.isRefund ? order.payment.isRefund : undefined)
             setPaymentTitle(order.payment.title ? order.payment.title : undefined)
             setPaymentMethod(order.payment.method ? order.payment.method : undefined)
-            setPaymentAddress(order.payment.address ? order.payment.address : undefined)
             setPaymentAssignedTo(order.payment.assignedTo ? order.payment.assignedTo : undefined)
             setPaymentDoneBy(order.payment.doneBy ? order.payment.doneBy : undefined)
             setPaymentCharge(order.payment.charge ? order.payment.charge : undefined)
-            setPaymentNote(order.payment.note ? order.payment.note : undefined)
         }
 
         if (order.delivery) {
             setDeliverOn(order.delivery.deliverOn ? order.delivery.deliverOn : undefined)
-            setIsReturn(order.delivery.isReturn ? order.delivery.isReturn : undefined)
             setDeliveryTitle(order.delivery.title ? order.delivery.title : undefined)
             setDeliveryMethod(order.delivery.method ? order.delivery.method : undefined)
             setDeliveryDuration(order.delivery.duration ? order.delivery.duration : undefined)
-            setDeliveryAddress(order.delivery.address ? order.delivery.address : undefined)
             setDeliveryAssignedTo(order.delivery.assignedTo ? order.delivery.assignedTo : undefined)
             setDeliveryDoneBy(order.delivery.doneBy ? order.delivery.doneBy : undefined)
             setDeliveryCharge(order.delivery.charge ? order.delivery.charge : undefined)
-            setDeliveryNote(order.delivery.note ? order.delivery.note : undefined)
         }
 
         if (order.cart) {
@@ -156,99 +209,192 @@ function OrdersManager(props) {
             setCartDoneBy(order.cart.doneBy ? order.cart.doneBy : undefined)
             setCartQty(order.cart.count ? order.cart.count : undefined)
             setCartAmount(order.cart.amount ? order.cart.amount : undefined)
-            setCartNote(order.cart.note ? order.cart.note : undefined)
-        }
+        }*/
 
-        setTotalAmount(order.totalAmount ? order.totalAmount : undefined)
+        setInvoiceAmount(order.invoiceAmount ? order.invoiceAmount : undefined)
         setCustomerNote(order.customerNote ? order.customerNote : undefined)
         setAdminNote(order.adminNote ? order.adminNote : undefined)
         setFormAlertVisible(false)
     }
 
     const submitHandler = (e) => {
-        if (customerDetails && payment && delivery && cart && totalAmount) {
+        if (customer && request && cart && invoiceAmount) {
             if (_id) {
                 dispatch(saveOrder({
-                    status: status,
-                    operatedBy: operatedBy,
-                    customerDetails: customerDetails,
-                    payment: [{
-                        collectOn: collectOn, // usually the same as delivery date
-                        isRefund: isRefund,
-                        title: paymentTitle,
-                        method: paymentMethod,
-                        address: paymentAddress, // usually the same as delivery address
-                        assignedTo: paymentAssignedTo,
-                        doneBy: paymentDoneBy,
-                        charge: paymentCharge,
-                        note: paymentNote,
-                    }],
-                    delivery: [{
-                        deliverOn: deliverOn,
-                        isReturn: isReturn,
-                        title: deliveryTitle,
-                        method: deliveryMethod,
-                        address: deliveryAddress,
-                        duration: deliveryDuration,
-                        assignedTo: deliveryAssignedTo,
-                        doneBy: deliveryDoneBy,
-                        charge: deliveryCharge,
-                        note: deliveryNote,
-                    }],
-                    cart: [{
-                        isReturn: isReturn,
-                        items: cartItems,
-                        assignedTo: cartAssignedTo,
-                        doneBy: cartDoneBy,
-                        qty: cartQty,
-                        amount: cartAmount,
-                        note: cartNote
-                    }],
-                    totalAmount: totalAmount,
+                    closed: closed,
+                    userId: customerUserId,
+                    name: customerName,
+                    phone: customerPhone,
+                    email: customerEmail,
+                    deliveryAddress: deliveryAddress,
+                    paymentAddress: paymentAddress,// usually the same as delivery address
+                    request: request,
+                    invoiceAmount: invoiceAmount,
                     customerNote: customerNote,
-                    adminNote: adminNote
+                    adminNote: adminNote,
+                    closed: closed,
                 }))
             } else {
                 dispatch(saveOrder({
                     creation_date: time,
-                    created_by: userInfo.name,
-                    customerDetails: customerDetails,
-                    payment: [{
-                        collectOn: collectOn, // usually the same as delivery date
-                        isRefund: false,
-                        title: paymentTitle,
-                        method: paymentMethod,
-                        address: paymentAddress, // usually the same as delivery address
-                        charge: paymentCharge,
-                        note: paymentNote,
+                    created_by: userInfo ? userInfo.name : Date.now(),
+                    userId: customerUserId,
+                    name: customerName,
+                    phone: customerPhone,
+                    email: customerEmail,
+                    deliveryAddress: deliveryAddress,
+                    paymentAddress: paymentAddress,// usually the same as delivery address
+                    request: [{
+                        creation_date: time,
+                        created_by: userInfo ? userInfo.name : Date.now(),
+                        isPrepare: isPrepare,
+                        isPlace: isPlace,
+                        confirmation: {
+                            placement: placement
+                        },
+                        operatedBy: {
+                            date: userInfo.isAdmin ? time : undefined,
+                            employeeName: userInfo.isAdmin ? userInfo.employeeName : undefined,
+                            employeeId: userInfo.isAdmin ? userInfo.employeeId : undefined
+                        },
+                        payment: {
+                            status: paymentStatus,
+                            collectOn: collectOn, // usually the same as delivery date
+                            title: paymentTitle,
+                            method: paymentMethod,
+                            charge: paymentCharge,
+                        },
+                        delivery: {
+                            status: deliveryStatus,
+                            deliverOn: deliverOn,
+                            title: deliveryTitle,
+                            method: deliveryMethod,
+                            duration: deliveryDuration,
+                            charge: deliveryCharge,
+                        },
+                        cart: {
+                            status: cartStatus,
+                            items: cartItems,
+                            qty: cartQty,
+                            amount: cartAmount,
+                        },
+                        totalAmount: totalAmount,
                     }],
-                    delivery: [{
-                        deliverOn: deliverOn,
-                        isReturn: false,
-                        title: deliveryTitle,
-                        method: deliveryMethod,
-                        address: deliveryAddress,
-                        duration: deliveryDuration,
-                        charge: deliveryCharge,
-                        note: deliveryNote,
-                    }],
-                    cart: [{
-                        isReturn: false,
-                        items: cartItems,
-                        qty: cartQty,
-                        amount: cartAmount,
-                        note: cartNote
-                    }],
-                    totalAmount: totalAmount,
+                    invoiceAmount: invoiceAmount,
                     customerNote: customerNote,
-                    adminNote: adminNote
+                    adminNote: adminNote,
+                    closed: closed,
                 }))
             }
         }
     }
 
+
+    const createHandler = (e) => {
+        setModelVisible(true)
+        openOrderModel({})
+    }
+
+    const deleteHandler = (e, _id) => {
+        e.preventDefault()
+        setFormAction('Delet')
+        dispatch(deleteOrder(_id))
+    }
+
+    const searchUser = (e) => {
+        e.preventDefault()
+        dispatch(getUser(customerPhone))
+    }
+
     return (
         <div>
+            {actionNoteVisible && <div className="action-note">{actionNote}</div>}
+            <div className="control-page-header">
+                <h3 className="header-title">Order Manager</h3>
+                <button type="button" className="header-button" onClick={() => createHandler()}>Create Order</button>
+            </div>
+            {
+                modelVisible &&
+                <form className="form-form" onSubmit={(e) => submitHandler(e)}>
+                    <ul className="form-container-manager">
+                        <FontAwesome name="fa-window-close" className="far fa-window-close fa-lg" onClick={() => setModelVisible(false)} />
+                        <li>
+                            <h2>{formAction == 'Copy' ? 'Create' : formAction} Order</h2>
+                        </li>
+                        <li>
+                            <label className="label" htmlFor="phone">Phone#<p className="required">*</p></label>
+                            <div className='order-phone-search'>
+                                <input
+                                    type="text"
+                                    name="phone"
+                                    id="phone"
+                                    className='orders-user-phone'
+                                    value={customerPhone}
+                                    onChange={(e) => setCustomerPhone(e.target.value)}
+                                ></input>
+                                <button
+                                    className="button orders-search-btn"
+                                    onClick={searchUser}
+                                >Search</button>
+                            </div>
+                        </li>
+                        <li>
+                            <label className="label" htmlFor="name">Name<p className="required">*</p></label>
+                            <input
+                                type="text"
+                                name="name"
+                                id="name"
+                                value={customerName}
+                                onChange={(e) => setCustomerName(e.target.value)}
+                            ></input>
+                        </li>
+                        <li>
+                            <label className="label" htmlFor="email">Email</label>
+                            <input
+                                type="text"
+                                name="email"
+                                id="email"
+                                value={customerEmail}
+                                onChange={(e) => setCustomerEmail(e.target.value)}
+                            ></input>
+                        </li>
+                        <li>
+                            <div className="label">Delivery Address</div>
+                            <select
+                                value={address}
+                                onChange={(e) => {
+                                    setDeliveryAddress(
+                                        e.target.selectedIndex ?
+                                            e.target.options[e.target.selectedIndex].value :
+                                            e.target.value);
+                                }}
+                            >
+                                <option key='' value=''>
+                                    Select...
+                                </option>
+                                {address
+                                    && address.map((add) => (
+                                        <option key={address.indexOf(add)} value={add}>
+                                            {add.city + ', ' + add.region + ', ' + add.building}
+                                        </option>
+                                    ))}
+                            </select>
+                        </li>
+                        <li>
+                            {formAlertVisible && <div className="invalid">{formAlert}</div>}
+                            <button type="submit" className="button primary">
+                                {
+                                    formAction == 'Copy' ? 'Create' :
+                                        formAction == 'Edit' ? 'Save' : formAction
+                                }
+                            </button>
+                            <button type="button" className="button secondary" onClick={() => setModelVisible(false)}>
+                                Back
+                            </button>
+                        </li>
+                    </ul>
+                </form>
+            }
         </div>
     );
 }

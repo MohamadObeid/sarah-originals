@@ -65,6 +65,7 @@ router.post("/signin", async (req, res) => {
         isOrderManager: user.isOrderManager,
         image: user.image && user.image,
         employeeId: user.employeeId && user.employeeId,
+        address: user.address && user.address,
       })
 
     // set user inactive
@@ -99,6 +100,11 @@ router.post("/register", async (req, res) => {
     email: req.body.email,
     phone: req.body.phone,
     password: req.body.password,
+    isAdmin: req.body.isAdmin,
+    isCallCenterAgent: req.body.isCallCenterAgent,
+    isAttendanceManager: req.body.isAttendanceManager,
+    isOrderManager: req.body.isOrderManager,
+    isOrderManager: req.body.isOrderManager,
     activity: [{ date: Date.now() + 10800000, IPaddress: req.body.IP }],
     active: true
   })
@@ -175,6 +181,7 @@ router.get("", isAuth, isAdmin, async (req, res) => {
   res.send(users);
 });
 
+// id list: get users
 router.post("", isAuth, isAdmin, async (req, res) => {
   var users = await User.find({ employeeId: req.body })
   users = users.map(user => {
@@ -185,7 +192,7 @@ router.post("", isAuth, isAdmin, async (req, res) => {
     }
   })
   res.send(users)
-});
+})
 
 router.delete("/:id", isAuth, isAdmin, async (req, res) => {
   const userDeleted = await User.findByIdAndRemove(req.params.id);
@@ -202,7 +209,7 @@ router.put("/:id", isAuth, async (req, res) => {
   if (user) {
     user.name = req.body.name;
     user.active = req.body.active;
-    user.activity = req.body.activity && req.body.activity;
+    user.activity = req.body.activity ? req.body.activity : user.activity;
     user.email = req.body.email;
     user.phone = req.body.phone;
     user.password = req.body.password && req.body.password;
@@ -212,6 +219,7 @@ router.put("/:id", isAuth, async (req, res) => {
     user.isOrderManager = req.body.isOrderManager;
     user.image = req.body.image && req.body.image;
     user.employeeId = req.body.employeeId && req.body.employeeId;
+    user.address = req.body.address && req.body.address;
   }
   const userUpdated = await user.save();
   if (userUpdated) {
@@ -222,10 +230,18 @@ router.put("/:id", isAuth, async (req, res) => {
   })
 })
 
-router.get("/:id", async (req, res) => {
-  const userId = req.params.id;
-  const user = await User.findOne({ _id: userId })
-  res.send(user)
-});
+router.post("/getUser", async (req, res) => {
+  const phone = req.body.phone
+  console.log('phone', phone)
+  const user = await User.findOne({ phone: phone }) || undefined
+  user && res.send({
+    _id: user._id,
+    phone: user.phone,
+    email: user.email,
+    name: user.name,
+    image: user.image,
+    address: user.address,
+  })
+})
 
 export default router;
