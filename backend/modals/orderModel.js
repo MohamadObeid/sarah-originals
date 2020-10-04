@@ -36,7 +36,7 @@ const orderSchema = new mongoose.Schema({
 
             payment: {
                 status: { type: String, required: false },//collected, unpaid, canceled, refunded
-                collectOn: { type: String, required: false }, //date
+                collectOn: { type: String, required: false }, //date, upon delivery, upon receipt
                 title: { type: String, required: false },
                 method: { type: String, required: false },
                 assignedTo: {
@@ -101,6 +101,7 @@ const orderSchema = new mongoose.Schema({
 
                 qty: { type: Number, required: false },
                 amount: { type: Number, required: false },
+                discountAmount: { type: Number, required: false },
             },
 
             // callCenter: {

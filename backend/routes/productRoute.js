@@ -24,6 +24,23 @@ router.post("/getproducts", async (req, res) => {
   }
 })
 
+router.post("/searchKeyword", async (req, res) => {
+  const searchKeyword = req.body.searchKeyword
+    ? {
+      nameEn: {
+        $regex: req.body.searchKeyword,
+        $options: 'i',
+      },
+    }
+    : {}
+
+  const products = await Product.find({ ...searchKeyword })
+  if (products) {
+    console.log(products)
+    return res.status(201).send(products)
+  }
+})
+
 router.post("", isAuth, isAdmin, async (req, res) => {
   const product = new Product({
     created_by: req.body.created_by,

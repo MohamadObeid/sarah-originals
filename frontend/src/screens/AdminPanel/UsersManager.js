@@ -309,18 +309,20 @@ function UsersManager(props) {
                                     </div>
                                 ))}
                             </li>}
-                        <div className='li-users'>
-                            <input
-                                className='switch'
-                                type="checkbox"
-                                name="isAdmin"
-                                id="isAdmin s2"
-                                value={isAdmin}
-                                checked={isAdmin}
-                                onChange={(e) => setIsAdmin(e.target.checked)}
-                            ></input>
-                            <label className="label switch-label" htmlFor="isCallCenterAgent">Is Admin?</label>
-                        </div>
+                        <li>
+                            <div className='li-users'>
+                                <input
+                                    className='switch'
+                                    type="checkbox"
+                                    name="isAdmin"
+                                    id="isAdmin s2"
+                                    value={isAdmin}
+                                    checked={isAdmin}
+                                    onChange={(e) => setIsAdmin(e.target.checked)}
+                                ></input>
+                                <label className="label switch-label" htmlFor="isCallCenterAgent">Is Admin?</label>
+                            </div>
+                        </li>
                         {isAdmin && <li>
                             <label className="label" htmlFor="employeeName">Employee Name<p className="required">*</p></label>
                             <select
