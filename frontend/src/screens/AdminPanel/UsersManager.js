@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { listUsers, deleteUser, saveUser } from "../../actions/userActions";
 import FontAwesome from 'react-fontawesome';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircle, faEdit, faPlusCircle, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCircle, faEdit, faPlus, faPlusCircle, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { dayConverter } from '../../methods/methods'
 
 function UsersManager(props) {
@@ -24,6 +24,7 @@ function UsersManager(props) {
     const [isAdmin, setIsAdmin] = useState(false)
     const [isCallCenterAgent, setIsCallCenterAgent] = useState(false)
     const [isAttendanceManager, setIsAttendanceManager] = useState(false)
+    const [isOrderManager, setIsOrderManager] = useState(false)
     const [employeeId, setEmployeeId] = useState()
     const [image, setImage] = useState()
     const [address, setAddress] = useState(0)
@@ -69,6 +70,7 @@ function UsersManager(props) {
         setIsAdmin(user.isAdmin ? user.isAdmin : false)
         setIsCallCenterAgent(user.isCallCenterAgent ? user.isCallCenterAgent : false)
         setIsAttendanceManager(user.isAttendanceManager ? user.isAttendanceManager : false)
+        setIsOrderManager(user.isOrderManager ? user.isOrderManager : false)
         setEmployeeId(user.employeeId ? user.employeeId : undefined)
         setImage(user.image ? user.image : undefined)
         //console.log(user.address)
@@ -77,7 +79,10 @@ function UsersManager(props) {
 
     const submitHandler = (e) => {
         e.preventDefault()
-        const user = { _id, name, email, phone, password, isAdmin, isCallCenterAgent, isAttendanceManager, image, employeeId, address }
+        const user = {
+            _id, name, email, phone, password, isAdmin, isCallCenterAgent,
+            isAttendanceManager, isOrderManager, image, employeeId, address
+        }
         formAction === 'Copy' && delete user._id
         if (name !== '' && email !== '' && phone && password !== '') {
             dispatch(saveUser(user))
@@ -192,7 +197,7 @@ function UsersManager(props) {
                                 <FontAwesomeIcon
                                     onClick={() => showAddressEditor(undefined)}
                                     className='cursor-color-margin fa-lg'
-                                    icon={faPlusCircle} />
+                                    icon={faPlus} />
                                 <div>New Address</div>
                             </div>
                             {addressVisible === 'newAddress' &&
@@ -231,7 +236,7 @@ function UsersManager(props) {
                                         }}>Add Address</button>
                                 </div>}
                         </li>
-                        {address.length > 0 &&
+                        {address && address.length > 0 &&
                             <li className='border-padding'>
                                 {address.map((add) => (
                                     <div>
@@ -310,7 +315,7 @@ function UsersManager(props) {
                                 ))}
                             </li>}
                         <li>
-                            <div className='li-users'>
+                            <div className='li-users flex-end'>
                                 <input
                                     className='switch'
                                     type="checkbox"
@@ -345,30 +350,44 @@ function UsersManager(props) {
                                     ))}
                             </select>
                         </li>}
-                        <div className='li-users'>
-                            <input
-                                className='switch'
-                                type="checkbox"
-                                name="isCallCenterAgent"
-                                id="isCallCenterAgent s2"
-                                value={isCallCenterAgent}
-                                checked={isCallCenterAgent}
-                                onChange={(e) => setIsCallCenterAgent(e.target.checked)}
-                            ></input>
-                            <label className="label switch-label" htmlFor="isCallCenterAgent">Is Call Center Agent?</label>
-                        </div>
-                        <div className='li-users'>
-                            <input
-                                className='switch'
-                                type="checkbox"
-                                name="isAttendanceManager"
-                                id="isAttendanceManager s2"
-                                value={isAttendanceManager}
-                                checked={isAttendanceManager}
-                                onChange={(e) => setIsAttendanceManager(e.target.checked)}
-                            ></input>
-                            <label className="label switch-label" htmlFor="isAttendanceManager">Is Attendance Manager?</label>
-                        </div>
+                        <li>
+                            <div className='li-users flex-end'>
+                                <input
+                                    className='switch'
+                                    type="checkbox"
+                                    name="isCallCenterAgent"
+                                    id="isCallCenterAgent s2"
+                                    value={isCallCenterAgent}
+                                    checked={isCallCenterAgent}
+                                    onChange={(e) => setIsCallCenterAgent(e.target.checked)}
+                                ></input>
+                                <label className="label switch-label" htmlFor="isCallCenterAgent">Is Call Center Agent?</label>
+                            </div>
+                            <div className='li-users flex-end'>
+                                <input
+                                    className='switch'
+                                    type="checkbox"
+                                    name="isAttendanceManager"
+                                    id="isAttendanceManager s2"
+                                    value={isAttendanceManager}
+                                    checked={isAttendanceManager}
+                                    onChange={(e) => setIsAttendanceManager(e.target.checked)}
+                                ></input>
+                                <label className="label switch-label" htmlFor="isAttendanceManager">Is Attendance Manager?</label>
+                            </div>
+                            <div className='li-users flex-end'>
+                                <input
+                                    className='switch'
+                                    type="checkbox"
+                                    name="isOrderManager"
+                                    id="isOrderManager s2"
+                                    value={isOrderManager}
+                                    checked={isOrderManager}
+                                    onChange={(e) => setIsOrderManager(e.target.checked)}
+                                ></input>
+                                <label className="label switch-label" htmlFor="isOrderManager">Is Orders Manager?</label>
+                            </div>
+                        </li>
                         <li>
                             {formAlertVisible && <div className="invalid">{formAlert}</div>}
                             <button type="submit" className="button primary">

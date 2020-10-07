@@ -887,7 +887,11 @@ function EmployeeManager(props) {
                             <div className='dropdown-container'>
                                 <div className='dropdown-input' onClick={() => {
                                     document.querySelector('.overlay-3').style.display = 'block';
-                                    setLicenseDropdownVisible(true)
+                                    if (licenseDropdownVisible) {
+                                        setLicenseDropdownVisible(false)
+                                        document.querySelector('.overlay-3').style.display = 'none';
+                                    }
+                                    else setLicenseDropdownVisible(true)
                                 }}>
                                     {drivingLicense &&
                                         drivingLicense.map(c => (
@@ -1051,8 +1055,13 @@ function EmployeeManager(props) {
                             <div className='dropdown-overlay overlay-2'></div>
                             <div className='dropdown-container'>
                                 <div className='dropdown-input' onClick={() => {
-                                    document.querySelector('.overlay-2').style.display = 'block';
-                                    setDropdownListVisible(true)
+                                    if (dropdownListVisible) {
+                                        setDropdownListVisible(false)
+                                        document.querySelector('.overlay-2').style.display = 'none';
+                                    } else {
+                                        setDropdownListVisible(true)
+                                        document.querySelector('.overlay-2').style.display = 'block';
+                                    }
                                 }}>
                                     {interests &&
                                         interests.map(c => (

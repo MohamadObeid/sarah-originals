@@ -86,6 +86,31 @@ function CartScreen(props) {
     }
   }
 
+  const qtyCalc = () => {
+    var totalqty = 0
+    cartItems.map(item => {
+      totalqty = totalqty + item.qty
+    })
+    return totalqty
+  }
+
+  const discountCalc = () => {
+    var discountAmount = 0
+    cartItems.map(item => {
+      if (item.discount > 0) { discountAmount = discountAmount + item.priceUsd * item.discount * 0.01 * item.qty }
+    })
+    return discountAmount.toFixed(2)
+  }
+
+  const amountCalc = () => {
+    var cartAmount = 0
+    products.map(item => {
+      cartAmount = cartAmount + item.priceUsd * item.qty
+    })
+    cartAmount = cartAmount - discountCalc()
+    return cartAmount.toFixed(2)
+  }
+
   return (
     <div>
       {actionNoteVisible && <div className="action-note">{actionNote}</div>}
@@ -101,13 +126,17 @@ function CartScreen(props) {
             <li>
               <h4>Shopping Cart</h4>
             </li>
-
             {products.length === 0 ? (
               <div style={{ paddingLeft: '1rem' }}>Cart is Empty</div>
             ) : (products &&
               products.map((item) => (
                 item && item.qty > 0 &&
-                <li>
+                <li style={{ position: 'relative' }}>
+                  {item.discount > 0 &&
+                    <div className='product-discount order-discount'>
+                      <div>{item.discount}</div>
+                      <div>%</div>
+                    </div>}
                   <div className="cart-list-items">
                     <div className="cart-image">
                       <img src={imageUrl + item.image} alt={item.nameEn} />
@@ -152,14 +181,23 @@ function CartScreen(props) {
           </ul>
         </div>
         <div className="cart-action">
-          <h3>
-            Subtotal ( {products.reduce((total, item) => total + item.qty, 0)}{" "}
-            items ): $
-            {products.reduce((sum, item) => sum + item.priceUsd * item.qty, 0)}
-          </h3>
+          <div className='no-border'>
+            <div className='cart-total-qty'>
+              <div className='cart-total-label font-size'>Items</div>
+              <div className='total-num font-size'>{qtyCalc() + ' items'}</div>
+            </div>
+            <div className='cart-total-qty'>
+              <div className='cart-total-label font-size'>Discount</div>
+              <div className='total-num font-size'>{discountCalc() + ' $'}</div>
+            </div>
+            <div className='cart-total-qty cart-total'>
+              <div className='cart-total-label font-size'>Total</div>
+              <div className='total-num font-size'>{amountCalc() + ' $'}</div>
+            </div>
+          </div>
           <button
             onClick={checkoutHandler}
-            className="button primary"
+            className="button primary cart-proceed-btn"
             disabled={products.length == 0}
           >
             Proceed To Checkout

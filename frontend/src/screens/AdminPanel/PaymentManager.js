@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { savePayment, listPayment, deletePayment } from "../../actions/paymentActions";
 import FontAwesome from 'react-fontawesome';
-import { listZone } from "../../actions/zoneActions";
+import { rateTypeList, typeList, basedOnList } from '../../constants/lists'
+import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function PaymentManager(props) {
     const { zone: zoneList } = useSelector(state => state.zoneList);
@@ -23,6 +25,8 @@ function PaymentManager(props) {
     const [ratesModelVisible, setRatesModelVisible] = useState(false);
     const [dropdownList, setDropdownList] = useState();
     const [dropdownListVisible, setDropdownListVisible] = useState(false);
+    const [typeDropdownList, setTypeDropdownList] = useState();
+    const [typeDropdownListVisible, setTypeDropdownListVisible] = useState(false);
 
     // payment consts
     const [_id, set_id] = useState();
@@ -46,9 +50,6 @@ function PaymentManager(props) {
     const { payment } = useSelector(state => state.paymentList);
 
     // List consts
-    const rateTypeList = ['Flat', 'Custom', 'Percentage'];
-    const typeList = ['CashUsd', 'CashLbp', 'Credit', 'Check'];
-    const basedOnList = ['Value', 'Quantity', 'Weight'];
 
     const dispatch = useDispatch();
     useEffect(() => {
@@ -67,13 +68,6 @@ function PaymentManager(props) {
         };
     }, [successSave, successDelete]);
 
-    useEffect(() => {
-        dispatch(listZone())
-        return () => {
-            //
-        };
-    }, []);
-
     // payment
     const openModel = (payment) => {
         setRatesModelVisible(false);
@@ -81,9 +75,9 @@ function PaymentManager(props) {
 
         set_id(payment._id ? payment._id : undefined);
         setActive(payment.active ? payment.active : false)
-        setTitle(payment.title ? payment.title : '');
+        setTitle(payment.title ? payment.title : undefined);
         setZone(payment.zone ? payment.zone : []);
-        setType(payment.type ? payment.type : 'CashLbp');
+        setType(payment.type ? payment.type : ['Cash']);
         setRateType(payment.rateType ? payment.rateType : 'Flat');
         setFlatRate(parseFloat(payment.flatRate) === 0 ? parseFloat(payment.flatRate) : payment.flatRate ? parseFloat(payment.flatRate) : 0);
         setRates(payment.rates ? payment.rates : []);
@@ -93,6 +87,14 @@ function PaymentManager(props) {
                 cityList = cityList.filter(c => c !== zExist && c)
             })
         setDropdownList(cityList.sort());
+
+        var types = typeList
+        payment.type &&
+            payment.type.forEach(tExist => {
+                types = types.filter(t => t !== tExist && t)
+            })
+        if (types.length === typeList.length) types = types.filter(t => t !== 'Cash' && t)
+        setTypeDropdownList(types.sort());
 
         setModelVisible(true);
     };
@@ -252,12 +254,36 @@ function PaymentManager(props) {
     }
 
     window.addEventListener('click', (e) => {
-        const dropdownOverlay = document.querySelector('.dropdown-overlay');
+        const dropdownOverlay = document.querySelector('.dropdown-overlay-zone');
         if (e.target === dropdownOverlay) {
             setDropdownListVisible(false)
             dropdownOverlay.style.display = 'none'
         }
-    });
+    })
+
+    // Dropdown types
+
+    const addType = (typeAdded) => {
+        setType([...type, typeAdded])
+        setTypeDropdownList(
+            typeDropdownList.filter(drop => drop !== typeAdded && drop)
+        )
+    }
+
+    const removeType = (typeRemoved) => {
+        setTypeDropdownList([...typeDropdownList, typeRemoved].sort())
+        setType(
+            type.filter(type => type !== typeRemoved && type)
+        )
+    }
+
+    window.addEventListener('click', (e) => {
+        const dropdownOverlayType = document.querySelector('.dropdown-overlay-type');
+        if (e.target === dropdownOverlayType) {
+            setTypeDropdownListVisible(false)
+            dropdownOverlayType.style.display = 'none'
+        }
+    })
 
     return (
         <div>
@@ -287,10 +313,10 @@ function PaymentManager(props) {
                         </li>
                         <div className='dropdown'>
                             <div className='dropdown-label'>Zone<p className="required">*</p></div>
-                            <div className='dropdown-overlay'></div>
-                            <div className='dropdown-container'>
+                            <div className='dropdown-overlay dropdown-overlay-zone'></div>
+                            <div className='dropdown-container' style={{ zIndex: '4' }}>
                                 <div className='dropdown-input' onClick={() => {
-                                    document.querySelector('.dropdown-overlay').style.display = 'block';
+                                    document.querySelector('.dropdown-overlay-zone').style.display = 'block';
                                     setDropdownListVisible(true)
                                 }}>
                                     {zone.map(zone => (
@@ -302,7 +328,7 @@ function PaymentManager(props) {
                                                 onClick={() => removeZone(zone)} />
                                         </div>
                                     ))}
-                                    <FontAwesome className='fas fa-chevron-down' />
+                                    <FontAwesomeIcon icon={faChevronDown} className='fas fa-chevron-down' />
                                 </div>
                                 {dropdownListVisible &&
                                     <div className='dropdown-list'>
@@ -319,25 +345,40 @@ function PaymentManager(props) {
                                 }
                             </div>
                         </div>
-                        <li>
-                            <label className="label" htmlFor="type">Type
-                            <p className="required">*</p>
-                            </label>
-                            <select
-                                value={type}
-                                onChange={(e) => {
-                                    setType(
-                                        e.target.selectedIndex ?
-                                            e.target.options[e.target.selectedIndex].value :
-                                            e.target.value);
+                        <div className='dropdown'>
+                            <div className='dropdown-label'>Type<p className="required">*</p></div>
+                            <div className='dropdown-overlay dropdown-overlay-type'></div>
+                            <div className='dropdown-container'>
+                                <div className='dropdown-input' onClick={() => {
+                                    document.querySelector('.dropdown-overlay-type').style.display = 'block';
+                                    setTypeDropdownListVisible(true)
                                 }}>
-                                {typeList.map((type) => (
-                                    <option key={type} value={type}>
-                                        {type}
-                                    </option>
-                                ))}
-                            </select>
-                        </li>
+                                    {type.map(type => (
+                                        <div
+                                            key={type}
+                                            className='dropdown-checked'>
+                                            {type}
+                                            <FontAwesome className='fas fa-close dropdown-checked-close'
+                                                onClick={() => removeType(type)} />
+                                        </div>
+                                    ))}
+                                    <FontAwesomeIcon icon={faChevronDown} className='fas fa-chevron-down' />
+                                </div>
+                                {typeDropdownListVisible &&
+                                    <div className='dropdown-list'>
+                                        {typeDropdownList.map(drop => (
+                                            <div
+                                                key={drop}
+                                                className='dropdown-choice'
+                                                onClick={() => addType(drop)}
+                                            >
+                                                {drop}
+                                            </div>
+                                        ))}
+                                    </div>
+                                }
+                            </div>
+                        </div>
                         <li>
                             <label className="label" htmlFor="rateType">Rate Type
                             <p className="required">*</p>
@@ -420,10 +461,16 @@ function PaymentManager(props) {
                                 {payment.zone.map(name =>
                                     (payment.zone).indexOf(name) === ((payment.zone).length - 1) ?
                                         name
-                                        : name + '/ ')
+                                        : name + ', ')
                                 }
                             </td>
-                            <td>{payment.type}</td>
+                            <td style={{ maxWidth: '30rem' }}>
+                                {payment.type.map(name =>
+                                    (payment.type).indexOf(name) === ((payment.type).length - 1) ?
+                                        name
+                                        : name + ', ')
+                                }
+                            </td>
                             <td>{payment.rateType}</td>
                             <td>{payment.rateType === 'Flat' ? payment.flatRate :
                                 <button className="show-rates"
@@ -537,7 +584,7 @@ function PaymentManager(props) {
                                         <th>Based On</th>
                                         <th>Minimum</th>
                                         <th>Maximum</th>
-                                        <th>{rateType === 'Percentage' ? 'Rate(%)' : 'Rate($)'}</th>
+                                        <th>{rateType === 'Percentage' ? 'Rate(%)' : 'Rate'}</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>

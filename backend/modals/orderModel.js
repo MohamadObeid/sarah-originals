@@ -18,6 +18,7 @@ const orderSchema = new mongoose.Schema({
             created_by: { type: String, required: false },
 
             isPrepare: { type: Boolean, required: false },
+            prepareOn: { type: String, required: false },
             isPlace: { type: Boolean, required: false },
             isCancel: { type: Boolean, required: false },
             isReturn: { type: Boolean, required: false },
@@ -38,7 +39,7 @@ const orderSchema = new mongoose.Schema({
                 status: { type: String, required: false },//collected, unpaid, canceled, refunded
                 collectOn: { type: String, required: false }, //date, upon delivery, upon receipt
                 title: { type: String, required: false },
-                method: { type: String, required: false },
+                type: { type: String, required: false }, //cash, check, bank transfer, VISA
                 assignedTo: {
                     date: { type: String, required: false },
                     employeeName: { type: String, required: false },
@@ -56,7 +57,7 @@ const orderSchema = new mongoose.Schema({
                 status: { type: String, required: false }, //onroad, delivered, canceled, notdelivered, returned
                 deliverOn: { type: String, required: false }, //date
                 title: { type: String, required: false },
-                method: { type: String, required: false },
+                //type: { type: String, required: false },
                 duration: { type: String, required: false },
                 assignedTo: {
                     date: { type: String, required: false },
@@ -72,7 +73,7 @@ const orderSchema = new mongoose.Schema({
             },
 
             cart: {
-                status: { type: String, required: false },//preparing, ready, returned
+                status: { type: String, required: false },//preparing, packed, returned
                 items: {
                     type: [{
                         _id: { type: String, required: false },
@@ -112,17 +113,18 @@ const orderSchema = new mongoose.Schema({
             // ]}, required: false
             // },
             totalAmount: { type: Number, required: true },
+            receiptNum: { type: String, required: false }
         }], required: false
     },
 
     invoiceAmount: { type: Number, required: true },
-    customerNote: { type: String, required: false },
-    adminNote: {
+    note: {
         type: [{
-            employeeName: { type: String, required: false },
+            name: { type: String, required: false },
             text: { type: String, required: false },
             date: { type: String, required: false },
             showTo: { type: Array, required: false },
+            edited: { type: String, required: false },
         }], required: false
     },
     closed: { type: Boolean, required: false },
@@ -140,5 +142,5 @@ export default Order;
 // cartItems: preparing, ready
 // payment status: pending payment(case not paid), paid, notpaid(case delivered but not paid), canceled, refunded, not refunded
 // delivery status: on road, delivered, notDelivered
-// delivery method
+// delivery method: motor, pickup, rapid
 // payment method: cash - check - credit card - pos

@@ -5,6 +5,8 @@ import FontAwesome from 'react-fontawesome';
 import axios from 'axios';
 import { productFilters } from '../../constants/filters'
 import { unitList } from '../../constants/lists'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronDown, faPlus } from "@fortawesome/free-solid-svg-icons";
 
 function ProductManager() {
     const imageUrl = window.location.origin + '/api/uploads/image/'
@@ -367,7 +369,7 @@ function ProductManager() {
                                         onClick={() => removeFilter(c)} />
                                 </div>
                             ))}
-                            <FontAwesome className='fas fa-chevron-down' />
+                            <FontAwesomeIcon icon={faChevronDown} className='fas fa-chevron-down' />
                         </div>
                         {filterDropdownVisible &&
                             <div className='dropdown-list'>
@@ -457,7 +459,7 @@ function ProductManager() {
                                                 onClick={() => removeCategory(c)} />
                                         </div>
                                     ))}
-                                    <FontAwesome className='fas fa-chevron-down' />
+                                    <FontAwesomeIcon icon={faChevronDown} className='fas fa-chevron-down' />
                                 </div>
                                 {dropdownListVisible &&
                                     <div className='dropdown-list'>
@@ -636,7 +638,7 @@ function ProductManager() {
                                     {product.specialOffer && <div className='prop-tag'>S</div>}
                                     {product.discount > 0 && <div className='prop-tag' style={{ backgroundColor: 'rgb(255, 21, 21)' }}>{product.discount}%</div>}
                                     {!product.isFeatured && !product.isPopular && !product.newArrival && !product.specialOffer && product.discount < 1 &&
-                                        <FontAwesome className='fas fa-exclamation-circle fa-lg' />}
+                                        <FontAwesomeIcon icon={faPlus} className='fas fa-exclamation-circle' />}
                                 </div>
                             </td>
                             <td>

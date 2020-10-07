@@ -587,6 +587,11 @@ textarea {
   background-color: #f0f0f0;
   border-radius: 0.5rem;
   padding: 1rem;
+  height: auto;
+}
+
+.cart-proceed-btn {
+  width: 100%;
 }
 
 .cart-list-container {
@@ -1079,14 +1084,14 @@ input.checked[type="radio"] {
   background-color: #f0c040;
   color: #000000;
   z-index: 10;
-  left: 40vw;
+  left: calc((100vw - 30rem) / 2);
   width: 30rem;
 }
 
 @media screen and (max-width: 600px) {
   .action-note {
     width: 28rem;
-    left: 11vw;
+    left: calc((100vw - 28rem) / 2);
   }
 }
 
@@ -1475,6 +1480,10 @@ input.checked[type="radio"] {
   align-items: flex-end;
 }
 
+.flex-end {
+  align-items: center;
+}
+
 .checkbox-users {
   -webkit-appearance: none;
   background-color: #fff;
@@ -1794,6 +1803,7 @@ input.checked[type="radio"] {
   display: flex;
   flex-wrap: wrap;
   min-height: 4rem;
+  position: relative;
 }
 
 .dropdown-checked {
@@ -1818,19 +1828,31 @@ input.checked[type="radio"] {
 .fa-chevron-down {
   position: absolute;
   right: 0.4rem;
-  top: 1.4rem;
+  top: 1.5rem;
+  font-size: 1.1rem;
+  color: #000000;
 }
 
 .dropdown-list {
   position: absolute;
   display: block;
   width: 100%;
-  height: 15rem;
+  max-height: 15rem;
+  min-height: 3rem;
   overflow-y: scroll;
   border: 1px #c0c0c0 solid;
   background-color: #ffffff;
-  border-radius: 0.5rem;
+  border-radius: 0 0 0.5rem 0.5rem;
   box-shadow: 0 0 4px rgba(33, 33, 33, 0.603);
+}
+
+.dropdown-list::-webkit-scrollbar {
+  width: 0.3rem;
+}
+
+.dropdown-list::-webkit-scrollbar-thumb {
+  background-color: #797979;
+  border-radius: 1rem;
 }
 
 .dropdown-choice {
@@ -2445,6 +2467,10 @@ input.checked[type="radio"] {
   .chatbox-notavailable {
     width: 25rem;
   }
+
+  .cart-list-container li:last-child {
+    padding-top: 0rem;
+  }
 }
 
 /* attendance */
@@ -2731,6 +2757,7 @@ textarea {
 .back-white {
   background-color: white;
   padding: 0 1rem 0 0.5rem;
+  position: relative;
 }
 
 .full-background {
@@ -2747,4 +2774,166 @@ textarea {
   margin: 15rem 40rem 15rem 10rem;
   border-radius: 0.5rem;
   border: 1px solid #9b9b9b;
+}
+
+.cart-receipt-orders {
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 1px solid #c0c0c0;
+  background-color: white;
+  margin-top: 1rem;
+}
+
+.margin-top-0 {
+  margin-top: 0;
+}
+
+.cart-total-qty {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.total-num {
+  position: absolute;
+  right: 0;
+  font-size: 1.4rem;
+}
+
+.no-border {
+  border: 0;
+  padding-bottom: 1.5rem;
+}
+
+.cart-total {
+  border-top: 1px solid #9b9b9b;
+  margin-top: 0.5rem;
+}
+
+.cart-total-label {
+  font-size: 1.2rem;
+  padding: 0.2rem 0;
+}
+
+.order-discount {
+  padding: 0.3rem 0.4rem;
+  font-size: 1.3rem;
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  left: 0.6rem;
+}
+
+.cart-list-container li {
+  margin: 0;
+}
+
+.delivery-note {
+  font-size: 1.2rem;
+  padding: 0 0.2rem;
+}
+
+.original-price-order {
+  padding-right: 0.2rem;
+  font-size: 1.2rem;
+  color: #505050;
+  text-decoration: line-through;
+}
+
+.border-top {
+  border-top: 1px solid #c0c0c0;
+  margin-top: 1rem;
+}
+
+.receipt-title {
+  padding: 0.5rem 0 0 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #c0c0c0;
+}
+
+.padding-1rem {
+  padding-bottom: 0;
+}
+
+.cart-list-container li:last-child {
+  padding-top: 0.8rem;
+}
+
+.font-size {
+  font-size: 110%;
+  padding: 0.2rem 0.5rem;
+}
+
+@media screen and (max-width: 700px) {
+  .cart-list-container li:last-child {
+    padding-top: 0rem;
+  }
+
+  .quick-view-btns {
+    margin-bottom: -1.2rem;
+  }
+}
+
+.admin-note-line {
+  border: 1px solid #c0c0c0;
+  border-radius: 0.5rem;
+  padding: 0.3rem;
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.font-size-12rem {
+  font-size: 1.1rem;
+}
+
+.border {
+  border: 1px solid #c0c0c0;
+  border-radius: 0.5rem;
+  padding: 1.5rem 1rem 1rem 1rem;
+}
+
+.admin-note-text {
+  padding-left: 1rem;
+  padding-bottom: 1.5rem;
+  padding-top: 0.2rem;
+  line-height: 1.5rem;
+}
+
+.note-date {
+  display: flex;
+  font-size: 1rem;
+  position: absolute;
+  bottom: 0;
+  right: 0.5rem;
+}
+
+.status-select {
+  display: flex;
+  margin-bottom: 1.5rem;
+  margin-top: 0.5rem;
+  font-size: 90%;
+}
+
+.status-select select {
+  width: 7.8rem;
+  font-size: 1.2rem;
+  padding: 1rem 0;
+}
+
+.select-zone {
+  width: 8rem;
+  margin-right: 0.1rem;
+}
+
+.line-cont {
+  display: flex;
+  justify-content: center;
+}
+
+.line-des {
+  border-bottom: 1px solid #c0c0c0;
+}
+
+.invoice-num {
 }

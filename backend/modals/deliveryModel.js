@@ -3,23 +3,23 @@ import mongoose from "mongoose";
 const deliverySchema = new mongoose.Schema({
     active: { type: Boolean, required: true, default: false },
     creation_date: { type: Date, required: false, default: Date.now },
-    created_by: { type: String, required: false, default: '' },
-    last_edited: { type: Date, required: false, default: '' },
-    edited_by: { type: String, required: false, default: '' },
-    zone: { type: Array, required: true, default: [] },
-    title: { type: String, required: true, default: '' },
-    type: { type: String, required: true, default: '' },
-    duration: { type: Number, required: true, default: 0 },
-    timeFormat: { type: String, required: true, default: '' },
-    rateType: { type: String, required: true, default: 'Flat' },
-    flatRate: { type: Number, required: true, default: 0 },
+    created_by: { type: String, required: false },
+    last_edited: { type: Date, required: false },
+    edited_by: { type: String, required: false },
+    zone: { type: Array, required: false, default: [] },
+    title: { type: String, required: false },
+    type: { type: String, required: false },
+    duration: { type: Number, required: false },
+    timeFormat: { type: String, required: false },
+    rateType: { type: String, required: false },
+    flatRate: { type: Number, required: false },
     rates: {
         type: [{
-            basedOn: { type: String, required: true, default: '' },
-            min: { type: Number, required: true, default: null },
-            max: { type: Number, required: true, default: null },
-            rate: { type: Number, required: true, default: null },
-        }], required: true, default: []
+            basedOn: { type: String, required: false },
+            min: { type: Number, required: false },
+            max: { type: Number, required: false },
+            rate: { type: Number, required: false },
+        }], required: false
     }
 })
 

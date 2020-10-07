@@ -2,7 +2,11 @@ import cookie from "js-cookie";
 import { CART_ADD_ITEM, CART_REMOVE_ITEM, CART_UPDATE_ITEM } from "../constants/constants";
 
 const addToCart = (product) => async (dispatch, getState) => {
-  dispatch({ type: CART_ADD_ITEM, payload: product })
+  if (product.length > 0) {
+    product.map(async prod => {
+      await dispatch({ type: CART_ADD_ITEM, payload: prod })
+    })
+  } else dispatch({ type: CART_ADD_ITEM, payload: product })
   const { cart: { cartItems } } = getState()
   cookie.set("cartItems", JSON.stringify(cartItems))
 };
@@ -14,9 +18,14 @@ const removeFromCart = (itemId) => async (dispatch, getState) => {
 };
 
 const updateCart = (item) => async (dispatch, getState) => {
-  dispatch({ type: CART_UPDATE_ITEM, payload: item });
-  const { cart: { cartItems } } = getState();
-  cookie.set("cartItems", JSON.stringify(cartItems));
+  if (item === 'clear') {
+    dispatch({ type: CART_UPDATE_ITEM, payload: undefined })
+    cookie.remove("cartItems")
+  } else {
+    dispatch({ type: CART_UPDATE_ITEM, payload: item })
+    const { cart: { cartItems } } = getState()
+    cookie.set("cartItems", JSON.stringify(cartItems))
+  }
 };
 
 export { addToCart, removeFromCart, updateCart };

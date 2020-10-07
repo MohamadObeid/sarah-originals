@@ -111,3 +111,11 @@ export const drivingLicenseList = [
     'Farm Machinery',
     'Tractor',
 ]
+
+export const rateTypeList = ['Flat', 'Custom'];
+export const typeList = ['Cash', 'Credit', 'Check', 'Visa', 'Master', 'PayPal'];
+export const basedOnList = ['Value', 'Quantity', 'Weight', 'Percentage'];
+
+export const cartStatusList = ['Collecting', 'Packed', 'Canceled', 'Returned']
+export const paymentStatusList = ['Unpaid', 'Paid', 'Canceled', 'Refunded']
+export const deliveryStatusList = ['On Road', 'Delivered', 'Canceled', 'Returned']

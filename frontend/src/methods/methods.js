@@ -91,10 +91,19 @@ const timeDiffCalc = (from, to) => { //time format ex.: 01:20
         if (toMin < fromMin) { return (((toHour - fromHour - 1) < 10 ? '0' + (toHour - fromHour - 1) : (toHour - fromHour - 1)) + ':' + (60 - fromMin + parseInt(toMin))) }
         else if (toMin === fromMin) { return (((toHour - fromHour) < 10 ? '0' + (toHour - fromHour) : (toHour - fromHour)) + ':00') }
         else if (toMin > fromMin) { return (((toHour - fromHour) < 10 ? '0' + (toHour - fromHour) : (toHour - fromHour)) + ':' + ((toMin - fromMin) < 10 ? '0' + (toMin - fromMin) : (toMin - fromMin))) }
-    } else if (toHour < fromHour) {
-        if (toMin > fromMin) { return ({ sign: 'late', diff: ((fromHour - toHour - 1) < 10 ? '0' + (fromHour - toHour - 1) : (fromHour - toHour - 1)) + ':' + (60 - toMin + parseInt(fromMin)) }) }
+    } else if (toHour < fromHour) { // second day
+        var hourDiff = (toMin === 0) ? 24 - fromHour : 24 - 1 - fromHour
+        var minDiff = (toMin === 0) ? 0 : 60 - toMin
+        hourDiff = hourDiff + toHour
+        minDiff = minDiff + toMin
+        hourDiff = minDiff >= 60 ? hourDiff++ : hourDiff
+        minDiff = minDiff > 60 ? 60 - minDiff : minDiff
+        if (minDiff < 10) minDiff = '0' + minDiff
+        if (hourDiff < 10) hourDiff = '0' + hourDiff
+        return hourDiff + ':' + minDiff
+        /*if (toMin > fromMin) { return ({ sign: 'late', diff: ((fromHour - toHour - 1) < 10 ? '0' + (fromHour - toHour - 1) : (fromHour - toHour - 1)) + ':' + (60 - toMin + parseInt(fromMin)) }) }
         else if (toMin === fromMin) { return ({ sign: 'late', diff: ((fromHour - toHour) < 10 ? '0' + (fromHour - toHour) : '0' + (fromHour - toHour)) + ':00' }) }
-        else if (toMin < fromMin) { return ({ sign: 'late', diff: ((fromHour - toHour) < 10 ? '0' + (fromHour - toHour) : (fromHour - toHour)) + ':' + ((fromMin - toMin) < 10 ? '0' + (fromMin - toMin) : (fromMin - toMin)) }) }
+        else if (toMin < fromMin) { return ({ sign: 'late', diff: ((fromHour - toHour) < 10 ? '0' + (fromHour - toHour) : (fromHour - toHour)) + ':' + ((fromMin - toMin) < 10 ? '0' + (fromMin - toMin) : (fromMin - toMin)) }) }*/
     }
 }
 

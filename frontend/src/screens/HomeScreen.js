@@ -179,7 +179,7 @@ function HomeScreen(props) {
                   value=${product._id}>
                     Add To Cart
                 </button>
-                <div class='add-to-cart-btns hide'>
+                <div class='add-to-cart-btns quick-view-btns hide'>
                   <button
                     type="button"
                     class="minus quick-view-minus"

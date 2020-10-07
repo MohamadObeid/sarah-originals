@@ -4,6 +4,8 @@ import { saveCategory, listCategory, deleteCategory } from "../../actions/catego
 import FontAwesome from 'react-fontawesome'
 import { Popconfirm, message } from 'antd'
 import axios from 'axios'
+import { faChevronDown } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 function CategoryManager(props) {
     const imageUrl = window.location.origin + '/api/uploads/image/'
@@ -300,7 +302,7 @@ function CategoryManager(props) {
                                                 onClick={() => removeBrand(brand)} />
                                         </div>
                                     ))}
-                                    <FontAwesome className='fas fa-chevron-down' />
+                                    <FontAwesomeIcon icon={faChevronDown} className='fas fa-chevron-down' />
                                 </div>
                                 {dropdownListVisible &&
                                     <div className='dropdown-list'>

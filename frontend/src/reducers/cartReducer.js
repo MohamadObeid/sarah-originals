@@ -6,7 +6,9 @@ function cartReducer(state = { cartItems: undefined }, action) {
     case CART_ADD_ITEM:
       return { cartItems: [...state.cartItems, action.payload] }
     case CART_UPDATE_ITEM:
-      return { cartItems: state.cartItems.map((item) => item._id == action.payload._id ? action.payload : item) }
+      return action.payload
+        ? { cartItems: state.cartItems.map((item) => item._id == action.payload._id ? action.payload : item) }
+        : { cartItems: [] }
     case CART_REMOVE_ITEM:
       return { cartItems: state.cartItems.filter((item) => item._id !== action.payload && item) }
     default:

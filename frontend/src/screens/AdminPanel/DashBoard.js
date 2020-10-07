@@ -43,6 +43,8 @@ function DashBoard(props) {
 
   const { userInfo } = useSelector(state => state.userSignin);
   const { employees } = useSelector(state => state.employeeList)
+  const { delivery: deliveryList } = useSelector(state => state.deliveryList)
+  const { payment: paymentList } = useSelector(state => state.paymentList)
 
   const [productVisible, setProductVisible] = useState(false)
   const [zoneVisible, setZoneVisible] = useState(false)
@@ -96,6 +98,10 @@ function DashBoard(props) {
     } else setAttendanceVisible(false)
 
     if (manager === 'order') {
+      !deliveryList.length > 0 &&
+        dispatch(listDelivery())
+      !paymentList.length > 0 &&
+        dispatch(listPayment())
       dispatch(listOrders())
       setOrdersVisible(true)
     } else setOrdersVisible(false)
@@ -129,6 +135,7 @@ function DashBoard(props) {
 
     if (manager === 'payment') {
       dispatch(listPayment())
+      dispatch(listZone())
       setPaymentVisible(true)
     } else setPaymentVisible(false)
 

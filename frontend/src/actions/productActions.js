@@ -65,14 +65,14 @@ const deleteProduct = (_id) => async (dispatch, getState) => {
 };
 
 const detailsProduct = (searchDetails) => async (dispatch) => {
-  if (typeof searchDetails === 'object') {
-    const { data } = await axios.post("/api/products/searchKeyword", searchDetails)
-    dispatch({ type: PRODUCTS_DETAILS_SUCCESS, payload: data })
-  } else if (Array.isArray(searchDetails)) {
+  if (Array.isArray(searchDetails)) {
     const { data } = await axios.post("/api/products/getproducts", searchDetails)
     dispatch({ type: PRODUCTS_DETAILS_SUCCESS, payload: data })
   }
-  else try {
+  else if (searchDetails.searchKeyword) {
+    const { data } = await axios.post("/api/products/searchKeyword", searchDetails)
+    dispatch({ type: PRODUCTS_DETAILS_SUCCESS, payload: data })
+  } else try {
     dispatch({ type: PRODUCT_DETAILS_REQUEST, payload: searchDetails })
     const { data } = await axios.get("/api/products/" + searchDetails)
     dispatch({ type: PRODUCT_DETAILS_SUCCESS, payload: data })

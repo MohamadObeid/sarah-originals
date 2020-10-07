@@ -3,6 +3,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { saveDelivery, listDelivery, deleteDelivery } from "../../actions/deliveryActions";
 import FontAwesome from 'react-fontawesome';
 import { listZone } from "../../actions/zoneActions";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 
 function DeliveryManager(props) {
     const { zone: zoneList } = useSelector(state => state.zoneList);
@@ -48,9 +50,9 @@ function DeliveryManager(props) {
     const { delivery } = useSelector(state => state.deliveryList);
 
     // List consts
-    const rateTypeList = ['Flat', 'Custom', 'Percentage'];
+    const rateTypeList = ['Flat', 'Custom'];
     const typeList = ['Fast', 'Standard', 'Return', 'Prepare'];
-    const basedOnList = ['Value', 'Quantity', 'Weight'];
+    const basedOnList = ['Value', 'Quantity', 'Weight', 'Percentage'];
     const timeFormatList = ['min', 'hr', 'day', 'week', 'month'];
 
     const dispatch = useDispatch();
@@ -291,8 +293,13 @@ function DeliveryManager(props) {
                             <div className='dropdown-overlay'></div>
                             <div className='dropdown-container'>
                                 <div className='dropdown-input' onClick={() => {
-                                    document.querySelector('.dropdown-overlay').style.display = 'block';
-                                    setDropdownListVisible(true)
+                                    if (dropdownListVisible) {
+                                        setDropdownListVisible(false)
+                                        document.querySelector('.dropdown-overlay').style.display = 'none';
+                                    } else {
+                                        setDropdownListVisible(true)
+                                        document.querySelector('.dropdown-overlay').style.display = 'block';
+                                    }
                                 }}>
                                     {zone.map(zone => (
                                         <div
@@ -303,7 +310,7 @@ function DeliveryManager(props) {
                                                 onClick={() => removeZone(zone)} />
                                         </div>
                                     ))}
-                                    <FontAwesome className='fas fa-chevron-down' />
+                                    <FontAwesomeIcon icon={faChevronDown} className='fas fa-chevron-down' />
                                 </div>
                                 {dropdownListVisible &&
                                     <div className='dropdown-list'>
@@ -566,7 +573,7 @@ function DeliveryManager(props) {
                                         <th>Based On</th>
                                         <th>Minimum</th>
                                         <th>Maximum</th>
-                                        <th>{rateType === 'Percentage' ? 'Rate(%)' : 'Rate($)'}</th>
+                                        <th>{rateType === 'Percentage' ? 'Rate(%)' : 'Rate'}</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -577,7 +584,7 @@ function DeliveryManager(props) {
                                                 <td>{rates.basedOn}</td>
                                                 <td>{rates.min}</td>
                                                 <td>{rates.max}</td>
-                                                <td>{rates.rate}</td>
+                                                <td>{rates.rate.toFixed(2) + ' $'}</td>
                                                 <td>
                                                     <button className="table-btns" onClick={() => editratesHandler(rates)}>Edit</button>
                                                     <button className="table-btns" onClick={(e) => deleteratesHandler(e, rates._id)}>Delete</button>
