@@ -67,17 +67,9 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
         order.deliveryAddress = req.body.deliveryAddress ? req.body.deliveryAddress : order.deliveryAddress;
         order.paymentAddress = req.body.paymentAddress ? req.body.paymentAddress : order.paymentAddress;
         order.request = req.body.request ? req.body.request : order.request;
+        order.invoiceNum = req.body.invoiceNum ? req.body.invoiceNum : order.invoiceNum;
         order.invoiceAmount = req.body.invoiceAmount ? req.body.invoiceAmount : order.invoiceAmount;
-        order.customerNote = req.body.customerNote ? req.body.customerNote : order.customerNote;
-        order.adminNote = req.body.adminNote ? req.body.adminNote : order.adminNote;
-        //order.status = req.body.status ? req.body.status : order.status;
-        //order.operatedBy = req.body.operatedBy ? req.body.operatedBy : order.operatedBy;
-        //order.payment = req.body.payment ? req.body.payment : order.payment;
-        //order.delivery = req.body.delivery ? req.body.delivery : order.delivery;
-        //order.cartItems = req.body.cartItems ? req.body.cartItems : order.cartItems;
-        //order.totalAmount = req.body.totalAmount ? req.body.totalAmount : order.totalAmount;
-        //order.customerNote = req.body.customerNote ? req.body.customerNote : order.customerNote;
-        //order.adminNote = req.body.adminNote ? req.body.adminNote : order.adminNote;
+        order.note = req.body.note ? req.body.note : order.note;
     }
     const orderUpdated = await order.save()
 

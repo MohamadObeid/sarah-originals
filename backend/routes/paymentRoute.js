@@ -33,6 +33,8 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
         payment.rateType = req.body.rateType;
         payment.flatRate = req.body.flatRate;
         payment.rates = req.body.rates;
+        payment.unit = req.body.unit;
+        payment.description = req.body.description;
     }
 
     const paymentUpdated = await payment.save();

@@ -24,7 +24,7 @@ router.post("/getAttendance", async (req, res) => {
 router.post("", isAuth, isAdmin, async (req, res) => {
     const attendance = new Attendance(req.body)
     const newAttendance = await attendance.save()
-    console.log(newAttendance)
+    //console.log(newAttendance)
     if (newAttendance) {
         return res.status(201).send({ message: "New Attendance created!", data: newAttendance })
     }

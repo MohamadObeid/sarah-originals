@@ -13,14 +13,19 @@ const deliverySchema = new mongoose.Schema({
     timeFormat: { type: String, required: false },
     rateType: { type: String, required: false },
     flatRate: { type: Number, required: false },
+    unit: { type: String, required: false },
     rates: {
         type: [{
+            zone: { type: String, required: false },
             basedOn: { type: String, required: false },
             min: { type: Number, required: false },
             max: { type: Number, required: false },
             rate: { type: Number, required: false },
+            unit: { type: String, required: false },
+            description: { type: String, required: false },
         }], required: false
-    }
+    },
+    description: { type: String, required: false },
 })
 
 const Delivery = mongoose.model("Delivery", deliverySchema);

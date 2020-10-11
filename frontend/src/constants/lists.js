@@ -113,9 +113,14 @@ export const drivingLicenseList = [
 ]
 
 export const rateTypeList = ['Flat', 'Custom'];
-export const typeList = ['Cash', 'Credit', 'Check', 'Visa', 'Master', 'PayPal'];
-export const basedOnList = ['Value', 'Quantity', 'Weight', 'Percentage'];
+export const typeList = ['Cash', 'Credit', 'Check', 'Visa', 'Master', 'PayPal', 'Bank Transfer', 'POS'];
+export const basedOnList = ['Value', 'Quantity', 'Weight'];
+export const timeFormatList = ['min', 'hr', 'day', 'week', 'month'];
+export const deliveryTypeList = ['Fast', 'Standard'];
 
-export const cartStatusList = ['Collecting', 'Packed', 'Canceled', 'Returned']
-export const paymentStatusList = ['Unpaid', 'Paid', 'Canceled', 'Refunded']
-export const deliveryStatusList = ['On Road', 'Delivered', 'Canceled', 'Returned']
+export const cartStatusList = ['Pending', 'Packing', 'Packed', 'Canceled', 'Returned']
+export const paymentStatusList = ['Pending', 'Unpaid', 'Paid', 'Canceled', 'Refunded']
+export const deliveryStatusList = ['Pending', 'On Road', 'Delivered', 'Canceled', 'Returned']
+export const requestStatusList = ['Pending', 'Confirmed', 'Completed', 'Rejected', 'Canceled']
+export const requestTypeList = ['Place', 'Prepare', 'Cancel', 'Return']
+export const rateUnitList = ['usd', 'lbp', '%', 'euro']

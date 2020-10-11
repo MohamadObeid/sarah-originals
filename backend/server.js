@@ -23,7 +23,7 @@ import chatRoute from './routes/chatRoute';
 import liveChatRoute from './routes/liveUserRoute';
 import imageRouter from './routes/imageRoute';
 
-import wifi from 'node-wifi'
+/*import wifi from 'node-wifi'
 
 wifi.init({
   iface: null // network interface, choose a random wifi interface if set to null
@@ -57,6 +57,12 @@ wifi.connect({ ssid: "OBEID", password: "12345678900" }, function (err) {
     console.log(err)
   } else console.log("Connected")
 })
+
+wifi.connect({ ssid: "Hadi Obeid", password: "Hassan@obied@44" }, function (err) {
+  if (err) {
+    console.log(err)
+  } else console.log("Connected")
+})*/
 
 ///////////////////////////////////////////////////////
 

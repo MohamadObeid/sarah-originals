@@ -16,18 +16,13 @@ const orderSchema = new mongoose.Schema({
         type: [{
             creation_date: { type: Date, required: false },
             created_by: { type: String, required: false },
-
-            isPrepare: { type: Boolean, required: false },
-            prepareOn: { type: String, required: false },
-            isPlace: { type: Boolean, required: false },
-            isCancel: { type: Boolean, required: false },
-            isReturn: { type: Boolean, required: false },
-
-            confirmation: {
+            type: { type: String, required: false },
+            status: { type: String, required: false },
+            /*confirmation: {
                 placement: { type: String, required: false }, // rejected,approved
                 cancellation: { type: String, required: false },// rejected,approved
                 return: { type: String, required: false },// rejected,approved
-            },
+            },*/
 
             operatedBy: {
                 date: { type: String, required: false },
@@ -50,6 +45,7 @@ const orderSchema = new mongoose.Schema({
                     employeeName: { type: String, required: false },
                     employeeId: { type: String, required: false },
                 },
+                description: { type: String, required: false },
                 charge: { type: Number, required: false },
             },
 
@@ -69,11 +65,12 @@ const orderSchema = new mongoose.Schema({
                     employeeName: { type: String, required: false },
                     employeeId: { type: String, required: false },
                 },
-                charge: { type: String, required: false },
+                charge: { type: Number, required: false },
             },
 
             cart: {
                 status: { type: String, required: false },//preparing, packed, returned
+                prepareOn: { type: String, required: false },
                 items: {
                     type: [{
                         _id: { type: String, required: false },
@@ -118,6 +115,7 @@ const orderSchema = new mongoose.Schema({
     },
 
     invoiceAmount: { type: Number, required: true },
+    invoiceNum: { type: String, required: true },
     note: {
         type: [{
             name: { type: String, required: false },

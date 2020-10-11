@@ -35,6 +35,8 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
         delivery.rateType = req.body.rateType;
         delivery.flatRate = req.body.flatRate;
         delivery.rates = req.body.rates;
+        delivery.unit = req.body.unit;
+        delivery.description = req.body.description;
     }
     const deliveryUpdated = await delivery.save();
 

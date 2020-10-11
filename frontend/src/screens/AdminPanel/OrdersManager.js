@@ -4,12 +4,14 @@ import { months, weekDays } from '../../constants/lists'
 import { deleteOrder, listOrders, saveOrder } from '../../actions/orderActions'
 import FontAwesome from "react-fontawesome";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faPaperPlane, faPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { getUser, saveUser } from "../../actions/userActions";
 import { detailsProduct } from "../../actions/productActions";
 import Swiper from 'react-id-swiper';
 import { addToCart, removeFromCart, updateCart } from "../../actions/cartActions";
-import { typeList, cartStatusList, paymentStatusList, deliveryStatusList } from '../../constants/lists'
+import {
+    typeList, cartStatusList, paymentStatusList, deliveryStatusList, requestStatusList, requestTypeList
+} from '../../constants/lists'
 
 function OrdersManager(props) {
     const imageUrl = window.location.origin + '/api/uploads/image/'
@@ -46,42 +48,37 @@ function OrdersManager(props) {
     const [orderValues, setOrderValues] = useState()
     const [requestFormVisible, setRequestFormVisible] = useState(false)
     const [searchKeyword, setSearchKeyword] = useState(undefined)
-    const [isBtn, setIsBtn] = useState(undefined)
     const [productsListVisible, setProductsListVisible] = useState(false)
     const [noteIndex, setNoteIndex] = useState()
     const [requestIndex, setRequestIndex] = useState()
     const [editNoteText, setEditNoteText] = useState()
-    const [requestValues, setRequestValues] = useState()
+    const [requestTypeDisabled, setRequestTypeDisabled] = useState(false)
+    const [requestItems, setRequestItems] = useState()
 
+    const [requestNum, setRequestNum] = useState()
     const [_id, setId] = useState()
+    const [invoiceNum, setInvoiceNum] = useState()
     const [status, setStatus] = useState()
     const [closed, setClosed] = useState() //
     const [customerName, setCustomerName] = useState() //
     const [customerUserId, setCustomerUserId] = useState() //
     const [customerPhone, setCustomerPhone] = useState()//
     const [customerEmail, setCustomerEmail] = useState() //
-    const [isPlace, setIsPlace] = useState() //
-    const [isReturn, setIsReturn] = useState()//
-    const [isCancel, setIsCancel] = useState() //
-    const [isPrepare, setIsPrepare] = useState() //
-    const [placement, setPlacement] = useState() //
+    //const [isPlace, setIsPlace] = useState() //
+    //const [isReturn, setIsReturn] = useState()//
+    //const [isCancel, setIsCancel] = useState() //
+    //const [isPrepare, setIsPrepare] = useState() //
     const [paymentStatus, setPaymentStatus] = useState() //
     const [deliveryStatus, setDeliveryStatus] = useState() //
     const [cartStatus, setCartStatus] = useState() //
     const [invoiceAmount, setInvoiceAmount] = useState() //
-    const [confirmation, setConfirmation] = useState() //
     const [request, setRequest] = useState([]) //
     const [address, setAddress] = useState([])
     const [receiptNum, setReceiptNum] = useState()
+    const [requestStatus, setRequestStatus] = useState()
+    const [requestType, setRequestType] = useState()
+    const [itemsQty, setItemsQty] = useState()
 
-    /*const [placed, setPlaced] = useState()
-    const [confirmed, setConfirmed] = useState()
-    const [canceled, setCanceled] = useState()
-    const [rejected, setRejected] = useState()
-    const [completed, setCompleted] = useState()
-    const [cancelRequest, setCancelRequest] = useState()
-    const [returnRequest, setReturnRequest] = useState()
-    const [accomplishment, setAccomplishment] = useState()*/
     const [operatedBy, setOperatedBy] = useState()
     const [customer, setcustomer] = useState()
     const [totalAmount, setTotalAmount] = useState()
@@ -90,6 +87,7 @@ function OrdersManager(props) {
     const [prepareOn, setPrepareOn] = useState()
     // payment
     const [payment, setPayment] = useState()
+    const [paymentValues, setPaymentValues] = useState()
     const [collectOn, setcollectOn] = useState() //date
     const [isRefund, setIsRefund] = useState()
     const [paymentTitle, setPaymentTitle] = useState()
@@ -100,9 +98,11 @@ function OrdersManager(props) {
     const [paymentCharge, setPaymentCharge] = useState()
     const [paymentNote, setPaymentNote] = useState()
     const [paymentTypeList, setPaymentTypeList] = useState()
+    const [paymentDescription, setPaymentDescription] = useState()
 
     // delivery
     const [delivery, setDelivery] = useState()
+    const [deliveryValues, setDeliveryValues] = useState()
     const [deliverOn, setDeliverOn] = useState()
     const [deliveryTitle, setDeliveryTitle] = useState()
     const [deliveryMethod, setDeliveryMethod] = useState()
@@ -139,7 +139,7 @@ function OrdersManager(props) {
     //
 
     const { time } = useSelector(state => state.clock)
-    const { success: successSave } = useSelector(state => state.orderSave)
+    const { success: successSave, order } = useSelector(state => state.orderSave)
     const { success: successDelete } = useSelector(state => state.orderDelete)
     const { orders } = useSelector(state => state.orderList)
     const { userInfo } = useSelector(state => state.userSignin)
@@ -153,6 +153,10 @@ function OrdersManager(props) {
     useEffect(() => {
         typeList && setPaymentTypeList(typeList)
         if (successSave || successDelete) {
+            userModified() &&
+                dispatch(saveUser({
+                    _id: customerUserId, address: address, name: customerName, orderList: order._id
+                }))
             dispatch(saveOrder('clear'))
             setFormAlertVisible(false)
             modelVisible && setModelVisible(false)
@@ -165,13 +169,13 @@ function OrdersManager(props) {
         return () => {
             //
         }
-    }, [])
+    }, [successSave, successDelete])
 
     useEffect(() => {
         if (deliveryTitle) {
             deliveryList.map(del => {
                 if (del.title === deliveryTitle) {
-                    setDelivery(del)
+                    setDeliveryValues(del)
                     setDeliverOn(deliveryDurationInDate({
                         duration: del.duration,
                         timeFormat: del.timeFormat
@@ -184,15 +188,30 @@ function OrdersManager(props) {
         if (paymentTitle) {
             paymentList.map(pay => {
                 if (pay.title === paymentTitle) {
-                    setPayment(pay)
+                    setPaymentValues(pay)
                     setPaymentTypeList(pay.type)
-                    setPaymentType(pay.type[0])
-                    pay.type.map(type => {
-                        type === 'Cash' && setPaymentType('Cash')
-                    })
-                    //console.log(pay)
+                    if (!paymentType) {
+                        setPaymentType(pay.type[0])
+                        pay.type.map(type => {
+                            type === 'Cash' && setPaymentType('Cash')
+                        })
+                    }
+                    //console.log('reserting')
                 }
             })
+        }
+
+        if (paymentType) {
+            setPaymentDescription(paymentValues.description)
+            //console.log(paymentType, paymentValues.description)
+            if (paymentValues.rates.length > 0) {
+                paymentValues.rates.map(line => {
+                    if (line.paymentType === paymentType) {
+                        setPaymentDescription(line.description)
+                        //console.log(line.description)
+                    }
+                })
+            }
         }
 
         if (deliverOn || prepareOn) {
@@ -206,38 +225,38 @@ function OrdersManager(props) {
             setAddress(user.address)
             setCustomerName(user.name)
         }
+        if (cartItems) setRequestItems(cartItems)
         return () => {
             //
         }
-    }, [deliveryTitle, paymentTitle, user, deliverOn, prepareOn])
+    }, [deliveryTitle, paymentTitle, user, deliverOn, prepareOn, cartItems, paymentType])
 
     const openOrderModel = (order) => {
-
         setModelVisible(true)
         setRequestFormVisible(false)
         setId(order._id ? order._id : undefined)
+        setInvoiceNum(order.invoiceNum ? order.invoiceNum : 'INV-' + (Date.now() + 10800000))
         setRequest(order.request ? order.request : [])
         setCity(undefined)
         setRegion(undefined)
         setBuilding(undefined)
         setAddress([])
         setAddressVisible(false)
-        if (order.request) {
+        /*if (order.request) {
             setIsPrepare(order.request.isPrepare ? order.request.isPrepare : undefined)
-            setPrepareOn(order.request.prepareOn ? order.request.prepareOn : undefined)
             setIsPlace(order.request.isPlace ? order.request.isPlace : undefined)
             setIsCancel(order.request.isCancel ? order.request.isCancel : undefined)
             setIsReturn(order.request.isReturn ? order.request.isReturn : undefined)
-        }
+        }*/
 
-        setPaymentStatus(order.paymentStatus ? order.paymentStatus : undefined)
+        /*setPaymentStatus(order.paymentStatus ? order.paymentStatus : undefined)
         setDeliveryStatus(order.deliveryStatus ? order.deliveryStatus : undefined)
-        setCartStatus(order.cartStatus ? order.cartStatus : undefined)
+        setCartStatus(order.cartStatus ? order.cartStatus : undefined)*/
 
         /*setPlaced(order.status.place ? order.status.placed : false)
         setCompleted(order.status.completed ? order.status.completed : undefined)
-        setConfirmed(order.status.confirmed ? order.status.confirmed : undefined)
-        setRejected(order.status.rejected ? order.status.rejected : undefined)
+        setrequestConfirmed(order.status.requestConfirmed ? order.status.requestConfirmed : undefined)
+        setrequestRejected(order.status.requestRejected ? order.status.requestRejected : undefined)
         setCanceled(order.status.canceled ? order.status.canceled : undefined)*/
 
         //setOperatedBy(order.operatedBy ? order.operatedBy : undefined)
@@ -296,7 +315,8 @@ function OrdersManager(props) {
     }
 
     const submitHandler = (e) => {
-        if (customer && request && cart && invoiceAmount) {
+        e.preventDefault()
+        if (customerName && customerPhone && request.length > 0) {
             if (_id) {
                 dispatch(saveOrder({
                     _id: _id,
@@ -309,8 +329,9 @@ function OrdersManager(props) {
                     paymentAddress: paymentAddress,// usually the same as delivery address
                     request: request,
                     invoiceAmount: invoiceAmountCalc(),
-                    note: note.length > 0 && note,
-                    closed: closed,
+                    invoiceNum: invoiceNum,
+                    note: note,
+                    //closed: closed,
                 }))
             } else {
                 dispatch(saveOrder({
@@ -324,17 +345,18 @@ function OrdersManager(props) {
                     paymentAddress: paymentAddress,// usually the same as delivery address
                     request: request,
                     invoiceAmount: invoiceAmountCalc(),
-                    note: note.length > 0 && note,
+                    invoiceNum: 'INV-' + d,
+                    note: note,
                     //closed: closed,
                 }))
             }
+            setModelVisible(false)
         }
-        /*userModified() &&
-            dispatch(saveUser({ _id: customerUserId, address: address, name: customerName }))*/
     }
 
     const userModified = () => {
-        if (user.name != customerName) return true
+        if (user.phone !== customerPhone) return false
+        if (user.name !== customerName) return true
         user.address.map(add => {
             var i = user.address.indexOf(add)
             if (add.city !== address[i].city || add.region !== address[i].region || add.building !== address[i].building)
@@ -379,58 +401,54 @@ function OrdersManager(props) {
         }
     }
 
-    const toggleIsBtns = (checked, isBtn) => {
-        if (isBtn === 'isPlace' && checked) {
-            setIsPlace(true)
-            setIsBtn('isPlace')
+    const toggleRequestType = (e) => {
+        const status = e.target.selectedIndex ?
+            e.target.options[e.target.selectedIndex].value :
+            e.target.value
+        setRequestType(status)
+        if (status === 'Place') {
             deliveryList.map(del => {
                 if (del.title === deliveryTitle) {
-                    setDelivery(del)
+                    setDeliveryValues(del)
                     setDeliverOn(deliveryDurationInDate({
                         duration: del.duration,
                         timeFormat: del.timeFormat
                     }))
                 }
             })
-        } else setIsPlace(false)
-
-        if (isBtn === 'isPrepare' && checked) {
-            setIsPrepare(true)
-            setIsBtn('isPrepare')
+        } else if (status === 'Prepare') {
             setDelivery(undefined)
             setDeliverOn(undefined)
             setPrepareOn(deliveryDurationInDate())
             setPaymentTypeList(typeList)
-        } else setIsPrepare(false)
-
-        if (isBtn === 'isCancel' && checked) {
-            setIsCancel(true)
-            setIsBtn('isCancel')
-        } else setIsCancel(false)
-
-        if (isBtn === 'isReturn' && checked) {
-            setIsReturn(true)
-            setIsBtn('isReturn')
-        } else setIsReturn(false)
-
-        !checked && setIsBtn(undefined)
+        } else if (status === 'Cancel') {
+            setDelivery(undefined)
+            setDeliverOn(undefined)
+            setPrepareOn(undefined)
+            setPaymentTypeList(typeList)
+        }
+        setRequestStatus('Pending')
+        setPaymentStatus('Pending')
+        setDeliveryStatus('Pending')
+        setCartStatus('Pending')
     }
 
     const showRequestForm = (req) => {
+        var d = Date.now() + 10800000
         cartItems.length > 0 && dispatch(updateCart('clear'))
+        setRequestTypeDisabled(false)
+        setReceiptNum('RE-' + d)
         if (!requestFormVisible) {
             //console.log('open Model')
             setRequestFormVisible(true)
             if (req) {
                 //console.log(req)
-                setRequestIndex(request.indexOf(req))
                 openRequestModal(req)
+                setRequestIndex(request.indexOf(req))
+                setRequestTypeDisabled(true)
             } else {
-                setIsPlace(true)
-                setIsPrepare(undefined)
-                setIsReturn(undefined)
-                setIsCancel(undefined)
-                setIsBtn('isPlace')
+                setRequestType('Place')
+                setRequestNum(undefined)
                 request.length > 0 ? setRequestIndex(request.length) : setRequestIndex(0)
                 if (deliveryList.length > 0) {
                     setDeliveryTitle(deliveryList[0].title) //cosidered deliveryList[0] is default delivery
@@ -442,40 +460,76 @@ function OrdersManager(props) {
                 if (paymentList.length > 0) {
                     setPaymentTitle(paymentList[0].title)
                 }
-                setReceiptNum(undefined)
-                setDeliveryCharge(undefined)
-                setPaymentCharge(undefined)
+                clearRequestValues()
             }
         } else {
             //console.log('close Model')
-            setRequestFormVisible(false)
-            //console.log(requestValues)
-            //request[requestIndex].cart.items = items
-            //setRequest(request)
+            if (requestNum) {
+                setRequestIndex(request.length)
+                if (req.cart.items.length > 0) {
+                    dispatch(addToCart(req.cart.items))
+                    setItemsQty(req.cart.items.map(item => {
+                        return { _id: item._id, qty: item.qty }
+                    }))
+                }
+                clearRequestValues()
+            } else {
+                setRequestFormVisible(false)
+                setRequestType(undefined)
+                setItemsQty(undefined)
+                setRequestNum(undefined)
+            }
         }
     }
 
+    const clearRequestValues = () => {
+        //setReceiptNum(undefined)
+        setDeliveryCharge(undefined)
+        setPaymentCharge(undefined)
+        setRequestStatus('Pending')
+        setPaymentStatus('Pending')
+        setDeliveryStatus('Pending')
+        setCartStatus('Pending')
+    }
+
+    useEffect(() => {
+        if (requestNum) {
+            showRequestForm(request[requestNum - 1])
+        }
+    }, [requestNum])
+
     const openRequestModal = (req) => {
-        setIsPrepare(req.isPrepare ? req.isPrepare : undefined)
-        setPrepareOn(req.prepareOn ? req.prepareOn : undefined)
+        /*setIsPrepare(req.isPrepare ? req.isPrepare : undefined)
         setIsPlace(req.isPlace ? req.isPlace : undefined)
         setIsCancel(req.isCancel ? req.isCancel : undefined)
-        setIsReturn(req.isReturn ? req.isReturn : undefined)
+        setIsReturn(req.isReturn ? req.isReturn : undefined)*/
+        !requestType && setRequestType(req.type ? req.type : 'Place')
+        setRequestStatus(req.status ? req.status : 'Pending')
+        setReceiptNum(req.receiptNum ? req.receiptNum : receiptNum)
         setPayment(req.payment ? req.payment : undefined)
         if (req.payment) {
+            setPaymentStatus(req.payment.status ? req.payment.status : 'Pending')
             setcollectOn(req.payment.collectOn ? req.payment.collectOn : undefined)
             setPaymentTitle(req.payment.title ? req.payment.title : undefined)
+            setPaymentDescription(req.payment.description ? req.payment.description : '')
             setPaymentType(req.payment.type ? req.payment.type : undefined)
             setPaymentCharge(req.payment.charge ? req.payment.charge : undefined)
         }
         setDelivery(req.delivery ? req.delivery : undefined)
         if (req.delivery) {
+            setDeliveryStatus(req.delivery.status ? req.delivery.status : 'Pending')
             setDeliverOn(req.delivery.deliverOn ? req.delivery.deliverOn : undefined)
             setDeliveryTitle(req.delivery.title ? req.delivery.title : undefined)
             setDeliveryCharge(req.delivery.charge ? req.delivery.charge : undefined)
         }
-        setReceiptNum(req.receiptNum ? req.receiptNum : undefined)
-        req.cart.items.length > 0 && dispatch(addToCart(req.cart.items))
+        setPrepareOn(req.cart.prepareOn ? req.cart.prepareOn : undefined)
+        setCartStatus(req.cart.status ? req.cart.status : 'Pending')
+        if (req.cart.items.length > 0) {
+            dispatch(addToCart(req.cart.items))
+            setItemsQty(req.cart.items.map(item => {
+                return { _id: item._id, qty: item.qty }
+            }))
+        }
     }
 
     const searchItem = async (e) => {
@@ -507,19 +561,19 @@ function OrdersManager(props) {
         }
     }
 
-    const handleAddToCart = (product) => {
-        product.qty = 1;
+    const handleAddToCart = (e, product) => {
+        e.preventDefault()
         toggleCartBtns(product);
         const inCart = cartItems.find(item => item._id === product._id)
         if (inCart)
             dispatch(updateCart({
-                _id: product._id, nameEn: product.nameEn, image: product.image, qty: product.qty,
+                _id: product._id, nameEn: product.nameEn, image: product.image, qty: 1,
                 priceUsd: product.priceUsd, unit: product.unit, countInStock: product.countInStock,
                 discount: product.discount
             }))
         else {
             dispatch(addToCart({
-                _id: product._id, nameEn: product.nameEn, image: product.image, qty: product.qty,
+                _id: product._id, nameEn: product.nameEn, image: product.image, qty: 1,
                 priceUsd: product.priceUsd, unit: product.unit, countInStock: product.countInStock,
                 discount: product.discount
             }))
@@ -529,8 +583,9 @@ function OrdersManager(props) {
         setInterval(() => setActionNoteVisible(false), 3000)
     }
 
-    const handleMinus = (product) => {
-        product.qty--
+    const handleMinus = (e, product) => {
+        e.preventDefault()
+        var qty = product.qty - 1
         //console.log(product.qty)
         toggleCartBtns(product);
         if (product.qty === 0) {
@@ -540,21 +595,34 @@ function OrdersManager(props) {
             setInterval(() => setActionNoteVisible(false), 3000);
         }
         else dispatch(updateCart({
-            _id: product._id, nameEn: product.nameEn, image: product.image, qty: product.qty,
+            _id: product._id, nameEn: product.nameEn, image: product.image, qty: qty,
             priceUsd: product.priceUsd, unit: product.unit, countInStock: product.countInStock,
             discount: product.discount
-        }));
+        }))
     }
 
-    const handlePlus = (product) => {
+    const handlePlus = (e, product) => {
+        e.preventDefault()
+        const item = itemsQty ? itemsQty.find(item => {
+            if (item._id === product._id) return item.qty
+        }) : false
+        //console.log(item)
         if (product.countInStock > product.qty) {
-            product.qty++
-            //console.log(product.qty)
-            dispatch(updateCart({
-                _id: product._id, nameEn: product.nameEn, image: product.image, qty: product.qty,
-                priceUsd: product.priceUsd, unit: product.unit, countInStock: product.countInStock,
-                discount: product.discount
-            }));
+            if (requestType === 'Place' || requestType === 'Prepare' || (item && product.qty < item.qty)) {
+                var qty = product.qty + 1
+                //console.log(product.qty)
+                dispatch(updateCart({
+                    _id: product._id, nameEn: product.nameEn, image: product.image, qty: qty,
+                    priceUsd: product.priceUsd, unit: product.unit, countInStock: product.countInStock,
+                    discount: product.discount
+                }))
+            }
+            else {
+                setActionNote('The Quantity Ordered is Less Than the Requested Cancellation')
+                setActionNoteVisible(true);
+                setInterval(() => setActionNoteVisible(false), 3000)
+                return
+            }
         } else {
             setActionNote('Quantity Available in Stock is ' + product.qty)
             setActionNoteVisible(true);
@@ -562,7 +630,8 @@ function OrdersManager(props) {
         }
     }
 
-    const handleRemove = (item) => {
+    const handleRemove = (e, item) => {
+        e.preventDefault()
         dispatch(removeFromCart(item._id))
         setActionNote(`Product Removed Succefully`);
         setActionNoteVisible(true);
@@ -588,6 +657,8 @@ function OrdersManager(props) {
         cartItems.map(item => {
             if (item.discount > 0) { discountAmount = discountAmount + item.priceUsd * item.discount * 0.01 * item.qty }
         })
+        if (requestType && requestType !== 'Cancel' && requestType !== 'Return')
+            discountAmount = discountAmount * (-1)
         return discountAmount.toFixed(2)
     }
 
@@ -596,78 +667,128 @@ function OrdersManager(props) {
         cartItems.map(item => {
             cartAmount = cartAmount + item.priceUsd * item.qty
         })
-        cartAmount = cartAmount - discountCalc()
+        //cartAmount = cartAmount - discountCalc()
+        if (requestType === 'Cancel' || requestType === 'Return')
+            cartAmount = cartAmount * (-1)
         return cartAmount.toFixed(2)
     }
 
     const deliveryCalc = () => {
-        var rateMin /* = default delivery rate */
+        var rateMin = 100000000 /* = default delivery rate */
         var currentRate
-        if (delivery.rateType === 'Flat') {
-            return parseInt(delivery.flatRate)
-        } else if (delivery.rateType === 'Custom') {
-            rateMin = 1000000000
-            if (delivery.rates) {
-                delivery.rates.map(rate => {
+        const cartAmountPlus = cartAmountCalc() < 0 ? (-1) * cartAmountCalc() : cartAmountCalc()
+
+        // All Items in Cart are canceled
+        if ((requestType === 'Cancel' || requestType === 'Prepare') && requestNum && itemsQty) { // all order is canceled
+            if (request[requestNum - 1].delivery && request[requestNum - 1].delivery.charge) {
+                var noItemRemoved
+                cartItems.map(item => {
+                    itemsQty.find(item0 => {
+                        if (item0._id === item._id) {
+                            if (item0.qty === item.qty) return noItemRemoved = true
+                            return noItemRemoved = false
+                        }
+                    })
+                    if (noItemRemoved === false) return
+                })
+                if (noItemRemoved === true) {
+                    var delCharge = parseFloat(request[requestNum - 1].delivery.charge)
+                    return delCharge * (-1)
+                } else return 0
+            } else return 0
+
+            // Flat Rate
+        } else if (deliveryValues && deliveryValues.rateType === 'Flat') {
+            if (deliveryValues.unit === '%') {
+                currentRate = delivery.flatRate * cartAmountPlus * 0.01
+                if (currentRate < rateMin) rateMin = currentRate
+            } else rateMin = parseFloat(deliveryValues.flatRate).toFixed(2)
+
+            // Custom Rate
+        } else if (deliveryValues && deliveryValues.rateType === 'Custom') {
+            if (deliveryValues.rates) {
+                deliveryValues.rates.map(rate => {
+
                     if (rate.basedOn === 'Value') {
-                        if (cartAmountCalc() >= rate.min && cartAmountCalc() <= rate.max) {
-                            currentRate = rate.rate
+                        if (cartAmountPlus >= rate.min && cartAmountPlus <= rate.max) {
+                            if (rate.unit === '%')
+                                currentRate = rate.rate * cartAmountPlus * 0.01
+                            else currentRate = rate.rate
                             if (currentRate < rateMin) rateMin = currentRate
                         }
+
                     } else if (rate.basedOn === 'Quantity') {
                         if (qtyCalc() >= rate.min && qtyCalc() <= rate.max) {
-                            currentRate = rate.rate
+                            if (rate.unit === '%') currentRate = rate.rate * qtyCalc() * 0.01
+                            else currentRate = rate.rate
                             if (currentRate < rateMin) rateMin = currentRate
                         }
-                    } else if (rate.basedOn === 'Percentage') {
-                        if (cartAmountCalc() >= rate.min && cartAmountCalc() <= rate.max) {
-                            currentRate = rate.rate * cartAmountCalc() * 0.01
+
+                    } /*else if (rate.basedOn === 'Weight') {
+                        if (cartAmountPlus >= rate.min && cartAmountPlus <= rate.max) {
+                            currentRate = rate.rate * cartAmountPlus * 0.01
                             if (currentRate < rateMin) rateMin = currentRate
                         }
-                    }
+                    }*/
                 })
             } else rateMin = 0
         }
-        return parseInt(rateMin)
+        return parseFloat(rateMin).toFixed(2)
     }
 
     const paymentCalc = () => {
-        var rateMin /* = default payment rate */
+        var rateMin = 1000000000 /* = default payment rate */
         var currentRate
-        if (payment.rateType === 'Flat') {
-            return parseInt(payment.flatRate)
-        } else if (payment.rateType === 'Custom') {
-            rateMin = 1000000000
-            if (payment.rates) {
-                payment.rates.map(rate => {
+        const cartAmountPlus = cartAmountCalc() < 0 ? (-1) * cartAmountCalc() : cartAmountCalc()
+        // Flat Rate
+        if (paymentValues && paymentValues.rateType === 'Flat') {
+            if (paymentValues.unit === '%')
+                rateMin = paymentValues.flatRate * 0.01 * cartAmountPlus
+            else rateMin = paymentValues.flatRate
+
+            // Custom Rate
+        } else if (paymentValues && paymentValues.rateType === 'Custom') {
+            if (paymentValues.rates) {
+                paymentValues.rates.map(rate => {
+
                     if (rate.basedOn === 'Value') {
-                        if (cartAmountCalc() >= rate.min && cartAmountCalc() <= rate.max) {
-                            currentRate = rate.rate
+                        if (cartAmountPlus >= rate.min && cartAmountPlus <= rate.max && paymentType === rate.paymentType) {
+                            if (rate.unit === '%')
+                                currentRate = cartAmountPlus * rate.rate * 0.01
+                            else currentRate = rate.rate
+                            console.log(rate.rate, currentRate)
                             if (currentRate < rateMin) rateMin = currentRate
                         }
+
                     } else if (rate.basedOn === 'Quantity') {
-                        if (qtyCalc() >= rate.min && qtyCalc() <= rate.max) {
-                            currentRate = rate.rate
-                            if (currentRate < rateMin) rateMin = currentRate
-                        }
-                    } else if (rate.basedOn === 'Percentage') {
-                        if (cartAmountCalc() >= rate.min && cartAmountCalc() <= rate.max) {
-                            currentRate = rate.rate * cartAmountCalc() * 0.01
+                        if (qtyCalc() >= rate.min && qtyCalc() <= rate.max && paymentType == rate.paymentType) {
+                            if (rate.unit === '%')
+                                currentRate = qtyCalc() * rate.rate * 0.0
+                            else currentRate = rate.rate
                             if (currentRate < rateMin) rateMin = currentRate
                         }
                     }
                 })
-            } else rateMin = 0
-        }
-        return parseInt(rateMin)
+            }
+        } else rateMin = 0
+        //console.log(rateMin)
+        return rateMin.toFixed(2)
     }
 
-    const totalAmountCalc = () => {
+    const totalAmountCalc = (req) => {
+        /*if (req) {
+            var delCharge = req.delivery.charge ? req.delivery.charge : 0
+            var payCharge = req.payment.charge ? req.payment.charge : 0
+            var cartAm = req.cart.
+        }*/
         var deliveryCharg = deliveryCharge ? deliveryCharge : deliveryCalc()
-        var totalAmount = delivery
-            ? deliveryCharg + parseFloat(cartAmountCalc()) - discountCalc()
-            : parseFloat(cartAmountCalc()) - discountCalc()
-        //console.log(deliveryCalc(), cartAmountCalc())
+        deliveryCharg = parseFloat(deliveryCharg)
+        if (request.type === 'Cancel') deliveryCharg = 0
+        var paymentCharg = paymentCharge ? paymentCharge : paymentCalc()
+        paymentCharg = parseFloat(paymentCharg)
+        //console.log(paymentCalc())
+        var totalAmount = deliveryCharg + paymentCharg + parseFloat(cartAmountCalc()) + parseFloat(discountCalc())
+        //console.log(totalAmount)
         return totalAmount.toFixed(2)
     }
 
@@ -676,7 +797,7 @@ function OrdersManager(props) {
         request.map(req => {
             invoiceAmount = invoiceAmount + parseFloat(req.totalAmount)
         })
-        return invoiceAmount
+        return invoiceAmount.toFixed(2)
     }
 
     ////////////////////////////////////////////////////////
@@ -738,52 +859,52 @@ function OrdersManager(props) {
 
     const addRequestHandler = (e) => {
         e.preventDefault()
-        if (qtyCalc() > 0 && cartAmountCalc() > 0) {
+        if (qtyCalc() > 0) {
             //console.log(requestIndex)
             request[requestIndex] = {
                 creation_date: time,
                 created_by: userInfo ? userInfo.name : Date.now() + 10800000,
-                isPrepare: isPrepare !== undefined && isPrepare,
-                prepareOn: prepareOn !== undefined && prepareOn,
-                isPlace: isPlace !== undefined && isPlace,
-                /*confirmation: {
-                    placement: placement
-                },*/
+                type: requestType,
+                status: requestStatus,
                 operatedBy: userInfo.isOrderManager !== undefined && {
                     date: time,
                     employeeName: userInfo.name,
                     employeeId: userInfo.employeeId
                 },
                 payment: {
-                    //status: paymentStatus,
+                    status: paymentStatus,
                     collectOn: collectOn, // usually the same as delivery date
                     title: paymentTitle,
+                    description: paymentDescription,
                     type: paymentType,
                     charge: paymentCalc(),
                 },
-                delivery: isPlace && {
-                    //status: deliveryStatus,
+                delivery: (requestType === 'Place' || requestType === 'Return') &&
+                {
+                    status: deliveryStatus,
                     deliverOn: deliverOn,
                     title: deliveryTitle,
                     //type: deliveryType,
-                    duration: delivery.duration + ' ' + delivery.timeFormat,
+                    duration: deliveryValues.duration + ' ' + deliveryValues.timeFormat,
                     charge: deliveryCalc(),
                 },
                 cart: {
-                    //status: cartStatus,
-                    items: cartItems,
+                    status: cartStatus,
+                    prepareOn: prepareOn ? prepareOn : time,
+                    items: requestItems,
                     qty: qtyCalc(),
                     amount: cartAmountCalc(),
                     discountAmount: discountCalc(),
                 },
                 totalAmount: totalAmountCalc(),
-                receiptNum: d,
+                receiptNum: receiptNum,
             }
             //console.log(request)
             dispatch(updateCart('clear'))
             setRequestIndex(requestIndex + 1)
             setRequest(request)
             setRequestFormVisible(false)
+            setRequestType(undefined)
             setSearchKeyword('')
         }
     }
@@ -816,7 +937,9 @@ function OrdersManager(props) {
 
     return (
         <div>
-            {actionNoteVisible && <div className="action-note">{actionNote}</div>}
+            {actionNoteVisible && <div className="action-note">
+                <div>{actionNote}</div>
+            </div>}
             <div className="control-page-header">
                 <h3 className="header-title">Order Manager</h3>
                 <button type="button" className="header-button" onClick={() => createHandler()}>Create Order</button>
@@ -1050,10 +1173,10 @@ function OrdersManager(props) {
                         {request.length > 0 &&
                             <li className='border-padding'>
                                 {request.map(req => (
-                                    <div>
+                                    <div style={{ margin: '0.5rem 0' }}>
                                         <div className='flex-align'>
                                             <div className="label margin-right">
-                                                {'Request ' + (request.indexOf(req) + 1)}</div>
+                                                {'Request Summary #' + (request.indexOf(req) + 1)}</div>
                                             <FontAwesomeIcon icon={faTrashAlt}
                                                 className='cursor-color-absolute right'
                                                 onClick={(e) => {
@@ -1066,6 +1189,33 @@ function OrdersManager(props) {
                                                 onClick={() => showRequestForm(req)} />
                                         </div>
                                         <div className='cart-receipt-orders margin-top-0'>
+                                            <div className='cart-total-qty receipt-title'>
+                                                <div className="label">Request Type</div>
+                                                <div className='total-num'
+                                                    style={{ fontSize: '1.2rem' }}>{req.type + ' Order'}</div>
+                                            </div>
+                                            <div className='cart-total-qty'>
+                                                <div className='cart-total-label'>Request Status</div>
+                                                <div className='total-num'
+                                                    style={{ fontSize: '1.1rem' }}>{req.status}</div>
+                                            </div>
+                                            <div className='cart-total-qty'>
+                                                <div className='cart-total-label'>Cart Status</div>
+                                                <div className='total-num'
+                                                    style={{ fontSize: '1.1rem' }}>{req.cart.status}</div>
+                                            </div>
+                                            {req.delivery.status &&
+                                                <div className='cart-total-qty'>
+                                                    <div className='cart-total-label'>Delivery Status</div>
+                                                    <div className='total-num'
+                                                        style={{ fontSize: '1.1rem' }}>{req.delivery.status}</div>
+                                                </div>}
+                                            {req.payment.status &&
+                                                <div className='cart-total-qty border-bottom'>
+                                                    <div className='cart-total-label'>Payment Status</div>
+                                                    <div className='total-num'
+                                                        style={{ fontSize: '1.1rem' }}>{req.payment.status}</div>
+                                                </div>}
                                             <div className='cart-total-qty receipt-title'>
                                                 <div className="label">Receipt#</div>
                                                 <div className='total-num'
@@ -1080,22 +1230,31 @@ function OrdersManager(props) {
                                                 <div className='cart-total-label'>Cart Amount</div>
                                                 <div className='total-num'>{req.cart.amount + ' $'}</div>
                                             </div>
-                                            <div className='cart-total-qty'>
-                                                <div className='cart-total-label'>Discount Earned</div>
-                                                <div className='total-num'>{req.cart.discountAmount + ' $'}</div>
-                                            </div>
+                                            {req.cart.discountAmount !== 0 &&
+                                                <div className='cart-total-qty'>
+                                                    <div className='cart-total-label'>
+                                                        {'Discount ' + (req.cart.discountAmount < 0 ? 'Earned' : 'Lost')}
+                                                    </div>
+                                                    <div className='total-num'>{req.cart.discountAmount + ' $'}</div>
+                                                </div>}
                                             {req.delivery &&
                                                 <div className='cart-total-qty'>
                                                     <div className='cart-total-label'>Delivery Charge</div>
                                                     <div className='total-num'>{req.delivery.charge > 0
                                                         ? req.delivery.charge + ' $' : 'Free'}</div>
                                                 </div>}
-                                            {req.payment && req.payment.charge > 0 && <div className='cart-total-qty'>
-                                                <div className='cart-total-label'>Payment Charge</div>
-                                                <div className='total-num'>{req.payment.charge + ' $'}</div>
-                                            </div>}
+                                            {req.payment && req.payment.charge > 0 &&
+                                                <div className='cart-total-qty'>
+                                                    <div className='cart-total-label'>Payment Charge
+                                                        <div className='pay-desc'>{req.payment.description}</div>
+                                                    </div>
+                                                    <div className='total-num'>
+                                                        {req.payment.charge + ' $'}
+                                                    </div>
+                                                </div>}
                                             <div className='cart-total-qty border-top'>
-                                                <div className='cart-total-label'>Total Amount</div>
+                                                <div className='cart-total-label'
+                                                    style={{ fontSize: '1.3rem' }}>Total Amount</div>
                                                 <div className='total-num'>{req.totalAmount + ' $'}</div>
                                             </div>
                                         </div>
@@ -1112,7 +1271,7 @@ function OrdersManager(props) {
                             </div>
                             {requestFormVisible &&
                                 <div className='address-details border-padding padding-1rem'>
-                                    {(!isBtn || isBtn === 'isPrepare') &&
+                                    {/*{(!isBtn || isBtn === 'isPrepare') &&
                                         <div className='li-users'>
                                             <input
                                                 className='switch'
@@ -1164,94 +1323,158 @@ function OrdersManager(props) {
                                             ></input>
                                             <label className="label switch-label" htmlFor="isReturn">Return my Order</label>
                                         </div>}
-                                    <label className='label line-des'>Status</label>
-                                    <div className='status-select'>
-                                        <div className='select-zone'>
-                                            <div className="label">Cart</div>
-                                            <select
-                                                value={cartStatus}
-                                                onChange={(e) => {
-                                                    setCartStatus(
-                                                        e.target.selectedIndex ?
-                                                            e.target.options[e.target.selectedIndex].value :
-                                                            e.target.value)
-                                                }}
-                                            >
-                                                <option key='' value=''>
-                                                    Select...
-                                                    </option>
-                                                {cartStatusList
-                                                    && cartStatusList.map((status) => (
-                                                        <option key={cartStatusList.indexOf(status)} value={status}>
-                                                            {status}
-                                                        </option>
-                                                    ))}
-                                            </select>
+                                        */}
+                                    <div className='status-container border-padding'>
+                                        <div className='status-flex'>
+                                            <label className='label line-des'>Request Type<p className="required">*</p></label>
+                                            <div className='select-confirmation'>
+                                                <select
+                                                    value={requestType}
+                                                    onChange={toggleRequestType}
+                                                    disabled={requestTypeDisabled}>
+                                                    {requestTypeList
+                                                        && requestTypeList.map((status) => (
+                                                            (status === 'Cancel' || status === 'Return') ? request.length > 0 &&
+                                                                <option key={requestTypeList.indexOf(status)} value={status}>
+                                                                    {status}
+                                                                </option> :
+                                                                <option key={requestTypeList.indexOf(status)} value={status}>
+                                                                    {status}
+                                                                </option>
+                                                        ))}
+                                                </select>
+                                            </div>
                                         </div>
-                                        <div className='select-zone'>
-                                            <div className="label">Delivery</div>
-                                            <select
-                                                value={deliveryStatus}
-                                                onChange={(e) => {
-                                                    setDeliveryStatus(
-                                                        e.target.selectedIndex ?
-                                                            e.target.options[e.target.selectedIndex].value :
-                                                            e.target.value)
-                                                }}
-                                            >
-                                                <option key='' value=''>
-                                                    Select...
-                                                    </option>
-                                                {deliveryStatusList
-                                                    && deliveryStatusList.map((status) => (
-                                                        <option key={deliveryStatusList.indexOf(status)} value={status}>
-                                                            {status}
+                                        {request && (requestType === 'Cancel' || requestType === 'Return') &&
+                                            <div className='status-flex'>
+                                                <label className='label line-des'>Request#<p className="required">*</p></label>
+                                                <div className='select-confirmation'>
+                                                    <select
+                                                        value={requestNum}
+                                                        onChange={(e) => setRequestNum(e.target.value)}
+                                                        disabled={requestTypeDisabled}>
+                                                        <option key='' value=''>
+                                                            Select...
                                                         </option>
-                                                    ))}
-                                            </select>
+                                                        {request
+                                                            && request.map((req) => (
+                                                                <option key={request.indexOf(req)} value={request.indexOf(req) + 1}>
+                                                                    {'Request #' + (request.indexOf(req) + 1)}
+                                                                </option>
+                                                            ))}
+                                                    </select>
+                                                </div>
+                                            </div>}
+                                        <div className='status-flex'>
+                                            <label className='label line-des'>Request Status</label>
+                                            <div className='select-confirmation'>
+                                                <select
+                                                    value={requestStatus}
+                                                    onChange={(e) => {
+                                                        setRequestStatus(
+                                                            e.target.selectedIndex ?
+                                                                e.target.options[e.target.selectedIndex].value :
+                                                                e.target.value)
+                                                    }}>
+                                                    {requestStatusList
+                                                        && requestStatusList.map((status) => (
+                                                            <option key={requestStatusList.indexOf(status)} value={status}>
+                                                                {status}
+                                                            </option>
+                                                        ))}
+                                                </select>
+                                            </div>
                                         </div>
-                                        <div className='select-zone'>
-                                            <div className="label">Payment</div>
-                                            <select
-                                                value={paymentStatus}
-                                                onChange={(e) => {
-                                                    setPaymentStatus(
-                                                        e.target.selectedIndex ?
-                                                            e.target.options[e.target.selectedIndex].value :
-                                                            e.target.value)
-                                                }}
-                                            >
-                                                <option key='' value=''>
-                                                    Select...
-                                                    </option>
-                                                {paymentStatusList
-                                                    && paymentStatusList.map((status) => (
-                                                        <option key={paymentStatusList.indexOf(status)} value={status}>
-                                                            {status}
-                                                        </option>
-                                                    ))}
-                                            </select>
+                                        <div className='status-flex'>
+                                            <label className='label line-des'>Cart Status</label>
+                                            <div className='select-confirmation'>
+                                                <select
+                                                    value={cartStatus}
+                                                    onChange={(e) => {
+                                                        setCartStatus(
+                                                            e.target.selectedIndex ?
+                                                                e.target.options[e.target.selectedIndex].value :
+                                                                e.target.value)
+                                                    }}>
+                                                    {cartStatusList
+                                                        && cartStatusList.map((status) => (
+                                                            <option key={cartStatusList.indexOf(status)} value={status}>
+                                                                {status}
+                                                            </option>
+                                                        ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        {(requestType === 'Place' || requestType === 'Return') &&
+                                            <div className='status-flex'>
+                                                <label className='label line-des'>Delivery Status</label>
+                                                <div className='select-confirmation'>
+                                                    <select
+                                                        value={deliveryStatus}
+                                                        onChange={(e) => {
+                                                            setDeliveryStatus(
+                                                                e.target.selectedIndex ?
+                                                                    e.target.options[e.target.selectedIndex].value :
+                                                                    e.target.value)
+                                                        }}
+                                                    >
+                                                        {deliveryStatusList
+                                                            && deliveryStatusList.map((status) => (
+                                                                <option key={deliveryStatusList.indexOf(status)} value={status}>
+                                                                    {status}
+                                                                </option>
+                                                            ))}
+                                                    </select>
+                                                </div>
+                                            </div>}
+                                        <div className='status-flex'>
+                                            <label className='label line-des'>Payment Status</label>
+                                            <div className='select-confirmation'>
+                                                <select
+                                                    value={paymentStatus}
+                                                    onChange={(e) => {
+                                                        setPaymentStatus(
+                                                            e.target.selectedIndex ?
+                                                                e.target.options[e.target.selectedIndex].value :
+                                                                e.target.value)
+                                                    }}
+                                                >
+                                                    {paymentStatusList
+                                                        && paymentStatusList.map((status) => (
+                                                            <option key={paymentStatusList.indexOf(status)} value={status}>
+                                                                {status}
+                                                            </option>
+                                                        ))}
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
-                                    <label className="label" htmlFor="searchKeyword">Cart Items<p className="required">*</p></label>
-                                    <div className='order-searchKeyword'>
-                                        <input
-                                            type="text"
-                                            name="searchKeyword"
-                                            id="searchKeyword"
-                                            className='orders-user-phone'
-                                            value={searchKeyword}
-                                            onChange={(e) => setSearchKeyword(e.target.value)}
-                                        ></input>
-                                        <button
-                                            className="button orders-search-btn"
-                                            onClick={searchItem}
-                                        >Search</button>
-                                    </div>
+                                    <label className="label" htmlFor="searchKeyword">
+                                        {(requestType === 'Cancel' ? 'Canceled ' : '') + 'Cart Items'}
+                                        <p className="required">*</p>
+                                    </label>
+                                    {requestType !== 'Cancel' &&
+                                        <div className='order-searchKeyword'>
+                                            <input
+                                                type="text"
+                                                name="searchKeyword"
+                                                id="searchKeyword"
+                                                className='orders-user-phone'
+                                                value={searchKeyword}
+                                                onChange={(e) => setSearchKeyword(e.target.value)}
+                                            ></input>
+                                            <button
+                                                className="button orders-search-btn"
+                                                onClick={searchItem}
+                                            >Search</button>
+                                        </div>}
                                     {cartItems &&
                                         cartItems.map((item) => (
                                             item && item.qty > 0 &&
-                                            <li className='border-padding back-white'>
+                                            <li className={'border-padding back-white' +
+                                                ((request && (requestType === 'Cancel' || requestType === 'Return'))
+                                                    ? ' cancelled-items'
+                                                    : '')}>
                                                 {item.discount > 0 &&
                                                     <div className='product-discount order-discount'>
                                                         <div>{item.discount}</div>
@@ -1273,7 +1496,7 @@ function OrdersManager(props) {
                                                             <p className="cart-price-unit">/{item.unit}</p>
                                                         </div>
                                                         <FontAwesome className="fas fa-trash fa-trash-order fa-lg"
-                                                            onClick={() => handleRemove(item)}
+                                                            onClick={(e) => handleRemove(e, item)}
                                                         />
                                                     </div>
                                                     <div className='cart-btns cart-btns-order'>
@@ -1281,7 +1504,7 @@ function OrdersManager(props) {
                                                             type="button"
                                                             className="plus plus-cart plus-cart-order"
                                                             value={item._id}
-                                                            onClick={(e) => handlePlus(item)}>
+                                                            onClick={(e) => handlePlus(e, item)}>
                                                             <FontAwesome className="fas fa-plus" />
                                                         </button>
                                                         <p className="add-to-cart-qty float-bottom count count-order">{item.qty}</p>
@@ -1289,7 +1512,7 @@ function OrdersManager(props) {
                                                             type="button"
                                                             className="minus minus-cart minus-cart-order"
                                                             value={item._id}
-                                                            onClick={(e) => handleMinus(item)}>
+                                                            onClick={(e) => handleMinus(e, item)}>
                                                             <FontAwesome className="fas fa-minus" />
                                                         </button>
                                                     </div>
@@ -1298,7 +1521,7 @@ function OrdersManager(props) {
                                         ))}
                                     {cartItems &&
                                         <div style={{ margin: '2rem 0' }}>
-                                            {deliveryList && isBtn !== 'isPrepare' &&
+                                            {deliveryList && requestType !== 'Prepare' && requestType !== 'Cancel' &&
                                                 <div>
                                                     <div className="label">Delivery Title<p className="required">*</p></div>
                                                     <select
@@ -1309,6 +1532,7 @@ function OrdersManager(props) {
                                                                 e.target.selectedIndex ?
                                                                     e.target.options[e.target.selectedIndex].value :
                                                                     e.target.value)
+                                                            setDeliveryCharge(undefined)
                                                         }}
                                                     >
                                                         {deliveryList
@@ -1319,12 +1543,12 @@ function OrdersManager(props) {
                                                             ))}
                                                     </select>
                                                 </div>}
-                                            {(isBtn === 'isPlace' || isBtn === 'isPrepare') &&
+                                            {(requestType === 'Place' || requestType === 'Prepare') &&
                                                 <div style={{ margin: '2rem 0 0 0' }}>
                                                     <div className="label">
-                                                        {isBtn === 'isPlace'
+                                                        {requestType === 'Place'
                                                             ? 'Delivery Date'
-                                                            : isBtn === 'isPrepare' && 'Preparation Date'}
+                                                            : requestType === 'Prepare' && 'Preparation Date'}
                                                         <p className="required">*</p></div>
                                                     <div>
                                                         <input
@@ -1334,15 +1558,15 @@ function OrdersManager(props) {
                                                             className='orders-user-phone'
                                                             style={{ marginBottom: '0' }}
                                                             value={
-                                                                isBtn === 'isPlace'
+                                                                requestType === 'Place'
                                                                     ? deliverOn
-                                                                    : isBtn === 'isPrepare'
+                                                                    : requestType === 'Prepare'
                                                                     && prepareOn
                                                             }
                                                             onChange={(e) => {
-                                                                isBtn === 'isPlace'
+                                                                requestType === 'Place'
                                                                     ? setDeliverOn(e.target.value)
-                                                                    : isBtn === 'isPrepare'
+                                                                    : requestType === 'Prepare'
                                                                     && setPrepareOn(e.target.value)
                                                             }}
                                                             min={deliveryDurationInDate()}
@@ -1360,6 +1584,7 @@ function OrdersManager(props) {
                                                                 e.target.selectedIndex ?
                                                                     e.target.options[e.target.selectedIndex].value :
                                                                     e.target.value)
+                                                            setPaymentCharge(undefined)
                                                         }}
                                                     >
                                                         {paymentList
@@ -1397,7 +1622,7 @@ function OrdersManager(props) {
                                                         <div className="label">Receipt#</div>
                                                         <div className='total-num'
                                                             style={{ fontSize: '1.2rem' }}>
-                                                            {receiptNum ? receiptNum : d + 10800000}
+                                                            {receiptNum ? receiptNum : 'RE-' + (d + 10800000)}
                                                         </div>
                                                     </div>
                                                     <div className='cart-total-qty'>
@@ -1410,22 +1635,28 @@ function OrdersManager(props) {
                                                         <div className='total-num'>{cartAmountCalc() + ' $'}</div>
                                                     </div>
                                                     <div className='cart-total-qty'>
-                                                        <div className='cart-total-label'>Discount Earned</div>
+                                                        <div className='cart-total-label'>
+                                                            {(requestType === 'Cancel' || requestType === 'Return')
+                                                                ? 'Discount Lost' : 'Discount Earned'}
+                                                        </div>
                                                         <div className='total-num'>{discountCalc() + ' $'}</div>
                                                     </div>
-                                                    {delivery &&
+                                                    {deliveryValues && deliveryCharge ? parseInt(deliveryCharge) !== 0 : parseInt(deliveryCalc()) !== 0 &&
                                                         <div className='cart-total-qty'>
                                                             <div className='cart-total-label'>Delivery Charge</div>
                                                             <div className='total-num'>{
-                                                                deliveryCharge ? deliveryCharge : (deliveryCalc() > 0
+                                                                deliveryCharge ? deliveryCharge + ' $' : (deliveryCalc() !== 0
                                                                     ? deliveryCalc() + ' $' : 'Free')}</div>
                                                         </div>}
-                                                    {payment && (paymentCalc() > 0 || (paymentCharge && paymentCharge > 0)) &&
+                                                    {paymentValues && paymentCharge ? parseFloat(paymentCharge) !== 0 : parseFloat(paymentCalc()) !== 0 &&
                                                         <div className='cart-total-qty'>
-                                                            <div className='cart-total-label'>Payment Charge</div>
-                                                            <div className='total-num'>{
-                                                                paymentCharge ? paymentCharge : paymentCalc() + ' $'
-                                                            }</div>
+                                                            {console.log(paymentCharge, paymentCalc())}
+                                                            <div className='cart-total-label'>Payment Charge
+                                                            <div className='pay-desc'>{paymentDescription ? paymentDescription : ''}</div>
+                                                            </div>
+                                                            <div className='total-num'>
+                                                                {paymentCharge ? paymentCharge + ' $' : paymentCalc() + ' $'}
+                                                            </div>
                                                         </div>}
                                                     <div className='cart-total-qty border-top'>
                                                         <div className='cart-total-label'>Total Amount</div>
@@ -1437,18 +1668,20 @@ function OrdersManager(props) {
                                                 </div>}
                                             <button type="button" className="button secondary width"
                                                 style={{ marginTop: '1rem' }}
-                                                onClick={() => setRequestFormVisible(false)}>
+                                                onClick={() => {
+                                                    setRequestFormVisible(false);
+                                                    setRequestType(undefined)
+                                                }}>
                                                 Back
                                             </button>
                                         </div>}
                                 </div>}
                         </li>
                         <li>
-                            <label className="label" htmlFor="note">Note Box</label>
-                            <div className='border'>
-                                {note && note.length > 0 &&
-                                    note.map(not => (
-                                        <div className='admin-note-line '>
+                            {note && note.length > 0 &&
+                                <div className='border'>
+                                    {note.map(not => (
+                                        <div className='admin-note-line'>
                                             <div className='flex-align'>
                                                 <div className="label margin-right font-size-12rem">
                                                     {not.name}</div>
@@ -1464,9 +1697,11 @@ function OrdersManager(props) {
                                                 <FontAwesomeIcon icon={faEdit}
                                                     className='cursor-color-absolute'
                                                     onClick={() => {
-                                                        setNoteText(not.text)
-                                                        setNoteIndex(note.indexOf(not))
-                                                        setEditNoteText(true)
+                                                        if (userInfo.isOrderManager || userInfo.name === not.name) {
+                                                            setNoteText(not.text)
+                                                            setNoteIndex(note.indexOf(not))
+                                                            setEditNoteText(true)
+                                                        }
                                                     }} />
                                             </div>
                                             <div className='admin-note-text'>
@@ -1474,9 +1709,13 @@ function OrdersManager(props) {
                                             </div>
                                             <div className='note-date'>
                                                 {not.date}
+                                                {not.edited && ', Edited'}
                                             </div>
                                         </div>))}
-                                <textarea
+                                </div>}
+                            <div style={{ position: 'relative' }}>
+                                <textarea placeholder='Type a note...'
+                                    className='note-textarea'
                                     type="text"
                                     name="note"
                                     id="note"
@@ -1484,17 +1723,31 @@ function OrdersManager(props) {
                                     onChange={(e) => setNoteText(e.target.value)}
                                     onKeyPress={(e) => e.key === 'Enter' && saveNoteHandler(e)}
                                 ></textarea>
-                                <button className='button width'
-                                    style={{ marginTop: '0' }}
-                                    onClick={(e) => saveNoteHandler(e)}>Save Note
-                                </button>
+                                <FontAwesomeIcon
+                                    onClick={(e) => saveNoteHandler(e)}
+                                    className='note-paperplane' icon={faPaperPlane} />
                             </div>
                         </li>
                         <li>
-                            <div className='inovice-num'>Invoice#</div>
-                            <div className='cart-total-qty border-top'>
-                                <div className='cart-total-label '>Invoice Amount</div>
-                                <div className='total-num'>{invoiceAmountCalc() + ' $'}</div>
+                            <div className='cart-receipt-orders'>
+                                <div className='cart-total-qty receipt-title margin-bottom'>
+                                    <div className="label">Invoice#</div>
+                                    <div className='total-num'
+                                        style={{ fontSize: '1.2rem' }}>{invoiceNum}
+                                    </div>
+                                </div>
+                                {request && request.map(req => (
+                                    <div className='cart-total-qty'>
+                                        <div className='cart-total-label '>
+                                            {'Request #' + (request.indexOf(req) + 1) + '  -  ' + req.status}
+                                        </div>
+                                        <div className='total-num'>{req.totalAmount}</div>
+                                    </div>
+                                ))}
+                                <div className='cart-total-qty'>
+                                    <div className='cart-total-label '>Invoice Amount</div>
+                                    <div className='total-num'>{invoiceAmountCalc() + ' $'}</div>
+                                </div>
                             </div>
                         </li>
                         <li>
@@ -1548,7 +1801,7 @@ function OrdersManager(props) {
                                             type="button"
                                             className={`add-to-cart-btn ${product.AddToCartClass} add-to-cart-orders`}
                                             value={product._id}
-                                            onClick={() => handleAddToCart(product)}>
+                                            onClick={(e) => handleAddToCart(e, product)}>
                                             Add To Cart
                                         </button>
                                         <div className={`add-to-cart-btns hide ${product.PlusMinusClass} btns-orders`}>
@@ -1556,7 +1809,7 @@ function OrdersManager(props) {
                                                 type="button"
                                                 className="minus minus-orders"
                                                 value={product._id}
-                                                onClick={() => handleMinus(product)}>
+                                                onClick={(e) => handleMinus(e, product)}>
                                                 <FontAwesome name='fa-minus' className="fas fa-minus" />
                                             </button>
                                             <p className="add-to-cart-qty qty-cart count qty-cart-orders">{product.qty}</p>
@@ -1564,7 +1817,7 @@ function OrdersManager(props) {
                                                 type="button"
                                                 className="plus plus-orders"
                                                 value={product._id}
-                                                onClick={() => handlePlus(product)}>
+                                                onClick={(e) => handlePlus(e, product)}>
                                                 <FontAwesome name='fa-plus' className="fas fa-plus" />
                                             </button>
                                         </div>

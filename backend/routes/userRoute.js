@@ -66,6 +66,7 @@ router.post("/signin", async (req, res) => {
         image: user.image && user.image,
         employeeId: user.employeeId && user.employeeId,
         address: user.address && user.address,
+        orderList: user.orderList && user.orderList,
       })
 
     // set user inactive
@@ -207,19 +208,20 @@ router.delete("/:id", isAuth, isAdmin, async (req, res) => {
 router.put("/:id", isAuth, async (req, res) => {
   const user = await User.findOne({ _id: req.params.id });
   if (user) {
-    user.name = req.body.name;
-    user.active = req.body.active;
+    user.name = req.body.name ? req.body.name : user.name;
+    user.active = req.body.active ? req.body.active : user.active;
     user.activity = req.body.activity ? req.body.activity : user.activity;
-    user.email = req.body.email;
-    user.phone = req.body.phone;
-    user.password = req.body.password && req.body.password;
-    user.isAdmin = req.body.isAdmin;
-    user.isCallCenterAgent = req.body.isCallCenterAgent;
-    user.isAttendanceManager = req.body.isAttendanceManager;
-    user.isOrderManager = req.body.isOrderManager;
-    user.image = req.body.image && req.body.image;
-    user.employeeId = req.body.employeeId && req.body.employeeId;
-    user.address = req.body.address && req.body.address;
+    user.email = req.body.email ? req.body.email : user.email;
+    user.phone = req.body.phone ? req.body.phone : user.phone;
+    user.password = req.body.password ? req.body.password : user.password;
+    user.isAdmin = req.body.isAdmin ? req.body.isAdmin : user.isAdmin;
+    user.isCallCenterAgent = req.body.isCallCenterAgent ? req.body.isCallCenterAgent : user.isCallCenterAgent;
+    user.isAttendanceManager = req.body.isAttendanceManager ? req.body.isAttendanceManager : user.isAttendanceManager;
+    user.isOrderManager = req.body.isOrderManager ? req.body.isOrderManager : user.isOrderManager;
+    user.image = req.body.image ? req.body.image : user.image;
+    user.employeeId = req.body.employeeId ? req.body.employeeId : user.employeeId;
+    user.address = req.body.address ? req.body.address : user.address;
+    if (req.body.orderList) user.orderList = [...user.orderList, req.body.orderList]
   }
   const userUpdated = await user.save();
   if (userUpdated) {

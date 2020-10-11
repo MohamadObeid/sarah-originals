@@ -269,7 +269,7 @@ function HomeScreen(props) {
                         <div>%</div>
                       </div>
                     }
-                    <div className="product-image">
+                    <div className="product-image" style={{ display: 'flex', alignItems: 'center' }}>
                       <img src={imageUrl + product.image} alt="product"
                         onClick={() => handleQuickView(product)} />
                     </div>

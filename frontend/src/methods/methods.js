@@ -76,28 +76,39 @@ const dayConverter = (date, active) => {
     }
 }
 
-const timeDiffCalc = (from, to) => { //time format ex.: 01:20
+const timeDiffCalc = (from, to, nextDay) => { //time format ex.: 01:20
     var fromHour = parseInt(from.slice(0, 2))
     var fromMin = parseInt(from.slice(3, 5))
     var toHour = parseInt(to.slice(0, 2))
-    var toMin = toHour === 0 ? parseInt(to.slice(2, 4)) : parseInt(to.slice(3, 5))
-    //console.log(fromMin, toHour)
+    var toMin = parseInt(to.slice(3, 5))
+    //console.log(from, to)
 
     if (fromHour === toHour) {
         if (toMin > fromMin) { return '00:' + ((toMin - fromMin) < 10 ? '0' + (toMin - fromMin) : (toMin - fromMin)) }
         else if (toMin < fromMin) { return { sign: 'late', diff: '00:' + ((fromMin - toMin) < 10 ? '0' + (fromMin - toMin) : (fromMin - toMin)) } }
         else if (toMin === fromMin) return '00:00'
     } else if (toHour > fromHour) {
-        if (toMin < fromMin) { return (((toHour - fromHour - 1) < 10 ? '0' + (toHour - fromHour - 1) : (toHour - fromHour - 1)) + ':' + (60 - fromMin + parseInt(toMin))) }
-        else if (toMin === fromMin) { return (((toHour - fromHour) < 10 ? '0' + (toHour - fromHour) : (toHour - fromHour)) + ':00') }
-        else if (toMin > fromMin) { return (((toHour - fromHour) < 10 ? '0' + (toHour - fromHour) : (toHour - fromHour)) + ':' + ((toMin - fromMin) < 10 ? '0' + (toMin - fromMin) : (toMin - fromMin))) }
+        if (toMin < fromMin) {
+            var min = (60 - fromMin + parseInt(toMin))
+            if (!nextDay) return (((toHour - fromHour - 1) < 10 ? '0' + (toHour - fromHour - 1) : (toHour - fromHour - 1)) + ':' + (min < 10 ? '0' + min : min))
+            if (nextDay) return ((24 + (toHour - fromHour - 1)) + ':' + (min < 10 ? '0' + min : min))
+        }
+        else if (toMin === fromMin) {
+            if (!nextDay) return (((toHour - fromHour) < 10 ? '0' + (toHour - fromHour) : (toHour - fromHour)) + ':00')
+            var hour = 24 + (toHour - fromHour)
+            if (nextDay) return ((hour < 10 ? '0' + hour : hour) + ':00')
+        } else if (toMin > fromMin) {
+            if (!nextDay) return (((toHour - fromHour) < 10 ? '0' + (toHour - fromHour) : (toHour - fromHour)) + ':' + ((toMin - fromMin) < 10 ? '0' + (toMin - fromMin) : (toMin - fromMin)))
+            var hour = (24 + (toHour - fromHour))
+            if (nextDay) return ((hour < 10 ? '0' + hour : hour) + ':' + ((toMin - fromMin) < 10 ? '0' + (toMin - fromMin) : (toMin - fromMin)))
+        }
     } else if (toHour < fromHour) { // second day
-        var hourDiff = (toMin === 0) ? 24 - fromHour : 24 - 1 - fromHour
-        var minDiff = (toMin === 0) ? 0 : 60 - toMin
+        var hourDiff = (fromMin === 0) ? 24 - fromHour : 24 - 1 - fromHour
+        var minDiff = (fromMin === 0) ? 0 : 60 - fromMin
         hourDiff = hourDiff + toHour
         minDiff = minDiff + toMin
         hourDiff = minDiff >= 60 ? hourDiff++ : hourDiff
-        minDiff = minDiff > 60 ? 60 - minDiff : minDiff
+        minDiff = minDiff >= 60 ? 60 - minDiff : minDiff
         if (minDiff < 10) minDiff = '0' + minDiff
         if (hourDiff < 10) hourDiff = '0' + hourDiff
         return hourDiff + ':' + minDiff

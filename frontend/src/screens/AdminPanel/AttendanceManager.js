@@ -109,6 +109,7 @@ function AttendanceManager(props) {
     const { userInfo } = useSelector(state => state.userSignin)
     const { employee } = useSelector(state => state.employeeDetails)
     const { time } = useSelector(state => state.clock)
+    const [isCheckout, setIsCheckout] = useState(undefined)
 
     const dispatch = useDispatch()
     useEffect(() => {
@@ -128,17 +129,30 @@ function AttendanceManager(props) {
         }
     }, [successSave, successDelete])
 
-    const openModel = (attendance) => {
-        setModelVisible(true)
-        setIsAbsent(false)
+    useEffect(() => {
+        attendanceList ? attendanceList.length > 0 &&
+            setIsCheckout(attendanceList.find(att =>
+                (att.date === currentDate || newDayCheckout(att.date))
+                && att.employeeId === userInfo.employeeId
+                && (!att.checkout || !att.checkout.record)))
+            : setIsCheckout(undefined)
+        //isCheckout && console.log(isCheckout)
+        if (isCheckout) openModel(isCheckout)
+        return () => { }
+    }, [attendanceList, isCheckout])
 
+    const openModel = (attendance, openModel) => {
+        openModel && setModelVisible(true)
+
+        setIsAbsent(false)
         setId(attendance._id ? attendance._id : undefined)
         setModified(attendance.modified ? attendance.modified : undefined)
         setEmployeeId(attendance.employeeId ? attendance.employeeId : undefined)
-        attendance.employeeId && userInfo.employeeId != attendance.employeeId && dispatch(detailsEmployee(attendance.employeeId))
+        openModel && attendance.employeeId && userInfo.employeeId != attendance.employeeId
+            && dispatch(detailsEmployee(attendance.employeeId))
         setEmployeeName(attendance.employeeName ? attendance.employeeName : undefined)
         setEmployeeImage(attendance.employeeImage ? attendance.employeeImage : undefined)
-        setDate(attendance.date ? attendance.date : d)
+        setDate(attendance.date ? attendance.date : currentDate)
         setWeekDay(attendance.weekDay ? attendance.weekDay : currentWeekDay)
 
         if (attendance.checkin) {
@@ -257,28 +271,22 @@ function AttendanceManager(props) {
 
     const checkInOutHandler = (e) => {
         e.preventDefault()
-        const attendanceExist = attendanceList ? attendanceList.find(attendance => attendance._id === _id) : undefined
-        const isCheckout = attendanceList ? attendanceList.find
+        //const attendanceExist = attendanceList ? attendanceList.find(attendance => attendance._id === _id) : undefined
+        /*const isCheckout = attendanceList ? attendanceList.find
             (att =>
                 (att.date === currentDate || newDayCheckout(att.date))
                 && att.employeeId === userInfo.employeeId
-                && (!att.checkout || !att.checkout.record)) : undefined
-
+                && (!att.checkout || !att.checkout.record)) : undefined*/
+        //console.log(isCheckout)
         if (isCheckout) {
             //console.log(isCheckout._id)
-            setId(isCheckout._id)
-            if (isCheckout.checkout)
-                setCheckoutTime(isCheckout.checkout.workTime)
-            else setCheckoutTime(undefined)
-            setCheckinRecord(isCheckout.checkin.record)
             const data = checkoutStatus()
             const earlyLeave = data.earliness
             const overTime = data.overTime
             if (earlyLeave || overTime)
                 setReasonModalVisible({ visibility: true, commander: 'checkout' })
             else checkoutHandler(e, isCheckout)
-        }
-        else if (!attendanceExist && !isCheckout) {
+        } else {
             const data = checkinStatus()
             const lateness = data.lateness
             const overTime = data.overTime
@@ -366,12 +374,12 @@ function AttendanceManager(props) {
         }))
         setReasonModalVisible({ visibility: false })
     }
-
+    //console.log(currentDate)
     const checkoutStatus = () => {
         var workTime = workTimeEnd()
         var timeDiff
         if (workTime) {
-            timeDiff = workTime ? timeDiffCalc(workTime, currentHour + ':' + currentMinutes) : undefined
+            timeDiff = workTime ? timeDiffCalc(workTime, currentHour + ':' + currentMinutes, newDayCheckout(isCheckout.date)) : undefined
         } else timeDiff = '00:00'
 
         var earliness = false
@@ -392,8 +400,9 @@ function AttendanceManager(props) {
         const timeDiff = data.timeDiff
         const checkoutRecord = currentHour + ':' + currentMinutes
         const checkin = checkinRecord ? checkinRecord : attendance.checkin.record
-        var workHoursRecorded = typeof timeDiffCalc(checkin, checkoutRecord) === 'object'
-            ? timeDiffCalc(checkin, checkoutRecord).diff : timeDiffCalc(checkin, checkoutRecord)
+        var timeDiffValue = timeDiffCalc(checkin, checkoutRecord, newDayCheckout(isCheckout.date))
+        var workHoursRecorded = typeof timeDiffValue === 'object' ? timeDiffValue.diff : timeDiffValue
+
         if (attendance && newDayCheckout(attendance.date) && time.slice(11, 13) === '12' && time.includes('AM')) {
             workHoursRecorded = parseInt(workHoursRecorded.slice(0, 2)) - 12 + workHoursRecorded.slice(2, 5)
         } else if (attendance && newDayCheckout(attendance.date) && time.slice(11, 13) !== '12' && !time.includes('AM'))
@@ -419,6 +428,7 @@ function AttendanceManager(props) {
             },
         }))
         setReasonModalVisible({ visibility: false })
+        setIsCheckout(false)
     }
 
     const workTimeEnd = () => {
@@ -542,7 +552,7 @@ function AttendanceManager(props) {
     }
 
     const timeDurationAtWork = (attendance) => {
-        var hours = time.slice(11, 13)
+        /*var hours = time.slice(11, 13)
         var minutes = time.slice(14, 16)
         var seconds = time.slice(17, 19)
 
@@ -550,12 +560,17 @@ function AttendanceManager(props) {
             hours = '0' + time.slice(11, 12)
             minutes = time.slice(13, 15)
             seconds = time.slice(16, 18)
-        }
+        }*/
 
-        if (time.includes('PM')) hours = parseInt(hours) + 12
-        if (time.includes('AM') && hours === '12') hours = parseInt(hours) - 12
+        var d = new Date()
+        var hours = d.getHours() < 10 ? '0' + d.getHours() : d.getHours()
+        var minutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes()
+        var seconds = d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds()
+
+        /*if (time.includes('PM')) hours = parseInt(hours) + 12
+        if (time.includes('AM') && hours === '12') hours = parseInt(hours) - 12*/
         const format24 = hours + ':' + minutes
-
+        //console.log(format24, seconds)
         var duration
 
         if (attendance.workHoursRecorded) {
@@ -570,7 +585,7 @@ function AttendanceManager(props) {
                 }
             } else if (newDayCheckout(attendance.date)) {
 
-                const time1 = timeDiffCalc(attendance.checkin.record, '24:00')
+                /*const time1 = timeDiffCalc(attendance.checkin.record, '24:00')
                 const time2 = timeDiffCalc('00:00', format24)
 
                 var hours0 = parseInt(time1.slice(0, 2)) + parseInt(time2.slice(0, 2))
@@ -581,7 +596,9 @@ function AttendanceManager(props) {
                 min0 = min0 >= 60 ? min0 - 60 : min0
                 min0 = min0 < 10 ? '0' + min0 : min0
 
-                duration = hours0 + ':' + min0 + ':' + seconds + ' hrs'
+                duration = hours0 + ':' + min0 + ':' + seconds + ' hrs'*/
+                var timeDiffer = timeDiffCalc(attendance.checkin.record, format24, newDayCheckout(attendance.date))
+                duration = timeDiffer + ':' + seconds + ' hrs'
             }
         }
         return duration

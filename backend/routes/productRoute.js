@@ -36,7 +36,7 @@ router.post("/searchKeyword", async (req, res) => {
 
   const products = await Product.find({ ...searchKeyword })
   if (products) {
-    console.log(products)
+    //console.log(products)
     return res.status(201).send(products)
   }
 })

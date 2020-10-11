@@ -45,6 +45,7 @@ function DashBoard(props) {
   const { employees } = useSelector(state => state.employeeList)
   const { delivery: deliveryList } = useSelector(state => state.deliveryList)
   const { payment: paymentList } = useSelector(state => state.paymentList)
+  //const { attendance: attendanceList } = useSelector(state => state.attendanceList)
 
   const [productVisible, setProductVisible] = useState(false)
   const [zoneVisible, setZoneVisible] = useState(false)
