@@ -187,6 +187,7 @@ function PaymentManager(props) {
 
         setRates_id(rates._id ? rates._id : '');
         setBasedOn(rates.basedOn ? rates.basedOn : basedOnList[0]);
+        setPaymentZone(rates.zone ? rates.zone : undefined)
         setMin(rates.min === 0 ? 0 : rates.min ? rates.min : '');
         setMax(rates.max === 0 ? 0 : rates.max ? rates.max : '');
         setRate(rates.rate === 0 ? 0 : rates.rate ? rates.rate : '');
@@ -506,11 +507,12 @@ function PaymentManager(props) {
                             <td>{payment.title}</td>
                             <td style={
                                 { maxWidth: '30rem' }}>
-                                {payment.zone.map(name =>
-                                    (payment.zone).indexOf(name) === ((payment.zone).length - 1) ?
-                                        name
-                                        : name + ', ')
-                                }
+                                {payment.zone.length > 0 ?
+                                    payment.zone.map(name =>
+                                        (payment.zone).indexOf(name) === ((payment.zone).length - 1) ?
+                                            name
+                                            : name + ', ')
+                                    : '-'}
                             </td>
                             <td style={{ maxWidth: '30rem' }}>
                                 {payment.type.map(name =>
@@ -581,6 +583,10 @@ function PaymentManager(props) {
                                             e.target.options[e.target.selectedIndex].value :
                                             e.target.value)
                                 }}>
+
+                                <option key={''} value={''}>
+                                    Select...
+                                </option>
                                 {zone.map(zone => (
                                     <option key={zone} value={zone}>
                                         {zone}
@@ -688,12 +694,14 @@ function PaymentManager(props) {
                     <div className='range-overlay'>
                         <div className='range-form'>
                             <div className="control-page-header">
-                                <h3 className="header-title">Rates Manager</h3>
+                                <div style={{ width: '100%', textAlign: 'center' }}>
+                                    <h3 className="header-title">{title && title} Rates Manager</h3></div>
                                 <button type="button" className="header-button range-header-button" onClick={() => createRatesHandler()}>Add Rate Range</button>
                             </div>
                             <table className="range-table">
                                 <thead>
                                     <tr>
+                                        <th>Zone</th>
                                         <th>Payment Type</th>
                                         <th>Based On</th>
                                         <th>Minimum</th>
@@ -706,6 +714,7 @@ function PaymentManager(props) {
                                     {rates &&
                                         rates.map((rates) => (
                                             <tr key={rates._id}>
+                                                <td>{rates.zone ? rates.zone : '-'}</td>
                                                 <td>{rates.paymentType}</td>
                                                 <td>{rates.basedOn}</td>
                                                 <td>{rates.min}</td>

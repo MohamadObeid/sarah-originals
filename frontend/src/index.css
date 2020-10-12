@@ -2578,9 +2578,9 @@ input.checked[type="radio"] {
   padding: 1rem;
   border-radius: 0.5rem;
   border: 1px solid #c0c0c0;
-  margin-bottom: 0.5rem;
   font-size: 1.3rem;
   background-color: white;
+  cursor: pointer;
 }
 
 .flex-align {
@@ -3058,4 +3058,53 @@ textarea {
   font-size: 1.2rem;
   padding-top: 0.5rem;
   border-bottom: 1px solid #c0c0c0;
+}
+
+.del-add {
+  border: 2px solid green;
+}
+
+.pay-add {
+  padding: 0.2rem;
+  border-radius: 0.5rem;
+  border: 2px solid rgb(255, 0, 0);
+  margin-bottom: 0.5rem;
+}
+
+.fonts-del-pay {
+  display: flex;
+  align-items: center;
+  position: relative;
+  height: 2.5rem;
+}
+
+.del-add-font,
+.pay-add-font {
+  display: flex;
+  font-size: 1.1rem;
+  position: absolute;
+  align-items: center;
+}
+
+.del-add-font {
+  left: 0rem;
+}
+
+.pay-add-font {
+  right: 0rem;
+}
+
+.green-line,
+.red-line {
+  top: 45%;
+  border-top: 2px solid green;
+  width: 2rem;
+  margin-right: 0.2rem;
+}
+
+.red-line {
+  border-top: 2px solid red;
+}
+.padding-bottom {
+  padding-bottom: 0rem;
 }

@@ -54,6 +54,8 @@ function OrdersManager(props) {
     const [editNoteText, setEditNoteText] = useState()
     const [requestTypeDisabled, setRequestTypeDisabled] = useState(false)
     const [requestItems, setRequestItems] = useState()
+    const [isDeliveryAddress, setIsDeliveryAddress] = useState()
+    const [isPaymentAddress, setIsPaymentAddress] = useState()
 
     const [requestNum, setRequestNum] = useState()
     const [_id, setId] = useState()
@@ -85,6 +87,7 @@ function OrdersManager(props) {
     const [note, setNote] = useState()
     const [noteText, setNoteText] = useState()
     const [prepareOn, setPrepareOn] = useState()
+
     // payment
     const [payment, setPayment] = useState()
     const [paymentValues, setPaymentValues] = useState()
@@ -112,6 +115,7 @@ function OrdersManager(props) {
     const [deliveryDoneBy, setDeliveryDoneBy] = useState()
     const [deliveryCharge, setDeliveryCharge] = useState()
     const [deliveryNote, setDeliveryNote] = useState()
+
     // cart
     const [cart, setCart] = useState()
     const [items, setItems] = useState()
@@ -166,9 +170,6 @@ function OrdersManager(props) {
             setFormAction('')
             dispatch(listOrders())
         }
-        return () => {
-            //
-        }
     }, [successSave, successDelete])
 
     useEffect(() => {
@@ -203,7 +204,6 @@ function OrdersManager(props) {
 
         if (paymentType) {
             setPaymentDescription(paymentValues.description)
-            //console.log(paymentType, paymentValues.description)
             if (paymentValues.rates.length > 0) {
                 paymentValues.rates.map(line => {
                     if (line.paymentType === paymentType) {
@@ -466,7 +466,7 @@ function OrdersManager(props) {
             //console.log('close Model')
             if (requestNum) {
                 setRequestIndex(request.length)
-                if (req.cart.items.length > 0) {
+                if (req && req.cart.items.length > 0) {
                     dispatch(addToCart(req.cart.items))
                     setItemsQty(req.cart.items.map(item => {
                         return { _id: item._id, qty: item.qty }
@@ -681,15 +681,13 @@ function OrdersManager(props) {
         // All Items in Cart are canceled
         if ((requestType === 'Cancel' || requestType === 'Prepare') && requestNum && itemsQty) { // all order is canceled
             if (request[requestNum - 1].delivery && request[requestNum - 1].delivery.charge) {
-                var noItemRemoved
+                var noItemRemoved = true
                 cartItems.map(item => {
-                    itemsQty.find(item0 => {
-                        if (item0._id === item._id) {
-                            if (item0.qty === item.qty) return noItemRemoved = true
-                            return noItemRemoved = false
-                        }
-                    })
-                    if (noItemRemoved === false) return
+                    var item0 = itemsQty.find(item0 => item0._id === item._id)
+                    if (item.qty !== item0.qty) {
+                        noItemRemoved = false
+                        return
+                    }
                 })
                 if (noItemRemoved === true) {
                     var delCharge = parseFloat(request[requestNum - 1].delivery.charge)
@@ -756,7 +754,7 @@ function OrdersManager(props) {
                             if (rate.unit === '%')
                                 currentRate = cartAmountPlus * rate.rate * 0.01
                             else currentRate = rate.rate
-                            console.log(rate.rate, currentRate)
+                            //console.log(rate.rate, currentRate)
                             if (currentRate < rateMin) rateMin = currentRate
                         }
 
@@ -990,12 +988,12 @@ function OrdersManager(props) {
                             ></input>
                         </li>
                         {address.length > 0 &&
-                            <li className='border-padding'>
+                            <li className='border-padding padding-bottom'>
                                 {address.map((add) => (
-                                    <div>
+                                    <div key={address.indexOf(add)}>
                                         <div className='flex-align'>
                                             <div className="label margin-right">
-                                                Address {address.indexOf(add) + 1}</div>
+                                                Address #{address.indexOf(add) + 1}</div>
                                             <FontAwesomeIcon icon={faTrashAlt}
                                                 className='cursor-color-absolute right'
                                                 onClick={(e) => {
@@ -1006,12 +1004,25 @@ function OrdersManager(props) {
                                                 className='cursor-color-absolute'
                                                 onClick={() => showAddressEditor(add)} />
                                         </div>
-                                        <div className='user-address'
-                                            key={address.indexOf(add)}
-                                            value={add}>
-                                            {add.city + ', ' +
-                                                add.region + ', ' +
-                                                add.building}
+                                        <div className={isPaymentAddress === address.indexOf(add) ? 'pay-add' : ''}
+                                            onClick={e => {
+                                                if (!deliveryAddress) {
+                                                    setDeliveryAddress(add.city + ', ' + add.region + ', ' + add.building)
+                                                    setIsDeliveryAddress(address.indexOf(add))
+                                                } else if (deliveryAddress && !paymentAddress) {
+                                                    setPaymentAddress(add.city + ', ' + add.region + ', ' + add.building)
+                                                    setIsPaymentAddress(address.indexOf(add))
+                                                } else if (deliveryAddress && paymentAddress) {
+                                                    setDeliveryAddress(undefined)
+                                                    setPaymentAddress(undefined)
+                                                    setIsDeliveryAddress(false)
+                                                    setIsPaymentAddress(false)
+                                                }
+                                            }}>
+                                            <div className={'user-address ' + (isDeliveryAddress === address.indexOf(add)
+                                                ? 'del-add' : '')}>
+                                                {add.city + ', ' + add.region + ', ' + add.building}
+                                            </div>
                                         </div>
                                         {addressVisible === address.indexOf(add) &&
                                             <div className='address-details'>
@@ -1069,6 +1080,16 @@ function OrdersManager(props) {
                                             </div>}
                                     </div>
                                 ))}
+                                <div className='fonts-del-pay'>
+                                    <div className='del-add-font'>
+                                        <div className='green-line'></div>
+                                        <div>Delivery Address</div>
+                                    </div>
+                                    <div className='pay-add-font'>
+                                        <div className='red-line'></div>
+                                        <div>Payment Address</div>
+                                    </div>
+                                </div>
                             </li>}
                         <li>
                             <div className='flex-align'>
@@ -1120,7 +1141,7 @@ function OrdersManager(props) {
                                     </button>
                                 </div>}
                         </li>
-                        <li>
+                        {/*<li>
                             <div className="label">Delivery Address<p className="required">*</p></div>
                             <select
                                 value={deliveryAddress}
@@ -1169,7 +1190,7 @@ function OrdersManager(props) {
                                         </option>
                                     ))}
                             </select>
-                        </li>
+                        </li>*/}
                         {request.length > 0 &&
                             <li className='border-padding'>
                                 {request.map(req => (
@@ -1233,7 +1254,7 @@ function OrdersManager(props) {
                                             {req.cart.discountAmount !== 0 &&
                                                 <div className='cart-total-qty'>
                                                     <div className='cart-total-label'>
-                                                        {'Discount ' + (req.cart.discountAmount < 0 ? 'Earned' : 'Lost')}
+                                                        {'Discount ' + (req.cart.discountAmount <= 0 ? 'Earned' : 'Lost')}
                                                     </div>
                                                     <div className='total-num'>{req.cart.discountAmount + ' $'}</div>
                                                 </div>}
@@ -1471,10 +1492,11 @@ function OrdersManager(props) {
                                     {cartItems &&
                                         cartItems.map((item) => (
                                             item && item.qty > 0 &&
-                                            <li className={'border-padding back-white' +
-                                                ((request && (requestType === 'Cancel' || requestType === 'Return'))
-                                                    ? ' cancelled-items'
-                                                    : '')}>
+                                            <div key={'item' + cartItems.indexOf(item)}
+                                                className={'border-padding back-white' +
+                                                    ((request && (requestType === 'Cancel' || requestType === 'Return'))
+                                                        ? ' cancelled-items'
+                                                        : '')}>
                                                 {item.discount > 0 &&
                                                     <div className='product-discount order-discount'>
                                                         <div>{item.discount}</div>
@@ -1495,7 +1517,7 @@ function OrdersManager(props) {
                                                                 : item.priceUsd}
                                                             <p className="cart-price-unit">/{item.unit}</p>
                                                         </div>
-                                                        <FontAwesome className="fas fa-trash fa-trash-order fa-lg"
+                                                        <FontAwesome name='faTrash' className="fas fa-trash fa-trash-order fa-lg"
                                                             onClick={(e) => handleRemove(e, item)}
                                                         />
                                                     </div>
@@ -1517,7 +1539,7 @@ function OrdersManager(props) {
                                                         </button>
                                                     </div>
                                                 </div>
-                                            </li>
+                                            </div>
                                         ))}
                                     {cartItems &&
                                         <div style={{ margin: '2rem 0' }}>

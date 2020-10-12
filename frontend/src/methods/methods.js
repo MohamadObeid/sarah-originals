@@ -103,12 +103,13 @@ const timeDiffCalc = (from, to, nextDay) => { //time format ex.: 01:20
             if (nextDay) return ((hour < 10 ? '0' + hour : hour) + ':' + ((toMin - fromMin) < 10 ? '0' + (toMin - fromMin) : (toMin - fromMin)))
         }
     } else if (toHour < fromHour) { // second day
-        var hourDiff = (fromMin === 0) ? 24 - fromHour : 24 - 1 - fromHour
-        var minDiff = (fromMin === 0) ? 0 : 60 - fromMin
+        var hourDiff = (fromMin > 0) ? 24 - fromHour - 1 : 24 - fromHour
+        var minDiff = 60 - fromMin
         hourDiff = hourDiff + toHour
         minDiff = minDiff + toMin
-        hourDiff = minDiff >= 60 ? hourDiff++ : hourDiff
-        minDiff = minDiff >= 60 ? 60 - minDiff : minDiff
+        hourDiff = minDiff >= 60 ? hourDiff + 1 : hourDiff
+        minDiff = minDiff >= 60 ? minDiff - 60 : minDiff
+        //console.log(hourDiff + ':' + minDiff)
         if (minDiff < 10) minDiff = '0' + minDiff
         if (hourDiff < 10) hourDiff = '0' + hourDiff
         return hourDiff + ':' + minDiff
