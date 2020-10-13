@@ -990,7 +990,7 @@ function AttendanceManager(props) {
                                     <button className="table-btns" onClick={() => showHistoryHandler(attendance)}>History</button>
                                 </td>
                             </tr>
-                        ))}
+                        )).reverse()}
                 </tbody>
             </table>
         </div>

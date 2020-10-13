@@ -151,4 +151,17 @@ const refreshLiveUsers = () => async (dispatch) => {
     }, 3000)
 }
 
-export { dayConverter, timeDiffCalc, refreshLiveUsers }
+const creationDatePrettier = (date) => {
+    var dateNum = date.split("T", 1)[0]
+    var time = date.slice(date.indexOf('T') + 1, -1).slice(0, 9)
+    var dateDay = parseInt(dateNum.slice(8, 10))
+    var dateMonth = parseInt(dateNum.slice(5, 7))
+    var dateYear = parseInt(dateNum.slice(0, 4))
+    var timeHour = parseInt(time.slice(0, 2))
+    var timeMin = parseInt(time.slice(3, 5))
+    var timeSec = parseInt(time.slice(6, 8))
+
+    return dateDay + '-' + dateMonth + '-' + dateYear + ' ' + timeHour + ':' + timeMin
+}
+
+export { dayConverter, timeDiffCalc, refreshLiveUsers, creationDatePrettier }

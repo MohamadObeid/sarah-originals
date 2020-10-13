@@ -68,7 +68,7 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
         order.paymentAddress = req.body.paymentAddress ? req.body.paymentAddress : order.paymentAddress;
         order.request = req.body.request ? req.body.request : order.request;
         order.invoiceNum = req.body.invoiceNum ? req.body.invoiceNum : order.invoiceNum;
-        order.invoiceAmount = req.body.invoiceAmount ? req.body.invoiceAmount : order.invoiceAmount;
+        order.amount = req.body.amount ? req.body.amount : order.amount;
         order.note = req.body.note ? req.body.note : order.note;
     }
     const orderUpdated = await order.save()

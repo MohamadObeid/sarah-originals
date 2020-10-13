@@ -53,7 +53,7 @@ const saveOrder = (order) => async (dispatch, getState) => {
         dispatch({ type: ORDER_SAVE_REQUEST, payload: order })
         // update
         if (order._id) {
-            const { data } = await axios.put('/api/order   /' + order._id, order, {
+            const { data } = await axios.put('/api/order/' + order._id, order, {
                 headers: { 'Authorization': 'Bearer ' + userInfo.token }
             });
             dispatch({ type: ORDER_SAVE_SUCCESS, payload: data })

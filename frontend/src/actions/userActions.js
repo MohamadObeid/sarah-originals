@@ -167,10 +167,11 @@ const detailsUser = (_id) => async (dispatch) => {
 }
 
 const getUser = (phone) => async (dispatch, getState) => {
-    try {
+    if (phone === 'clear') {
+        dispatch({ type: USER_DETAILS_SUCCESS, payload: undefined })
+    } else try {
         dispatch({ type: USER_DETAILS_REQUEST })
         const { userSignin: { userInfo } } = getState()
-
         const { data } = await axios.post("/api/users/getUser", { phone: phone }, {
             headers: { Authorization: 'Bearer ' + userInfo.token }
         })

@@ -118,9 +118,15 @@ export const basedOnList = ['Value', 'Quantity', 'Weight'];
 export const timeFormatList = ['min', 'hr', 'day', 'week', 'month'];
 export const deliveryTypeList = ['Fast', 'Standard'];
 
-export const cartStatusList = ['Pending', 'Packing', 'Packed', 'Canceled', 'Returned']
-export const paymentStatusList = ['Pending', 'Unpaid', 'Paid', 'Canceled', 'Refunded']
-export const deliveryStatusList = ['Pending', 'On Road', 'Delivered', 'Canceled', 'Returned']
+export const cartStatusList = ['Pending', 'On Hold', 'Packing', 'Packed', 'Canceled', 'Returned']
+export const paymentStatusList = ['Pending', 'On Hold', 'Uncollected', 'Collected', 'Canceled', 'Refunded']
+export const deliveryStatusList = ['Pending', 'On Hold', 'On Road', 'Delivered', 'Canceled', 'Returned']
 export const requestStatusList = ['Pending', 'Confirmed', 'Completed', 'Rejected', 'Canceled']
 export const requestTypeList = ['Place', 'Prepare', 'Cancel', 'Return']
 export const rateUnitList = ['usd', 'lbp', '%', 'euro']
+export const orderStatusList = ['Open', 'Closed', 'Rejected', 'Canceled']
+
+// Cancel requestType is accepted => if paymentStatus === 'Pending && deliveryStatus === 'Pending' 
+// => in this case delivery and payment status will be set 'On Hold'
+// Otherwise : (cancel not accepted) => requestType is return (product.isReturnable) => if deliverStatus !== 'Delivered && paymentStatus !== 'Paid' => deliveryCharge = 0; requestStatus === 'Confirmed'
+// 

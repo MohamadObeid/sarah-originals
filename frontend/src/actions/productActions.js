@@ -65,7 +65,7 @@ const deleteProduct = (_id) => async (dispatch, getState) => {
 };
 
 const detailsProduct = (searchDetails) => async (dispatch) => {
-  if (Array.isArray(searchDetails)) {
+  if (Array.isArray(searchDetails)) {// searchDetails = [productId's]
     const { data } = await axios.post("/api/products/getproducts", searchDetails)
     dispatch({ type: PRODUCTS_DETAILS_SUCCESS, payload: data })
   }

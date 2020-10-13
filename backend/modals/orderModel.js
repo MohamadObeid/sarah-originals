@@ -18,11 +18,7 @@ const orderSchema = new mongoose.Schema({
             created_by: { type: String, required: false },
             type: { type: String, required: false },
             status: { type: String, required: false },
-            /*confirmation: {
-                placement: { type: String, required: false }, // rejected,approved
-                cancellation: { type: String, required: false },// rejected,approved
-                return: { type: String, required: false },// rejected,approved
-            },*/
+            canceledRequestNum: { type: Number, required: false },
 
             operatedBy: {
                 date: { type: String, required: false },
@@ -114,8 +110,8 @@ const orderSchema = new mongoose.Schema({
         }], required: false
     },
 
-    invoiceAmount: { type: Number, required: true },
-    invoiceNum: { type: String, required: true },
+    amount: { type: Number, required: false },
+    invoiceNum: { type: String, required: false },
     note: {
         type: [{
             name: { type: String, required: false },
@@ -125,7 +121,7 @@ const orderSchema = new mongoose.Schema({
             edited: { type: String, required: false },
         }], required: false
     },
-    closed: { type: Boolean, required: false },
+    status: { type: String, required: false },
 });
 
 const Order = mongoose.model("Order", orderSchema);

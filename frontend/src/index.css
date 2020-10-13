@@ -273,6 +273,7 @@ textarea {
   width: 15rem;
   height: 15rem;
   margin: 1rem;
+  justify-content: center;
 }
 
 .products img {
@@ -3107,4 +3108,70 @@ textarea {
 }
 .padding-bottom {
   padding-bottom: 0rem;
+}
+
+.status-border div {
+  text-align: center;
+  border-bottom: 1px solid #c0c0c0;
+  padding: 0.8rem 0;
+}
+
+.status-border div:last-child {
+  border-bottom: 0;
+}
+
+.status-border {
+  text-align: center;
+}
+
+.status-border select {
+  text-align: center;
+  padding: 0.8rem 0.5rem;
+  width: 100%;
+  -webkit-appearance: none;
+  text-overflow: "";
+  text-align-last: center;
+  text-align: center;
+  background-color: inherit;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid #c0c0c0;
+}
+
+.status-border select:last-child {
+  border-bottom: 0;
+}
+
+.status-border select::-ms-expand {
+  display: none;
+}
+
+.align-width {
+  text-align: center;
+  width: 10rem;
+}
+
+.text-align-start div {
+  text-align: start;
+}
+
+.width-6rem {
+  width: 6rem;
+}
+
+.width-8rem {
+  width: 8rem;
+}
+
+.width-30rem {
+  max-width: 30rem;
+}
+
+.align-right {
+  text-align: right;
+  padding-right: 0.4rem;
+}
+
+.width-7rem {
+  width: 7rem;
 }
