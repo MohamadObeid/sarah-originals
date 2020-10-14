@@ -4,6 +4,7 @@ const orderSchema = new mongoose.Schema({
 
     creation_date: { type: Date, required: false, default: Date.now },
     created_by: { type: String, required: false },
+    active: { type: Boolean, required: false },
     // Customer Details
     userId: { type: String, required: false },
     name: { type: String, required: false },
@@ -121,7 +122,6 @@ const orderSchema = new mongoose.Schema({
             edited: { type: String, required: false },
         }], required: false
     },
-    status: { type: String, required: false },
 });
 
 const Order = mongoose.model("Order", orderSchema);

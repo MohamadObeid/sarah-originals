@@ -234,7 +234,7 @@ router.put("/:id", isAuth, async (req, res) => {
 
 router.post("/getUser", async (req, res) => {
   const phone = req.body.phone
-  console.log('phone', phone)
+  //console.log('phone', phone)
   const user = await User.findOne({ phone: phone }) || undefined
   user && res.send({
     _id: user._id,
