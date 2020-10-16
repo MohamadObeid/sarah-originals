@@ -110,6 +110,7 @@ function AttendanceManager(props) {
     const { employee } = useSelector(state => state.employeeDetails)
     const { time } = useSelector(state => state.clock)
     const [isCheckout, setIsCheckout] = useState(undefined)
+    const [timeOut, setTimeOut] = useState()
 
     const dispatch = useDispatch()
     useEffect(() => {
@@ -121,7 +122,8 @@ function AttendanceManager(props) {
                 : dispatch(listAttendance(userInfo.employeeId))
             setActionNote(`Attendance ${successDelete ? 'deleted' : 'recorded'} succefully`)
             setActionNoteVisible(true)
-            setInterval(() => setActionNoteVisible(false), 5000)
+            clearTimeout(timeOut)
+            setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
             setFormAction('')
             setId(undefined)
         } return () => {

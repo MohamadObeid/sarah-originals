@@ -37,6 +37,7 @@ function CategoryManager(props) {
     const { success: successDelete } = useSelector(state => state.categoryDelete);
     const { category } = useSelector(state => state.categoryList);
     const { brand: brandList } = useSelector(state => state.brandList);
+    const [timeOut, setTimeOut] = useState()
 
     const dispatch = useDispatch();
 
@@ -47,7 +48,8 @@ function CategoryManager(props) {
             dispatch(listCategory())
             setFormNote(`Category ${formAction == 'Create' ? 'Creat' : formAction}ed succefully`)
             setFormNoteVisible(true);
-            setInterval(() => setFormNoteVisible(false), 5000)
+            clearTimeout(timeOut)
+            setTimeOut(setInterval(() => setFormNoteVisible(false), 5000))
             setFormAction('');
         }
         return () => {

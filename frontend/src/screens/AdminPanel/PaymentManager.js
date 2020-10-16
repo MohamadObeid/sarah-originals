@@ -27,6 +27,7 @@ function PaymentManager(props) {
     const [dropdownListVisible, setDropdownListVisible] = useState(false);
     const [typeDropdownList, setTypeDropdownList] = useState();
     const [typeDropdownListVisible, setTypeDropdownListVisible] = useState(false);
+    const [timeOut, setTimeOut] = useState()
 
     // payment consts
     const [_id, set_id] = useState();
@@ -66,7 +67,8 @@ function PaymentManager(props) {
             dispatch(listPayment())
             setFormNote(`Payment Method ${(formAction === 'Create' || formAction === 'Copy') ? 'Creat' : formAction}ed succefully`)
             setFormNoteVisible(true);
-            setInterval(() => setFormNoteVisible(false), 5000)
+            clearTimeout(timeOut)
+            setTimeOut(setInterval(() => setFormNoteVisible(false), 5000))
             setFormAction('');
         }
         return () => {

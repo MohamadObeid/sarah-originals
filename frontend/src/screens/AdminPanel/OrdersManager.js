@@ -13,7 +13,7 @@ import {
     requestStatusList, requestTypeList, orderStatusList
 } from '../../constants/lists'
 import ReactTooltip from "react-tooltip";
-import { creationDatePrettier, dayConverter } from "../../methods/methods";
+import { creationDatePrettier, dayConverter, updateRequestStatus, statusModifier } from "../../methods/methods";
 import { Popconfirm } from 'antd'
 import Axios from "axios";
 
@@ -61,6 +61,7 @@ function OrdersManager(props) {
     const [isDeliveryAddress, setIsDeliveryAddress] = useState()
     const [isPaymentAddress, setIsPaymentAddress] = useState()
     const [timeOut, setTimeOut] = useState()
+    const [orderList, setOrderList] = useState()
 
     const [requestNum, setRequestNum] = useState()
     const [_id, setId] = useState()
@@ -174,8 +175,11 @@ function OrdersManager(props) {
             setActionNoteVisible(true)
             clearTimeout(timeOut)
             setTimeOut(setTimeout(() => setActionNoteVisible(false), 6000))
+            setFormAction('')
         }
-    }, [successSave, successDelete])
+        if (orders.length > 0)
+            setOrderList(orders)
+    }, [successSave, successDelete, orders])
 
     useEffect(() => {
         if (deliveryTitle) {
@@ -239,6 +243,7 @@ function OrdersManager(props) {
     }, [deliveryTitle, paymentTitle, user, deliverOn, prepareOn, cartItems, paymentType])
 
     const openOrderModel = async (order) => {
+        //console.log(order)
         setModelVisible(true)
         setRequestFormVisible(false)
         setOrderValues(order._id ? order : undefined)
@@ -310,7 +315,7 @@ function OrdersManager(props) {
                     deliveryAddress: deliveryAddress,
                     paymentAddress: paymentAddress,// usually the same as delivery address
                     request: request,
-                    amount: amountCalc(),
+                    amount: amountCalc(request),
                     invoiceNum: invoiceNum,
                     note: note,
                     //status: orderStatus
@@ -326,7 +331,7 @@ function OrdersManager(props) {
                     deliveryAddress: deliveryAddress,
                     paymentAddress: paymentAddress,// usually the same as delivery address
                     request: request,
-                    amount: amountCalc(),
+                    amount: amountCalc(request),
                     invoiceNum: 'INV-' + d,
                     note: note,
                     //status: orderStatus
@@ -356,12 +361,12 @@ function OrdersManager(props) {
 
     const deleteHandler = (e, _id) => {
         e.preventDefault()
-        setFormAction('Delet')
+        setFormAction('Delete')
         dispatch(deleteOrder(_id))
     }
 
     const editHandler = (order) => {
-        setFormAction('Edit')
+        setFormAction('Edite')
         openOrderModel(order)
     }
 
@@ -508,7 +513,7 @@ function OrdersManager(props) {
         setCartStatus(req.cart.status ? req.cart.status : 'Pending')
 
         if (req.cart.items.length > 0) {
-            var productIdList = await cartItems.map(item => { return item._id })
+            const productIdList = await req.cart.items.map(item => { return item._id })
             const { data } = await Axios.post("/api/products/getproducts", productIdList)
             await data.map(product => {
                 var theItem = req.cart.items.find(item => item._id === product._id)
@@ -781,18 +786,19 @@ function OrdersManager(props) {
         if (request.type === 'Cancel') deliveryCharg = 0
         var paymentCharg = paymentCharge ? paymentCharge : paymentCalc()
         paymentCharg = parseFloat(paymentCharg)
-        //console.log(paymentCalc())
-        var totalAmount = deliveryCharg + paymentCharg + parseFloat(cartAmountCalc()) + parseFloat(discountCalc())
+        //console.log(paymentCharg, deliveryCharg)
+        var amount = deliveryCharg + paymentCharg + parseFloat(cartAmountCalc()) + parseFloat(discountCalc())
         //console.log(totalAmount)
-        return totalAmount.toFixed(2)
+        return amount.toFixed(2)
     }
 
-    const amountCalc = () => {
+    const amountCalc = (request) => {
         var amount = 0
         request.map(req => {
-            amount = amount + parseFloat(req.totalAmount)
+            if (req.status === 'Confirmed' || req.status === 'Completed')
+                amount = amount + parseFloat(req.amount)
         })
-        return amount.toFixed(2)
+        return amount
     }
 
     ////////////////////////////////////////////////////////
@@ -893,7 +899,7 @@ function OrdersManager(props) {
                     amount: cartAmountCalc(),
                     discountAmount: discountCalc(),
                 },
-                totalAmount: totalAmountCalc(),
+                amount: totalAmountCalc(),
                 receiptNum: receiptNum,
             }
             //console.log(request)
@@ -904,7 +910,6 @@ function OrdersManager(props) {
             setRequestType(undefined)
             setSearchKeyword('')
         }
-        //console.log(request)
     }
 
     const saveNoteHandler = (e) => {
@@ -938,10 +943,26 @@ function OrdersManager(props) {
             e.target.options[e.target.selectedIndex].value :
             e.target.value
         //console.log(status)
-        dispatch(saveOrder({
-            _id: order._id, receiptNum: req.receiptNum, type: type, status: requestStat
-        }))
-        setFormAction('Modifie')
+        var confirmed = ((requestStat === 'Canceled' || requestStat === 'Rejected') && type === 'Request') ?
+            window.confirm('You are setting request ' + requestStat + '!') : true
+
+        if (confirmed) {
+            dispatch(saveOrder({
+                _id: order._id, receiptNum: req.receiptNum, type: type, status: requestStat
+            }))
+            setFormAction('Modifie')
+        }
+    }
+
+    const closeModel = () => {
+
+        /*orders.map(order => {
+            if (order._id === orderConst._id) {
+                console.log(orderConst)
+                order = orderConst
+            }
+        })*/
+        setModelVisible(false)
     }
 
     return (
@@ -957,7 +978,7 @@ function OrdersManager(props) {
                 modelVisible &&
                 <form className="form-form" onSubmit={(e) => submitHandler(e)}>
                     <ul className="form-container-manager">
-                        <FontAwesome name="fa-window-close" className="far fa-window-close fa-lg" onClick={() => setModelVisible(false)} />
+                        <FontAwesome name="fa-window-close" className="far fa-window-close fa-lg" onClick={() => closeModel()} />
                         <li>
                             <h2>{formAction == 'Copy' ? 'Create' : formAction} Order</h2>
                         </li>
@@ -1300,7 +1321,7 @@ function OrdersManager(props) {
                                             <div className='cart-total-qty border-top'>
                                                 <div className='cart-total-label'
                                                     style={{ fontSize: '1.3rem' }}>Total Amount</div>
-                                                <div className='total-num'>{req.totalAmount + ' $'}</div>
+                                                <div className='total-num'>{req.amount + ' $'}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -1420,6 +1441,10 @@ function OrdersManager(props) {
                                                             e.target.selectedIndex ?
                                                                 e.target.options[e.target.selectedIndex].value :
                                                                 e.target.value)
+                                                        const status = statusModifier(e.target.options[e.target.selectedIndex].value, cartStatus, paymentStatus, deliveryStatus)
+                                                        setCartStatus(status.cartStatus)
+                                                        setPaymentStatus(status.payStatus)
+                                                        setDeliveryStatus(status.delStatus)
                                                     }}>
                                                     {requestStatusList
                                                         && requestStatusList.map((status) => (
@@ -1440,6 +1465,7 @@ function OrdersManager(props) {
                                                             e.target.selectedIndex ?
                                                                 e.target.options[e.target.selectedIndex].value :
                                                                 e.target.value)
+                                                        setRequestStatus(updateRequestStatus(e.target.options[e.target.selectedIndex].value, paymentStatus, deliveryStatus))
                                                     }}>
                                                     {cartStatusList
                                                         && cartStatusList.map((status) => (
@@ -1461,6 +1487,7 @@ function OrdersManager(props) {
                                                                 e.target.selectedIndex ?
                                                                     e.target.options[e.target.selectedIndex].value :
                                                                     e.target.value)
+                                                            setRequestStatus(updateRequestStatus(cartStatus, paymentStatus, e.target.options[e.target.selectedIndex].value))
                                                         }}
                                                     >
                                                         {deliveryStatusList
@@ -1482,6 +1509,7 @@ function OrdersManager(props) {
                                                             e.target.selectedIndex ?
                                                                 e.target.options[e.target.selectedIndex].value :
                                                                 e.target.value)
+                                                        setRequestStatus(updateRequestStatus(cartStatus, e.target.options[e.target.selectedIndex].value, deliveryStatus))
                                                     }}
                                                 >
                                                     {paymentStatusList
@@ -1792,12 +1820,12 @@ function OrdersManager(props) {
                                         <div className='cart-total-label '>
                                             {'Request #' + (request.indexOf(req) + 1) + '  -  ' + req.status}
                                         </div>
-                                        <div className='total-num'>{req.totalAmount + ' $'}</div>
+                                        <div className='total-num'>{req.amount + ' $'}</div>
                                     </div>
                                 ))}
                                 <div className='cart-total-qty border-top'>
                                     <div className='cart-total-label '>Invoice Amount</div>
-                                    <div className='total-num'>{amountCalc() + ' $'}</div>
+                                    <div className='total-num'>{amountCalc(request) + ' $'}</div>
                                 </div>
                             </div>
                         </li>}
@@ -1806,10 +1834,10 @@ function OrdersManager(props) {
                             <button type="submit" className="button primary">
                                 {
                                     formAction == 'Copy' ? 'Create' :
-                                        formAction == 'Edit' ? 'Save' : formAction
+                                        formAction == 'Edite' ? 'Save' : formAction
                                 }
                             </button>
-                            <button type="button" className="button secondary" onClick={() => setModelVisible(false)}>
+                            <button type="button" className="button secondary" onClick={() => closeModel()}>
                                 Back
                             </button>
                         </li>
@@ -1891,12 +1919,13 @@ function OrdersManager(props) {
                         <th className='align-width'>Cart</th>
                         <th className='align-width'>Payment</th>
                         <th className='align-width'>Delivery</th>
-                        <th className='align-width width-7rem align-right'>Amount</th>
+                        <th className='align-width width-5rem align-right'>Amount</th>
+                        <th className='align-width width-7rem align-right'>Total</th>
                         <th style={{ width: '20rem' }}>Actions</th>{/*Edit, Delete, History, Status*/}
                     </tr>
                 </thead>
                 <tbody>
-                    {orders && orders.map(order => (
+                    {orderList && orderList.map(order => (
                         <tr key={order._id}>
                             <td style={{ textAlign: 'center' }}>
                                 <FontAwesomeIcon
@@ -1917,13 +1946,16 @@ function OrdersManager(props) {
                             </td>
                             <td className='status-border text-align-start'>
                                 {order.request.map(req => (
-                                    <div key={req._id}>{'#' + (order.request.indexOf(req) + 1) + ' ' + req.type}</div>
-                                ))}</td>
+                                    <div disabled={req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected'}
+                                        key={req._id}>{'#' + (order.request.indexOf(req) + 1) + ' ' + req.type}</div>
+                                ))}
+                            </td>
                             <td className='status-border'>{order.request.map(req => (
                                 <select
                                     value={req.status}
                                     onChange={e => requestStatusEditor(e, order, req, 'Request')}
-                                    key={req._id}>
+                                    key={req._id}
+                                    disabled={req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected'}>
                                     {requestStatusList.map(status => (
                                         <option key={requestStatusList.indexOf(status)} value={status}>
                                             {status}
@@ -1931,33 +1963,40 @@ function OrdersManager(props) {
                                 </select>
                             ))}</td>
                             <td className='status-border'>{order.request.map(req => (
-                                <select
-                                    value={req.cart.status}
-                                    onChange={e => requestStatusEditor(e, order, req, 'Cart')}
-                                    key={req._id}>
-                                    {cartStatusList.map(status => (
-                                        <option key={cartStatusList.indexOf(status)} value={status}>
-                                            {status}
-                                        </option>))}
-                                </select>
+                                req.cart.status ?
+                                    <select
+                                        value={req.cart.status}
+                                        onChange={e => requestStatusEditor(e, order, req, 'Cart')}
+                                        key={req._id}
+                                        disabled={req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected'}>
+                                        {cartStatusList.map(status => (
+                                            <option key={cartStatusList.indexOf(status)} value={status}>
+                                                {status}
+                                            </option>))}
+                                    </select>
+                                    : <div key={req._id}>-</div>
                             ))}</td>
                             <td className='status-border'>{order.request.map(req => (
-                                <select
-                                    value={req.payment.status}
-                                    onChange={e => requestStatusEditor(e, order, req, 'Payment')}
-                                    key={req._id}>
-                                    {paymentStatusList.map(status => (
-                                        <option key={paymentStatusList.indexOf(status)} value={status}>
-                                            {status}
-                                        </option>))}
-                                </select>
+                                req.payment.status ?
+                                    <select
+                                        value={req.payment.status}
+                                        onChange={e => requestStatusEditor(e, order, req, 'Payment')}
+                                        key={req._id}
+                                        disabled={req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected'}>
+                                        {paymentStatusList.map(status => (
+                                            <option key={paymentStatusList.indexOf(status)} value={status}>
+                                                {status}
+                                            </option>))}
+                                    </select>
+                                    : <div key={req._id}>-</div>
                             ))}</td>
                             <td className='status-border'>{order.request.map(req => (
                                 req.delivery ?
                                     <select
                                         value={req.delivery.status}
                                         onChange={e => requestStatusEditor(e, order, req, 'Delivery')}
-                                        key={req._id}>
+                                        key={req._id}
+                                        disabled={req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected'}>
                                         {deliveryStatusList.map(status => (
                                             <option key={deliveryStatusList.indexOf(status)} value={status}>
                                                 {status}
@@ -1965,7 +2004,14 @@ function OrdersManager(props) {
                                     </select>
                                     : <div key={req._id}>{req.delivery ? req.delivery.status : '-'}</div>
                             ))}</td>
-                            <td style={{ textAlign: 'end', paddingRight: '0.4rem' }}>{order.amount.toFixed(2) + ' $'}</td>
+                            <td className='status-border'>
+                                {order.request.map(req => (
+                                    <div style={{ textAlign: 'end' }}
+                                        key={req._id}>{req.amount + ' $'}</div>
+                                ))}</td>
+                            <td style={{ textAlign: 'end', paddingRight: '0.4rem', fontSize: '1.5rem' }}>
+                                {order.amount + ' $'}
+                            </td>
                             <td>
                                 <button className="table-btns" onClick={() => editHandler(order)}>Edit</button>
                                 <Popconfirm
@@ -1980,7 +2026,7 @@ function OrdersManager(props) {
                                 <button className="table-btns" onClick={(e) => showHistoryHandler(order)}>History</button>
                             </td>
                         </tr>
-                    )).reverse()}
+                    ))}
                 </tbody>
             </table>
         </div >

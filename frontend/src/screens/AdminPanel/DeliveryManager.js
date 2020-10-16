@@ -26,6 +26,7 @@ function DeliveryManager(props) {
     const [ratesModelVisible, setRatesModelVisible] = useState(false);
     const [dropdownList, setDropdownList] = useState();
     const [dropdownListVisible, setDropdownListVisible] = useState(false);
+    const [timeOut, setTimeOut] = useState()
 
     // delivery consts
     const [_id, set_id] = useState();
@@ -64,7 +65,8 @@ function DeliveryManager(props) {
             dispatch(listDelivery())
             setFormNote(`Delivery Method ${(formAction === 'Create' || formAction === 'Copy') ? 'Creat' : formAction}ed succefully`)
             setFormNoteVisible(true);
-            setInterval(() => setFormNoteVisible(false), 5000)
+            clearTimeout(timeOut)
+            setTimeOut(setInterval(() => setFormNoteVisible(false), 5000))
             setFormAction('');
         }
         dispatch(listZone())

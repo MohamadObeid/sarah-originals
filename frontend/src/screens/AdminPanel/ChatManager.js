@@ -20,6 +20,7 @@ function ChatManager(props) {
     const { success: successDelete } = useSelector(state => state.chatDelete)
     const { userInfo } = useSelector(state => state.userSignin)
     const { liveUser } = useSelector(state => state.liveUserList)
+    const [timeOut, setTimeOut] = useState()
 
     const dispatch = useDispatch();
     useEffect(() => {
@@ -28,7 +29,8 @@ function ChatManager(props) {
             dispatch(listChat())
             setFormNote(`Chat ${formAction}d succefully`)
             setFormNoteVisible(true);
-            setInterval(() => setFormNoteVisible(false), 5000)
+            clearTimeout(timeOut)
+            setTimeOut(setInterval(() => setFormNoteVisible(false), 5000))
             setFormAction('')
             dispatch(deleteChat('clear'))
         }

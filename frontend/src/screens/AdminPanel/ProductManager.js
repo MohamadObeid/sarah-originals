@@ -25,6 +25,7 @@ function ProductManager() {
     const [historyVisible, setHistoryVisible] = useState(false)
     const [productValues, setProductValues] = useState()
     const [uploadedImageUrl, setUploadedImageUrl] = useState()
+    const [timeOut, setTimeOut] = useState()
     //const [brandList, setBrandList] = useState()
 
     const [_id, setId] = useState();
@@ -70,7 +71,8 @@ function ProductManager() {
             dispatch(listProducts())
             setActionNote(`Product ${formAction == 'Create' ? 'Creat' : formAction}ed succefully`)
             setActionNoteVisible(true);
-            setInterval(() => setActionNoteVisible(false), 5000)
+            clearTimeout(timeOut)
+            setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
             setFormAction('');
         }
         return () => {

@@ -32,16 +32,20 @@ const orderSchema = new mongoose.Schema({
                 collectOn: { type: String, required: false }, //date, upon delivery, upon receipt
                 title: { type: String, required: false },
                 type: { type: String, required: false }, //cash, check, bank transfer, VISA
-                assignedTo: {
+
+                assignment: {
+                    date: { type: String, required: false },
+                    rejected: { type: Boolean, required: false },
+                    employeeName: { type: String, required: false },
+                    employeeId: { type: String, required: false },
+                },
+
+                accomplishment: {
                     date: { type: String, required: false },
                     employeeName: { type: String, required: false },
                     employeeId: { type: String, required: false },
                 },
-                doneBy: {
-                    date: { type: String, required: false },
-                    employeeName: { type: String, required: false },
-                    employeeId: { type: String, required: false },
-                },
+
                 description: { type: String, required: false },
                 charge: { type: Number, required: false },
             },
@@ -52,16 +56,20 @@ const orderSchema = new mongoose.Schema({
                 title: { type: String, required: false },
                 //type: { type: String, required: false },
                 duration: { type: String, required: false },
-                assignedTo: {
+
+                assignment: {
+                    date: { type: String, required: false },
+                    rejected: { type: Boolean, required: false },
+                    employeeName: { type: String, required: false },
+                    employeeId: { type: String, required: false },
+                },
+
+                accomplishment: {
                     date: { type: String, required: false },
                     employeeName: { type: String, required: false },
                     employeeId: { type: String, required: false },
                 },
-                doneBy: {
-                    date: { type: String, required: false },
-                    employeeName: { type: String, required: false },
-                    employeeId: { type: String, required: false },
-                },
+
                 charge: { type: Number, required: false },
             },
 
@@ -76,19 +84,22 @@ const orderSchema = new mongoose.Schema({
                         brand: { type: String, required: false },
                         unit: { type: String, required: false },
                         discount: { type: String, required: false },
-                        qty: { type: String, required: false },
+                        qty: { type: Number, required: false },
                         priceUsd: { type: String, required: false },
                         refundable: { type: Boolean, required: false },
+                        canceled: { type: Boolean, required: false }, // if cancel request exist and confirmed
+                        canceledQty: { type: Number, required: false },
                     }], required: false
                 },
 
-                assignedTo: {
+                assignment: {
                     date: { type: String, required: false },
+                    rejected: { type: Boolean, required: false },
                     employeeName: { type: String, required: false },
                     employeeId: { type: String, required: false },
                 },
 
-                doneBy: {
+                accomplishment: {
                     date: { type: String, required: false },
                     employeeName: { type: String, required: false },
                     employeeId: { type: String, required: false },
@@ -106,7 +117,7 @@ const orderSchema = new mongoose.Schema({
             //      sensitivityLvl: {}   
             // ]}, required: false
             // },
-            totalAmount: { type: Number, required: true },
+            amount: { type: Number, required: true },
             receiptNum: { type: String, required: false }
         }], required: false
     },

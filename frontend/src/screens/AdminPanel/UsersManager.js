@@ -15,6 +15,7 @@ function UsersManager(props) {
     const [formAlertVisible, setFormAlertVisible] = useState(false)
     const [modelVisible, setModelVisible] = useState(false)
     const [addressVisible, setAddressVisible] = useState()
+    const [timeOut, setTimeOut] = useState()
 
     const [_id, setId] = useState()
     const [name, setName] = useState()
@@ -44,7 +45,8 @@ function UsersManager(props) {
             dispatch(listUsers())
             setActionNote(`User ${formAction == 'Create' ? 'Creat' : formAction}ed succefully`)
             setActionNoteVisible(true)
-            setInterval(() => setActionNoteVisible(false), 5000)
+            clearTimeout(timeOut)
+            setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
             setFormAction('')
             dispatch(saveUser('clear'))
         }

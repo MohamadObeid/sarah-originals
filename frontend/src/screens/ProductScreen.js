@@ -10,6 +10,7 @@ function ProductScreen(props) {
   const [qty, setQty] = useState(1);
   const [formNote, setFormNote] = useState('Product Added Succefully');
   const [formNoteVisible, setFormNoteVisible] = useState(false);
+  const [timeOut, setTimeOut] = useState()
 
   const productDetails = useSelector((state) => state.productDetails);
   const { product, loading, error } = productDetails;
@@ -24,7 +25,8 @@ function ProductScreen(props) {
 
   const handleAddToCart = () => {
     setFormNoteVisible(true)
-    setInterval(() => setFormNoteVisible(false), 5000)
+    clearTimeout(timeOut)
+    setTimeOut(setInterval(() => setFormNoteVisible(false), 3000))
     dispatch(addToCart({ _id: product._id, qty }))
     /*props.history.push("/cart/" + props.match.params.id + "?qty=" + qty);*/
   };

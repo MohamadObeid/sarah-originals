@@ -164,4 +164,60 @@ const creationDatePrettier = (date) => {
     return dateDay + '-' + dateMonth + '-' + dateYear + ' ' + timeHour + ':' + timeMin
 }
 
-export { dayConverter, timeDiffCalc, refreshLiveUsers, creationDatePrettier }
+const updateRequestStatus = (cart, payment, delivery) => {
+    var status
+    if (cart === 'Packed' && (delivery ? delivery === 'Delivered' : true) && payment === 'Collected')
+        status = 'Completed'
+    else if (cart === 'Canceled' && (delivery ? delivery === 'Canceled' : true) && payment === 'Canceled')
+        status = 'Canceled'
+    else if (cart === 'Rejected' && (delivery ? delivery === 'Rejected' : true) && payment === 'Rejected')
+        status = 'Rejected'
+    /*else if (cart === 'Pending' && (delivery ? delivery === 'Pending' : true) && payment === 'Pending')
+        status = 'Pending'*/
+    else status = 'Confirmed'
+    return status
+}
+
+const statusModifier = (request, cart, payment, delivery) => {
+    var cartStatus = cart
+    var payStatus = payment
+    var delStatus = delivery
+
+    if (request === 'Pending') {
+        cartStatus = 'Pending'
+        payStatus = 'Pending'
+        if (delStatus) delStatus = 'Pending'
+
+    } else if (request === 'Canceled') {// assign or reassign
+        if (cartStatus !== 'Packed' && payStatus !== 'Collected' && delStatus !== 'Delivered') {
+            cartStatus = 'Canceled'
+            payStatus = 'Canceled'
+            if (delStatus) delStatus = 'Canceled'
+        }
+
+    } else if (request === 'Completed') {// assign or reassign
+        cartStatus = 'Packed'
+        payStatus = 'Collected'
+        if (delStatus) delStatus = 'Delivered'
+
+    } else if (request === 'Confirmed') {
+        if ((cartStatus === 'Canceled' || cartStatus === 'Rejected')
+            && (payStatus === 'Canceled' || payStatus === 'Rejected')
+            && delStatus ? (delStatus === 'Canceled' || delStatus === 'Rejected') : true) {
+            cartStatus = 'Pending'
+            payStatus = 'Pending'
+            if (delStatus) delStatus = 'Pending'
+        }
+
+    } else if (request === 'Rejected') {
+        if (cartStatus !== 'Packed' && payStatus !== 'Collected' && delStatus !== 'Delivered') {
+            cartStatus = undefined
+            payStatus = undefined
+            if (delStatus) delStatus = undefined
+        }
+    }
+
+    return ({ cartStatus, payStatus, delStatus })
+}
+
+export { dayConverter, timeDiffCalc, refreshLiveUsers, creationDatePrettier, updateRequestStatus, statusModifier }

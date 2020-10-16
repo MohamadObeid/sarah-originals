@@ -30,6 +30,7 @@ function BrandManager(props) {
     const { success: successDelete } = useSelector(state => state.brandDelete)
     const { userInfo } = useSelector(state => state.userSignin)
     const { brand } = useSelector(state => state.brandList)
+    const [timeOut, setTimeOut] = useState()
 
     const dispatch = useDispatch();
     useEffect(() => {
@@ -39,7 +40,8 @@ function BrandManager(props) {
             dispatch(listBrand())
             setFormNote(`Brand ${formAction == 'Create' ? 'Creat' : formAction}ed succefully`)
             setFormNoteVisible(true);
-            setInterval(() => setFormNoteVisible(false), 5000)
+            clearTimeout(timeOut)
+            setTimeOut(setInterval(() => setFormNoteVisible(false), 5000))
             setFormAction('')
             dispatch(saveBrand('clear'))
         }

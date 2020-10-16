@@ -28,6 +28,7 @@ function HomeScreen(props) {
 
   const [actionNote, setActionNote] = useState('Product Added Succefully');
   const [actionNoteVisible, setActionNoteVisible] = useState(false);
+  const [timeOut, setTimeOut] = useState()
 
   const { products, loading, error } = useSelector((state) => state.productList);
 
@@ -98,7 +99,8 @@ function HomeScreen(props) {
     }
     setActionNote('Product added Successfully')
     setActionNoteVisible(true)
-    setInterval(() => setActionNoteVisible(false), 3000)
+    clearTimeout(timeOut)
+    setTimeOut(setInterval(() => setActionNoteVisible(false), 3000))
   }
 
   const handleMinus = (product) => {
@@ -108,7 +110,8 @@ function HomeScreen(props) {
       dispatch(removeFromCart(product._id))
       setActionNote('Product removed Successfully')
       setActionNoteVisible(true);
-      setInterval(() => setActionNoteVisible(false), 3000);
+      clearTimeout(timeOut)
+      setTimeOut(setInterval(() => setActionNoteVisible(false), 3000))
     }
     else dispatch(updateCart({
       _id: product._id, nameEn: product.nameEn, image: product.image, qty: product.qty,
@@ -124,9 +127,10 @@ function HomeScreen(props) {
         priceUsd: product.priceUsd, unit: product.unit
       }));
     } else {
-      setActionNote('Quantity Available in Stock is ' + product.qty)
+      setActionNote('Only ' + product.qty + product.unit + ' ' + product.nameEn + ' are Available in Stock')
       setActionNoteVisible(true);
-      setInterval(() => setActionNoteVisible(false), 3000);
+      clearTimeout(timeOut)
+      setTimeOut(setInterval(() => setActionNoteVisible(false), 3000))
     }
   }
 

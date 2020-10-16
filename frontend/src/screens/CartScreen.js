@@ -9,6 +9,7 @@ function CartScreen(props) {
   const imageUrl = window.location.origin + '/api/uploads/image/'
   const [actionNote, setActionNote] = useState();
   const [actionNoteVisible, setActionNoteVisible] = useState(false);
+  const [timeOut, setTimeOut] = useState()
 
   const { cartItems } = useSelector((state) => state.cart)
   const { product: productList } = useSelector(state => state.productDetails)
@@ -60,7 +61,8 @@ function CartScreen(props) {
       setProducts(products.filter(product => { return product._id !== item._id && product }))
       setActionNote(`Product Deleted Succefully`);
       setActionNoteVisible(true);
-      setInterval(() => setActionNoteVisible(false), 3000);
+      clearTimeout(timeOut)
+      setTimeOut(setInterval(() => setActionNoteVisible(false), 3000))
     }
     else {
       dispatch(updateCart(item));
@@ -72,7 +74,8 @@ function CartScreen(props) {
     setProducts(products.filter(product => { return product._id !== item._id && product }))
     setActionNote(`Product Removed Succefully`);
     setActionNoteVisible(true);
-    setInterval(() => setActionNoteVisible(false), 3000);
+    clearTimeout(timeOut)
+    setTimeOut(setInterval(() => setActionNoteVisible(false), 3000))
   }
 
   const handleplus = (item) => {
@@ -80,9 +83,10 @@ function CartScreen(props) {
       item.qty++
       dispatch(updateCart(item));
     } else {
-      setActionNote('Quantity Available in Stock is ' + item.qty)
+      setActionNote('Only ' + item.qty + item.unit + ' ' + item.nameEn + ' are Available in Stock')
       setActionNoteVisible(true);
-      setInterval(() => setActionNoteVisible(false), 3000);
+      clearTimeout(timeOut)
+      setTimeOut(setInterval(() => setActionNoteVisible(false), 3000))
     }
   }
 

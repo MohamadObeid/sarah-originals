@@ -63,6 +63,7 @@ function EmployeeManager(props) {
     const [licenseDropdownVisible, setLicenseDropdownVisible] = useState(false)
     const [commentVisible, setCommentVisible] = useState(false)
     const [comment, setComment] = useState()
+    const [timeOut, setTimeOut] = useState()
 
     const [_id, setId] = useState()
     const [active, setActive] = useState()
@@ -152,7 +153,8 @@ function EmployeeManager(props) {
             dispatch(listEmployees())
             setActionNote(`Employee ${formAction == 'Add' ? 'Creat' : formAction}ed succefully`)
             setActionNoteVisible(true)
-            setInterval(() => setActionNoteVisible(false), 5000)
+            clearTimeout(timeOut)
+            setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
             setFormAction('')
             dispatch(saveEmployee('clear'))
             dispatch(deleteEmployee('clear'))

@@ -52,6 +52,7 @@ function ZoneManager(props) {
     const [marker, setMarker] = useState(state.marker)
     const [events, setEvents] = useState(state.events)
     const [IP, setIP] = useState()
+    const [timeOut, setTimeOut] = useState()
 
     const _updateViewport = (viewport) => {
         setViewPort(viewport)
@@ -114,7 +115,8 @@ function ZoneManager(props) {
             dispatch(listZone())
             setFormNote(`Zone Method ${(formAction === 'Create' || formAction === 'Copy') ? 'Creat' : formAction}ed succefully`)
             setFormNoteVisible(true);
-            setInterval(() => setFormNoteVisible(false), 5000)
+            clearTimeout(timeOut)
+            setTimeOut(setInterval(() => setFormNoteVisible(false), 5000))
             setFormAction('');
         }
         fetch('https://geolocation-db.com/json/697de680-a737-11ea-9820-af05f4014d91')
