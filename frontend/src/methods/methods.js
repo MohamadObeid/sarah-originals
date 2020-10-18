@@ -183,7 +183,12 @@ const statusModifier = (request, cart, payment, delivery) => {
     var payStatus = payment
     var delStatus = delivery
 
-    if (request === 'Pending') {
+    if (request === 'on Hold') {
+        cartStatus = 'on Hold'
+        payStatus = 'on Hold'
+        if (delStatus) delStatus = 'on Hold'
+
+    } else if (request === 'Pending') {
         cartStatus = 'Pending'
         payStatus = 'Pending'
         if (delStatus) delStatus = 'Pending'

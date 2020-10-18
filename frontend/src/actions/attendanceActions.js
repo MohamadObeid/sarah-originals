@@ -61,7 +61,9 @@ const saveAttendance = (attendance) => async (dispatch, getState) => {
 };
 
 const deleteAttendance = (_id) => async (dispatch, getState) => {
-    try {
+    if (_id === 'clear') {
+        dispatch({ type: ATTENDANCE_DELETE_REQUEST, payload: undefined })
+    } else try {
         dispatch({ type: ATTENDANCE_DELETE_REQUEST });
         const { userSignin: { userInfo } } = getState();
         const { data } = await axios.delete("/api/attendance/" + _id, {

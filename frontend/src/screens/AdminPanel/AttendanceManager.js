@@ -101,11 +101,12 @@ function AttendanceManager(props) {
     const [note, setNote] = useState()
     const [requestText, setRequestText] = useState()
     const [requestAnswer, setRequestAnswer] = useState()
+    const [attendanceList, setAttendanceList] = useState([])
 
     const { success: successSave } = useSelector(state => state.attendanceSave)
     const { success: successDelete } = useSelector(state => state.attendanceDelete)
     const { employees } = useSelector(state => state.employeeList)
-    const { attendance: attendanceList } = useSelector(state => state.attendanceList)
+    const { attendance: attendances } = useSelector(state => state.attendanceList)
     const { userInfo } = useSelector(state => state.userSignin)
     const { employee } = useSelector(state => state.employeeDetails)
     const { time } = useSelector(state => state.clock)
@@ -116,6 +117,7 @@ function AttendanceManager(props) {
     useEffect(() => {
         if (successSave || successDelete) {
             dispatch(saveAttendance('clear'))
+            dispatch(deleteAttendance('clear'))
             setFormAlertVisible(false)
             setModelVisible(false)
             userInfo.isAttendanceManager ? dispatch(listAttendance())
@@ -126,18 +128,16 @@ function AttendanceManager(props) {
             setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
             setFormAction('')
             setId(undefined)
-        } return () => {
-            //
         }
-    }, [successSave, successDelete])
+        attendances && attendances.length > 0 && setAttendanceList(attendances)
+    }, [successSave, successDelete, attendances])
 
     useEffect(() => {
-        attendanceList ? attendanceList.length > 0 &&
+        attendanceList.length > 0 &&
             setIsCheckout(attendanceList.find(att =>
                 (att.date === currentDate || newDayCheckout(att.date))
                 && att.employeeId === userInfo.employeeId
                 && (!att.checkout || !att.checkout.record)))
-            : setIsCheckout(undefined)
         //isCheckout && console.log(isCheckout)
         if (isCheckout) openModel(isCheckout)
         return () => { }
@@ -273,8 +273,8 @@ function AttendanceManager(props) {
 
     const checkInOutHandler = (e) => {
         e.preventDefault()
-        //const attendanceExist = attendanceList ? attendanceList.find(attendance => attendance._id === _id) : undefined
-        /*const isCheckout = attendanceList ? attendanceList.find
+        //const attendanceExist = attendances ? attendances.find(attendance => attendance._id === _id) : undefined
+        /*const isCheckout = attendances ? attendances.find
             (att =>
                 (att.date === currentDate || newDayCheckout(att.date))
                 && att.employeeId === userInfo.employeeId
@@ -355,6 +355,7 @@ function AttendanceManager(props) {
         const overTime = data.overTime
         const timeDiff = data.timeDiff
         const workTime = data.workTime
+        console.log(overTime, timeDiff, checkinOverTimeReason)
         dispatch(saveAttendance({
             creation_date: Date.now() + 10800000,
             created_by: employee.firstName + ' ' + employee.lastName,
@@ -430,6 +431,7 @@ function AttendanceManager(props) {
             },
         }))
         setReasonModalVisible({ visibility: false })
+        setCheckinOverTimeReason(undefined)
         setIsCheckout(false)
     }
 
@@ -495,7 +497,7 @@ function AttendanceManager(props) {
     }
 
     const checkInOutButton = () => {
-        if (attendanceList) {
+        if (attendanceList.length > 0) {
             var lastIndex = attendanceList.length - 1
             //console.log(newDayCheckout(attendanceList[lastIndex].date))
             if (attendanceList[lastIndex].employeeId === userInfo.employeeId)
@@ -872,7 +874,7 @@ function AttendanceManager(props) {
                     </tr>
                 </thead>
                 <tbody>
-                    {attendanceList &&
+                    {attendanceList.length > 0 &&
                         attendanceList.map((attendance) => (
                             <tr key={attendance._id}>
                                 <td>{attendance.employeeName}</td>

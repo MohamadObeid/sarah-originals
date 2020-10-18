@@ -91,6 +91,7 @@ function OrdersManager(props) {
     const [note, setNote] = useState()
     const [noteText, setNoteText] = useState()
     const [prepareOn, setPrepareOn] = useState()
+    const [requestId, setRequestId] = useState()
 
     // payment
     const [payment, setPayment] = useState()
@@ -147,7 +148,7 @@ function OrdersManager(props) {
     //
 
     const { time } = useSelector(state => state.clock)
-    const { success: successSave, order } = useSelector(state => state.orderSave)
+    const { success: successSave, order, error } = useSelector(state => state.orderSave)
     const { success: successDelete } = useSelector(state => state.orderDelete)
     const { orders } = useSelector(state => state.orderList)
     const { userInfo } = useSelector(state => state.userSignin)
@@ -177,9 +178,17 @@ function OrdersManager(props) {
             setTimeOut(setTimeout(() => setActionNoteVisible(false), 6000))
             setFormAction('')
         }
+        //console.log(orders)
         if (orders.length > 0)
             setOrderList(orders)
-    }, [successSave, successDelete, orders])
+
+        if (error) {
+            setModelVisible(false)
+            dispatch(listOrders())
+        }
+        console.log(orders)
+
+    }, [successSave, successDelete, orders, error])
 
     useEffect(() => {
         if (deliveryTitle) {
@@ -337,7 +346,6 @@ function OrdersManager(props) {
                     //status: orderStatus
                 }))
             }
-            setModelVisible(false)
         }
     }
 
@@ -459,15 +467,11 @@ function OrdersManager(props) {
             }
         } else {
             //console.log('close Model')
-            if (requestNum) {
-                openRequestModal(req)
-                if (Object.keys(req).length === 0) clearRequestValues()
-            } else {
-                setRequestFormVisible(false)
-                setRequestType(undefined)
-                setItemsQty(undefined)
-                setRequestNum(undefined)
-            }
+            setRequestFormVisible(false)
+            clearRequestValues()
+            setRequestType(undefined)
+            setItemsQty(undefined)
+            setRequestNum(undefined)
         }
     }
 
@@ -483,18 +487,24 @@ function OrdersManager(props) {
 
     useEffect(() => {
         if (requestNum && !requestTypeDisabled) {
-            console.log('showing again')
-            showRequestForm(request[requestNum - 1])
+            openRequestModal(request[requestNum - 1])
         }
     }, [requestNum, requestTypeDisabled])
 
     const openRequestModal = async (req) => {
+        // console.log(req)
         !requestType && setRequestType(req.type ? req.type : 'Place')
-        setRequestStatus(req.status ? req.status : 'Pending')
-        setReceiptNum(req.receiptNum ? req.receiptNum : receiptNum)
-        setRequestNum(req.canceledRequestNum ? req.canceledRequestNum : undefined)
-        setPayment(req.payment ? req.payment : undefined)
-        if (req.payment) {
+
+        if (!requestNum) {
+            setRequestId(req._id ? req._id : undefined)
+            setRequestStatus(req.status ? req.status : 'Pending')
+            setReceiptNum(req.receiptNum ? req.receiptNum : receiptNum)
+            setRequestNum(req.canceledRequestNum ? req.canceledRequestNum : undefined)
+            setCartStatus(req.cart.status ? req.cart.status : 'Pending')
+        }
+
+        if (req.payment && !requestNum) {
+            setPayment(req.payment ? req.payment : undefined)
             setPaymentStatus(req.payment.status ? req.payment.status : 'Pending')
             setcollectOn(req.payment.collectOn ? req.payment.collectOn : undefined)
             setPaymentTitle(req.payment.title ? req.payment.title : undefined)
@@ -502,15 +512,17 @@ function OrdersManager(props) {
             setPaymentType(req.payment.type ? req.payment.type : 'Place')
             setPaymentCharge(req.payment.charge ? req.payment.charge : undefined)
         }
-        setDelivery(req.delivery ? req.delivery : undefined)
-        if (req.delivery) {
+
+        if (req.delivery && !requestNum) {
+            setDelivery(req.delivery ? req.delivery : undefined)
             setDeliveryStatus(req.delivery.status ? req.delivery.status : 'Pending')
             setDeliverOn(req.delivery.deliverOn ? req.delivery.deliverOn : undefined)
             setDeliveryTitle(req.delivery.title ? req.delivery.title : undefined)
             setDeliveryCharge(req.delivery.charge ? req.delivery.charge : undefined)
         }
-        setPrepareOn(req.cart.prepareOn ? req.cart.prepareOn : undefined)
-        setCartStatus(req.cart.status ? req.cart.status : 'Pending')
+
+        !requestNum &&
+            setPrepareOn(req.cart.prepareOn ? req.cart.prepareOn : undefined)
 
         if (req.cart.items.length > 0) {
             const productIdList = await req.cart.items.map(item => { return item._id })
@@ -522,8 +534,12 @@ function OrdersManager(props) {
             })
             await dispatch(addToCart(req.cart.items));
 
-            if (req.type === 'Cancel' || req.type === 'Return') {
-                var items = request[req.canceledRequestNum - 1].cart.items
+            var reqType = requestType
+                ? requestType === 'Cancel' || requestType === 'Return'
+                : req.type === 'Cancel' || req.type === 'Return'
+            if (reqType) {
+                var index = requestNum ? requestNum - 1 : req.canceledRequestNum - 1
+                var items = request[index].cart.items
                 setItemsQty(items.map(item => {
                     return { _id: item._id, qty: item.qty }
                 }))
@@ -580,7 +596,8 @@ function OrdersManager(props) {
         }
         setActionNote('Product added Successfully')
         setActionNoteVisible(true)
-        setInterval(() => setActionNoteVisible(false), 3000)
+        clearTimeout(timeOut)
+        setTimeOut(setTimeout(() => setActionNoteVisible(false), 3000))
     }
 
     const handleMinus = (e, product) => {
@@ -592,7 +609,8 @@ function OrdersManager(props) {
             dispatch(removeFromCart(product._id))
             setActionNote('Product removed Successfully')
             setActionNoteVisible(true);
-            setInterval(() => setActionNoteVisible(false), 3000);
+            clearTimeout(timeOut)
+            setTimeOut(setTimeout(() => setActionNoteVisible(false), 3000))
         }
         else dispatch(updateCart({
             _id: product._id, nameEn: product.nameEn, image: product.image, qty: qty,
@@ -606,7 +624,6 @@ function OrdersManager(props) {
         const item = itemsQty ? itemsQty.find(item => {
             if (item._id === product._id) return item.qty
         }) : false
-        //console.log(item)
         if (product.countInStock > product.qty) {
             if (requestType === 'Place' || requestType === 'Prepare' || (item && product.qty < item.qty)) {
                 var qty = parseInt(product.qty) + 1
@@ -616,17 +633,18 @@ function OrdersManager(props) {
                     priceUsd: product.priceUsd, unit: product.unit, countInStock: product.countInStock,
                     discount: product.discount
                 }))
-            }
-            else {
-                setActionNote('The Quantity Ordered is Less Than the Requested Cancellation')
-                setActionNoteVisible(true);
-                setInterval(() => setActionNoteVisible(false), 3000)
+            } else {
+                setActionNote('The quantity you ordered before is ' + item.qty)
+                setActionNoteVisible(true)
+                clearTimeout(timeOut)
+                setTimeOut(setTimeout(() => setActionNoteVisible(false), 3000))
                 return
             }
         } else {
             setActionNote('Quantity Available in Stock is ' + product.qty)
             setActionNoteVisible(true);
-            setInterval(() => setActionNoteVisible(false), 3000);
+            clearTimeout(timeOut)
+            setTimeOut(setTimeout(() => setActionNoteVisible(false), 3000))
         }
     }
 
@@ -635,7 +653,8 @@ function OrdersManager(props) {
         dispatch(removeFromCart(item._id))
         setActionNote(`Product Removed Succefully`);
         setActionNoteVisible(true);
-        setInterval(() => setActionNoteVisible(false), 3000);
+        clearTimeout(timeOut)
+        setTimeOut(setTimeout(() => setActionNoteVisible(false), 3000))
     }
 
     window.addEventListener('click', (e) => {
@@ -677,11 +696,10 @@ function OrdersManager(props) {
         var rateMin = 100000000 /* = default delivery rate */
         var currentRate
         const cartAmountPlus = cartAmountCalc() < 0 ? (-1) * cartAmountCalc() : cartAmountCalc()
-
         // All Items in Cart are canceled
         if (requestType === 'Prepare') return 0
-        else if (requestType === 'Cancel' && cartStatus !== 'Packed') return 0
-        else if (requestType === 'Cancel' && cartStatus === 'Packed' && requestNum && itemsQty) { // all order is returned
+        //else if (requestType === 'Cancel' && request[requestNum - 1].cart.status !== 'Packed') return 0
+        else if (requestType === 'Cancel' && request[requestNum - 1].cart.status !== 'Packed' && requestNum && itemsQty) { // all order is returned
             if (request[requestNum - 1].delivery && request[requestNum - 1].delivery.charge) {
                 var noItemRemoved = true
                 cartItems.map(item => {
@@ -733,7 +751,7 @@ function OrdersManager(props) {
                 })
             } else rateMin = 0
         }
-        return parseFloat(rateMin).toFixed(2)
+        return rateMin
     }
 
     const paymentCalc = () => {
@@ -772,7 +790,7 @@ function OrdersManager(props) {
             }
         } else rateMin = 0
         //console.log(rateMin)
-        return rateMin.toFixed(2)
+        return Number.isInteger(rateMin) ? rateMin : rateMin.toFixed(2)
     }
 
     const totalAmountCalc = (req) => {
@@ -789,13 +807,13 @@ function OrdersManager(props) {
         //console.log(paymentCharg, deliveryCharg)
         var amount = deliveryCharg + paymentCharg + parseFloat(cartAmountCalc()) + parseFloat(discountCalc())
         //console.log(totalAmount)
-        return amount.toFixed(2)
+        return Number.isInteger(amount) ? amount : amount.toFixed(2)
     }
 
     const amountCalc = (request) => {
         var amount = 0
         request.map(req => {
-            if (req.status === 'Confirmed' || req.status === 'Completed')
+            if (req.status !== 'Pending')
                 amount = amount + parseFloat(req.amount)
         })
         return amount
@@ -861,19 +879,20 @@ function OrdersManager(props) {
     const addRequestHandler = (e) => {
         e.preventDefault()
         if (qtyCalc() > 0) {
-            //console.log(requestIndex)
             request[requestIndex] = {
+                _id: requestId && requestId,
                 creation_date: time,
                 created_by: userInfo ? userInfo.name : Date.now() + 10800000,
                 type: requestType,
                 status: requestStatus,
-                canceledRequestNum: requestNum ? requestNum : undefined,
+                canceledRequestNum: requestType === 'Cancel' ? requestNum : undefined,
 
                 operatedBy: userInfo.isOrderManager !== undefined && {
                     date: time,
                     employeeName: userInfo.name,
                     employeeId: userInfo.employeeId
                 },
+
                 payment: {
                     status: paymentStatus,
                     collectOn: collectOn, // usually the same as delivery date
@@ -882,13 +901,12 @@ function OrdersManager(props) {
                     type: paymentType,
                     charge: paymentCalc(),
                 },
-                delivery: (requestType === 'Place' || requestType === 'Return') &&
-                {
+                delivery: {
                     status: deliveryStatus,
-                    deliverOn: deliverOn,
-                    title: deliveryTitle,
+                    deliverOn: deliverOn && deliverOn,
+                    title: deliveryTitle && deliveryTitle,
                     //type: deliveryType,
-                    duration: deliveryValues.duration + ' ' + deliveryValues.timeFormat,
+                    duration: deliveryValues && (deliveryValues.duration + ' ' + deliveryValues.timeFormat),
                     charge: deliveryCalc(),
                 },
                 cart: {
@@ -906,6 +924,7 @@ function OrdersManager(props) {
             dispatch(updateCart('clear'))
             setRequestIndex(requestIndex + 1)
             setRequest(request)
+            setRequestNum(undefined)
             setRequestFormVisible(false)
             setRequestType(undefined)
             setSearchKeyword('')
@@ -946,23 +965,26 @@ function OrdersManager(props) {
         var confirmed = ((requestStat === 'Canceled' || requestStat === 'Rejected') && type === 'Request') ?
             window.confirm('You are setting request ' + requestStat + '!') : true
 
+        var operatedBy
+        if (requestStat === 'Confirmed' && type === 'Request') {
+            operatedBy = {
+                date: time,
+                employeeName: userInfo.name,
+                employeeId: userInfo.employeeId
+            }
+        }
+
         if (confirmed) {
             dispatch(saveOrder({
-                _id: order._id, receiptNum: req.receiptNum, type: type, status: requestStat
+                _id: order._id, receiptNum: req.receiptNum, type: type, status: requestStat, operatedBy
             }))
             setFormAction('Modifie')
         }
     }
 
     const closeModel = () => {
-
-        /*orders.map(order => {
-            if (order._id === orderConst._id) {
-                console.log(orderConst)
-                order = orderConst
-            }
-        })*/
         setModelVisible(false)
+        dispatch(listOrders())
     }
 
     return (
@@ -990,7 +1012,7 @@ function OrdersManager(props) {
                                     name="phone"
                                     id="phone"
                                     className='orders-user-phone'
-                                    value={customerPhone}
+                                    value={customerPhone || ''}
                                     onChange={(e) => setCustomerPhone(e.target.value)}
                                 ></input>
                                 <button
@@ -1005,7 +1027,7 @@ function OrdersManager(props) {
                                 type="text"
                                 name="name"
                                 id="name"
-                                value={customerName}
+                                value={customerName || ''}
                                 onChange={(e) => setCustomerName(e.target.value)}
                             ></input>
                         </li>
@@ -1234,7 +1256,7 @@ function OrdersManager(props) {
                         {request.length > 0 &&
                             <li className='border-padding'>
                                 {request.map(req => (
-                                    <div style={{ margin: '0.5rem 0' }}>
+                                    <div style={{ margin: '0.5rem 0' }} key={req._id}>
                                         <div className='flex-align'>
                                             <div className="label margin-right">
                                                 {'Request Summary #' + (request.indexOf(req) + 1)}</div>
@@ -1298,7 +1320,7 @@ function OrdersManager(props) {
                                                     </div>
                                                     <div className='total-num'>{req.cart.discountAmount + ' $'}</div>
                                                 </div>}
-                                            {req.delivery &&
+                                            {(req.delivery && (req.type === 'Cancel' ? req.delivery.charge !== 0 : true)) &&
                                                 <div className='cart-total-qty'>
                                                     <div className='cart-total-label'>Delivery Charge
                                                         <div className='pay-desc'>
@@ -1306,7 +1328,7 @@ function OrdersManager(props) {
                                                                 ? req.delivery.title + ' (' + req.delivery.duration + ')'
                                                                 : ''}</div>
                                                     </div>
-                                                    <div className='total-num'>{req.delivery.charge > 0
+                                                    <div className='total-num'>{req.delivery.charge !== 0
                                                         ? req.delivery.charge + ' $' : 'Free'}</div>
                                                 </div>}
                                             {req.payment && req.payment.charge > 0 &&
@@ -1417,7 +1439,10 @@ function OrdersManager(props) {
                                                 <div className='select-confirmation'>
                                                     <select
                                                         value={requestNum}
-                                                        onChange={(e) => setRequestNum(e.target.value)}
+                                                        onChange={(e) =>
+                                                            setRequestNum(e.target.selectedIndex ?
+                                                                e.target.options[e.target.selectedIndex].value :
+                                                                e.target.value)}
                                                         disabled={requestTypeDisabled}>
                                                         <option key='' value=''>
                                                             Select...
@@ -1816,7 +1841,7 @@ function OrdersManager(props) {
                                     </div>
                                 </div>
                                 {request && request.map(req => (
-                                    <div className='cart-total-qty'>
+                                    <div className='cart-total-qty' key={req._id}>
                                         <div className='cart-total-label '>
                                             {'Request #' + (request.indexOf(req) + 1) + '  -  ' + req.status}
                                         </div>
@@ -1912,8 +1937,8 @@ function OrdersManager(props) {
                 <thead>
                     <tr>
                         <th style={{ textAlign: 'center', width: '4rem' }}>Active</th>
-                        <th style={{ width: '10rem' }}>Time</th>
-                        <th style={{ width: '15rem' }}>Name</th>
+                        <th style={{ width: '9rem' }}>Time</th>
+                        <th style={{ width: '14rem' }}>Name</th>
                         <th className='width-8rem'>Type</th>
                         <th className='align-width'>Status</th>
                         <th className='align-width'>Cart</th>
@@ -1955,7 +1980,7 @@ function OrdersManager(props) {
                                     value={req.status}
                                     onChange={e => requestStatusEditor(e, order, req, 'Request')}
                                     key={req._id}
-                                    disabled={req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected'}>
+                                    disabled={req.status === 'on Hold' || req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected' || (req.type === 'Cancel' && req.status === 'Confirmed')}>
                                     {requestStatusList.map(status => (
                                         <option key={requestStatusList.indexOf(status)} value={status}>
                                             {status}
@@ -1968,7 +1993,7 @@ function OrdersManager(props) {
                                         value={req.cart.status}
                                         onChange={e => requestStatusEditor(e, order, req, 'Cart')}
                                         key={req._id}
-                                        disabled={req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected'}>
+                                        disabled={req.cart.status === 'on Hold' || req.cart.status === 'Packed' || req.cart.status === 'Canceled' || req.cart.status === 'Unpacked'}>
                                         {cartStatusList.map(status => (
                                             <option key={cartStatusList.indexOf(status)} value={status}>
                                                 {status}
@@ -1982,7 +2007,7 @@ function OrdersManager(props) {
                                         value={req.payment.status}
                                         onChange={e => requestStatusEditor(e, order, req, 'Payment')}
                                         key={req._id}
-                                        disabled={req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected'}>
+                                        disabled={req.payment.status === 'on Hold' || req.payment.status === 'Collected' || req.payment.status === 'Canceled' || req.payment.status === 'Uncollected'}>
                                         {paymentStatusList.map(status => (
                                             <option key={paymentStatusList.indexOf(status)} value={status}>
                                                 {status}
@@ -1996,7 +2021,7 @@ function OrdersManager(props) {
                                         value={req.delivery.status}
                                         onChange={e => requestStatusEditor(e, order, req, 'Delivery')}
                                         key={req._id}
-                                        disabled={req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected'}>
+                                        disabled={req.delivery.status === 'on Hold' || req.delivery.status === 'Delivered' || req.delivery.status === 'Undelivered' || req.delivery.status === 'Canceled' || req.delivery.status === 'Returned'}>
                                         {deliveryStatusList.map(status => (
                                             <option key={deliveryStatusList.indexOf(status)} value={status}>
                                                 {status}

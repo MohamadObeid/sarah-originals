@@ -13,7 +13,7 @@ import {
     ATTENDANCE_DETAILS_FAIL, ATTENDANCE_SAVE_CLEAR
 } from "../constants/constants";
 
-function attendanceListReducer(state = { attendance: undefined }, action) {
+function attendanceListReducer(state = { attendance: [] }, action) {
     switch (action.type) {
         case ATTENDANCE_LIST_REQUEST:
             return {

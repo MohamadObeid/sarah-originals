@@ -56,16 +56,18 @@ router.post("", isAuth, async (req, res) => {
 router.put("/:id", isAuth, isAdmin, async (req, res) => {
     const order = await Order.findOne({ _id: req.params.id })
     if (order) {
-        if (req.body.type) {
+        if (req.body.type) { // status change request
             //console.log(statusApproval(order, req.body.receiptNum, req.body.type, req.body.status))
             const approved = statusApproval(order, req.body.receiptNum, req.body.type, req.body.status).approval
             const message = !approved && statusApproval(order, req.body.receiptNum, req.body.type, req.body.status).status
+            //console.log(approved)
             if (approved) {
                 order.request.map(request => {
                     if (request.receiptNum === req.body.receiptNum) {
-                        if (req.body.type === 'Request')
+                        if (req.body.type === 'Request') {
                             request.status = req.body.status
-                        else if (req.body.type === 'Cart')
+                            if (req.body.operatedBy) request.operatedBy = req.body.operatedBy
+                        } else if (req.body.type === 'Cart')
                             request.cart.status = req.body.status
                         else if (req.body.type === 'Delivery')
                             request.delivery.status = req.body.status
@@ -77,8 +79,30 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
                         request.payment.status = statusModifier(request).payStatus
                         request.delivery.status = request.delivery.status && statusModifier(request).delStatus
 
-                        order.amount = amountCalc(order, request)
+                        if (request.type === 'Cancel') {
+                            const canceledRequestIndex = request.canceledRequestNum - 1
+                            if (request.status === 'Confirmed') { // set cancel request and canceled request confirmed
+                                order.request[canceledRequestIndex].status = 'Confirmed'
+                                order.request[canceledRequestIndex].cart.items.map(item => {
+                                    request.cart.items.map(canceledItem => {
+                                        if (item._id === canceledItem._id) {
+                                            item.canceled = true
+                                            item.canceledQty = item.canceledQty
+                                                ? canceledItem.qty + item.canceledQty : canceledItem.qty
+                                            return
+                                        }
+                                    })
+                                })
+                                if (request.cart.status === 'Unpacked') {
+                                    order.request[canceledRequestIndex].cart.status = 'Pending'
+                                    order.request[canceledRequestIndex].payment.status = 'Pending'
+                                    order.request[canceledRequestIndex].delivery.status =
+                                        order.request[canceledRequestIndex].delivery.status && 'Pending'
+                                }
 
+                            }
+                        }
+                        order.amount = amountCalc(order, request)
                         return
                     }
                 })
@@ -89,6 +113,172 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
                 })
             }
         } else {
+            if (req.body.request) {
+                if (req.body.request.length > order.request.length) { // new request
+                    var updateRequest = updateRequestByCanceled(order, req.body.request) // it is cancel request
+
+                    if (updateRequest.message) { // cancel request rejected
+                        return res.status(200).send({
+                            message: updateRequest.message, data: undefined
+                        })
+                    }
+
+                    order.request = updateRequest ? updateRequest : order.request
+
+                } else if (req.body.request.length < order.request.length) { // a request is deleted
+                    var deletedRequest
+                    order.request.map(deletedReq => { // get deleted request
+                        req.body.request.map(req => {
+                            if (deletedReq._id === req._id) {
+                                deletedReq = req
+                                return
+                            }
+                            else deletedRequest = deletedReq
+                        })
+                    })
+                    if (deletedRequest.type === 'Cancel') { // cancel Request is deleted
+                        const canceledRequestIndex = deletedRequest.canceledRequestNum - 1
+                        const canceledRequest = order.request[canceledRequestIndex]
+                        // update items canceled and canceled qty
+                        order.request[canceledRequestIndex].cart.items.map(item => {
+                            deletedRequest.cart.items.map(canceledItem => {
+                                if (item._id === canceledItem._id) {
+                                    if (item.canceled) {
+                                        if (item.qty === canceledItem.qty) item.canceled = false
+                                        item.canceledQty = item.canceledQty - canceledItem.qty
+                                    }
+                                    return
+                                }
+                            })
+                        })
+                        // if on hold status => set status pending
+                        if (canceledRequest.status === 'on Hold' || canceledRequest.status === 'Canceled') {
+                            if (order.request[canceledRequestIndex].operatedBy.employeeName) {
+                                order.request[canceledRequestIndex].status = 'Confirmed'
+                                order.request[canceledRequestIndex].cart.status = 'Pending'
+                                order.request[canceledRequestIndex].payment.status = 'Pending'
+                                order.request[canceledRequestIndex].delivery.status =
+                                    canceledRequest.delivery.status && 'Pending'
+                            } else order.request[canceledRequestIndex].status = 'Pending'
+                        }
+                    }
+                    order.request = order.request.filter(req => req._id !== deletedRequest._id && req)
+                } else {
+                    req.body.request.map(request => {
+
+                        if (request.type === 'Cancel') {
+                            var setOrderActive
+                            const canceledRequestIndex = request.canceledRequestNum - 1
+                            const canceledRequest = order.request[canceledRequestIndex]
+                            const canceledItems = request.cart.items.map(item => {
+                                return { _id: item._id, qty: item.qty }
+                            })
+
+                            var requsetIndex
+                            order.request.map(req => {
+                                if (req._id == request._id) {
+                                    requsetIndex = order.request.indexOf(req)
+                                    return
+                                }
+                            })
+                            //console.log(request)
+                            order.request[requsetIndex] = request
+
+                            var allItemsAreCanceled = true
+                            var newCanceledItems = []
+
+                            if (canceledItems.length > canceledRequest.cart.items.length) {
+                                canceledItems.map(canceledItem => {
+                                    var newCanceledItem
+                                    newCanceledItem = canceledRequest.cart.items.find(item =>
+                                        item._id === canceledItem._id)
+                                    if (!newCanceledItem) {
+                                        newCanceledItems = [...newCanceledItems,
+                                        { _id: canceledItem._id, qty: canceledItem.qty }]
+                                    }
+                                })
+                            }
+
+                            // uncancel items that are removed from cancel request
+                            /*order.request[canceledRequestIndex].map(uncanceledItem => {
+                                var prevCanceledItem
+                                prevCanceledItem = canceledItems.find(item =>
+                                    item._id === uncanceledItem._id)
+                                if (!prevCanceledItem) {
+                                    uncanceledItem.canceled = false
+                                    uncanceledItem.canceledQty = 0
+                                }
+                            })*/
+
+                            //console.log(newCanceledItems)
+
+                            canceledRequest.cart.items.map(item => {
+                                var canceledItemExist = true
+
+                                newCanceledItems.length > 0 &&
+                                    newCanceledItems.map(newCanceledItem => {
+                                        if (newCanceledItem._id === item._id) {
+                                            canceledItemExist = false
+                                            item.canceled = true
+                                            item.canceledQty = newCanceledItem.qty
+                                            if (item.qty === item.canceledQty)
+                                                allItemsAreCanceled = [...allItemsAreCanceled, true]
+                                            else allItemsAreCanceled = [...allItemsAreCanceled, false]
+                                            return
+                                        }
+                                    })
+
+                                if (item.canceled === true && canceledItemExist) {
+                                    var itemFound = false
+                                    canceledItems.map(canceledItem => {
+                                        if (item._id === canceledItem._id) {
+                                            itemFound = true
+                                            if (canceledItem.qty < item.qty) {
+                                                setOrderActive = true
+                                                allItemsAreCanceled = false
+                                            }
+
+                                            item.canceledQty = canceledItem.qty
+                                            return
+                                        }
+                                    })
+
+                                    if (!itemFound) {
+                                        item.canceled = false
+                                        item.canceledQty = 0
+                                    }
+                                }
+                            })
+
+                            //console.log(allItemsAreCanceled, setOrderActive)
+
+                            if (allItemsAreCanceled) {
+                                if (canceledRequest.delivery.status) {
+                                    order.request[canceledRequestIndex].delivery.status = 'Canceled'
+                                }
+                                if (canceledRequest.payment.type === 'Cash')
+                                    order.request[canceledRequestIndex].payment.status = 'Canceled'
+
+                                order.request[canceledRequestIndex].cart.status = 'Canceled'
+                                order.request[canceledRequestIndex].status = 'Canceled'
+                            }
+                            //console.log(setOrderActive)
+                            if (setOrderActive) {
+                                if (canceledRequest.status === 'on Hold' || canceledRequest.status === 'Canceled') {
+                                    if (order.request[canceledRequestIndex].operatedBy.employeeName) {
+                                        order.request[canceledRequestIndex].status = 'Confirmed'
+                                        order.request[canceledRequestIndex].cart.status = 'Pending'
+                                        order.request[canceledRequestIndex].payment.status = 'Pending'
+                                        order.request[canceledRequestIndex].delivery.status =
+                                            canceledRequest.delivery.status && 'Pending'
+                                    } else order.request[canceledRequestIndex].status = 'Pending'
+                                }
+                            }
+                        }
+                    })
+                }
+            }
+
             order.creation_date = req.body.creation_date ? req.body.creation_date : order.creation_date;
             order.created_by = req.body.created_by ? req.body.created_by : order.created_by;
             order.closed = req.body.closed ? req.body.closed : order.closed;
@@ -98,7 +288,6 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
             order.email = req.body.email ? req.body.email : order.email;
             order.deliveryAddress = req.body.deliveryAddress ? req.body.deliveryAddress : order.deliveryAddress;
             order.paymentAddress = req.body.paymentAddress ? req.body.paymentAddress : order.paymentAddress;
-            order.request = req.body.request ? req.body.request : order.request;
             order.invoiceNum = req.body.invoiceNum ? req.body.invoiceNum : order.invoiceNum;
             order.amount = req.body.amount ? req.body.amount : order.amount;
             order.note = req.body.note ? req.body.note : order.note;
@@ -107,7 +296,8 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
                 request.status = requestStatusModifier(request)
                 request.cart.status = statusModifier(request).cartStatus
                 request.payment.status = statusModifier(request).payStatus
-                request.delivery.status = request.delivery.status && statusModifier(request).delStatus
+                if (request.delivery)
+                    request.delivery.status = request.delivery.status && statusModifier(request).delStatus
 
                 order.amount = amountCalc(order, request)
             })
@@ -138,12 +328,61 @@ router.delete("/:id", isAuth, isAdmin, async (req, res) => {
 
 ////////////////////////// Functions /////////////////////////////
 
+const updateRequestByCanceled = (order, reqBodyRequest) => {
+    const request = reqBodyRequest
+    const isCancelRequest = request[request.length - 1].type === 'Cancel' ? request[request.length - 1] : undefined
+    if (isCancelRequest) {
+        if (isCancelRequest.cart.qty === 0) return order.request // if qty = 0 dont save request
+        const canceledRequestIndex = isCancelRequest.canceledRequestNum - 1
+        const canceledRequest = order.request[canceledRequestIndex]
+        const cartStatus = canceledRequest.cart.status
+        const paymentStatus = canceledRequest.payment.status
+        const deliveryStatus = canceledRequest.delivery.status || undefined
+        const canceledItems = isCancelRequest.cart.items
+
+        if (cartStatus === 'Pending' && (deliveryStatus ? deliveryStatus === 'Pending' : true)) {
+            // on Hold status
+            //canceledRequest.status = 'on Hold'
+            // set items canceled
+            order.request[canceledRequestIndex].cart.items.map(item => {
+                canceledItems.map(canceledItem => {
+                    if (item._id === canceledItem._id) {
+                        item.canceled = true
+                        item.canceledQty = canceledItem.qty
+                        return
+                    }
+                })
+            })
+            isCancelRequest.cart.status = 'Unpacked'
+            isCancelRequest.status = 'Confirmed'
+            if (canceledRequest.payment.type === 'Cash')
+                isCancelRequest.payment.status = 'Uncollected'
+            if (canceledRequest.delivery.status)
+                isCancelRequest.delivery.status = 'Undelivered'
+
+            if (isCancelRequest.amount * (-1) === canceledRequest.amount) {
+                if (canceledRequest.delivery.status) {
+                    order.request[canceledRequestIndex].delivery.status = 'Canceled'
+                }
+                if (canceledRequest.payment.type === 'Cash')
+                    order.request[canceledRequestIndex].payment.status = 'Canceled'
+
+                order.request[canceledRequestIndex].cart.status = 'Canceled'
+                order.request[canceledRequestIndex].status = 'Canceled'
+            }
+            // add cancel request
+            order.request = [...order.request, isCancelRequest]
+        } else return { approval: false, message: "You can't cancel a request after it is packed, paid, or delivered. Instead request a return" }
+    } else return false
+    return order.request
+}
+
 const amountCalc = (order, request) => {
     var amount = 0
     order.request.map(req => {
-        if (request.status === 'Confirmed' || request.status === 'Completed')
+        if (req.status === 'Confirmed' || req.status === 'Completed')
             amount = amount + req.amount
-        else if (request.status === 'Rejected' || request.status === 'Canceled')
+        else if (req.status === 'Rejected' || req.status === 'Canceled')
             if (req._id !== request._id) amount = amount + req.amount
 
     })
@@ -151,12 +390,22 @@ const amountCalc = (order, request) => {
 }
 
 const setActive = (order) => {
-    var active = true
+    var active = false
     order.request.map(req => {
-        if (req.status === 'Completed' || req.status === 'Rejected' || req.status === 'Canceled') {
-            active = false
-            return
-        } else active = true
+        if (req.type === 'Cancel' && req.status === 'Confirmed') {
+            if (req.delivery.status) {
+                if (req.cart.status !== 'Unpacked' || (req.payment.status !== 'Uncollected' && req.payment.status !== 'Refunded') || req.delivery.status !== 'Undelivered') {
+                    active = true
+                    return active
+                }
+            } else if (req.cart.status !== 'Unpacked' || (req.payment.status !== 'Uncollected' && req.payment.status !== 'Refunded')) {
+                active = true
+                return active
+            }
+        } else if (req.status !== 'Completed' && req.status !== 'Rejected' && req.status !== 'Canceled') {
+            active = true
+            return active
+        }
     })
     return active
 }
@@ -167,8 +416,10 @@ const requestStatusModifier = (req) => {
         status = 'Completed'
     else if (req.cart.status === 'Canceled' && (req.delivery.status ? req.delivery.status === 'Canceled' : true) && req.payment.status === 'Canceled')
         status = 'Canceled'
-    else if (req.cart.status === 'Rejected' && (req.delivery.status ? req.delivery.status === 'Rejected' : true) && req.payment.status === 'Rejected')
-        status = 'Rejected'
+    else if (req.cart.status === 'Unpacked' && (req.delivery.status ? req.delivery.status === 'Undelivered' : true) && req.payment.status === 'Uncollected')
+        if (req.type === 'Cancel')
+            status = 'Confirmed'
+        else status = 'Rejected'
     //console.log(status)
     return status
 }
@@ -178,7 +429,12 @@ const statusModifier = (req) => {
     var payStatus = req.payment.status
     var delStatus = req.delivery.status ? req.delivery.status : undefined
 
-    if (req.status === 'Pending') {
+    if (req.status === 'on Hold') {
+        cartStatus = 'on Hold'
+        payStatus = 'on Hold'
+        if (req.type !== 'Prepare') delStatus = 'on Hold'
+
+    } else if (req.status === 'Pending') {
         cartStatus = 'Pending'
         payStatus = 'Pending'
         if (req.type !== 'Prepare') delStatus = 'Pending'
@@ -194,9 +450,9 @@ const statusModifier = (req) => {
         if (delStatus) delStatus = 'Delivered'
 
     } else if (req.status === 'Rejected') {
-        cartStatus = undefined
-        payStatus = undefined
-        if (delStatus) delStatus = undefined
+        cartStatus = 'Unpacked'
+        payStatus = 'Uncollected'
+        if (delStatus) delStatus = 'Undelivered'
     }
 
     return ({ cartStatus, payStatus, delStatus })
@@ -211,11 +467,13 @@ const statusApproval = (order, num, type, status) => {
                     if (status === 'Pending')
                         obj = { approval: false, status: "You can't reset status to Pending" }
                     else if (status === 'Completed')
-                        obj = { approval: false, status: "You can't set status completed if request type is Cancel" }
+                        obj = { approval: false, status: "You can't set a cancel request Completed" }
+                    else if (status === 'on Hold')
+                        obj = { approval: false, status: "You can't set a cancel request on Hold" }
                     else obj = { approval: true }
 
                 } else {
-                    if (status === 'Pending' || status === 'On Hold' || status === 'Canceled') {
+                    if (status === 'Pending' || status === 'on Hold' || status === 'Canceled' || status === 'Unpacked') {
                         if (req.status === 'Confirmed')
                             obj = { approval: true }
                         else obj = { approval: false, status: "You can't change status before confirming request" }
@@ -227,6 +485,13 @@ const statusApproval = (order, num, type, status) => {
                 if (status === 'Pending') {
                     obj = { approval: false, status: "You can't reset status to Pending" }
                 }
+
+                if (status === 'on Hold') {
+                    if (req.status !== 'Completed' && req.status !== 'Rejected' && req.status !== 'Canceled')
+                        obj = { approval: true }
+                    else obj = { approval: false, status: "You can't reset status to Pending" }
+                }
+
                 else if (status === 'Confirmed' && req.status !== 'Completed')
                     obj = { approval: true }
 
@@ -255,20 +520,20 @@ const statusApproval = (order, num, type, status) => {
                 //////////////////////// Cart
                 if (type === 'Cart') {
                     if (status === 'Pending')
-                        if (req.cart.status === 'On Hold')
+                        if (req.cart.status === 'on Hold')
                             obj = { approval: true }
                         else obj = { approval: false, status: "You can't reset status to Pending" }
 
                     else if (status === 'Confirmed') obj = { approval: true }
 
-                    else if (status === 'On Hold') {
+                    else if (status === 'on Hold') {
                         if (req.cart.status === 'Pending' || req.cart.status === 'Packing')
                             obj = { approval: true }
                         else obj = { approval: false, status: "You can't hold on packing after being packed, returned, or canceled." }
                     }
 
                     else if (status === 'Packing') {
-                        if (req.cart.status === 'On Hold' || req.cart.status === 'Pending')
+                        if (req.cart.status === 'on Hold' || req.cart.status === 'Pending')
                             obj = { approval: true }
                         else obj = { approval: false, status: "You can't set items packing after being packed, canceled, or returned." }
                     }
@@ -280,27 +545,27 @@ const statusApproval = (order, num, type, status) => {
                     }
 
                     else if (status === 'Canceled') {
-                        if (req.cart.status === 'Pending' || req.cart.status === 'On Hold' || req.cart.status === 'Packing')
+                        if (req.cart.status === 'Pending' || req.cart.status === 'on Hold' || req.cart.status === 'Packing')
                             obj = { approval: true }
                         else obj = { approval: false, status: "You can't cancel items after being packed, delivered, or paid." }
                     }
 
-                    else if (status === 'Returned') {
-                        if (req.cart.status === 'Pending' || req.cart.status === 'On Hold') obj = { approval: true }
-                        else obj = { approval: false, status: "You can set items returned only when status is pending or on hold." }
+                    else if (status === 'Unpacked') {
+                        if (req.cart.status === 'Pending' || req.cart.status === 'on Hold') obj = { approval: true }
+                        else obj = { approval: false, status: "You can set items unpacked only when status is pending or on Hold." }
                     }
 
                     //////////////////////// Payment
                 } else if (type === 'Payment') {
                     if (status === 'Pending')
-                        if (req.payment.status === 'On Hold')
+                        if (req.payment.status === 'on Hold')
                             obj = { approval: true }
                         else obj = { approval: false, status: "You can't reset status to Pending" }
 
                     else if (status === 'Confirmed') obj = { approval: true }
 
-                    else if (status === 'On Hold' || status === 'Uncollected') {
-                        if (req.payment.status === 'Pending' || req.payment.status === 'On Hold' || req.payment.status === 'Uncollected')
+                    else if (status === 'on Hold' || status === 'Uncollected') {
+                        if (req.payment.status === 'Pending' || req.payment.status === 'on Hold' || req.payment.status === 'Uncollected')
                             obj = { approval: true }
                         else obj = { approval: false, status: "You can't hold on payment after being collected, canceled, or refunded." }
                     }
@@ -318,28 +583,28 @@ const statusApproval = (order, num, type, status) => {
                     }
 
                     else if (status === 'Refunded') {
-                        if (req.cart.status === 'Returned' && (req.payment.status === 'Pending' || req.payment.status === 'On Hold'))
+                        if (req.cart.status === 'Unpacked' && (req.payment.status === 'Pending' || req.payment.status === 'on Hold'))
                             obj = { approval: true }
-                        else obj = { approval: false, status: "You can't set payment refunded before setting items returned or after canceling or collecting payment" }
+                        else obj = { approval: false, status: "You can set payment refunded after setting items unpacked, and when payment is neither canceled nor collected" }
                     }
 
                     //////////////////////// Delivery
                 } else if (type === 'Delivery' && req.delivery) {
                     if (status === 'Pending')
-                        if (req.delivery.status === 'On Hold')
+                        if (req.delivery.status === 'on Hold')
                             obj = { approval: true }
                         else obj = { approval: false, status: "You can't reset status to Pending" }
 
                     else if (status === 'Confirmed') obj = { approval: true }
 
-                    else if (status === 'On Hold') {
-                        if (req.delivery.status === 'Pending') // if delivery is on road it cant be set on hold
+                    else if (status === 'on Hold') {
+                        if (req.delivery.status === 'Pending') // if delivery is on road it cant be set on Hold
                             obj = { approval: true }
                         else obj = { approval: false, status: "You can't hold on delivery after being delivered, canceled, or returned." }
                     }
 
                     else if (status === 'On Road') {
-                        if (req.delivery.status === 'Pending' || req.delivery.status === 'On Hold') // if delivery is on road it cant be set on hold
+                        if (req.delivery.status === 'Pending' || req.delivery.status === 'on Hold') // if delivery is on road it cant be set on Hold
                             obj = { approval: true }
                         else obj = { approval: false, status: "You can't set delivery on road after being delivered, canceled, or returned." }
                     }
@@ -357,7 +622,7 @@ const statusApproval = (order, num, type, status) => {
                     }
 
                     else if (status === 'Returned') {
-                        if (req.delivery.status === 'Pending' || req.delivery.status === 'On Hold' || req.delivery.status === 'On Road')
+                        if (req.delivery.status === 'Pending' || req.delivery.status === 'on Hold' || req.delivery.status === 'On Road')
                             obj = { approval: true }
                         else obj = { approval: false, status: "You can't set a delivery returned after being canceled or delivered" }
                     }

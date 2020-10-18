@@ -19,7 +19,7 @@ const orderSchema = new mongoose.Schema({
             created_by: { type: String, required: false },
             type: { type: String, required: false },
             status: { type: String, required: false },
-            canceledRequestNum: { type: Number, required: false },
+            canceledRequestNum: { type: Number, required: false }, // index + 1
 
             operatedBy: {
                 date: { type: String, required: false },
@@ -89,6 +89,8 @@ const orderSchema = new mongoose.Schema({
                         refundable: { type: Boolean, required: false },
                         canceled: { type: Boolean, required: false }, // if cancel request exist and confirmed
                         canceledQty: { type: Number, required: false },
+                        rejected: { type: Boolean, required: false },
+                        rejectedQty: { type: Number, required: false },
                     }], required: false
                 },
 

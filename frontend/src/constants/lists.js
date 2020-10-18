@@ -118,10 +118,10 @@ export const basedOnList = ['Value', 'Quantity', 'Weight'];
 export const timeFormatList = ['min', 'hr', 'day', 'week', 'month'];
 export const deliveryTypeList = ['Fast', 'Standard'];
 
-export const cartStatusList = ['Pending', 'On Hold', 'Packing', 'Packed', 'Canceled', 'Returned']
-export const paymentStatusList = ['Pending', 'On Hold', 'Uncollected', 'Collected', 'Canceled', 'Refunded']
-export const deliveryStatusList = ['Pending', 'On Hold', 'On Road', 'Delivered', 'Canceled', 'Returned']
-export const requestStatusList = ['Pending', 'Confirmed', 'Completed', 'Rejected', 'Canceled']
+export const cartStatusList = ['Pending', 'on Hold', 'Packing', 'Packed', 'Canceled', 'Unpacked']
+export const paymentStatusList = ['Pending', 'on Hold', 'Uncollected', 'Collected', 'Canceled', 'Refunded']
+export const deliveryStatusList = ['Pending', 'on Hold', 'On Road', 'Undelivered', 'Delivered', 'Canceled', 'Returned']
+export const requestStatusList = ['Pending', 'on Hold', 'Confirmed', 'Completed', 'Rejected', 'Canceled']
 export const requestTypeList = ['Place', 'Prepare', 'Cancel', 'Return']
 export const rateUnitList = ['usd', 'lbp', '%', 'euro']
 export const orderStatusList = ['Open', 'Closed', 'Rejected', 'Canceled']
