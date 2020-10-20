@@ -133,7 +133,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-/*router.post("/create", async (req, res) => {
+router.post("/create", async (req, res) => {
   const user = new User({
     name: req.body.name,
     active: req.body.active,
@@ -156,7 +156,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.get("/createadmin", async (req, res) => {
+/*router.get("/createadmin", async (req, res) => {
   try {
     const user = new User({
       name: "Mohamad Baqer",
@@ -178,8 +178,8 @@ router.get("/createadmin", async (req, res) => {
 });*/
 
 router.get("", isAuth, isAdmin, async (req, res) => {
-  const users = await User.find({})
-  res.send(users);
+  const users = await User.find({}).sort({ active: 0 })
+  res.send(users.reverse());
 });
 
 // id list: get users

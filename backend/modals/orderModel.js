@@ -19,7 +19,7 @@ const orderSchema = new mongoose.Schema({
             created_by: { type: String, required: false },
             type: { type: String, required: false },
             status: { type: String, required: false },
-            canceledRequestNum: { type: Number, required: false }, // index + 1
+            modifiedRequestNum: { type: Number, required: false }, // index + 1
 
             operatedBy: {
                 date: { type: String, required: false },
@@ -85,12 +85,13 @@ const orderSchema = new mongoose.Schema({
                         unit: { type: String, required: false },
                         discount: { type: String, required: false },
                         qty: { type: Number, required: false },
-                        priceUsd: { type: String, required: false },
-                        refundable: { type: Boolean, required: false },
-                        canceled: { type: Boolean, required: false }, // if cancel request exist and confirmed
+                        priceUsd: { type: Number, required: false },
+                        returnable: { type: Boolean, required: false },
+                        rejectedQty: { type: Number, required: false, default: 0 },
+                        /*canceled: { type: Boolean, required: false },
                         canceledQty: { type: Number, required: false },
-                        rejected: { type: Boolean, required: false },
-                        rejectedQty: { type: Number, required: false },
+                        returned: { type: Boolean, required: false },
+                        returnedQty: { type: Number, required: false },*/
                     }], required: false
                 },
 
@@ -112,13 +113,6 @@ const orderSchema = new mongoose.Schema({
                 discountAmount: { type: Number, required: false },
             },
 
-            // callCenter: {
-            // type: {[
-            //      agent: {}    
-            //      issue: {}
-            //      sensitivityLvl: {}   
-            // ]}, required: false
-            // },
             amount: { type: Number, required: true },
             receiptNum: { type: String, required: false }
         }], required: false

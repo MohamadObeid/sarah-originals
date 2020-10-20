@@ -31,16 +31,6 @@ function OrdersManager(props) {
     }
 
     var d = Date.now()
-    /*
-    var currentYear = d.getFullYear()
-    var currentMonth = months[d.getMonth()]
-    var currentDay = d.getDate()
-    var currentWeekDay = weekDays[d.getDay()]
-    var currentHour = d.getHours() < 10 ? '0' + d.getHours() : d.getHours()
-    var currentMinutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes()
-    var currentSeconds = d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds()
-    var currentDate = currentWeekDay.slice(0, 3) + ' ' + currentDay + ' ' + currentMonth + ' ' + currentYear
-    */
 
     const [formAction, setFormAction] = useState('Create')
     const [actionNote, setActionNote] = useState()
@@ -66,12 +56,9 @@ function OrdersManager(props) {
     const [requestNum, setRequestNum] = useState()
     const [_id, setId] = useState()
     const [invoiceNum, setinvoiceNum] = useState()
-    const [status, setStatus] = useState()
-    const [closed, setClosed] = useState() //
     const [customerName, setCustomerName] = useState()
     const [customerUserId, setCustomerUserId] = useState()
     const [customerPhone, setCustomerPhone] = useState()
-    //const [customerEmail, setCustomerEmail] = useState()
     const [orderStatus, setorderStatus] = useState()
 
     const [paymentStatus, setPaymentStatus] = useState()
@@ -79,15 +66,10 @@ function OrdersManager(props) {
     const [cartStatus, setCartStatus] = useState()
     const [amount, setamount] = useState()
     const [request, setRequest] = useState([])
-    const [address, setAddress] = useState([])
     const [receiptNum, setReceiptNum] = useState()
     const [requestStatus, setRequestStatus] = useState()
     const [requestType, setRequestType] = useState()
     const [itemsQty, setItemsQty] = useState()
-
-    const [operatedBy, setOperatedBy] = useState()
-    const [customer, setcustomer] = useState()
-    const [totalAmount, setTotalAmount] = useState()
     const [note, setNote] = useState()
     const [noteText, setNoteText] = useState()
     const [prepareOn, setPrepareOn] = useState()
@@ -97,14 +79,10 @@ function OrdersManager(props) {
     const [payment, setPayment] = useState()
     const [paymentValues, setPaymentValues] = useState()
     const [collectOn, setcollectOn] = useState() //date
-    const [isRefund, setIsRefund] = useState()
     const [paymentTitle, setPaymentTitle] = useState()
     const [paymentType, setPaymentType] = useState()
     const [paymentAddress, setPaymentAddress] = useState()
-    const [paymentAssignedTo, setPaymentAssignedTo] = useState()
-    const [paymentDoneBy, setPaymentDoneBy] = useState()
     const [paymentCharge, setPaymentCharge] = useState()
-    const [paymentNote, setPaymentNote] = useState()
     const [paymentTypeList, setPaymentTypeList] = useState()
     const [paymentDescription, setPaymentDescription] = useState()
 
@@ -113,43 +91,19 @@ function OrdersManager(props) {
     const [deliveryValues, setDeliveryValues] = useState()
     const [deliverOn, setDeliverOn] = useState()
     const [deliveryTitle, setDeliveryTitle] = useState()
-    const [deliveryMethod, setDeliveryMethod] = useState()
-    const [deliveryDuration, setDeliveryDuration] = useState()
     const [deliveryAddress, setDeliveryAddress] = useState()
-    const [deliveryAssignedTo, setDeliveryAssignedTo] = useState()
-    const [deliveryDoneBy, setDeliveryDoneBy] = useState()
     const [deliveryCharge, setDeliveryCharge] = useState()
-    const [deliveryNote, setDeliveryNote] = useState()
-
-    // cart
-    const [cart, setCart] = useState()
-    const [items, setItems] = useState()
-    /*const [nameEn, setNameEn] = useState()
-    const [image, setImage] = useState()
-    const [brand, setBrand] = useState()
-    const [category, setCategory] = useState()
-    const [unit, setUnit] = useState()
-    const [discount, setDiscount] = useState()
-    const [count, setCount] = useState()
-    const [priceUsd, setPriceUsd] = useState()
-    const [refundable, setRefundable] = useState()*/
-    const [cartAssignedTo, setCartAssignedTo] = useState()
-    const [cartDoneBy, setCartDoneBy] = useState()
-    const [cartQty, setCartQty] = useState()
-    const [cartAmount, setCartAmount] = useState()
-    const [cartNote, setCartNote] = useState()
-    const [discountAmount, setDiscountAmount] = useState()
 
     //
     const [city, setCity] = useState()
     const [region, setRegion] = useState()
     const [building, setBuilding] = useState()
     const [addressVisible, setAddressVisible] = useState()
-    //
+    const [address, setAddress] = useState([])
 
     const { time } = useSelector(state => state.clock)
     const { success: successSave, order, error } = useSelector(state => state.orderSave)
-    const { success: successDelete } = useSelector(state => state.orderDelete)
+    const { success: successDelete, data: orderDeleted } = useSelector(state => state.orderDelete)
     const { orders } = useSelector(state => state.orderList)
     const { userInfo } = useSelector(state => state.userSignin)
     const { cartItems } = useSelector(state => state.cart)
@@ -162,24 +116,26 @@ function OrdersManager(props) {
     useEffect(() => {
         typeList && setPaymentTypeList(typeList)
         if (successSave || successDelete) {
-            if (order.data) {
+            if ((order && order.data) || orderDeleted) {
                 dispatch(listOrders())
                 userModified() &&
                     dispatch(saveUser({
                         _id: customerUserId, address: address, name: customerName, orderList: order._id
                     }))
                 setActionNote(`Order ${formAction}d succefully`)
+                setFormAction('')
                 setFormAlertVisible(false)
                 modelVisible && setModelVisible(false)
-            } else setActionNote(order.message)
+                setIsDeliveryAddress(undefined)
+                setIsPaymentAddress(undefined)
+            } else setActionNote(order && order.message)
             dispatch(saveOrder('clear'))
             setActionNoteVisible(true)
             clearTimeout(timeOut)
             setTimeOut(setTimeout(() => setActionNoteVisible(false), 6000))
-            setFormAction('')
         }
-        //console.log(orders)
-        if (orders.length > 0)
+
+        if (orders && orders.length > 0)
             setOrderList(orders)
 
         if (error) {
@@ -188,7 +144,7 @@ function OrdersManager(props) {
         }
         console.log(orders)
 
-    }, [successSave, successDelete, orders, error])
+    }, [successSave, successDelete, orders, error, requestFormVisible])
 
     useEffect(() => {
         if (deliveryTitle) {
@@ -199,7 +155,6 @@ function OrdersManager(props) {
                         duration: del.duration,
                         timeFormat: del.timeFormat
                     }))
-                    //console.log(del)
                 }
             })
         }
@@ -215,7 +170,6 @@ function OrdersManager(props) {
                             type === 'Cash' && setPaymentType('Cash')
                         })
                     }
-                    //console.log('reserting')
                 }
             })
         }
@@ -226,7 +180,6 @@ function OrdersManager(props) {
                 paymentValues.rates.map(rate => {
                     if (rate.paymentType === paymentType) {
                         setPaymentDescription(rate.description)
-                        //console.log(rate.description)
                     }
                 })
             }
@@ -237,11 +190,18 @@ function OrdersManager(props) {
         }
 
         if (user) {
-            //console.log(user)
             setCustomerUserId(user._id)
             setCustomerPhone(user.phone)
-            //setCustomerEmail(user.email)
-            setAddress(user.address)
+            setAddress(user.address.length > 0 ? user.address : address)
+            user.address.length > 0 &&
+                user.address.map(add => {
+                    var delPayAdd = add.city + ', ' + add.region + ', ' + add.building
+                    if (delPayAdd === deliveryAddress)
+                        setIsDeliveryAddress(user.address.indexOf(add))
+
+                    if (delPayAdd === paymentAddress)
+                        setIsPaymentAddress(user.address.indexOf(add))
+                })
             setCustomerName(user.name)
         }
 
@@ -252,7 +212,6 @@ function OrdersManager(props) {
     }, [deliveryTitle, paymentTitle, user, deliverOn, prepareOn, cartItems, paymentType])
 
     const openOrderModel = async (order) => {
-        //console.log(order)
         setModelVisible(true)
         setRequestFormVisible(false)
         setOrderValues(order._id ? order : undefined)
@@ -265,43 +224,12 @@ function OrdersManager(props) {
         setAddress([])
         setAddressVisible(false)
         setorderStatus(order.orderStatus ? order.orderStatus : 'Pending')
+        setDeliveryAddress(order.deliveryAddress ? order.deliveryAddress : undefined)
+        setPaymentAddress(order.paymentAddress ? order.paymentAddress : undefined)
         await dispatch(getUser(order.phone ? order.phone : 'clear'))
-        //setOperatedBy(order.operatedBy ? order.operatedBy : undefined)
         setCustomerUserId(order.userId ? order.userId : undefined)
         setCustomerName(order.name ? order.name : '')
         setCustomerPhone(order.phone ? order.phone : '')
-        //setCustomerEmail(order.email ? order.email : undefined)
-        setDeliveryAddress(order.deliveryAddress ? order.deliveryAddress : undefined)
-        setPaymentAddress(order.paymentAddress ? order.paymentAddress : undefined)
-        /*
-
-
-        if (order.payment) {
-            setcollectOn(order.payment.collectOn ? order.payment.collectOn : undefined)
-            setPaymentTitle(order.payment.title ? order.payment.title : undefined)
-            setPaymentMethod(order.payment.method ? order.payment.method : undefined)
-            setPaymentAssignedTo(order.payment.assignedTo ? order.payment.assignedTo : undefined)
-            setPaymentDoneBy(order.payment.doneBy ? order.payment.doneBy : undefined)
-            setPaymentCharge(order.payment.charge ? order.payment.charge : undefined)
-        }
-
-        if (order.delivery) {
-            setDeliverOn(order.delivery.deliverOn ? order.delivery.deliverOn : undefined)
-            setDeliveryTitle(order.delivery.title ? order.delivery.title : undefined)
-            setDeliveryMethod(order.delivery.method ? order.delivery.method : undefined)
-            setDeliveryDuration(order.delivery.duration ? order.delivery.duration : undefined)
-            setDeliveryAssignedTo(order.delivery.assignedTo ? order.delivery.assignedTo : undefined)
-            setDeliveryDoneBy(order.delivery.doneBy ? order.delivery.doneBy : undefined)
-            setDeliveryCharge(order.delivery.charge ? order.delivery.charge : undefined)
-        }
-
-        if (order.cart) {
-            setItems(order.cart.itmes ? order.cart.items : undefined)
-            setCartAssignedTo(order.cart.assignedTo ? order.cart.assignedTo : undefined)
-            setCartDoneBy(order.cart.doneBy ? order.cart.doneBy : undefined)
-            setCartQty(order.cart.count ? order.cart.count : undefined)
-            setCartAmount(order.cart.amount ? order.cart.amount : undefined)
-        }*/
 
         setamount(order.amount ? order.amount : undefined)
         setNote(order.note ? order.note : [])
@@ -353,13 +281,19 @@ function OrdersManager(props) {
         if (user) {
             if (user.phone !== customerPhone) return false
             if (user.name !== customerName) return true
-            user.address.map(add => {
-                var i = user.address.indexOf(add)
-                if (add.city !== address[i].city || add.region !== address[i].region || add.building !== address[i].building)
-                    return true
-            })
+            //console.log(user.address, '||' + address)
+
+            user.address.length > 0 &&
+                user.address.map(add => {
+                    var i = user.address.indexOf(add)
+                    if (add.city !== address[i].city || add.region !== address[i].region || add.building !== address[i].building)
+                        return true
+                })
+
+            // add new addresses
+            if (user.address.length < address.length) return true
             if (address.length !== user.address.length) return true
-        }
+        } else return false
     }
 
     const createHandler = (e) => {
@@ -441,11 +375,9 @@ function OrdersManager(props) {
         cartItems.length > 0 && dispatch(updateCart('clear'))
         setRequestTypeDisabled(false)
         setReceiptNum('RE-' + d)
+
         if (!requestFormVisible) {
-            //console.log('open Model')
-            setRequestFormVisible(true)
             if (req) {
-                //console.log(req)
                 setRequestTypeDisabled(true)
                 openRequestModal(req)
                 setRequestIndex(request.indexOf(req))
@@ -464,7 +396,7 @@ function OrdersManager(props) {
                     setPaymentTitle(paymentList[0].title)
                 }
                 clearRequestValues()
-            }
+            } setRequestFormVisible(true)
         } else {
             //console.log('close Model')
             setRequestFormVisible(false)
@@ -499,8 +431,10 @@ function OrdersManager(props) {
             setRequestId(req._id ? req._id : undefined)
             setRequestStatus(req.status ? req.status : 'Pending')
             setReceiptNum(req.receiptNum ? req.receiptNum : receiptNum)
-            setRequestNum(req.canceledRequestNum ? req.canceledRequestNum : undefined)
+            setRequestNum(req.modifiedRequestNum ? req.modifiedRequestNum : undefined)
             setCartStatus(req.cart.status ? req.cart.status : 'Pending')
+        } else {
+            setRequestId(undefined)
         }
 
         if (req.payment && !requestNum) {
@@ -511,14 +445,26 @@ function OrdersManager(props) {
             setPaymentDescription(req.payment.description ? req.payment.description : '')
             setPaymentType(req.payment.type ? req.payment.type : 'Place')
             setPaymentCharge(req.payment.charge ? req.payment.charge : undefined)
+        } else if (requestNum) {
+            setPayment(undefined)
+            setPaymentStatus('Pending')
+            setcollectOn(undefined)
+            setPaymentTitle(undefined)
+            setPaymentCharge(undefined)
         }
 
         if (req.delivery && !requestNum) {
             setDelivery(req.delivery ? req.delivery : undefined)
-            setDeliveryStatus(req.delivery.status ? req.delivery.status : 'Pending')
+            setDeliveryStatus(req.delivery.status ? req.delivery.status : (req.status ? undefined : 'Pending'))
             setDeliverOn(req.delivery.deliverOn ? req.delivery.deliverOn : undefined)
             setDeliveryTitle(req.delivery.title ? req.delivery.title : undefined)
             setDeliveryCharge(req.delivery.charge ? req.delivery.charge : undefined)
+        } else if (requestNum) {
+            setDelivery(undefined)
+            setDeliveryStatus(undefined)
+            setDeliverOn(undefined)
+            setDeliveryTitle(undefined)
+            setDeliveryCharge(undefined)
         }
 
         !requestNum &&
@@ -538,7 +484,7 @@ function OrdersManager(props) {
                 ? requestType === 'Cancel' || requestType === 'Return'
                 : req.type === 'Cancel' || req.type === 'Return'
             if (reqType) {
-                var index = requestNum ? requestNum - 1 : req.canceledRequestNum - 1
+                var index = requestNum ? requestNum - 1 : req.modifiedRequestNum - 1
                 var items = request[index].cart.items
                 setItemsQty(items.map(item => {
                     return { _id: item._id, qty: item.qty }
@@ -666,7 +612,8 @@ function OrdersManager(props) {
     const qtyCalc = () => {
         var totalqty = 0
         cartItems.map(item => {
-            totalqty = totalqty + item.qty
+            var itemRejected = item.rejectedQty || 0
+            totalqty = totalqty + item.qty - itemRejected
         })
         return totalqty
     }
@@ -878,6 +825,7 @@ function OrdersManager(props) {
 
     const addRequestHandler = (e) => {
         e.preventDefault()
+
         if (qtyCalc() > 0) {
             request[requestIndex] = {
                 _id: requestId && requestId,
@@ -885,7 +833,8 @@ function OrdersManager(props) {
                 created_by: userInfo ? userInfo.name : Date.now() + 10800000,
                 type: requestType,
                 status: requestStatus,
-                canceledRequestNum: requestType === 'Cancel' ? requestNum : undefined,
+                modifiedRequestNum: (requestType === 'Cancel' || requestType === 'Return') ?
+                    requestNum : undefined,
 
                 operatedBy: userInfo.isOrderManager !== undefined && {
                     date: time,
@@ -901,10 +850,10 @@ function OrdersManager(props) {
                     type: paymentType,
                     charge: paymentCalc(),
                 },
-                delivery: {
-                    status: deliveryStatus,
-                    deliverOn: deliverOn && deliverOn,
-                    title: deliveryTitle && deliveryTitle,
+                delivery: requestType !== 'Prepare' && {
+                    status: deliveryStatus || undefined,
+                    deliverOn: deliverOn || undefined,
+                    title: deliveryTitle || undefined,
                     //type: deliveryType,
                     duration: deliveryValues && (deliveryValues.duration + ' ' + deliveryValues.timeFormat),
                     charge: deliveryCalc(),
@@ -973,10 +922,9 @@ function OrdersManager(props) {
                 employeeId: userInfo.employeeId
             }
         }
-
         if (confirmed) {
             dispatch(saveOrder({
-                _id: order._id, receiptNum: req.receiptNum, type: type, status: requestStat, operatedBy
+                _id: order._id, req_id: req._id, type: type, status: requestStat, operatedBy
             }))
             setFormAction('Modifie')
         }
@@ -985,6 +933,8 @@ function OrdersManager(props) {
     const closeModel = () => {
         setModelVisible(false)
         dispatch(listOrders())
+        setIsDeliveryAddress(undefined)
+        setIsPaymentAddress(undefined)
     }
 
     return (
@@ -1041,16 +991,17 @@ function OrdersManager(props) {
                                 onChange={(e) => setCustomerEmail(e.target.value)}
                             ></input>
                         </li>*/}
-                        {orderValues &&
+                        {/*orderValues &&
                             <li>
                                 <label className="label" htmlFor="city">Address<p className="required">*</p></label>
                                 <div className='user-address' >
                                     {deliveryAddress}
                                 </div>
-                            </li>}
-                        {address.length > 0 && !orderValues &&
+                        </li>*/}
+
+                        {address.length > 0 &&
                             <li className='border-padding padding-bottom'>
-                                {address.map((add) => (
+                                {address.map(add => (
                                     <div key={address.indexOf(add)}>
                                         <div className='flex-align'>
                                             <div className="label margin-right">
@@ -1189,11 +1140,14 @@ function OrdersManager(props) {
                                     <button className='button width'
                                         onClick={(e) => {
                                             e.preventDefault()
-                                            city && region && building &&
-                                                setAddress(
-                                                    [...address, { city: city, region: region, building: building }]
-                                                )
-                                            setAddressVisible(false)
+                                            if (city && region && building) {
+                                                setAddress([...address, { city: city, region: region, building: building }])
+                                                setAddressVisible(false)
+                                                setDeliveryAddress(city + ', ' + region + ', ' + building)
+                                                setPaymentAddress(city + ', ' + region + ', ' + building)
+                                                setIsDeliveryAddress(address.length)
+                                                setIsPaymentAddress(address.length)
+                                            }
                                         }}>Add Address
                                     </button>
                                     <button type="button" className="button secondary width"
@@ -1256,7 +1210,7 @@ function OrdersManager(props) {
                         {request.length > 0 &&
                             <li className='border-padding'>
                                 {request.map(req => (
-                                    <div style={{ margin: '0.5rem 0' }} key={req._id}>
+                                    <div style={{ margin: '0.5rem 0' }} key={req.receiptNum}>
                                         <div className='flex-align'>
                                             <div className="label margin-right">
                                                 {'Request Summary #' + (request.indexOf(req) + 1)}</div>
@@ -1551,7 +1505,7 @@ function OrdersManager(props) {
                                         {(requestType === 'Cancel' ? 'Canceled ' : '') + 'Cart Items'}
                                         <p className="required">*</p>
                                     </label>
-                                    {requestType !== 'Cancel' &&
+                                    {requestType !== 'Cancel' && requestType !== 'Return' &&
                                         <div className='order-searchKeyword'>
                                             <input
                                                 type="text"
@@ -1841,7 +1795,7 @@ function OrdersManager(props) {
                                     </div>
                                 </div>
                                 {request && request.map(req => (
-                                    <div className='cart-total-qty' key={req._id}>
+                                    <div className='cart-total-qty' key={req.receiptNum}>
                                         <div className='cart-total-label '>
                                             {'Request #' + (request.indexOf(req) + 1) + '  -  ' + req.status}
                                         </div>
@@ -1972,7 +1926,7 @@ function OrdersManager(props) {
                             <td className='status-border text-align-start'>
                                 {order.request.map(req => (
                                     <div disabled={req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected'}
-                                        key={req._id}>{'#' + (order.request.indexOf(req) + 1) + ' ' + req.type}</div>
+                                        key={req.receiptNum}>{'#' + (order.request.indexOf(req) + 1) + ' ' + req.type}</div>
                                 ))}
                             </td>
                             <td className='status-border'>{order.request.map(req => (
@@ -2016,7 +1970,7 @@ function OrdersManager(props) {
                                     : <div key={req._id}>-</div>
                             ))}</td>
                             <td className='status-border'>{order.request.map(req => (
-                                req.delivery ?
+                                req.delivery && req.delivery.status ?
                                     <select
                                         value={req.delivery.status}
                                         onChange={e => requestStatusEditor(e, order, req, 'Delivery')}
@@ -2027,7 +1981,7 @@ function OrdersManager(props) {
                                                 {status}
                                             </option>))}
                                     </select>
-                                    : <div key={req._id}>{req.delivery ? req.delivery.status : '-'}</div>
+                                    : <div key={req.receiptNum}>-</div>
                             ))}</td>
                             <td className='status-border'>
                                 {order.request.map(req => (

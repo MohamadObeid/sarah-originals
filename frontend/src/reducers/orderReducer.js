@@ -74,7 +74,7 @@ function paymentMethodReducer(state = { paymentMethod: "" }, action) {
     }
 }
 
-function orderSaveReducer(state = { order: undefined }, action) {
+function orderSaveReducer(state = { order: {} }, action) {
     switch (action.type) {
         case ORDER_SAVE_REQUEST:
             return {
