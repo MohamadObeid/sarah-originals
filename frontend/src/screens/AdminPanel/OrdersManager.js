@@ -10,7 +10,7 @@ import Swiper from 'react-id-swiper';
 import { addToCart, removeFromCart, updateCart } from "../../actions/cartActions";
 import {
     typeList, cartStatusList, paymentStatusList, deliveryStatusList,
-    requestStatusList, requestTypeList, orderStatusList
+    requestStatusList, requestTypeList, orderStatusList, assignmentStatusList
 } from '../../constants/lists'
 import ReactTooltip from "react-tooltip";
 import { creationDatePrettier, dayConverter, updateRequestStatus, statusModifier } from "../../methods/methods";
@@ -51,7 +51,7 @@ function OrdersManager(props) {
     const [isDeliveryAddress, setIsDeliveryAddress] = useState()
     const [isPaymentAddress, setIsPaymentAddress] = useState()
     const [timeOut, setTimeOut] = useState()
-    const [orderList, setOrderList] = useState()
+    const [orderList, setOrderList] = useState([])
 
     const [requestNum, setRequestNum] = useState()
     const [_id, setId] = useState()
@@ -60,6 +60,7 @@ function OrdersManager(props) {
     const [customerUserId, setCustomerUserId] = useState()
     const [customerPhone, setCustomerPhone] = useState()
     const [orderStatus, setorderStatus] = useState()
+    const [assignment, setAssignment] = useState([])
 
     const [paymentStatus, setPaymentStatus] = useState()
     const [deliveryStatus, setDeliveryStatus] = useState()
@@ -103,7 +104,7 @@ function OrdersManager(props) {
 
     const { time } = useSelector(state => state.clock)
     const { success: successSave, order, error } = useSelector(state => state.orderSave)
-    const { success: successDelete, data: orderDeleted } = useSelector(state => state.orderDelete)
+    const { success: successDelete } = useSelector(state => state.orderDelete)
     const { orders } = useSelector(state => state.orderList)
     const { userInfo } = useSelector(state => state.userSignin)
     const { cartItems } = useSelector(state => state.cart)
@@ -116,35 +117,38 @@ function OrdersManager(props) {
     useEffect(() => {
         typeList && setPaymentTypeList(typeList)
         if (successSave || successDelete) {
-            if ((order && order.data) || orderDeleted) {
+            if ((order && order._id) || successDelete) {
                 dispatch(listOrders())
                 userModified() &&
                     dispatch(saveUser({
                         _id: customerUserId, address: address, name: customerName, orderList: order._id
                     }))
                 setActionNote(`Order ${formAction}d succefully`)
-                setFormAction('')
+                setFormAction('Create')
                 setFormAlertVisible(false)
                 modelVisible && setModelVisible(false)
-                setIsDeliveryAddress(undefined)
-                setIsPaymentAddress(undefined)
-            } else setActionNote(order && order.message)
+            } else setActionNote(order)
+            setIsDeliveryAddress(undefined)
+            setIsPaymentAddress(undefined)
             dispatch(saveOrder('clear'))
             setActionNoteVisible(true)
             clearTimeout(timeOut)
             setTimeOut(setTimeout(() => setActionNoteVisible(false), 6000))
         }
 
-        if (orders && orders.length > 0)
-            setOrderList(orders)
-
         if (error) {
             setModelVisible(false)
             dispatch(listOrders())
         }
-        console.log(orders)
 
-    }, [successSave, successDelete, orders, error, requestFormVisible])
+        if (orders && orders.length > 0) {
+            setOrderList(orders)
+        }
+
+        orders &&
+            console.log(orders)
+
+    }, [successSave, successDelete, orders, error])
 
     useEffect(() => {
         if (deliveryTitle) {
@@ -216,7 +220,7 @@ function OrdersManager(props) {
         setRequestFormVisible(false)
         setOrderValues(order._id ? order : undefined)
         setId(order._id ? order._id : undefined)
-        setinvoiceNum(order.invoiceNum ? order.invoiceNum : 'INV-' + (Date.now() + 10800000))
+        setinvoiceNum(order.invoiceNum ? order.invoiceNum : 'INV-' + (Date.now() + 7200000))
         setRequest(order.request ? order.request : [])
         setCity(undefined)
         setRegion(undefined)
@@ -226,22 +230,26 @@ function OrdersManager(props) {
         setorderStatus(order.orderStatus ? order.orderStatus : 'Pending')
         setDeliveryAddress(order.deliveryAddress ? order.deliveryAddress : undefined)
         setPaymentAddress(order.paymentAddress ? order.paymentAddress : undefined)
+        setIsDeliveryAddress(undefined)
+        setIsPaymentAddress(undefined)
         await dispatch(getUser(order.phone ? order.phone : 'clear'))
         setCustomerUserId(order.userId ? order.userId : undefined)
         setCustomerName(order.name ? order.name : '')
         setCustomerPhone(order.phone ? order.phone : '')
-
         setamount(order.amount ? order.amount : undefined)
         setNote(order.note ? order.note : [])
         order.note ? setNoteIndex(order.note.length) : setNoteIndex(0)
         setFormAlertVisible(false)
         setNoteText(undefined)
+        setAssignment(order.assignment ? order.assignment : [])
     }
 
     const submitHandler = (e) => {
         e.preventDefault()
         //console.log(request)
-        if (customerName && customerPhone && request.length > 0) {
+        const isPrepare = request.find(req => req.type === 'Prepare') || undefined
+        if (customerName && customerPhone && (isPrepare ? true : deliveryAddress)
+            && paymentAddress && request.length > 0) {
             if (_id) {
                 dispatch(saveOrder({
                     _id: _id,
@@ -259,7 +267,7 @@ function OrdersManager(props) {
                 }))
             } else {
                 dispatch(saveOrder({
-                    creation_date: Date.now() + 10800000,
+                    creation_date: Date.now() + 7200000,
                     created_by: userInfo.name,
                     userId: customerUserId,
                     name: customerName,
@@ -274,6 +282,18 @@ function OrdersManager(props) {
                     //status: orderStatus
                 }))
             }
+        } else {
+            if (request.length === 0) {
+                setActionNote(`Order must have at least 1 request!`)
+            } else if (!deliveryAddress) {
+                setActionNote(`Order must have a delivery/payment address!`)
+            }
+            setFormAlertVisible(false)
+            modelVisible && setModelVisible(false)
+            setActionNoteVisible(true)
+            clearTimeout(timeOut)
+            setTimeOut(setTimeout(() => setActionNoteVisible(false), 6000))
+            dispatch(listOrders())
         }
     }
 
@@ -365,13 +385,15 @@ function OrdersManager(props) {
             })
         } else if (status === 'Prepare') {
             setPrepareOn(deliveryDurationInDate())
+            setDeliveryAddress(undefined)
+            setIsDeliveryAddress(undefined)
         } else if (status === 'Cancel') {
             setPrepareOn(undefined)
         }
     }
 
     const showRequestForm = (req) => {
-        var d = Date.now() + 10800000
+        var d = Date.now() + 7200000
         cartItems.length > 0 && dispatch(updateCart('clear'))
         setRequestTypeDisabled(false)
         setReceiptNum('RE-' + d)
@@ -763,7 +785,7 @@ function OrdersManager(props) {
             if (req.status !== 'Pending')
                 amount = amount + parseFloat(req.amount)
         })
-        return amount
+        return amount.toFixed()
     }
 
     ////////////////////////////////////////////////////////
@@ -776,7 +798,7 @@ function OrdersManager(props) {
         var currentHour = d.getHours() < 10 ? '0' + d.getHours() : d.getHours()
         var currentMinutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes()
 
-        if (delivery) {
+        if (typeof delivery === 'object') {
             var n = d
             n.setDate(d.getDate() + 1)
             var tomorrowYear = n.getFullYear()
@@ -816,6 +838,9 @@ function OrdersManager(props) {
                 currentMonth = tomorrowMonth
                 currentYear = tomorrowYear
             }
+        } else if (typeof delivery === 'string') {
+            var date = delivery
+            return date.slice(0, 16)
         }
         if (typeof currentMinutes === 'number' && currentMinutes < 10) currentMinutes = '0' + currentMinutes
         if (typeof currentHour === 'number' && currentHour < 10) currentHour = '0' + currentHour
@@ -830,17 +855,17 @@ function OrdersManager(props) {
             request[requestIndex] = {
                 _id: requestId && requestId,
                 creation_date: time,
-                created_by: userInfo ? userInfo.name : Date.now() + 10800000,
+                created_by: userInfo ? userInfo.name : Date.now() + 7200000,
                 type: requestType,
                 status: requestStatus,
                 modifiedRequestNum: (requestType === 'Cancel' || requestType === 'Return') ?
                     requestNum : undefined,
 
-                operatedBy: userInfo.isOrderManager !== undefined && {
+                /*operatedBy: userInfo.isOrderManager !== undefined && {
                     date: time,
                     employeeName: userInfo.name,
                     employeeId: userInfo.employeeId
-                },
+                },*/
 
                 payment: {
                     status: paymentStatus,
@@ -850,7 +875,8 @@ function OrdersManager(props) {
                     type: paymentType,
                     charge: paymentCalc(),
                 },
-                delivery: requestType !== 'Prepare' && {
+                delivery: (requestType !== 'Prepare' &&
+                    (request ? request[0] !== 'Prepare' : true)) && {
                     status: deliveryStatus || undefined,
                     deliverOn: deliverOn || undefined,
                     title: deliveryTitle || undefined,
@@ -926,7 +952,7 @@ function OrdersManager(props) {
             dispatch(saveOrder({
                 _id: order._id, req_id: req._id, type: type, status: requestStat, operatedBy
             }))
-            setFormAction('Modifie')
+            setFormAction('update')
         }
     }
 
@@ -935,6 +961,12 @@ function OrdersManager(props) {
         dispatch(listOrders())
         setIsDeliveryAddress(undefined)
         setIsPaymentAddress(undefined)
+    }
+
+    const assignRequest = (e, request) => {
+        e.preventDefault()
+        dispatch(saveOrder({ _id, req_id: request._id, status: 'Reassign' }))
+        setFormAction('Assigne')
     }
 
     return (
@@ -1011,6 +1043,14 @@ function OrdersManager(props) {
                                                 onClick={(e) => {
                                                     e.preventDefault()
                                                     address.splice(address.indexOf(add), 1)
+                                                    if ((add.city + ', ' + add.region + ', ' + add.building) === deliveryAddress) {
+                                                        setDeliveryAddress(undefined)
+                                                        setIsDeliveryAddress(undefined)
+                                                    }
+                                                    if ((add.city + ', ' + add.region + ', ' + add.building) === paymentAddress) {
+                                                        setPaymentAddress(undefined)
+                                                        setIsPaymentAddress(undefined)
+                                                    }
                                                 }} />
                                             <FontAwesomeIcon icon={faEdit}
                                                 className='cursor-color-absolute'
@@ -1118,7 +1158,7 @@ function OrdersManager(props) {
                                         type="text"
                                         name="city"
                                         id="city"
-                                        value={city}
+                                        value={city || ''}
                                         onChange={(e) => setCity(e.target.value)}
                                     ></input>
                                     <label className="label" htmlFor="region">Region<p className="required">*</p></label>
@@ -1248,11 +1288,26 @@ function OrdersManager(props) {
                                                         style={{ fontSize: '1.1rem' }}>{req.delivery.status}</div>
                                                 </div>}
                                             {req.payment.status &&
-                                                <div className='cart-total-qty border-bottom'>
+                                                <div className='cart-total-qty'>
                                                     <div className='cart-total-label'>Payment Status</div>
                                                     <div className='total-num'
                                                         style={{ fontSize: '1.1rem' }}>{req.payment.status}</div>
                                                 </div>}
+                                            {assignment.length > 0 &&
+                                                <div className='cart-total-qty receipt-title margin-bottom-rem'>
+                                                    <div className="label">Assignments</div>
+                                                    {req.status === 'Confirmed' && <div className='total-num assign-btn'
+                                                        style={{ fontSize: '1.2rem' }}
+                                                        onClick={e => assignRequest(e, req)}>Reassign</div>}
+                                                </div>}
+                                            {assignment.length > 0 &&
+                                                assignment.map(ass => ((ass.status !== 'Canceled' || ass.status === req.status) &&
+                                                    <div className='cart-total-qty' key={ass._id}>
+                                                        <div className='cart-total-label'>{ass.type}</div>
+                                                        <div className='total-num'
+                                                            style={{ fontSize: '1.1rem' }}>{ass.employeeName}</div>
+                                                    </div>
+                                                ))}
                                             <div className='cart-total-qty receipt-title'>
                                                 <div className="label">Receipt#</div>
                                                 <div className='total-num'
@@ -1512,7 +1567,7 @@ function OrdersManager(props) {
                                                 name="searchKeyword"
                                                 id="searchKeyword"
                                                 className='orders-user-phone'
-                                                value={searchKeyword}
+                                                value={searchKeyword || ''}
                                                 onChange={(e) => setSearchKeyword(e.target.value)}
                                             ></input>
                                             <button
@@ -1675,7 +1730,7 @@ function OrdersManager(props) {
                                                         <div className="label">Receipt#</div>
                                                         <div className='total-num'
                                                             style={{ fontSize: '1.2rem' }}>
-                                                            {receiptNum ? receiptNum : 'RE-' + (d + 10800000)}
+                                                            {receiptNum ? receiptNum : 'RE-' + (d + 7200000)}
                                                         </div>
                                                     </div>
                                                     <div className='cart-total-qty'>
@@ -1891,8 +1946,8 @@ function OrdersManager(props) {
                 <thead>
                     <tr>
                         <th style={{ textAlign: 'center', width: '4rem' }}>Active</th>
-                        <th style={{ width: '9rem' }}>Time</th>
-                        <th style={{ width: '14rem' }}>Name</th>
+                        <th style={{ width: '10rem' }}>Time</th>
+                        <th style={{ width: '13.5rem' }}>Customer</th>
                         <th className='width-8rem'>Type</th>
                         <th className='align-width'>Status</th>
                         <th className='align-width'>Cart</th>
@@ -1900,7 +1955,7 @@ function OrdersManager(props) {
                         <th className='align-width'>Delivery</th>
                         <th className='align-width width-5rem align-right'>Amount</th>
                         <th className='align-width width-7rem align-right'>Total</th>
-                        <th style={{ width: '20rem' }}>Actions</th>{/*Edit, Delete, History, Status*/}
+                        <th style={{ width: '20rem' }}>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1920,13 +1975,13 @@ function OrdersManager(props) {
                             <td data-tip data-for={order._id + 'name'}>{order.name}
                                 <ReactTooltip id={order._id + 'name'} place="top" effect="float" className='width-30rem'>
                                     {'Phone# ' + order.phone}<br />
-                                    {'Address: ' + order.deliveryAddress}
+                                    {order.deliveryAddress && ('Address: ' + order.deliveryAddress)}
                                 </ReactTooltip>
                             </td>
                             <td className='status-border text-align-start'>
                                 {order.request.map(req => (
                                     <div disabled={req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected'}
-                                        key={req.receiptNum}>{'#' + (order.request.indexOf(req) + 1) + ' ' + req.type}</div>
+                                        key={req.receiptNum}>{req.type}</div>
                                 ))}
                             </td>
                             <td className='status-border'>{order.request.map(req => (
@@ -1934,7 +1989,7 @@ function OrdersManager(props) {
                                     value={req.status}
                                     onChange={e => requestStatusEditor(e, order, req, 'Request')}
                                     key={req._id}
-                                    disabled={req.status === 'on Hold' || req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected' || (req.type === 'Cancel' && req.status === 'Confirmed')}>
+                                    disabled={req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected' || (req.type === 'Cancel' && req.status === 'Confirmed')}>
                                     {requestStatusList.map(status => (
                                         <option key={requestStatusList.indexOf(status)} value={status}>
                                             {status}
@@ -1947,7 +2002,7 @@ function OrdersManager(props) {
                                         value={req.cart.status}
                                         onChange={e => requestStatusEditor(e, order, req, 'Cart')}
                                         key={req._id}
-                                        disabled={req.cart.status === 'on Hold' || req.cart.status === 'Packed' || req.cart.status === 'Canceled' || req.cart.status === 'Unpacked'}>
+                                        disabled={req.cart.status === 'Packed' || req.cart.status === 'Canceled' || req.cart.status === 'Unpacked'}>
                                         {cartStatusList.map(status => (
                                             <option key={cartStatusList.indexOf(status)} value={status}>
                                                 {status}
@@ -1961,7 +2016,7 @@ function OrdersManager(props) {
                                         value={req.payment.status}
                                         onChange={e => requestStatusEditor(e, order, req, 'Payment')}
                                         key={req._id}
-                                        disabled={req.payment.status === 'on Hold' || req.payment.status === 'Collected' || req.payment.status === 'Canceled' || req.payment.status === 'Uncollected'}>
+                                        disabled={req.payment.status === 'Collected' || req.payment.status === 'Canceled' || req.payment.status === 'Uncollected'}>
                                         {paymentStatusList.map(status => (
                                             <option key={paymentStatusList.indexOf(status)} value={status}>
                                                 {status}
@@ -1975,7 +2030,7 @@ function OrdersManager(props) {
                                         value={req.delivery.status}
                                         onChange={e => requestStatusEditor(e, order, req, 'Delivery')}
                                         key={req._id}
-                                        disabled={req.delivery.status === 'on Hold' || req.delivery.status === 'Delivered' || req.delivery.status === 'Undelivered' || req.delivery.status === 'Canceled' || req.delivery.status === 'Returned'}>
+                                        disabled={req.delivery.status === 'Delivered' || req.delivery.status === 'Undelivered' || req.delivery.status === 'Canceled' || req.delivery.status === 'Returned'}>
                                         {deliveryStatusList.map(status => (
                                             <option key={deliveryStatusList.indexOf(status)} value={status}>
                                                 {status}

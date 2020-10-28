@@ -116,7 +116,11 @@ function orderDeleteReducer(state = { data: {} }, action) {
             return {
                 loading: false,
                 error: action.payload,
-            };
+            }
+        case ORDER_SAVE_CLEAR:
+            return {
+                success: false
+            }
         default:
             return state;
     }

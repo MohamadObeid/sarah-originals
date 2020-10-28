@@ -15,8 +15,8 @@ router.post("/signin", async (req, res) => {
   //console.log(user)
   if (user) {
     if (req.body.request === 'signout') { // signout request
-      user.activity[lastIndex].end = Date.now() + 10800000
-      user.lastActivity = Date.now() + 10800000
+      user.activity[lastIndex].end = Date.now() + 7200000
+      user.lastActivity = Date.now() + 7200000
       user.active = false
       user = await user.save()
       console.log(user.email + ' request signout')
@@ -27,24 +27,24 @@ router.post("/signin", async (req, res) => {
         if (lastIndex > 0 && !user.activity[lastIndex].end)
           user.activity[lastIndex].end = user.lastActivity + 25000
         user.active = true
-        user.activity = [...user.activity, { start: Date.now() + 10800000, IP: req.body.IP }]
+        user.activity = [...user.activity, { start: Date.now() + 7200000, IP: req.body.IP }]
       } if (lastIndex === 0) {
         user.active = true
-        user.activity = [...user.activity, { start: Date.now() + 10800000, IP: req.body.IP }]
+        user.activity = [...user.activity, { start: Date.now() + 7200000, IP: req.body.IP }]
       }
-      user.lastActivity = Date.now() + 10800000
+      user.lastActivity = Date.now() + 7200000
       user = await user.save()
       console.log(user.email + ' request signin')
 
     } else if (!user.activity[lastIndex].end && user.active) { //set user Active
-      user.lastActivity = Date.now() + 10800000
+      user.lastActivity = Date.now() + 7200000
       user = await user.save()
       console.log(user.email + ' set Active')
 
     } else if (user.activity[lastIndex].end && !user.active) {
       user.active = true
-      user.activity = [...user.activity, { start: Date.now() + 10800000, IP: req.body.IP }]
-      user.lastActivity = Date.now() + 10800000
+      user.activity = [...user.activity, { start: Date.now() + 7200000, IP: req.body.IP }]
+      user.lastActivity = Date.now() + 7200000
       user = await user.save()
       console.log(user.email + ' resignin')
     }
@@ -76,13 +76,13 @@ router.post("/signin", async (req, res) => {
         password: req.body.password,
       })
       if (user.active) {
-        if ((Date.now() + 10800000) - user.lastActivity < 30000) {
+        if ((Date.now() + 7200000) - user.lastActivity < 30000) {
           console.log(user.email + ' return')
           return
         } else {
-          console.log((Date.now() + 10800000) - user.lastActivity)
+          console.log((Date.now() + 7200000) - user.lastActivity)
           var lastIndex = user.activity.length - 1
-          user.activity[lastIndex].end = Date.now() + 10800000
+          user.activity[lastIndex].end = Date.now() + 7200000
           user.active = false
           user.save()
           //console.log(user)
@@ -106,7 +106,7 @@ router.post("/register", async (req, res) => {
     isAttendanceManager: req.body.isAttendanceManager,
     isOrderManager: req.body.isOrderManager,
     isOrderManager: req.body.isOrderManager,
-    activity: [{ date: Date.now() + 10800000, IPaddress: req.body.IP }],
+    activity: [{ date: Date.now() + 7200000, IPaddress: req.body.IP }],
     active: true
   })
 
@@ -178,8 +178,8 @@ router.post("/create", async (req, res) => {
 });*/
 
 router.get("", isAuth, isAdmin, async (req, res) => {
-  const users = await User.find({}).sort({ active: 0 })
-  res.send(users.reverse());
+  const users = await User.find({}).sort({ lastActivity: -1 })
+  res.send(users);
 });
 
 // id list: get users

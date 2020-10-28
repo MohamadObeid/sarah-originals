@@ -5,7 +5,7 @@ import Attendance from "../modals/attendanceModel";
 const router = express.Router();
 
 router.get("", async (req, res) => {
-    const attendance = await Attendance.find({});
+    const attendance = await Attendance.find({}).sort({ creation_date: -1 });
     attendance.length > 0 ? res.send(attendance) : res.send(undefined)
 });
 

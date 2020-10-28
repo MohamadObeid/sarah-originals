@@ -5,7 +5,7 @@ const liveUserSchema = new mongoose.Schema({
     chatId: { type: Array, required: false },
     userId: { type: String, required: true },
     userName: { type: String, required: true },
-    agent: { type: Array, required: false, default: undefined }
+    agent: { type: Array, required: false, default: undefined },
 })
 
 const LiveUser = mongoose.model("LiveUser", liveUserSchema);

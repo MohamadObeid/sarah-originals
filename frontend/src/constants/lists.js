@@ -120,11 +120,12 @@ export const deliveryTypeList = ['Fast', 'Standard'];
 
 export const cartStatusList = ['Pending', 'on Hold', 'Packing', 'Packed', 'Canceled', 'Unpacked']
 export const paymentStatusList = ['Pending', 'on Hold', 'Uncollected', 'Collected', 'Canceled', 'Refunded']
-export const deliveryStatusList = ['Pending', 'on Hold', 'On Road', 'Undelivered', 'Delivered', 'Canceled', 'Returned']
+export const deliveryStatusList = ['Pending', 'on Hold', 'On Road', 'Delivered', 'Undelivered', 'Canceled', 'Returned']
 export const requestStatusList = ['Pending', 'on Hold', 'Confirmed', 'Completed', 'Rejected', 'Canceled']
 export const requestTypeList = ['Place', 'Prepare', 'Cancel', 'Return']
 export const rateUnitList = ['usd', 'lbp', '%', 'euro']
 export const orderStatusList = ['Open', 'Closed', 'Rejected', 'Canceled']
+export const assignmentStatusList = ['Pending', 'Accepted', 'Canceled', 'Rejected']
 
 // Cancel requestType is accepted => if paymentStatus === 'Pending && deliveryStatus === 'Pending' 
 // => in this case delivery and payment status will be set 'On Hold'

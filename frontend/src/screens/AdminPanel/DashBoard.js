@@ -34,7 +34,7 @@ import { listDelivery } from "../../actions/deliveryActions"
 import { listPayment } from "../../actions/paymentActions"
 import { detailsEmployee, listEmployees } from "../../actions/employeeActions"
 import { listReviews } from "../../actions/reviewActions"
-import { listOrders } from "../../actions/orderActions"
+import { listOrders, listActiveOrders } from "../../actions/orderActions"
 import { listAssignment } from "../../actions/assignmentActions"
 import { listAttendance } from "../../actions/attendanceActions"
 import { listChat, listLiveUser, saveLiveUser, deleteChat } from "../../actions/chatActions"
@@ -85,7 +85,7 @@ function DashBoard(props) {
     } else setEmployeeVisible(false)
 
     if (manager === 'assignment') {
-      dispatch(listAssignment())
+      dispatch(listActiveOrders())
       setAssignmentsVisible(true)
     } else setAssignmentsVisible(false)
 

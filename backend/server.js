@@ -6,7 +6,6 @@ import bodyParser from "body-parser";
 import logger from 'morgan'
 import cors from 'cors';
 import methodOverride from 'method-override'
-//mongoose.Promise = require('bluebird');
 
 import userRoute from "./routes/userRoute";
 import productRoute from "./routes/productRoute";
@@ -18,7 +17,7 @@ import paymentRoute from './routes/paymentRoute';
 import deliveryRoute from './routes/deliveryRoute';
 import employeeRoute from './routes/employeeRoute';
 import attendanceRoute from './routes/attendanceRoute';
-//import uploadRoute from './routes/uploadRoute';
+import assignmentRoute from './routes/assignmentRoute';
 import chatRoute from './routes/chatRoute';
 import liveChatRoute from './routes/liveUserRoute';
 import imageRouter from './routes/imageRoute';
@@ -105,6 +104,8 @@ app.use("/api/delivery", deliveryRoute);
 app.use("/api/employee", employeeRoute);
 
 app.use("/api/attendance", attendanceRoute);
+
+app.use("/api/assignment", assignmentRoute);
 
 app.use("/api/chat", chatRoute);
 

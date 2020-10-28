@@ -127,6 +127,12 @@ function EmployeeManager(props) {
     const [sunFrom, setSunFrom] = useState()
     const [sunTo, setSunTo] = useState()
 
+    const [cartHandler, setCartHandler] = useState()
+    const [deliveryHandler, setDeliveryHandler] = useState()
+    const [paymentHandler, setPaymentHandler] = useState()
+    const [requestHandler, setrequestHandler] = useState()
+    const [maxAssignments, setMaxAssignments] = useState()
+
     const { success: successSave } = useSelector(state => state.employeeSave)
     const { success: successDelete } = useSelector(state => state.employeeDelete)
     const { employees } = useSelector(state => state.employeeList)
@@ -159,10 +165,9 @@ function EmployeeManager(props) {
             dispatch(saveEmployee('clear'))
             dispatch(deleteEmployee('clear'))
         }
-        return () => {
-            //
-        }
-    }, [successSave, successDelete])
+
+        console.log(employees)
+    }, [successSave, successDelete, employees])
 
     const openModel = (employee) => {
         setModelVisible(true)
@@ -303,7 +308,13 @@ function EmployeeManager(props) {
                 drivingLicenselist = drivingLicenselist
                     .filter(license => license !== licenseExist && license)
             })
-        setLicenseDropdown(drivingLicenselist);
+        setLicenseDropdown(drivingLicenselist)
+
+        setCartHandler(employee.cartHandler || false)
+        setDeliveryHandler(employee.deliveryHandler || false)
+        setPaymentHandler(employee.paymentHandler || false)
+        setMaxAssignments(employee.maxAssignments || 5)
+        setrequestHandler(employee.requestHandler || false)
     }
 
     const modifiedArray = (employee) => {
@@ -410,7 +421,8 @@ function EmployeeManager(props) {
                             creation_date: Date.now() + 10800000, active, title, firstName, lastName, image, email,
                             phone, dob: { day: dobDay, month: dobMonth, year: dobYear },
                             address, maritalStatus, drivingLicense, jobPosition, jobDescription, facebook, instagram, youtube,
-                            interests, contract: contract, salary: salary, workTime: workTime, note
+                            interests, contract: contract, salary: salary, workTime: workTime, note, cartHandler, paymentHandler,
+                            deliveryHandler, maxAssignments, requestHandler
                         }))
                     else {
                         // set modified
@@ -419,7 +431,8 @@ function EmployeeManager(props) {
                             creation_date: userInfo.creation_date, _id, active, title, firstName, lastName, image, email,
                             phone, dob: { day: dobDay, month: dobMonth, year: dobYear },
                             address, maritalStatus, drivingLicense, jobPosition, jobDescription, facebook, instagram, youtube,
-                            interests, contract: contract, salary: salary, workTime: workTime, note
+                            interests, contract: contract, salary: salary, workTime: workTime, note, cartHandler, paymentHandler,
+                            deliveryHandler, maxAssignments, requestHandler
                         }))
                     }
                 } else {
@@ -750,14 +763,7 @@ function EmployeeManager(props) {
                         </li>
                         <li>
                             {image &&
-                                <img style={{
-                                    width: '100%',
-                                    maxHeight: '30rem',
-                                    background: '#fff',
-                                    borderRadius: '0.5rem',
-                                    border: '1px #c0c0c0 solid',
-                                    marginBottom: '1rem',
-                                }} src={imageUrl + image} alt='employee' />
+                                <img className='employee-img' src={imageUrl + image} alt='employee' />
                             }
                             <label className="label" htmlFor="img">{image && 'Update '}Photo<p className="required">*</p></label>
                             <input
@@ -1001,7 +1007,7 @@ function EmployeeManager(props) {
                             </select>
                         </li>
                         <li>
-                            <label className="label" htmlFor="jobDescription">Job Descrition<p className="required">*</p></label>
+                            <label className="label" htmlFor="jobDescription">Job Description</label>
                             <textarea
                                 type="text"
                                 name="jobDescription"
@@ -1052,8 +1058,8 @@ function EmployeeManager(props) {
                                 onChange={(e) => setYoutube(e.target.value)}
                             ></input>
                         </li>
-                        <div className='dropdown'>
-                            <div className='dropdown-label'>Interests<p className="required">*</p></div>
+                        <li className='dropdown'>
+                            <div className='dropdown-label'>Interests</div>
                             <div className='dropdown-overlay overlay-2'></div>
                             <div className='dropdown-container'>
                                 <div className='dropdown-input' onClick={() => {
@@ -1092,7 +1098,53 @@ function EmployeeManager(props) {
                                     </div>
                                 }
                             </div>
-                        </div>
+                        </li>
+                        <li>
+                            <label className="label">Assignment Handlers</label>
+                            <div className='assignment-handlers'>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <th>
+                                                <input type='checkbox' checked={cartHandler}
+                                                    onChange={e => setCartHandler(e.target.checked)} />
+                                            </th>
+                                            <td>
+                                                Cart
+                                            </td>
+                                            <th>
+                                                <input type='checkbox' checked={deliveryHandler}
+                                                    onChange={e => setDeliveryHandler(e.target.checked)} />
+                                            </th>
+                                            <td>
+                                                Delivery
+                                            </td>
+                                            <th>
+                                                <input type='checkbox' checked={paymentHandler}
+                                                    onChange={e => setPaymentHandler(e.target.checked)} />
+                                            </th>
+                                            <td>
+                                                Payment
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                <input type='checkbox' checked={requestHandler}
+                                                    onChange={e => setrequestHandler(e.target.checked)} />
+                                            </th>
+                                            <td>
+                                                Request
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                {/*<div className='display-align'>
+                                    <input type='number' value={maxAssignments}
+                                        onChange={e => setMaxAssignments(e.target.value)} />
+                                    <label className="label">Maximum Assignments</label>
+                            </div>*/}
+                            </div>
+                        </li>
                         <li>
                             <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
                                 <label className="label" htmlFor="contract">Contract</label>
@@ -1647,41 +1699,44 @@ function EmployeeManager(props) {
                                         : <FontAwesomeIcon className='farCircle' icon={farCircle} />}
                                 </td>
                                 <td style={{ textAlign: 'center' }}>
-                                    {((currentWeekDay === 'Monday' && employee.workTime.mon) ?
-                                        (currentHour > employee.workTime.mon.from.slice(0, 2) || (currentHour == employee.workTime.mon.from.slice(0, 2) && currentMinutes >= employee.workTime.mon.from.slice(3, 5)))
-                                        && (currentHour < employee.workTime.mon.to.slice(0, 2) || (currentHour == employee.workTime.mon.to.slice(0, 2)) && currentMinutes < employee.workTime.mon.to.slice(3, 5))
-                                        && employee.workTime.mon.to
+                                    {(
+                                        employee.workTime ?
 
-                                        : (currentWeekDay === 'Tuesday' && employee.workTime.tue) ?
-                                            (currentHour > employee.workTime.tue.from.slice(0, 2) || (currentHour == employee.workTime.tue.from.slice(0, 2) && currentMinutes >= employee.workTime.tue.from.slice(3, 5)))
-                                            && (currentHour < employee.workTime.tue.to.slice(0, 2) || (currentHour == employee.workTime.tue.to.slice(0, 2)) && currentMinutes < employee.workTime.tue.to.slice(3, 5))
-                                            && employee.workTime.tue.to
+                                            ((currentWeekDay === 'Monday' && employee.workTime.mon) ?
+                                                (currentHour > employee.workTime.mon.from.slice(0, 2) || (currentHour == employee.workTime.mon.from.slice(0, 2) && currentMinutes >= employee.workTime.mon.from.slice(3, 5)))
+                                                && (currentHour < employee.workTime.mon.to.slice(0, 2) || (currentHour == employee.workTime.mon.to.slice(0, 2)) && currentMinutes < employee.workTime.mon.to.slice(3, 5))
+                                                && employee.workTime.mon.to
 
-                                            : (currentWeekDay === 'Wednesday' && employee.workTime.wed) ?
-                                                (currentHour > employee.workTime.wed.from.slice(0, 2) || (currentHour == employee.workTime.wed.from.slice(0, 2) && currentMinutes >= employee.workTime.wed.from.slice(3, 5)))
-                                                && (currentHour < employee.workTime.wed.to.slice(0, 2) || (currentHour == employee.workTime.wed.to.slice(0, 2)) && currentMinutes < employee.workTime.wed.to.slice(3, 5))
-                                                && employee.workTime.wed.to
+                                                : (currentWeekDay === 'Tuesday' && employee.workTime.tue) ?
+                                                    (currentHour > employee.workTime.tue.from.slice(0, 2) || (currentHour == employee.workTime.tue.from.slice(0, 2) && currentMinutes >= employee.workTime.tue.from.slice(3, 5)))
+                                                    && (currentHour < employee.workTime.tue.to.slice(0, 2) || (currentHour == employee.workTime.tue.to.slice(0, 2)) && currentMinutes < employee.workTime.tue.to.slice(3, 5))
+                                                    && employee.workTime.tue.to
 
-                                                : (currentWeekDay === 'Thursday' && employee.workTime.thu) ?
-                                                    (currentHour > employee.workTime.thu.from.slice(0, 2) || (currentHour == employee.workTime.thu.from.slice(0, 2) && currentMinutes >= employee.workTime.thu.from.slice(3, 5)))
-                                                    && (currentHour < employee.workTime.thu.to.slice(0, 2) || (currentHour == employee.workTime.thu.to.slice(0, 2)) && currentMinutes < employee.workTime.thu.to.slice(3, 5))
-                                                    && employee.workTime.thu.to
+                                                    : (currentWeekDay === 'Wednesday' && employee.workTime.wed) ?
+                                                        (currentHour > employee.workTime.wed.from.slice(0, 2) || (currentHour == employee.workTime.wed.from.slice(0, 2) && currentMinutes >= employee.workTime.wed.from.slice(3, 5)))
+                                                        && (currentHour < employee.workTime.wed.to.slice(0, 2) || (currentHour == employee.workTime.wed.to.slice(0, 2)) && currentMinutes < employee.workTime.wed.to.slice(3, 5))
+                                                        && employee.workTime.wed.to
 
-                                                    : (currentWeekDay === 'Friday' && employee.workTime.fri) ?
-                                                        (currentHour > employee.workTime.fri.from.slice(0, 2) || (currentHour == employee.workTime.fri.from.slice(0, 2) && currentMinutes >= employee.workTime.fri.from.slice(3, 5)))
-                                                        && (currentHour < employee.workTime.fri.to.slice(0, 2) || (currentHour == employee.workTime.fri.to.slice(0, 2)) && currentMinutes < employee.workTime.fri.to.slice(3, 5))
-                                                        && employee.workTime.fri.to
+                                                        : (currentWeekDay === 'Thursday' && employee.workTime.thu) ?
+                                                            (currentHour > employee.workTime.thu.from.slice(0, 2) || (currentHour == employee.workTime.thu.from.slice(0, 2) && currentMinutes >= employee.workTime.thu.from.slice(3, 5)))
+                                                            && (currentHour < employee.workTime.thu.to.slice(0, 2) || (currentHour == employee.workTime.thu.to.slice(0, 2)) && currentMinutes < employee.workTime.thu.to.slice(3, 5))
+                                                            && employee.workTime.thu.to
 
-                                                        : (currentWeekDay === 'Saturday' && employee.workTime.sat) ?
-                                                            (currentHour > employee.workTime.sat.from.slice(0, 2) || (currentHour == employee.workTime.sat.from.slice(0, 2) && currentMinutes >= employee.workTime.sat.from.slice(3, 5)))
-                                                            && (currentHour < employee.workTime.sat.to.slice(0, 2) || (currentHour == employee.workTime.sat.to.slice(0, 2)) && currentMinutes < employee.workTime.sat.to.slice(3, 5))
-                                                            && employee.workTime.sat.to
+                                                            : (currentWeekDay === 'Friday' && employee.workTime.fri) ?
+                                                                (currentHour > employee.workTime.fri.from.slice(0, 2) || (currentHour == employee.workTime.fri.from.slice(0, 2) && currentMinutes >= employee.workTime.fri.from.slice(3, 5)))
+                                                                && (currentHour < employee.workTime.fri.to.slice(0, 2) || (currentHour == employee.workTime.fri.to.slice(0, 2)) && currentMinutes < employee.workTime.fri.to.slice(3, 5))
+                                                                && employee.workTime.fri.to
 
-                                                            : (currentWeekDay === 'Sunday' && employee.workTime.sun) ?
-                                                                (currentHour > employee.workTime.sun.from.slice(0, 2) || (currentHour == employee.workTime.sun.from.slice(0, 2) && currentMinutes >= employee.workTime.sun.from.slice(3, 5)))
-                                                                && (currentHour < employee.workTime.sun.to.slice(0, 2) || (currentHour == employee.workTime.sun.to.slice(0, 2)) && currentMinutes < employee.workTime.sun.to.slice(3, 5))
-                                                                && employee.workTime.sun.to
-                                                                : undefined)
+                                                                : (currentWeekDay === 'Saturday' && employee.workTime.sat) ?
+                                                                    (currentHour > employee.workTime.sat.from.slice(0, 2) || (currentHour == employee.workTime.sat.from.slice(0, 2) && currentMinutes >= employee.workTime.sat.from.slice(3, 5)))
+                                                                    && (currentHour < employee.workTime.sat.to.slice(0, 2) || (currentHour == employee.workTime.sat.to.slice(0, 2)) && currentMinutes < employee.workTime.sat.to.slice(3, 5))
+                                                                    && employee.workTime.sat.to
+
+                                                                    : (currentWeekDay === 'Sunday' && employee.workTime.sun) &&
+                                                                    (currentHour > employee.workTime.sun.from.slice(0, 2) || (currentHour == employee.workTime.sun.from.slice(0, 2) && currentMinutes >= employee.workTime.sun.from.slice(3, 5)))
+                                                                    && (currentHour < employee.workTime.sun.to.slice(0, 2) || (currentHour == employee.workTime.sun.to.slice(0, 2)) && currentMinutes < employee.workTime.sun.to.slice(3, 5))
+                                                                    && employee.workTime.sun.to)
+                                            : undefined)
                                         ? <div><FontAwesomeIcon data-tip data-for={'endTime' + employees.indexOf(employee)}
                                             className='faCircle' icon={faCircle} />
                                             <ReactTooltip id={'endTime' + employees.indexOf(employee)} place="top" effect="solid">

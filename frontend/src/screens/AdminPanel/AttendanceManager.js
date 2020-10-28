@@ -273,13 +273,6 @@ function AttendanceManager(props) {
 
     const checkInOutHandler = (e) => {
         e.preventDefault()
-        //const attendanceExist = attendances ? attendances.find(attendance => attendance._id === _id) : undefined
-        /*const isCheckout = attendances ? attendances.find
-            (att =>
-                (att.date === currentDate || newDayCheckout(att.date))
-                && att.employeeId === userInfo.employeeId
-                && (!att.checkout || !att.checkout.record)) : undefined*/
-        //console.log(isCheckout)
         if (isCheckout) {
             //console.log(isCheckout._id)
             const data = checkoutStatus()
@@ -498,24 +491,16 @@ function AttendanceManager(props) {
 
     const checkInOutButton = () => {
         if (attendanceList.length > 0) {
-            var lastIndex = attendanceList.length - 1
-            //console.log(newDayCheckout(attendanceList[lastIndex].date))
-            if (attendanceList[lastIndex].employeeId === userInfo.employeeId)
-                lastIndex = attendanceList.length - 1
-            else {
-                lastIndex = 0
-                attendanceList.map(att => {
-                    if (attendanceList.indexOf(att) > lastIndex && att.employeeId === userInfo.employeeId)
-                        lastIndex = attendanceList.indexOf(att)
-                })
-            }
-            if (attendanceList[lastIndex].date == currentDate || newDayCheckout(attendanceList[lastIndex].date)) {
+            //var lastIndex = attendanceList.length - 1
+            if (isCheckout) return 'Check out'
+            else return 'Check in'
+            /*if (attendanceList[lastIndex].date == currentDate || newDayCheckout(attendanceList[lastIndex].date)) {
                 if (!attendanceList[lastIndex].checkout) return 'Check out'
                 else if (!attendanceList[lastIndex].checkout.record) return 'Check out'
                 else if (attendanceList[lastIndex].checkout.record) return 'Check in'
-            } else return 'Check in'
+            } else return 'Check in'*/
         } else return 'Check in'
-        return undefined
+        // return undefined
     }
 
     const modalTitle = () => {
@@ -556,25 +541,12 @@ function AttendanceManager(props) {
     }
 
     const timeDurationAtWork = (attendance) => {
-        /*var hours = time.slice(11, 13)
-        var minutes = time.slice(14, 16)
-        var seconds = time.slice(17, 19)
-
-        if (hours.includes(':')) {
-            hours = '0' + time.slice(11, 12)
-            minutes = time.slice(13, 15)
-            seconds = time.slice(16, 18)
-        }*/
 
         var d = new Date()
         var hours = d.getHours() < 10 ? '0' + d.getHours() : d.getHours()
         var minutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes()
         var seconds = d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds()
-
-        /*if (time.includes('PM')) hours = parseInt(hours) + 12
-        if (time.includes('AM') && hours === '12') hours = parseInt(hours) - 12*/
         const format24 = hours + ':' + minutes
-        //console.log(format24, seconds)
         var duration
 
         if (attendance.workHoursRecorded) {
@@ -588,19 +560,6 @@ function AttendanceManager(props) {
                         + ':' + seconds + ' hrs'
                 }
             } else if (newDayCheckout(attendance.date)) {
-
-                /*const time1 = timeDiffCalc(attendance.checkin.record, '24:00')
-                const time2 = timeDiffCalc('00:00', format24)
-
-                var hours0 = parseInt(time1.slice(0, 2)) + parseInt(time2.slice(0, 2))
-                var min0 = parseInt(time1.slice(3, 5)) + parseInt(time2.slice(3, 5))
-
-                hours0 = min0 >= 60 ? hours0 + 1 : hours0
-                hours0 = hours0 < 10 ? '0' + hours0 : hours0
-                min0 = min0 >= 60 ? min0 - 60 : min0
-                min0 = min0 < 10 ? '0' + min0 : min0
-
-                duration = hours0 + ':' + min0 + ':' + seconds + ' hrs'*/
                 var timeDiffer = timeDiffCalc(attendance.checkin.record, format24, newDayCheckout(attendance.date))
                 duration = timeDiffer + ':' + seconds + ' hrs'
             }
@@ -994,7 +953,7 @@ function AttendanceManager(props) {
                                     <button className="table-btns" onClick={() => showHistoryHandler(attendance)}>History</button>
                                 </td>
                             </tr>
-                        )).reverse()}
+                        ))}
                 </tbody>
             </table>
         </div>

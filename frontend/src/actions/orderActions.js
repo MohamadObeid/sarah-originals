@@ -45,6 +45,16 @@ const listOrders = () => async (dispatch) => {
     }
 }
 
+const listActiveOrders = () => async (dispatch) => {
+    try {
+        dispatch({ type: ORDER_LIST_REQUEST })
+        const { data } = await axios.get("/api/order/active");
+        dispatch({ type: ORDER_LIST_SUCCESS, payload: data })
+    } catch (error) {
+        dispatch({ type: ORDER_LIST_FAIL, payload: error.message })
+    }
+}
+
 const saveOrder = (order) => async (dispatch, getState) => {
     if (order === 'clear') {
         dispatch({ type: ORDER_SAVE_CLEAR, payload: undefined })
@@ -55,16 +65,20 @@ const saveOrder = (order) => async (dispatch, getState) => {
         if (order._id) {
             const { data } = await axios.put('/api/order/' + order._id, order, {
                 headers: { 'Authorization': 'Bearer ' + userInfo.token }
-            });
-            dispatch({ type: ORDER_SAVE_SUCCESS, payload: data })
+            })
+
+            data.data
+                ? dispatch({ type: ORDER_SAVE_SUCCESS, payload: data.data })
+                : dispatch({ type: ORDER_SAVE_SUCCESS, payload: data.message })
         }
 
         // new
         else {
             const { data } = await axios.post('/api/order  ', order, {
                 headers: { 'Authorization': 'Bearer ' + userInfo.token }
-            });
-            dispatch({ type: ORDER_SAVE_SUCCESS, payload: data })
+            })
+
+            dispatch({ type: ORDER_SAVE_SUCCESS, payload: data.data })
         }
 
     } catch (error) {
@@ -102,5 +116,6 @@ export {
     listOrders,
     saveOrder,
     deleteOrder,
-    detailsOrder
+    detailsOrder,
+    listActiveOrders
 };

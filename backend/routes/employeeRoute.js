@@ -52,6 +52,11 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
         employee.salary = req.body.salary && req.body.salary;
         employee.workTime = req.body.workTime && req.body.workTime;
         employee.note = req.body.note && req.body.note;
+        employee.cartHandler = req.body.cartHandler && req.body.cartHandler;
+        employee.paymentHandler = req.body.paymentHandler && req.body.paymentHandler;
+        employee.deliveryHandler = req.body.deliveryHandler && req.body.deliveryHandler;
+        employee.requestHandler = req.body.requestHandler && req.body.requestHandler;
+        employee.maxAssignments = req.body.maxAssignments && req.body.maxAssignments;
     }
     const employeeUpdated = await employee.save();
 

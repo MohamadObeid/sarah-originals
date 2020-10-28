@@ -1088,13 +1088,14 @@ input.checked[type="radio"] {
   align-items: center;
   text-align: center;
   top: 0.4rem;
-  border-radius: 0.3rem;
+  border-radius: 2rem;
   padding: 1rem;
   background-color: #f0c040;
   color: #000000;
   z-index: 10;
   left: calc((100vw - 35rem) / 2);
   width: 35rem;
+  box-shadow: 0 0 4px rgba(33, 33, 33, 0.431);
 }
 
 @media screen and (max-width: 600px) {
@@ -2858,9 +2859,12 @@ textarea {
 }
 
 .receipt-title {
-  padding: 0.5rem 0 0 0;
-  margin-bottom: 1rem;
+  margin-top: 1rem;
   border-bottom: 1px solid #c0c0c0;
+}
+
+.receipt-title:first-of-type {
+  margin-top: 0;
 }
 
 .padding-1rem {
@@ -3185,4 +3189,72 @@ textarea {
 
 .font-size-1p3 {
   font-size: 1.5rem;
+}
+
+.employee-img {
+  width: 100%;
+  max-height: 30rem;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  border: 1px solid #c0c0c0;
+  margin-bottom: 1rem;
+}
+
+.assignment-handlers {
+  border-radius: 0.5rem;
+  border: 1px solid #c0c0c0;
+  padding: 0.5rem;
+}
+
+.assignment-handlers td {
+  width: 8rem;
+}
+
+.max-assignments {
+  width: 2rem;
+  padding: 0 0.5rem;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.display-align {
+  display: flex;
+  align-items: center;
+  padding-top: 1rem;
+}
+
+.display-align input {
+  width: 4rem;
+  margin-right: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+.display-align input::-webkit-outer-spin-button,
+.display-align input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.assign-btn {
+  border-radius: 1rem;
+  border: 1px solid #808080;
+  padding: 0.1rem 1rem;
+  cursor: pointer;
+  background-color: #f0c040;
+}
+
+.assign-btn:hover {
+  border: 1px solid #404040;
+}
+
+.margin-bottom-rem {
+  padding-bottom: 0.2rem;
+  padding-top: 0.5rem;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
 }

@@ -13,17 +13,17 @@ import {
     ASSIGNMENT_DETAILS_FAIL
 } from "../constants/constants";
 
-function assignmentListReducer(state = { assignment: [] }, action) {
+function assignmentListReducer(state = { assignments: [] }, action) {
     switch (action.type) {
         case ASSIGNMENT_LIST_REQUEST:
             return {
                 loading: true,
-                assignment: [],
+                assignments: [],
             };
         case ASSIGNMENT_LIST_SUCCESS:
             return {
                 loading: false,
-                assignment: action.payload,
+                assignments: action.payload,
             };
         case ASSIGNMENT_LIST_FAIL:
             return {

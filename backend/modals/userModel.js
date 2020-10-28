@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
   createdOn: { type: Date, required: false, default: Date.now() + 10800000 },
-  active: { type: Boolean, required: false, default: true },
+  active: { type: Boolean, required: false, default: false },
   lastActivity: { type: Date, required: false },
   activity: {
     type: [{

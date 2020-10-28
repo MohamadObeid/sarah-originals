@@ -17,6 +17,7 @@ const dayConverter = (date, active) => {
     var currentHour = d.getHours()
     var currentMinutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes()
     var currentSeconds = d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds()
+    //console.log(date)
 
     if (date) {
         var dateNum = date.split("T", 1)[0]
@@ -42,7 +43,7 @@ const dayConverter = (date, active) => {
             : Math.abs(minDiff) + ' min ago'
 
         var hourStatus = hourDiff === 1
-            ? (minDiff >= 0 ? 'Last hour' : 60 + minDiff + ' min ago')
+            ? (minDiff >= 0 ? 'Last hour' : 60 + minDiff + ' mins ago')
             : Math.abs(hourDiff) + ' hours ago'
 
         var dayStatus = dayDiff === 1
@@ -153,13 +154,15 @@ const refreshLiveUsers = () => async (dispatch) => {
 
 const creationDatePrettier = (date) => {
     var dateNum = date.split("T", 1)[0]
-    var time = date.slice(date.indexOf('T') + 1, -1).slice(0, 9)
-    var dateDay = parseInt(dateNum.slice(8, 10))
-    var dateMonth = parseInt(dateNum.slice(5, 7))
-    var dateYear = parseInt(dateNum.slice(0, 4))
-    var timeHour = parseInt(time.slice(0, 2))
-    var timeMin = parseInt(time.slice(3, 5))
-    var timeSec = parseInt(time.slice(6, 8))
+    var time = date.slice(date.indexOf('T') + 1, date.length)
+    var dateDay = dateNum.slice(8, 10)
+    var dateMonth = dateNum.slice(5, 7)
+    var dateYear = dateNum.slice(0, 4)
+    var timeHour = time.slice(0, 2)
+    var timeMin = time.slice(3, 5)
+    //var timeSec = time.slice(6, 8)
+    timeHour = parseInt(timeHour) < 10 ? '0' + parseInt(timeHour) : timeHour
+    timeMin = parseInt(timeMin) < 10 ? '0' + parseInt(timeMin) : timeMin
 
     return dateDay + '-' + dateMonth + '-' + dateYear + ' ' + timeHour + ':' + timeMin
 }

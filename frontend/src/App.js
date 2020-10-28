@@ -17,6 +17,7 @@ import axios from "axios";
 import { USER_SIGNIN_SUCCESS } from "./constants/constants";
 import { clock } from './actions/timeActions'
 import cookie from "js-cookie";
+import { detailsEmployee } from "./actions/employeeActions";
 
 function App(props) {
 
@@ -26,6 +27,7 @@ function App(props) {
 
   const { userInfo } = useSelector(state => state.userSignin)
   const { time } = useSelector(state => state.clock)
+  const { employee } = useSelector(state => state.employeeDetails)
 
   const getIPAddress = async () => {
     await fetch('https://geolocation-db.com/json/7733a990-ebd4-11ea-b9a6-2955706ddbf3')
@@ -58,9 +60,11 @@ function App(props) {
   useEffect(() => {
     !time && refreshClock()
     getIPAddress()
-    return () => {
-      //
-    };
+    if (userInfo) {
+      console.log('here')
+      const employeeId = userInfo.employeeId
+      employeeId && dispatch(detailsEmployee(employeeId))
+    }
   }, [])
 
   // hide address bar in mobile

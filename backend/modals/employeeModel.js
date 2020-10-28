@@ -26,7 +26,7 @@ const employeeSchema = new mongoose.Schema({
     maritalStatus: { type: String, required: false, default: '' },
     drivingLicense: { type: Array, required: false, default: [] },
     jobPosition: { type: String, required: true, default: '' },
-    jobDescription: { type: String, required: true, default: '' },
+    jobDescription: { type: String, required: false, default: '' },
     facebook: { type: String, required: false, default: '' },
     instagram: { type: String, required: false, default: '' },
     youtube: { type: String, required: false, default: '' },
@@ -88,6 +88,14 @@ const employeeSchema = new mongoose.Schema({
         }
     },
     note: { type: String, required: false },
+
+    cartHandler: { type: Boolean, required: false },
+    deliveryHandler: { type: Boolean, required: false },
+    paymentHandler: { type: Boolean, required: false },
+    requestHandler: { type: Boolean, required: false },
+
+    maxAssignments: { type: Number, required: false, default: 5 },
+    currentAssignments: { type: Number, required: false, default: 0 }
 })
 
 const Employee = mongoose.model("Employee", employeeSchema)
