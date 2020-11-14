@@ -41,7 +41,7 @@ import {
   employeeDeleteReducer,
 } from "./reducers/employeeReducer";
 
-import { cartReducer } from "./reducers/cartReducer";
+import { cartReducer, packedReducer } from "./reducers/cartReducer";
 
 import {
   addressReducer,
@@ -50,7 +50,8 @@ import {
   orderListReducer,
   orderSaveReducer,
   orderDeleteReducer,
-  orderDetailsReducer
+  orderDetailsReducer,
+  storedOrderListReducer
 } from "./reducers/orderReducer";
 
 import {
@@ -103,12 +104,14 @@ const cartItems = cookie.getJSON("cartItems") || [];
 const userInfo = cookie.getJSON("userInfo") || null;
 const address = cookie.getJSON("address") || undefined;
 const paymentMethod = cookie.getJSON("paymentMethod") || undefined;
+const packedItems = JSON.parse(localStorage.getItem('packedItems')) || []
 
 const initialState = {
   cart: { cartItems },
   userSignin: { userInfo },
   address: { address },
   paymentMethod: { paymentMethod },
+  packed: { packedItems },
 };
 
 const reducer = combineReducers({
@@ -121,6 +124,7 @@ const reducer = combineReducers({
   productDelete: productDeleteReducer,
 
   cart: cartReducer,
+  packed: packedReducer,
 
   usersList: usersListReducer,
   userDelete: userDeleteReducer,
@@ -158,6 +162,7 @@ const reducer = combineReducers({
   orderSave: orderSaveReducer,
   orderDelete: orderDeleteReducer,
   orderDetails: orderDetailsReducer,
+  storedActiveOrders: storedOrderListReducer,
 
   employeeList: employeeListReducer,
   employeeDetails: employeeDetailsReducer,

@@ -5,8 +5,8 @@ import config from '../config';
 import multer from 'multer';
 import crypto from 'crypto';
 import path from 'path';
-import GridFsStorage from 'multer-gridfs-storage';
-const router = express.Router();
+import GridFsStorage from 'multer-gridfs-storage'
+const router = express.Router()
 
 function imageRouter() {
     const mongodbUrl = config.MONGODB_URL;

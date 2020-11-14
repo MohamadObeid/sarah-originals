@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import timeZone from "mongoose-timezone";
 
 const orderSchema = new mongoose.Schema({
 
@@ -16,12 +17,11 @@ const orderSchema = new mongoose.Schema({
 
     request: {
         type: [{
-            creation_date: { type: Date, required: false },
+            creation_date: { type: String, required: false },
             created_by: { type: String, required: false },
             type: { type: String, required: false },
             status: { type: String, required: false },
-            modifiedRequestNum: { type: Number, required: false }, // index + 1
-            //assigned: { type: Boolean, required: false },
+            modifiedRequestNum: { type: Number, required: false }, // index + 1 (usually it is the first request)
 
             payment: {
                 status: { type: String, required: false },//collected, unpaid, canceled, refunded
@@ -30,7 +30,6 @@ const orderSchema = new mongoose.Schema({
                 type: { type: String, required: false }, //cash, check, bank transfer, VISA
                 description: { type: String, required: false },
                 charge: { type: Number, required: false },
-                //assigned: { type: Boolean, required: false },
             },
 
             delivery: {
@@ -39,7 +38,6 @@ const orderSchema = new mongoose.Schema({
                 title: { type: String, required: false },
                 duration: { type: String, required: false },
                 charge: { type: Number, required: false },
-                //assigned: { type: Boolean, required: false },
             },
 
             cart: {
@@ -56,14 +54,12 @@ const orderSchema = new mongoose.Schema({
                         qty: { type: Number, required: false },
                         priceUsd: { type: Number, required: false },
                         returnable: { type: Boolean, required: false },
-                        rejectedQty: { type: Number, required: false, default: 0 },
                     }], required: false
                 },
 
                 qty: { type: Number, required: false },
                 amount: { type: Number, required: false },
                 discountAmount: { type: Number, required: false },
-                //assigned: { type: Boolean, required: false },
             },
 
             amount: { type: Number, required: true },
@@ -73,21 +69,24 @@ const orderSchema = new mongoose.Schema({
 
     assignment: {
         type: [{
+            assignedOn: { type: String, required: false },
+            assignedBy: { type: String, required: false },
             req_id: { type: String, required: false },
             receiptNum: { type: String, required: false },
             //edited: { type: Boolean, required: false },
             type: { type: String, required: false },// payment, delivery, cart, request
-            date: { type: Date, required: false },
-            status: { type: String, required: false },// unassigned, pending, accepted, completed, rejected, canceled, confirmed (for cancel requests), closed (for uncompleted assignment and closed by manager)
-            assignedBy: { type: String, required: false },
+            status: { type: String, required: false },// unassigned, pending, accepted, Accomplished, rejected, canceled, closed (for uncompleted assignment and closed by manager)
+            onHold: { type: Boolean, required: false },
+            onHoldReason: { type: String, required: false },
             employeeName: { type: String, required: false },
             employeeId: { type: String, required: false },
+            closedDate: { type: String, required: false },
         }], required: false
     },
 
     amount: { type: Number, required: false },
     invoiceNum: { type: String, required: false },
-    dueDate: { type: Date, required: false },
+    dueDate: { type: String, required: false },
     note: {
         type: [{
             name: { type: String, required: false },
@@ -97,9 +96,11 @@ const orderSchema = new mongoose.Schema({
             edited: { type: String, required: false },
         }], required: false
     },
+    closedDate: { type: Date, required: false },
 });
 
-const Order = mongoose.model("Order", orderSchema);
+orderSchema.plugin(timeZone, { paths: {} })
+const Order = mongoose.model("Order", orderSchema)
 
 export default Order;
 

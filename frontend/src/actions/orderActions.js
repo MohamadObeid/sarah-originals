@@ -16,7 +16,8 @@ import {
     ORDER_DETAILS_REQUEST,
     ORDER_DETAILS_SUCCESS,
     ORDER_DETAILS_FAIL,
-    ORDER_SAVE_CLEAR
+    ORDER_SAVE_CLEAR,
+    STORED_ORDER_LIST
 } from "../constants/constants";
 
 const saveAddress = (addressItem) => (dispatch, getState) => {
@@ -50,6 +51,21 @@ const listActiveOrders = () => async (dispatch) => {
         dispatch({ type: ORDER_LIST_REQUEST })
         const { data } = await axios.get("/api/order/active");
         dispatch({ type: ORDER_LIST_SUCCESS, payload: data })
+    } catch (error) {
+        dispatch({ type: ORDER_LIST_FAIL, payload: error.message })
+    }
+}
+
+const backupActiveOrders = (orders, command) => async (dispatch) => {
+    if (command === 'store') {
+        const activeOrders = JSON.parse(window.sessionStorage.getItem('activeOrders'))
+        dispatch({ type: STORED_ORDER_LIST, payload: activeOrders })
+    } else if (orders)
+        window.sessionStorage.setItem('activeOrders', JSON.stringify(orders))
+    else try {
+        const activeOrders = JSON.parse(window.sessionStorage.getItem('activeOrders'))
+        dispatch({ type: ORDER_LIST_SUCCESS, payload: activeOrders })
+        window.sessionStorage.removeItem('activeOrders')
     } catch (error) {
         dispatch({ type: ORDER_LIST_FAIL, payload: error.message })
     }
@@ -117,5 +133,6 @@ export {
     saveOrder,
     deleteOrder,
     detailsOrder,
-    listActiveOrders
+    listActiveOrders,
+    backupActiveOrders
 };

@@ -14,7 +14,8 @@ import {
     ORDER_DETAILS_REQUEST,
     ORDER_DETAILS_SUCCESS,
     ORDER_DETAILS_FAIL,
-    ORDER_SAVE_CLEAR
+    ORDER_SAVE_CLEAR,
+    STORED_ORDER_LIST
 }
     from "../constants/constants";
 
@@ -147,6 +148,17 @@ function orderDetailsReducer(state = { order: undefined }, action) {
     }
 }
 
+function storedOrderListReducer(state = { storedActiveOrders: [] }, action) {
+    switch (action.type) {
+        case STORED_ORDER_LIST:
+            return {
+                storedActiveOrders: action.payload
+            }
+        default:
+            return state
+    }
+}
+
 export {
     addressReducer,
     orderScreenReducer,
@@ -155,4 +167,5 @@ export {
     orderSaveReducer,
     orderDeleteReducer,
     orderDetailsReducer,
+    storedOrderListReducer
 }

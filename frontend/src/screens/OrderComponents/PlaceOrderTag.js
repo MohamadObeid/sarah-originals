@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import FontAwesome from 'react-fontawesome';
-import { PromiseProvider } from "mongoose";
 import cookie from 'js-cookie';
 import { toggleOrderScreen } from "../../actions/orderActions";
 

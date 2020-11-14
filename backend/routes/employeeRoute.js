@@ -5,13 +5,14 @@ import { isAuth, isAdmin } from '../util';
 const router = express.Router();
 
 router.get("", async (req, res) => {
-    const employee = await Employee.find({});
+    const active = req.query.active ? { active: { $eq: true } } : {}
+    const employee = await Employee.find({ ...active });
     res.send(employee);
 });
 
 router.get("/:id", async (req, res) => {
     const employeeId = req.params.id
-    const employee = await Employee.find({ _id: employeeId });
+    const employee = await Employee.findOne({ _id: employeeId });
     res.send(employee);
 });
 

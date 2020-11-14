@@ -1,5 +1,5 @@
 import cookie from "js-cookie";
-import { CART_ADD_ITEM, CART_REMOVE_ITEM, CART_UPDATE_ITEM } from "../constants/constants";
+import { CART_ADD_ITEM, CART_REMOVE_ITEM, CART_UPDATE_ITEM, PACKED_ITEMS } from "../constants/constants";
 
 const addToCart = (product) => async (dispatch, getState) => {
   if (product.length > 0) {
@@ -9,7 +9,12 @@ const addToCart = (product) => async (dispatch, getState) => {
   } else dispatch({ type: CART_ADD_ITEM, payload: product })
   const { cart: { cartItems } } = getState()
   cookie.set("cartItems", JSON.stringify(cartItems))
-};
+}
+
+const packItems = (items) => async (dispatch) => {
+  dispatch({ type: PACKED_ITEMS, payload: items })
+  localStorage.setItem('packedItems', JSON.stringify(items))
+}
 
 const removeFromCart = (itemId) => async (dispatch, getState) => {
   dispatch({ type: CART_REMOVE_ITEM, payload: itemId });
@@ -28,4 +33,4 @@ const updateCart = (item) => async (dispatch, getState) => {
   }
 };
 
-export { addToCart, removeFromCart, updateCart };
+export { addToCart, removeFromCart, updateCart, packItems };

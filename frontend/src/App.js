@@ -17,7 +17,6 @@ import axios from "axios";
 import { USER_SIGNIN_SUCCESS } from "./constants/constants";
 import { clock } from './actions/timeActions'
 import cookie from "js-cookie";
-import { detailsEmployee } from "./actions/employeeActions";
 
 function App(props) {
 
@@ -30,11 +29,13 @@ function App(props) {
   const { employee } = useSelector(state => state.employeeDetails)
 
   const getIPAddress = async () => {
-    await fetch('https://geolocation-db.com/json/7733a990-ebd4-11ea-b9a6-2955706ddbf3')
-      .then(res => res.json())
-      .then(IP => {
-        IPaddress = IP.country_name + ', ' + IP.city
-      })
+    try {
+      await fetch('https://geolocation-db.com/json/7733a990-ebd4-11ea-b9a6-2955706ddbf3')
+        .then(res => res.json())
+        .then(IP => {
+          IPaddress = IP.country_name + ', ' + IP.city
+        })
+    } catch (error) { }
     if (userInfo) {
       await dispatch(signin({ email: userInfo.email, password: userInfo.password, IPaddress, request: 'signin' }))
       setTimeout(refreshActiveUser, 25000)
@@ -60,11 +61,11 @@ function App(props) {
   useEffect(() => {
     !time && refreshClock()
     getIPAddress()
-    if (userInfo) {
+    /*if (userInfo) {
       console.log('here')
       const employeeId = userInfo.employeeId
       employeeId && dispatch(detailsEmployee(employeeId))
-    }
+    }*/
   }, [])
 
   // hide address bar in mobile

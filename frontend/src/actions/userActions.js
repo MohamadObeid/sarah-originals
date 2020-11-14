@@ -23,6 +23,7 @@ import {
     CLEAR_SAVE_USER,
     CLEAR_SIGNIN_USER,
 } from '../constants/constants';
+import { detailsEmployee } from './employeeActions';
 
 const signin = (user) => async (dispatch, getState) => {
     if (user.request === 'clear') {
@@ -33,6 +34,8 @@ const signin = (user) => async (dispatch, getState) => {
         try {
             let { data } = await axios.post("/api/users/signin", user)
             dispatch({ type: USER_SIGNIN_SUCCESS, payload: data })
+            data.employeeId &&
+                dispatch(detailsEmployee(data.employeeId))
             data && cookie.set('userInfo', JSON.stringify({
                 email: data.email,
                 password: data.password,
@@ -43,7 +46,7 @@ const signin = (user) => async (dispatch, getState) => {
                 image: data.image,
                 isAdmin: data.isAdmin,
                 token: data.token,
-            }));
+            }))
         } catch (error) {
             dispatch({ type: USER_SIGNIN_FAIL, payload: error.message })
         }

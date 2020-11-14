@@ -86,6 +86,8 @@ function DashBoard(props) {
 
     if (manager === 'assignment') {
       dispatch(listActiveOrders())
+      dispatch(listEmployees({ active: true }))
+      if (paymentList.length === 0) dispatch(listPayment())
       setAssignmentsVisible(true)
     } else setAssignmentsVisible(false)
 

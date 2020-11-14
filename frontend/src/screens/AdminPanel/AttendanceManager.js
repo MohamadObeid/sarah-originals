@@ -139,8 +139,7 @@ function AttendanceManager(props) {
                 && att.employeeId === userInfo.employeeId
                 && (!att.checkout || !att.checkout.record)))
         //isCheckout && console.log(isCheckout)
-        if (isCheckout) openModel(isCheckout)
-        return () => { }
+        isCheckout && openModel(isCheckout)
     }, [attendanceList, isCheckout])
 
     const openModel = (attendance, openModel) => {
@@ -417,7 +416,7 @@ function AttendanceManager(props) {
             checkout: {
                 workTime: workTime,
                 record: checkoutRecord,
-                location: IP.country_name + ', ' + IP.city,
+                location: IP && IP.country_name + ', ' + IP.city,
                 earliness: earliness ? { hours: timeDiff, reason: checkoutEarlinessReason } : undefined,
                 overTime: overTime ? { hours: timeDiff, reason: checkoutOverTimeReason } : undefined,
                 //request: { time: checkoutRequestTime, reason: checkoutRequestReason, status: checkoutRequestStatus }
@@ -444,7 +443,7 @@ function AttendanceManager(props) {
     }
 
     const workTimeStart = () => {
-        if (employee) {
+        if (employee.workTime) {
             var workTime
             if (currentWeekDay === 'Monday') workTime = employee.workTime.mon && employee.workTime.mon.from
             else if (currentWeekDay === 'Tuesday') workTime = employee.workTime.tue && employee.workTime.tue.from

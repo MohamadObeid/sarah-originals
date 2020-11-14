@@ -86,16 +86,17 @@ function employeeDeleteReducer(state = { data: {} }, action) {
     }
 }
 
-function employeeDetailsReducer(state = { employee: undefined }, action) {
+function employeeDetailsReducer(state = { employee: {} }, action) {
     switch (action.type) {
         case EMPLOYEE_DETAILS_REQUEST:
             return {
                 loading: true,
+                employee: {},
             };
         case EMPLOYEE_DETAILS_SUCCESS:
             return {
                 loading: false,
-                employee: action.payload[0],
+                employee: action.payload,
             };
         case EMPLOYEE_DETAILS_FAIL:
             return {

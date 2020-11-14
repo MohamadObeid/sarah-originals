@@ -13,7 +13,10 @@ import {
     requestStatusList, requestTypeList, orderStatusList, assignmentStatusList
 } from '../../constants/lists'
 import ReactTooltip from "react-tooltip";
-import { creationDatePrettier, dayConverter, updateRequestStatus, statusModifier } from "../../methods/methods";
+import {
+    creationDatePrettier, dayConverter, updateRequestStatus, statusModifier, date,
+    qtyCalc, paymentCalc, cartAmountCalc, discountCalc, totalAmountCalc, deliveryCalc
+} from "../../methods/methods";
 import { Popconfirm } from 'antd'
 import Axios from "axios";
 
@@ -102,10 +105,10 @@ function OrdersManager(props) {
     const [addressVisible, setAddressVisible] = useState()
     const [address, setAddress] = useState([])
 
-    const { time } = useSelector(state => state.clock)
+    //const { time } = useSelector(state => state.clock)
     const { success: successSave, order, error } = useSelector(state => state.orderSave)
     const { success: successDelete } = useSelector(state => state.orderDelete)
-    const { orders } = useSelector(state => state.orderList)
+    const { orders, loading } = useSelector(state => state.orderList)
     const { userInfo } = useSelector(state => state.userSignin)
     const { cartItems } = useSelector(state => state.cart)
     const { user } = useSelector(state => state.userDetails)
@@ -141,12 +144,8 @@ function OrdersManager(props) {
             dispatch(listOrders())
         }
 
-        if (orders && orders.length > 0) {
-            setOrderList(orders)
-        }
-
-        orders &&
-            console.log(orders)
+        orders && !loading && setOrderList(orders)
+        console.log(orders)
 
     }, [successSave, successDelete, orders, error])
 
@@ -155,7 +154,7 @@ function OrdersManager(props) {
             deliveryList.map(del => {
                 if (del.title === deliveryTitle) {
                     setDeliveryValues(del)
-                    setDeliverOn(deliveryDurationInDate({
+                    setDeliverOn(date({
                         duration: del.duration,
                         timeFormat: del.timeFormat
                     }))
@@ -197,21 +196,31 @@ function OrdersManager(props) {
             setCustomerUserId(user._id)
             setCustomerPhone(user.phone)
             setAddress(user.address.length > 0 ? user.address : address)
-            user.address.length > 0 &&
-                user.address.map(add => {
-                    var delPayAdd = add.city + ', ' + add.region + ', ' + add.building
-                    if (delPayAdd === deliveryAddress)
-                        setIsDeliveryAddress(user.address.indexOf(add))
 
-                    if (delPayAdd === paymentAddress)
-                        setIsPaymentAddress(user.address.indexOf(add))
-                })
+            if (user.address.length > 0) {
+                if (user.address.length === 1) {
+                    const address1 = user.address[0].city + ', ' + user.address[0].region + ', ' + user.address[0].building
+                    setIsDeliveryAddress(0)
+                    setDeliveryAddress(address1)
+                    setIsPaymentAddress(0)
+                    setPaymentAddress(address1)
+                } else {
+                    user.address.map(add => {
+                        var delPayAdd = add.city + ', ' + add.region + ', ' + add.building
+                        if (delPayAdd === deliveryAddress)
+                            setIsDeliveryAddress(user.address.indexOf(add))
+
+                        if (delPayAdd === paymentAddress)
+                            setIsPaymentAddress(user.address.indexOf(add))
+                    })
+                }
+            }
             setCustomerName(user.name)
         }
 
-        if (cartItems && cartItems.length > 0) {
+        if (cartItems.length > 0)
             setRequestItems(cartItems)
-        }
+
 
     }, [deliveryTitle, paymentTitle, user, deliverOn, prepareOn, cartItems, paymentType])
 
@@ -247,8 +256,8 @@ function OrdersManager(props) {
     const submitHandler = (e) => {
         e.preventDefault()
         //console.log(request)
-        const isPrepare = request.find(req => req.type === 'Prepare') || undefined
-        if (customerName && customerPhone && (isPrepare ? true : deliveryAddress)
+        if (customerName && customerPhone && request.length > 0 &&
+            (!request[0].delivery ? true : deliveryAddress)
             && paymentAddress && request.length > 0) {
             if (_id) {
                 dispatch(saveOrder({
@@ -373,18 +382,18 @@ function OrdersManager(props) {
 
         clearRequestValues()
 
-        if (status === 'Place') {
+        if (status === 'Place' || status === 'Return') {
             deliveryList.map(del => {
                 if (del.title === deliveryTitle) {
                     setDeliveryValues(del)
-                    setDeliverOn(deliveryDurationInDate({
+                    setDeliverOn(date({
                         duration: del.duration,
                         timeFormat: del.timeFormat
                     }))
                 }
             })
         } else if (status === 'Prepare') {
-            setPrepareOn(deliveryDurationInDate())
+            setPrepareOn(date())
             setDeliveryAddress(undefined)
             setIsDeliveryAddress(undefined)
         } else if (status === 'Cancel') {
@@ -408,11 +417,13 @@ function OrdersManager(props) {
                 setRequestNum(undefined)
                 request.length > 0 ? setRequestIndex(request.length) : setRequestIndex(0)
                 if (deliveryList.length > 0) {
-                    setDeliveryTitle(deliveryList[0].title) //cosidered deliveryList[0] is default delivery
-                    setDeliverOn(deliveryDurationInDate({
+                    if (request.length === 0)
+                        setDeliveryTitle(deliveryList[0].title) //cosidered deliveryList[0] is default delivery
+                    else request[0].delivery && setDeliveryTitle(request[0].delivery.title)
+                    request[0] && request[0].delivery ? setDeliverOn(date({
                         duration: deliveryList[0].duration,
                         timeFormat: deliveryList[0].timeFormat
-                    }))
+                    })) : setDeliverOn(date())
                 }
                 if (paymentList.length > 0) {
                     setPaymentTitle(paymentList[0].title)
@@ -483,14 +494,14 @@ function OrdersManager(props) {
             setDeliveryCharge(req.delivery.charge ? req.delivery.charge : undefined)
         } else if (requestNum) {
             setDelivery(undefined)
-            setDeliveryStatus(undefined)
-            setDeliverOn(undefined)
-            setDeliveryTitle(undefined)
+            setDeliveryStatus('Pending')
+            setDeliverOn(date())
+            setDeliveryTitle(requestType === 'Return' ? 'Return Delivery' : undefined)
             setDeliveryCharge(undefined)
         }
 
         !requestNum &&
-            setPrepareOn(req.cart.prepareOn ? req.cart.prepareOn : undefined)
+            setPrepareOn(req.cart.prepareOn ? req.cart.prepareOn : date())
 
         if (req.cart.items.length > 0) {
             const productIdList = await req.cart.items.map(item => { return item._id })
@@ -520,6 +531,7 @@ function OrdersManager(props) {
         e.preventDefault()
         searchKeyword &&
             await dispatch(detailsProduct({ searchKeyword: searchKeyword }))
+        setSearchKeyword('')
         setProductsListVisible(true)
     }
 
@@ -631,241 +643,29 @@ function OrdersManager(props) {
             setProductsListVisible(false)
     })
 
-    const qtyCalc = () => {
-        var totalqty = 0
-        cartItems.map(item => {
-            var itemRejected = item.rejectedQty || 0
-            totalqty = totalqty + item.qty - itemRejected
-        })
-        return totalqty
-    }
-
-    const discountCalc = () => {
-        var discountAmount = 0
-        cartItems.map(item => {
-            if (item.discount > 0) { discountAmount = discountAmount + item.priceUsd * item.discount * 0.01 * item.qty }
-        })
-        if (requestType && requestType !== 'Cancel' && requestType !== 'Return')
-            discountAmount = discountAmount * (-1)
-        return discountAmount.toFixed(2)
-    }
-
-    const cartAmountCalc = () => {
-        var cartAmount = 0
-        cartItems.map(item => {
-            cartAmount = cartAmount + item.priceUsd * item.qty
-        })
-        //cartAmount = cartAmount - discountCalc()
-        if (requestType === 'Cancel' || requestType === 'Return')
-            cartAmount = cartAmount * (-1)
-        return cartAmount.toFixed(2)
-    }
-
-    const deliveryCalc = () => {
-        var rateMin = 100000000 /* = default delivery rate */
-        var currentRate
-        const cartAmountPlus = cartAmountCalc() < 0 ? (-1) * cartAmountCalc() : cartAmountCalc()
-        // All Items in Cart are canceled
-        if (requestType === 'Prepare') return 0
-        //else if (requestType === 'Cancel' && request[requestNum - 1].cart.status !== 'Packed') return 0
-        else if (requestType === 'Cancel' && request[requestNum - 1].cart.status !== 'Packed' && requestNum && itemsQty) { // all order is returned
-            if (request[requestNum - 1].delivery && request[requestNum - 1].delivery.charge) {
-                var noItemRemoved = true
-                cartItems.map(item => {
-                    var item0 = itemsQty.find(item0 => item0._id === item._id)
-                    if (item.qty !== item0.qty) {
-                        noItemRemoved = false
-                        return
-                    }
-                })
-                if (noItemRemoved === true) {
-                    var delCharge = parseFloat(request[requestNum - 1].delivery.charge)
-                    return delCharge * (-1)
-                } else return 0
-            } else return 0
-
-            // Flat Rate
-        } else if (deliveryValues && deliveryValues.rateType === 'Flat') {
-            if (deliveryValues.unit === '%') {
-                currentRate = delivery.flatRate * cartAmountPlus * 0.01
-                if (currentRate < rateMin) rateMin = currentRate
-            } else rateMin = parseFloat(deliveryValues.flatRate).toFixed(2)
-
-            // Custom Rate
-        } else if (deliveryValues && deliveryValues.rateType === 'Custom') {
-            if (deliveryValues.rates) {
-                deliveryValues.rates.map(rate => {
-
-                    if (rate.basedOn === 'Value') {
-                        if (cartAmountPlus >= rate.min && cartAmountPlus <= rate.max) {
-                            if (rate.unit === '%')
-                                currentRate = rate.rate * cartAmountPlus * 0.01
-                            else currentRate = rate.rate
-                            if (currentRate < rateMin) rateMin = currentRate
-                        }
-
-                    } else if (rate.basedOn === 'Quantity') {
-                        if (qtyCalc() >= rate.min && qtyCalc() <= rate.max) {
-                            if (rate.unit === '%') currentRate = rate.rate * qtyCalc() * 0.01
-                            else currentRate = rate.rate
-                            if (currentRate < rateMin) rateMin = currentRate
-                        }
-
-                    } /*else if (rate.basedOn === 'Weight') {
-                        if (cartAmountPlus >= rate.min && cartAmountPlus <= rate.max) {
-                            currentRate = rate.rate * cartAmountPlus * 0.01
-                            if (currentRate < rateMin) rateMin = currentRate
-                        }
-                    }*/
-                })
-            } else rateMin = 0
-        }
-        return rateMin
-    }
-
-    const paymentCalc = () => {
-        var rateMin = 1000000000 /* = default payment rate */
-        var currentRate
-        const cartAmountPlus = cartAmountCalc() < 0 ? (-1) * cartAmountCalc() : cartAmountCalc()
-        // Flat Rate
-        if (paymentValues && paymentValues.rateType === 'Flat') {
-            if (paymentValues.unit === '%')
-                rateMin = paymentValues.flatRate * 0.01 * cartAmountPlus
-            else rateMin = paymentValues.flatRate
-
-            // Custom Rate
-        } else if (paymentValues && paymentValues.rateType === 'Custom') {
-            if (paymentValues.rates) {
-                paymentValues.rates.map(rate => {
-
-                    if (rate.basedOn === 'Value') {
-                        if (cartAmountPlus >= rate.min && cartAmountPlus <= rate.max && paymentType === rate.paymentType) {
-                            if (rate.unit === '%')
-                                currentRate = cartAmountPlus * rate.rate * 0.01
-                            else currentRate = rate.rate
-                            //console.log(rate.rate, currentRate)
-                            if (currentRate < rateMin) rateMin = currentRate
-                        }
-
-                    } else if (rate.basedOn === 'Quantity') {
-                        if (qtyCalc() >= rate.min && qtyCalc() <= rate.max && paymentType == rate.paymentType) {
-                            if (rate.unit === '%')
-                                currentRate = qtyCalc() * rate.rate * 0.0
-                            else currentRate = rate.rate
-                            if (currentRate < rateMin) rateMin = currentRate
-                        }
-                    }
-                })
-            }
-        } else rateMin = 0
-        //console.log(rateMin)
-        return Number.isInteger(rateMin) ? rateMin : rateMin.toFixed(2)
-    }
-
-    const totalAmountCalc = (req) => {
-        /*if (req) {
-            var delCharge = req.delivery.charge ? req.delivery.charge : 0
-            var payCharge = req.payment.charge ? req.payment.charge : 0
-            var cartAm = req.cart.
-        }*/
-        var deliveryCharg = deliveryCharge ? deliveryCharge : deliveryCalc()
-        deliveryCharg = parseFloat(deliveryCharg)
-        if (request.type === 'Cancel') deliveryCharg = 0
-        var paymentCharg = paymentCharge ? paymentCharge : paymentCalc()
-        paymentCharg = parseFloat(paymentCharg)
-        //console.log(paymentCharg, deliveryCharg)
-        var amount = deliveryCharg + paymentCharg + parseFloat(cartAmountCalc()) + parseFloat(discountCalc())
-        //console.log(totalAmount)
-        return Number.isInteger(amount) ? amount : amount.toFixed(2)
-    }
-
     const amountCalc = (request) => {
         var amount = 0
         request.map(req => {
             if (req.status !== 'Pending')
                 amount = amount + parseFloat(req.amount)
         })
-        return amount.toFixed()
+        return amount.toFixed(2)
     }
 
     ////////////////////////////////////////////////////////
 
-    const deliveryDurationInDate = (delivery) => {
-        var d = new Date()
-        var currentYear = d.getFullYear()
-        var currentMonth = d.getMonth() + 1 < 10 ? '0' + d.getMonth() + 1 : d.getMonth() + 1
-        var currentDay = d.getDate() < 10 ? '0' + d.getDate() : d.getDate()
-        var currentHour = d.getHours() < 10 ? '0' + d.getHours() : d.getHours()
-        var currentMinutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes()
-
-        if (typeof delivery === 'object') {
-            var n = d
-            n.setDate(d.getDate() + 1)
-            var tomorrowYear = n.getFullYear()
-            var tomorrowMonth = n.getMonth() + 1 < 10 ? '0' + n.getMonth() + 1 : n.getMonth() + 1
-            var tomorrowDay = n.getDate() < 10 ? '0' + n.getDate() : n.getDate()
-
-            var duration = delivery.duration
-            var timeFormat = delivery.timeFormat
-
-            if (timeFormat === 'min') {
-                //console.log(typeof currentMinutes, typeof duration)
-                currentMinutes = parseInt(currentMinutes) + duration
-                if (currentMinutes >= 60) {
-                    while (currentMinutes >= 60) {
-                        currentMinutes = currentMinutes - 60
-                    }
-                    currentHour++
-                    if (currentHour >= 24) {
-                        currentHour = '00'
-                        currentDay = tomorrowDay
-                        currentMonth = tomorrowMonth
-                        currentYear = tomorrowYear
-                    }
-                }
-            } else if (timeFormat === 'hr') {
-                currentHour = parseInt(currentHour) + duration
-                if (currentHour >= 24) {
-                    while (currentHour >= 24) {
-                        currentHour = currentHour - 24
-                    }
-                    currentDay = tomorrowDay
-                    currentMonth = tomorrowMonth
-                    currentYear = tomorrowYear
-                }
-            } else if (timeFormat === 'day') {
-                currentDay = tomorrowDay
-                currentMonth = tomorrowMonth
-                currentYear = tomorrowYear
-            }
-        } else if (typeof delivery === 'string') {
-            var date = delivery
-            return date.slice(0, 16)
-        }
-        if (typeof currentMinutes === 'number' && currentMinutes < 10) currentMinutes = '0' + currentMinutes
-        if (typeof currentHour === 'number' && currentHour < 10) currentHour = '0' + currentHour
-        //console.log(currentYear + '-' + currentMonth + '-' + currentDay + 'T' + currentHour + ':' + currentMinutes)
-        return currentYear + '-' + currentMonth + '-' + currentDay + 'T' + currentHour + ':' + currentMinutes
-    }
-
     const addRequestHandler = (e) => {
         e.preventDefault()
 
-        if (qtyCalc() > 0) {
+        if (qtyCalc(cartItems) > 0) {
             request[requestIndex] = {
                 _id: requestId && requestId,
-                creation_date: time,
+                creation_date: date(),
                 created_by: userInfo ? userInfo.name : Date.now() + 7200000,
                 type: requestType,
                 status: requestStatus,
                 modifiedRequestNum: (requestType === 'Cancel' || requestType === 'Return') ?
-                    requestNum : undefined,
-
-                /*operatedBy: userInfo.isOrderManager !== undefined && {
-                    date: time,
-                    employeeName: userInfo.name,
-                    employeeId: userInfo.employeeId
-                },*/
+                    requestNum : undefined, // index of request
 
                 payment: {
                     status: paymentStatus,
@@ -873,28 +673,31 @@ function OrdersManager(props) {
                     title: paymentTitle,
                     description: paymentDescription,
                     type: paymentType,
-                    charge: paymentCalc(),
+                    charge: paymentCalc(paymentValues, paymentType, cartItems, requestType),
                 },
-                delivery: (requestType !== 'Prepare' &&
-                    (request ? request[0] !== 'Prepare' : true)) && {
+
+                cart: {
+                    status: cartStatus,
+                    prepareOn: prepareOn ? prepareOn : date(),
+                    items: requestItems,
+                    qty: qtyCalc(cartItems),
+                    amount: cartAmountCalc(cartItems, requestType),
+                    discountAmount: discountCalc(cartItems, requestType),
+                },
+
+                amount: totalAmountCalc(cartItems, deliveryCharge, paymentCharge, paymentValues, request, requestType, paymentType, itemsQty, requestNum, requestIndex, deliveryValues),
+                receiptNum: receiptNum,
+            }
+            if (requestType !== 'Prepare' && request[0].type !== 'Prepare' && requestType !== 'Cancel')
+                request[requestIndex].delivery = {
                     status: deliveryStatus || undefined,
                     deliverOn: deliverOn || undefined,
                     title: deliveryTitle || undefined,
                     //type: deliveryType,
                     duration: deliveryValues && (deliveryValues.duration + ' ' + deliveryValues.timeFormat),
-                    charge: deliveryCalc(),
-                },
-                cart: {
-                    status: cartStatus,
-                    prepareOn: prepareOn ? prepareOn : time,
-                    items: requestItems,
-                    qty: qtyCalc(),
-                    amount: cartAmountCalc(),
-                    discountAmount: discountCalc(),
-                },
-                amount: totalAmountCalc(),
-                receiptNum: receiptNum,
-            }
+                    charge: deliveryCalc(deliveryValues, cartItems, requestType, itemsQty, request, requestNum, requestIndex),
+                }
+
             //console.log(request)
             dispatch(updateCart('clear'))
             setRequestIndex(requestIndex + 1)
@@ -914,14 +717,14 @@ function OrdersManager(props) {
                 note[noteIndex] = {
                     name: userInfo.name,
                     text: noteText,
-                    date: time,
+                    date: date(),
                     showTo: 'Order Manager',
                 }
             } else if (editNoteText) {
                 note[noteIndex] = {
                     name: userInfo.name,
                     text: noteText,
-                    date: time,
+                    date: date(),
                     showTo: 'Order Manager',
                     edited: true
                 }
@@ -943,7 +746,7 @@ function OrdersManager(props) {
         var operatedBy
         if (requestStat === 'Confirmed' && type === 'Request') {
             operatedBy = {
-                date: time,
+                date: date(),
                 employeeName: userInfo.name,
                 employeeId: userInfo.employeeId
             }
@@ -1294,20 +1097,26 @@ function OrdersManager(props) {
                                                         style={{ fontSize: '1.1rem' }}>{req.payment.status}</div>
                                                 </div>}
                                             {assignment.length > 0 &&
-                                                <div className='cart-total-qty receipt-title margin-bottom-rem'>
+                                                <div className='cart-total-qty receipt-title'>
                                                     <div className="label">Assignments</div>
-                                                    {req.status === 'Confirmed' && <div className='total-num assign-btn'
+                                                    <div className='total-num'
+                                                        style={{ fontSize: '1.2rem' }}>Status</div>
+                                                    {/*req.status === 'Confirmed' && <div className='total-num assign-btn'
                                                         style={{ fontSize: '1.2rem' }}
-                                                        onClick={e => assignRequest(e, req)}>Reassign</div>}
+                                                        onClick={e => assignRequest(e, req)}>Reassign</div>*/}
                                                 </div>}
                                             {assignment.length > 0 &&
-                                                assignment.map(ass => ((ass.status !== 'Canceled' || ass.status === req.status) &&
-                                                    <div className='cart-total-qty' key={ass._id}>
-                                                        <div className='cart-total-label'>{ass.type}</div>
-                                                        <div className='total-num'
-                                                            style={{ fontSize: '1.1rem' }}>{ass.employeeName}</div>
-                                                    </div>
-                                                ))}
+                                                assignment.map(ass => ((ass.status !== 'Canceled' && ass.status !== 'Rejected' && ass.status !== 'Pending' && ass.status !== 'Unassigned' && ass.req_id == req._id) &&
+                                                    <div key={ass._id}>
+                                                        <div className='cart-total-qty ass-form-hovered' key={ass._id} data-tip data-for={ass._id}>
+                                                            <div className='cart-total-label'>{ass.type}</div>
+                                                            <div className='total-num'
+                                                                style={{ fontSize: '1.1rem' }}>{ass.status}</div>
+                                                        </div>
+                                                        <ReactTooltip id={ass._id} place="top" effect="float" className='width-30rem'>
+                                                            {ass.employeeName}
+                                                        </ReactTooltip>
+                                                    </div>))}
                                             <div className='cart-total-qty receipt-title'>
                                                 <div className="label">Receipt#</div>
                                                 <div className='total-num'
@@ -1458,6 +1267,7 @@ function OrdersManager(props) {
                                                         </option>
                                                         {request
                                                             && request.map((req) => (
+                                                                req.type == request[0].type &&
                                                                 <option key={request.indexOf(req)} value={request.indexOf(req) + 1}>
                                                                     {'Request #' + (request.indexOf(req) + 1)}
                                                                 </option>
@@ -1630,6 +1440,7 @@ function OrdersManager(props) {
                                     {cartItems &&
                                         <div style={{ margin: '2rem 0' }}>
                                             {deliveryList && requestType !== 'Prepare' && requestType !== 'Cancel' &&
+                                                (request.length > 0 ? request[0].type !== 'Prepare' : true) &&
                                                 <div>
                                                     <div className="label">Delivery Title<p className="required">*</p></div>
                                                     <select
@@ -1641,8 +1452,7 @@ function OrdersManager(props) {
                                                                     e.target.options[e.target.selectedIndex].value :
                                                                     e.target.value)
                                                             setDeliveryCharge(undefined)
-                                                        }}
-                                                    >
+                                                        }}>
                                                         {deliveryList
                                                             && deliveryList.map(del => (
                                                                 <option key={deliveryList.indexOf(del)} value={del.title}>
@@ -1667,9 +1477,9 @@ function OrdersManager(props) {
                                                             style={{ marginBottom: '0' }}
                                                             value={
                                                                 requestType === 'Place'
-                                                                    ? deliverOn
+                                                                    ? (deliverOn.length > 16 ? deliverOn.slice(0, 16) : deliverOn)
                                                                     : requestType === 'Prepare'
-                                                                    && prepareOn
+                                                                    && (prepareOn.length > 16 ? prepareOn.slice(0, 16) : prepareOn)
                                                             }
                                                             onChange={(e) => {
                                                                 requestType === 'Place'
@@ -1677,7 +1487,7 @@ function OrdersManager(props) {
                                                                     : requestType === 'Prepare'
                                                                     && setPrepareOn(e.target.value)
                                                             }}
-                                                            min={deliveryDurationInDate()}
+                                                            min={date()}
                                                         ></input>
                                                     </div>
                                                 </div>}
@@ -1735,21 +1545,22 @@ function OrdersManager(props) {
                                                     </div>
                                                     <div className='cart-total-qty'>
                                                         <div className='cart-total-label'>Items</div>
-                                                        <div className='total-num'>{qtyCalc() +
-                                                            (qtyCalc() === 1 ? ' item' : ' items')}</div>
+                                                        <div className='total-num'>{qtyCalc(cartItems) +
+                                                            (qtyCalc(cartItems) === 1 ? ' item' : ' items')}</div>
                                                     </div>
                                                     <div className='cart-total-qty'>
                                                         <div className='cart-total-label'>Cart Amount</div>
-                                                        <div className='total-num'>{cartAmountCalc() + ' $'}</div>
+                                                        <div className='total-num'>{cartAmountCalc(cartItems, requestType) + ' $'}</div>
                                                     </div>
                                                     <div className='cart-total-qty'>
                                                         <div className='cart-total-label'>
                                                             {(requestType === 'Cancel' || requestType === 'Return')
                                                                 ? 'Discount Lost' : 'Discount Earned'}
                                                         </div>
-                                                        <div className='total-num'>{discountCalc() + ' $'}</div>
+                                                        <div className='total-num'>{discountCalc(cartItems, requestType) + ' $'}</div>
                                                     </div>
-                                                    {deliveryValues && (deliveryCharge ? parseFloat(deliveryCharge) !== 0 : parseFloat(deliveryCalc()) !== 0) &&
+                                                    {deliveryValues && (deliveryCharge ? parseFloat(deliveryCharge) !== 0 :
+                                                        parseFloat(deliveryCalc(deliveryValues, cartItems, requestType, itemsQty, request, requestNum, requestIndex)) !== 0) &&
                                                         <div className='cart-total-qty'>
                                                             <div className='cart-total-label'>
                                                                 Delivery charge
@@ -1758,21 +1569,27 @@ function OrdersManager(props) {
                                                                         : ''}</div>
                                                             </div>
                                                             <div className='total-num'>{
-                                                                deliveryCharge ? deliveryCharge + ' $' : (deliveryCalc() !== 0
-                                                                    ? deliveryCalc() + ' $' : 'Free')}</div>
+                                                                deliveryCharge ? deliveryCharge + ' $' :
+                                                                    (deliveryCalc(deliveryValues, cartItems, requestType, itemsQty, request, requestNum, requestIndex) !== 0
+                                                                        ? deliveryCalc(deliveryValues, cartItems, requestType, itemsQty, request, requestNum, requestIndex) + ' $'
+                                                                        : 'Free')}
+                                                            </div>
                                                         </div>}
-                                                    {paymentValues && paymentCharge ? parseFloat(paymentCharge) !== 0 : parseFloat(paymentCalc()) !== 0 &&
+                                                    {paymentValues && paymentCharge ? parseFloat(paymentCharge) !== 0
+                                                        : parseFloat(paymentCalc(paymentValues, paymentType, cartItems, requestType)) !== 0 &&
                                                         <div className='cart-total-qty'>
                                                             <div className='cart-total-label'>Payment Charge
                                                                 <div className='pay-desc'>{paymentDescription ? paymentDescription : ''}</div>
                                                             </div>
                                                             <div className='total-num'>
-                                                                {paymentCharge ? paymentCharge + ' $' : paymentCalc() + ' $'}
+                                                                {paymentCharge ? paymentCharge + ' $'
+                                                                    : paymentCalc(paymentValues, paymentType, cartItems, requestType) + ' $'}
                                                             </div>
                                                         </div>}
                                                     <div className='cart-total-qty border-top'>
                                                         <div className='cart-total-label'>Total Amount</div>
-                                                        <div className='total-num'>{totalAmountCalc() + ' $'}</div>
+                                                        <div className='total-num'>{totalAmountCalc(cartItems, deliveryCharge, paymentCharge, paymentValues, request, requestType, paymentType, itemsQty, requestNum, requestIndex, deliveryValues) + ' $'}
+                                                        </div>
                                                     </div>
                                                     <button className='button width'
                                                         onClick={(e) => { addRequestHandler(e) }}>Save Request
@@ -1989,7 +1806,7 @@ function OrdersManager(props) {
                                     value={req.status}
                                     onChange={e => requestStatusEditor(e, order, req, 'Request')}
                                     key={req._id}
-                                    disabled={req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected' || (req.type === 'Cancel' && req.status === 'Confirmed')}>
+                                    disabled={req.status === 'Completed' || req.status === 'Canceled' || req.status === 'Rejected'}>
                                     {requestStatusList.map(status => (
                                         <option key={requestStatusList.indexOf(status)} value={status}>
                                             {status}

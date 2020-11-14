@@ -15,11 +15,17 @@ import {
     EMPLOYEE_SAVE_CLEAR, CLEAR_EMPLOYEE_DELETE
 } from "../constants/constants"
 
-const listEmployees = () => async (dispatch) => {
+const listEmployees = (filter) => async (dispatch) => {
     try {
         dispatch({ type: EMPLOYEE_LIST_REQUEST })
-        const { data } = await axios.get("/api/employee");
-        dispatch({ type: EMPLOYEE_LIST_SUCCESS, payload: data })
+        if (filter) {
+            const active = filter.active || ''
+            const { data } = await axios.get("/api/employee?active=" + active)
+            dispatch({ type: EMPLOYEE_LIST_SUCCESS, payload: data })
+        } else {
+            const { data } = await axios.get("/api/employee")
+            dispatch({ type: EMPLOYEE_LIST_SUCCESS, payload: data })
+        }
     } catch (error) {
         dispatch({ type: EMPLOYEE_LIST_FAIL, payload: error.message })
     }
@@ -30,14 +36,17 @@ const saveEmployee = (employee) => async (dispatch, getState) => {
         dispatch({ type: EMPLOYEE_SAVE_CLEAR, payload: undefined })
     } else try {
         const { userSignin: { userInfo } } = getState()
+        const { employeeDetails: { employee: employeeDetails } } = getState()
         dispatch({ type: EMPLOYEE_SAVE_REQUEST, payload: employee });
 
         // update
         if (employee._id) {
-            const { data } = await axios.put('/api/Employee/' + employee._id, employee, {
+            const { data } = await axios.put('/api/employee/' + employee._id, employee, {
                 headers: { 'Authorization': 'Bearer ' + userInfo.token }
             });
             dispatch({ type: EMPLOYEE_SAVE_SUCCESS, payload: data })
+            if (employeeDetails._id === employee._id)
+                dispatch({ type: EMPLOYEE_DETAILS_SUCCESS, payload: data.data })
         }
 
         // new

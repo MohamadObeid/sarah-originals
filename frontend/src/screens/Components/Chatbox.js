@@ -3,8 +3,7 @@ import axios from "axios"
 import { Redirect } from 'react-router'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-    faComments, faTimes, faPaperPlane,
-    faThumbsUp, faThumbsDown, faAngleRight
+    faComments, faTimes, faPaperPlane, faAngleRight
 } from '@fortawesome/free-solid-svg-icons'
 import {
     faThumbsUp as farThumbsUp, faThumbsDown as farThumbsDown, faPaperPlane as farPaperPlane,
@@ -12,11 +11,10 @@ import {
 } from '@fortawesome/free-regular-svg-icons'
 import { useDispatch, useSelector } from "react-redux";
 import {
-    listChat, saveChat, deleteChat, detailsChat,
-    listLiveUser, saveLiveUser, deleteLiveUser, detailsLiveUser
+    saveChat, detailsChat, listLiveUser, saveLiveUser, deleteLiveUser, detailsLiveUser
 } from './../../actions/chatActions'
-import { CHAT_DETAILS_SUCCESS, CHAT_SAVE_SUCCESS, LIVE_USER_LIST_SUCCESS } from "../../constants/constants";
-import audio from '../../sounds/swiftly.mp3'
+import { CHAT_DETAILS_SUCCESS, CHAT_SAVE_SUCCESS } from "../../constants/constants";
+import audio from './swiftly.mp3'
 import UIfx from 'uifx';
 import { Popconfirm } from 'antd'
 import cookie from "js-cookie";

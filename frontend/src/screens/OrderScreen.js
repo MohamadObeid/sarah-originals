@@ -5,7 +5,6 @@ import FontAwesome from 'react-fontawesome';
 import Delivery from './OrderComponents/DeliveryTag';
 import Payment from './OrderComponents/PaymentTag';
 import PlaceOrder from './OrderComponents/PlaceOrderTag';
-import { set } from "mongoose";
 
 function OrderScreen() {
     const { orderScreen } = useSelector(state => state.orderScreen);
