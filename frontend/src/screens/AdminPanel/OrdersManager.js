@@ -527,6 +527,34 @@ function OrdersManager(props) {
         } else dispatch(updateCart('clear'))
     }
 
+    /*
+        const setItemsMaxQty = (order, request) => {
+            const currOrder = JSON.parse(window.sessionStorage.getItem('activeOrders'))
+                .find(o => o._id == order._id)
+            const currReq = currOrder.request.find(req => req._id == request._id)
+            const storedItems = currReq.cart.items.map(i => { return i })
+            // Note: storedItem.qty is considered the max.qty
+            // decrease the canceled qty from the storedItem.qty according to existing cancel requests
+            const currentRequestIndex = order.request.indexOf(request)
+            const cancelRequests = order.request.filter(req =>
+                req.type === 'Cancel' && req.modifiedRequestNum === currentRequestIndex + 1 &&
+                req.status !== 'Canceled' && req.status !== 'Rejected') || []
+    
+            if (cancelRequests.length > 0) {
+                cancelRequests.map(req => {
+                    req.cart.items.map(i => {
+                        const storedItem = storedItems.find(item => item._id == i._id)
+                        storedItem.qty = storedItem.qty - i.qty
+                    })
+                })
+            }
+            window.sessionStorage.setItem('storedItems', JSON.stringify(storedItems))
+            request.cart.items.map(i => {
+                const storedItem = storedItems.find(item => item._id == i._id)
+                i.qty = storedItem.qty
+            })
+        }
+    */
     const searchItem = async (e) => {
         e.preventDefault()
         searchKeyword &&

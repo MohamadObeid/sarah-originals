@@ -2497,7 +2497,7 @@ input.checked[type="radio"] {
 }
 
 .red {
-  color: red;
+  color: #ff1515;
 }
 
 .timer {
@@ -3338,7 +3338,7 @@ input[type="number"] {
   top: -1rem;
   right: -0.8rem;
   padding: 0 0.7rem;
-  background-color: red;
+  background-color: #ff1515;
   color: white;
   font-size: 1.3rem;
   border-radius: 1rem;
@@ -3391,6 +3391,10 @@ input[type="number"] {
   border: 2px solid rgb(0, 143, 0);
 }
 
+.red-border {
+  border: 2px solid #ff1515;
+}
+
 .green {
   color: green;
 }
@@ -3416,4 +3420,14 @@ input[type="number"] {
 
 .relative {
   width: 78%;
+}
+
+.select-width select {
+  width: 10rem;
+  text-align-last: right;
+  font-size: 1.32rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  text-indent: 1px;
+  text-overflow: "";
 }

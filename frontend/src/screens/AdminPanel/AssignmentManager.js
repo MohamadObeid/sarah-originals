@@ -122,21 +122,33 @@ function AssignmentManager(props) {
         setTimeOut(setTimeout(() => setActionNoteVisible(false), 6000))
     }
 
-    const statusHandler = (e, request, order, ass) => {
+    const statusHandler = async (e, request, order, ass) => {
         e.preventDefault()
         if (ass.setReqStatus === 'on Hold' && ass.onHold) {
             setActionNote('Assignment is already on hold!')
             actionNoteHandler()
             return
-        }
-        else if (ass.onHold && ass.type !== 'Request') {
+        } else if (ass.onHold && ass.type !== 'Request') {
             const requestAss = order.assignment.find(ass0 => ass0.req_id == ass.req_id && ass0.type === 'Request' && ass0.onHold)
             if (requestAss) {
                 setActionNote('Only request handler can set request progress!')
                 actionNoteHandler()
                 return
             }
+        } else if (ass.type === 'Cart' && (ass.setReqStatus === 'Packed' || ass.setReqStatus === 'Unpacked')) {
+            await setItemsMaxQty(order, request)
+            const storedItems = JSON.parse(window.sessionStorage.getItem('storedItems'))
+            var allItemsArePacked = true
+            storedItems.map(item => {
+                const itemPacked = packed.find(i => i._id == item._id)
+                if (item.qty != itemPacked.qty) allItemsArePacked = false
+            })
+            if (!allItemsArePacked) {
+                setActionNote('Check if all items are ' + ass.setReqStatus + '!')
+                actionNoteHandler()
+            }
         }
+
         if (handlerApproved(ass)) {
             if (ass.setReqStatus !== ass.status) {
                 dispatch(saveOrder({
@@ -241,6 +253,8 @@ function AssignmentManager(props) {
         if (modelVisible) {
             setModelVisible(false)
             setCanceledItemList([])
+            window.sessionStorage.removeItem('storedItems')
+            dispatch(backupActiveOrders())
         } else {
             setRequest(request)
             setOrder(order)
@@ -249,6 +263,7 @@ function AssignmentManager(props) {
             setFormAction('Update')
             setCommand(undefined)
             setItemsMaxQty(order, request)
+            setTotalCharges(order, request)
             dispatch(backupActiveOrders(orders, 'store'))
         }
     }
@@ -276,11 +291,56 @@ function AssignmentManager(props) {
     useEffect(() => {
         if (storedActiveOrders && order && request)
             cancelItemListHandler()
-
     }, [storedActiveOrders, order, request])
 
-    const submitHandler = e => {
+    const submitHandler = async (e) => {
         e.preventDefault()
+        // check if all items are packed => set cart status to packed, and all cancel request to unpacked
+        const storedItems = JSON.parse(window.sessionStorage.getItem('storedItems'))
+        const updateRequest = order.request.find(req => req._id == request._id)
+        var allItemsArePacked = true
+        storedItems.map(item => {
+            const itemPacked = packed.find(i => i._id == item._id && i.req_id == request._id)
+            if (item.qty !== itemPacked.qty) allItemsArePacked = false
+        })
+
+        if (allItemsArePacked) {
+
+            if (assignment.type === 'Request' || assignment.type === 'Cart') {
+                if (updateRequest.type === 'Prepare' || updateRequest.type === 'Place') {
+                    updateRequest.cart.status = 'Packed' // cart status set packed
+                    const index = order.request.indexOf(request)
+                    order.request.map(req => { // cancel request? => cart.status = unpacked
+                        if (req.type === 'Cancel' && (req.modifiedRequestNum === index + 1) && req.status !== 'Completed' && req.status !== 'Rejected') {
+                            req.cart.status = 'Unpacked'
+                        }
+                    })
+                } else if (updateRequest.type === 'Cancel' || updateRequest.type === 'Return')
+                    updateRequest.cart.status = 'Unpacked'
+
+            } else if (assignment.type === 'Payment' || assignment.type === 'Delivery') {
+                // delivery charge selected
+                // payment charge selected
+                // items selected
+            }
+
+        } else {
+            assignment.type === 'Cart' && setActionNote('Check all items to set cart completed')
+            assignment.type === 'Payment' && setActionNote('Check all items to set payment completed')
+            assignment.type === 'Delivery' && setActionNote('Check all items to set order completed')
+            actionNoteHandler()
+        }
+        setModelVisible(false)
+        // items in edit form are modified due to cancel requests => reset values to its original ones
+        const activeOrders = JSON.parse(window.sessionStorage.getItem('activeOrders'))
+        const activeOrder = activeOrders.find(ord => order._id == ord._id)
+        const activeRequest = activeOrder.request.find(req => request._id == req._id)
+        const selectedRequest = order.request.find(req => req._id == request._id)
+        selectedRequest.cart.items = activeRequest.cart.items
+        selectedRequest.amount = activeRequest.amount
+        selectedRequest.payment.charge = activeRequest.payment.charge
+        selectedRequest.delivery.charge = activeRequest.delivery.charge
+
         dispatch(saveOrder({
             ...order, req_id: request._id, command,
             assignedBy: employee.firstName + ' ' + employee.lastName,
@@ -298,6 +358,11 @@ function AssignmentManager(props) {
 
     const handleMinus = (e, item, itemType) => {
         e.preventDefault()
+        if (request.cart.status === 'Packed' || request.cart.status === 'Unpacked') {
+            setActionNote("You can't edit cart after it is " + request.cart.status + '!')
+            actionNoteHandler()
+            return
+        }
         const conditions = (i) => { return i._id == item._id && i.req_id == request._id }
         // check if product is packed
         const productPacked = packed.find(i => conditions(i)) || false
@@ -330,12 +395,14 @@ function AssignmentManager(props) {
 
     const handlePlus = (e, item, itemType) => {
         e.preventDefault()
+        if (request.cart.status === 'Packed' || request.cart.status === 'Unpacked') {
+            setActionNote("You can't edit cart after it is " + request.cart.status + '!')
+            actionNoteHandler()
+            return
+        }
         const conditions = (i) => { return i._id == item._id && i.req_id == request._id }
         // check if product is packed
         const productPacked = packed.find(i => conditions(i)) || false
-        /*const currOrder = JSON.parse(window.sessionStorage.getItem('activeOrders'))
-            .find(o => o._id == order._id)
-        const currReq = currOrder.request.find(req => req._id == request._id)*/
         const storedItems = JSON.parse(window.sessionStorage.getItem('storedItems'))
         const storedItem = storedItems.find(i => i._id == item._id)
         if (storedItem && storedItem.qty === item.qty) {
@@ -365,28 +432,66 @@ function AssignmentManager(props) {
         cancelItem(item, itemType)
     }
 
+    const setTotalCharges = (order, request) => {
+        // place/prepare request ? decrease amount
+        if (request.type === 'Place' || request.type === 'Prepare') {
+            const selectedRequestIndex = order.request.indexOf(request)
+            const cancelRequests = order.request.filter(req =>
+                req.type === 'Cancel' && req.modifiedRequestNum === selectedRequestIndex + 1 &&
+                req.status !== 'Canceled' && req.status !== 'Rejected') || []
+
+            if (cancelRequests.length > 0) {
+                cancelRequests.map(req => {
+                    request.payment.charge = request.payment.charge + req.payment.charge
+                    if (req.delivery && request.delivery)
+                        request.delivery.charge = request.delivery.charge + req.delivery.charge
+                    //request.amount = request.amount + req.amount
+                })
+            }
+        }
+    }
+
     const setItemsMaxQty = (order, request) => {
-        const currOrder = JSON.parse(window.sessionStorage.getItem('activeOrders'))
+        const selectedOrder = JSON.parse(window.sessionStorage.getItem('activeOrders'))
             .find(o => o._id == order._id)
-        const currReq = currOrder.request.find(req => req._id == request._id)
-        const storedItems = currReq.cart.items.map(i => { return i })
+        const selectedReq = selectedOrder.request.find(req => req._id == request._id)
+        var storedItems = selectedReq.cart.items.map(i => { return i })
         // Note: storedItem.qty is considered the max.qty
         // decrease the canceled qty from the storedItem.qty according to existing cancel requests
-        const currentRequestIndex = order.request.indexOf(request)
-        const cancelRequests = order.request.filter(req => req.type === 'Cancel' && req.modifiedRequestNum === currentRequestIndex + 1) || []
+        const selectedRequestIndex = order.request.indexOf(request)
+        const cancelRequests = order.request.filter(req =>
+            req.type === 'Cancel' && req.modifiedRequestNum === selectedRequestIndex + 1 &&
+            req.status !== 'Canceled' && req.status !== 'Rejected') || []
+
         if (cancelRequests.length > 0) {
             cancelRequests.map(req => {
                 req.cart.items.map(i => {
                     const storedItem = storedItems.find(item => item._id == i._id)
                     storedItem.qty = storedItem.qty - i.qty
+                    if (storedItem.qty === 0) {
+                        storedItems = storedItems.filter(item => item._id !== i._id)
+                    }
                 })
             })
         }
         window.sessionStorage.setItem('storedItems', JSON.stringify(storedItems))
         request.cart.items.map(i => {
-            const storedItem = storedItems.find(item => item._id == i._id)
-            i.qty = storedItem.qty
+            const storedItem = storedItems.find(item => item._id == i._id) || undefined
+            if (storedItem)
+                i.qty = storedItem.qty
+            else i.qty = 0
         })
+        request.cart.items = request.cart.items.filter(item => item.qty !== 0)
+        // if cart.status === Packed/unpacked => set items packed
+        if (selectedReq.cart.status === 'Packed' || selectedReq.cart.status === 'Unpacked') {
+            var updatePacked = packedItems
+            request.cart.items.map(item => {
+                const itemPacked = updatePacked.find(i => i.req_id == request._id && i._id == item._id)
+                if (itemPacked) itemPacked.qty = item.qty
+                else updatePacked = [...updatePacked, { req_id: request._id, _id: item._id, qty: item.qty }]
+            })
+            dispatch(packItems(updatePacked))
+        }
     }
 
     const dueDate = (ass, request) => {
@@ -415,7 +520,11 @@ function AssignmentManager(props) {
             return itemPacked
 
         } else if (method === 'filter') {
-            if (itemPacked) {
+            if (request.cart.status === 'Packed' || request.cart.status === 'Unpacked') {
+                setActionNote("You can't deselect item after cart is " + request.cart.status + '!')
+                actionNoteHandler()
+                return
+            } else if (itemPacked) {
                 setItemPacked(e, packed.filter(i =>
                     i._id !== item._id && i.req_id == request._id))
                 //item.qty = item0.qty
@@ -501,14 +610,14 @@ function AssignmentManager(props) {
             setDeliveryTitle()
             setDeliveryValues()*/
 
-            const currOrder = JSON.parse(window.sessionStorage.getItem('activeOrders'))
+            const selectedOrder = JSON.parse(window.sessionStorage.getItem('activeOrders'))
                 .find(o => o._id == order._id)
-            const currReq = currOrder.request.find(req => req._id == request._id)
-            setItemsQty(currReq.cart.items)
+            const selectedReq = selectedOrder.request.find(req => req._id == request._id)
+            setItemsQty(selectedReq.cart.items)
 
-            setRequestNum(currOrder.request.indexOf(currReq) + 1)
-            setRequestIndex(currOrder.request.length)
-            setRequestList(currOrder.request)
+            setRequestNum(selectedOrder.request.indexOf(selectedReq) + 1)
+            setRequestIndex(selectedOrder.request.length)
+            setRequestList(selectedOrder.request)
         }
     }
 
@@ -567,11 +676,6 @@ function AssignmentManager(props) {
         }
     }
 
-    const MinusPlusDisabled = e => {
-        setActionNote("You can't edit cancel request items!")
-        actionNoteHandler()
-    }
-
     return (
         <div>
             {actionNoteVisible && <div className="action-note">
@@ -607,7 +711,7 @@ function AssignmentManager(props) {
                 <thead>
                     <tr>
                         <th style={{ textAlign: 'center', width: '4rem' }}>Active</th>
-                        <th style={{ width: '12rem' }}>Due Date</th>
+                        <th style={{ width: '10rem' }}>Due Date</th>
                         <th style={{ width: '12rem' }}>Customer</th>
                         <th style={{ width: '10rem' }}>Request</th>
                         <th style={{ width: '10rem' }}>Assignment</th>
@@ -636,7 +740,7 @@ function AssignmentManager(props) {
                                     <td data-tip data-for={ass._id + 'due-date'}>
                                         {dayConverter(dueDate(ass, request))}
                                         <ReactTooltip id={ass._id + 'due-date'} place="top" effect="float">
-                                            {ass.date && creationDatePrettier(dueDate(ass, request))}
+                                            {creationDatePrettier(dueDate(ass, request))}
                                         </ReactTooltip>
                                     </td>
                                     <td data-tip data-for={ass._id + 'name'}>{order.name}
@@ -651,7 +755,7 @@ function AssignmentManager(props) {
                                                 ? request.payment.status : ass.type === 'Delivery' && request.delivery.status)
                                     }</td>
                                     <td>{ass.type + ' : '}<br />{ass.status}</td>
-                                    <td style={{ textAlign: 'end', paddingRight: '0.8rem' }}>{request.amount + ' $'}</td>
+                                    <td style={{ textAlign: 'end', paddingRight: '0.8rem' }}>{order.amount + ' $'}</td>
                                     <td className='td-selects'>{
                                         (ass.status === 'Unassigned' || ass.status === 'Assigned' || ass.status === 'Pending') ?
                                             (ass.employeeId ?
@@ -732,10 +836,9 @@ function AssignmentManager(props) {
                                         <button onClick={e => statusHandler(e, request, order, ass)}
                                             className='button set-btn'>Save
                                             </button>
-                                        {ass.type === 'Request' &&
-                                            <button onClick={e => editHandler(e, request, order, ass)}
-                                                className='button set-btn secondary'>Edit
-                                            </button>}
+                                        <button onClick={e => editHandler(e, request, order, ass)}
+                                            className='button set-btn secondary'>Edit
+                                            </button>
                                         <button onClick={e => hideAssingment(e, ass)}
                                             className='button set-btn secondary'><FontAwesomeIcon icon={faEyeSlash} />
                                         </button>
@@ -751,11 +854,12 @@ function AssignmentManager(props) {
                             setModelVisible(false)
                             setCanceledItemList([])
                             dispatch(backupActiveOrders())
+                            window.sessionStorage.removeItem('storedItems')
                         }} />
                         <li>
                             <h2>{formAction == 'Copy' ? 'Create' : formAction} Assignment</h2>
                         </li>
-                        <li>
+                        {assignment.type === 'Request' && <li>
                             <label className="label">Handlers</label>
                             <div className='status-container border-padding'>
                                 {order && order.assignment.map(ass => (
@@ -793,93 +897,94 @@ function AssignmentManager(props) {
                                         </div>
                                     </div>))}
                             </div>
-                        </li>
-                        <li className='margin-top-1rem'>
-                            <label className="label">Status</label>
-                            <div className='status-container border-padding'>
-                                <div className='status-flex'>
-                                    <label className='label line-des'>Request</label>
-                                    <div className='select-confirmation'>
-                                        <select
-                                            value={request.status}
-                                            onChange={(e) => {
-                                                request.status =
-                                                    e.target.selectedIndex ?
-                                                        e.target.options[e.target.selectedIndex].value :
-                                                        e.target.value
-                                            }}>
-                                            {requestStatusList
-                                                && requestStatusList.map((status) => (
-                                                    <option key={requestStatusList.indexOf(status)} value={status}>
-                                                        {status}
-                                                    </option>
-                                                ))}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className='status-flex'>
-                                    <label className='label line-des'>Cart</label>
-                                    <div className='select-confirmation'>
-                                        <select
-                                            value={request.cart.status}
-                                            onChange={(e) => {
-                                                request.cart.status =
-                                                    e.target.selectedIndex ?
-                                                        e.target.options[e.target.selectedIndex].value :
-                                                        e.target.value
-                                            }}>
-                                            {cartStatusList
-                                                && cartStatusList.map((status) => (
-                                                    <option key={cartStatusList.indexOf(status)} value={status}>
-                                                        {status}
-                                                    </option>
-                                                ))}
-                                        </select>
-                                    </div>
-                                </div>
-                                {request.type !== 'Prepare' && request.delivery &&
+                        </li>}
+                        {assignment.type === 'Request' &&
+                            <li className='margin-top-1rem'>
+                                <label className="label">Status</label>
+                                <div className='status-container border-padding'>
                                     <div className='status-flex'>
-                                        <label className='label line-des'>Delivery</label>
+                                        <label className='label line-des'>Request</label>
                                         <div className='select-confirmation'>
                                             <select
-                                                value={request.delivery.status}
+                                                value={request.status}
                                                 onChange={(e) => {
-                                                    request.delivery.status =
+                                                    request.status =
                                                         e.target.selectedIndex ?
                                                             e.target.options[e.target.selectedIndex].value :
                                                             e.target.value
                                                 }}>
-                                                {deliveryStatusList
-                                                    && deliveryStatusList.map((status) => (
-                                                        <option key={deliveryStatusList.indexOf(status)} value={status}>
+                                                {requestStatusList
+                                                    && requestStatusList.map((status) => (
+                                                        <option key={requestStatusList.indexOf(status)} value={status}>
                                                             {status}
                                                         </option>
                                                     ))}
                                             </select>
                                         </div>
-                                    </div>}
-                                <div className='status-flex'>
-                                    <label className='label line-des'>Payment</label>
-                                    <div className='select-confirmation'>
-                                        <select
-                                            value={request.payment.status}
-                                            onChange={(e) => {
-                                                request.payment.status =
-                                                    e.target.selectedIndex ?
-                                                        e.target.options[e.target.selectedIndex].value :
-                                                        e.target.value
-                                            }}>
-                                            {paymentStatusList
-                                                && paymentStatusList.map((status) => (
-                                                    <option key={paymentStatusList.indexOf(status)} value={status}>
-                                                        {status}
-                                                    </option>
-                                                ))}
-                                        </select>
+                                    </div>
+                                    <div className='status-flex'>
+                                        <label className='label line-des'>Cart</label>
+                                        <div className='select-confirmation'>
+                                            <select
+                                                value={request.cart.status}
+                                                onChange={(e) => {
+                                                    request.cart.status =
+                                                        e.target.selectedIndex ?
+                                                            e.target.options[e.target.selectedIndex].value :
+                                                            e.target.value
+                                                }}>
+                                                {cartStatusList
+                                                    && cartStatusList.map((status) => (
+                                                        <option key={cartStatusList.indexOf(status)} value={status}>
+                                                            {status}
+                                                        </option>
+                                                    ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    {request.type !== 'Prepare' && request.delivery &&
+                                        <div className='status-flex'>
+                                            <label className='label line-des'>Delivery</label>
+                                            <div className='select-confirmation'>
+                                                <select
+                                                    value={request.delivery.status}
+                                                    onChange={(e) => {
+                                                        request.delivery.status =
+                                                            e.target.selectedIndex ?
+                                                                e.target.options[e.target.selectedIndex].value :
+                                                                e.target.value
+                                                    }}>
+                                                    {deliveryStatusList
+                                                        && deliveryStatusList.map((status) => (
+                                                            <option key={deliveryStatusList.indexOf(status)} value={status}>
+                                                                {status}
+                                                            </option>
+                                                        ))}
+                                                </select>
+                                            </div>
+                                        </div>}
+                                    <div className='status-flex'>
+                                        <label className='label line-des'>Payment</label>
+                                        <div className='select-confirmation'>
+                                            <select
+                                                value={request.payment.status}
+                                                onChange={(e) => {
+                                                    request.payment.status =
+                                                        e.target.selectedIndex ?
+                                                            e.target.options[e.target.selectedIndex].value :
+                                                            e.target.value
+                                                }}>
+                                                {paymentStatusList
+                                                    && paymentStatusList.map((status) => (
+                                                        <option key={paymentStatusList.indexOf(status)} value={status}>
+                                                            {status}
+                                                        </option>
+                                                    ))}
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </li>
+                            </li>}
                         {canceledItemList.length > 0 &&
                             <li>
                                 <div className='flex-align'>
@@ -968,10 +1073,8 @@ function AssignmentManager(props) {
                                     item && item.qty > 0 &&
                                     <div key={'item' + request.cart.items.indexOf(item)}
                                         className={'border-padding back-white' +
-                                            (PackedItems(_id, item, 'find') ? ' green-border ' : '') +
-                                            ((request.type === 'Cancel' || request.type === 'Return')
-                                                ? ' cancelled-items '
-                                                : ' ')}>
+                                            (PackedItems(_id, item, 'find') ? (request.type === 'Cancel'
+                                                ? ' red-border ' : ' green-border ') : '')}>
                                         {item.discount > 0 &&
                                             <div className='product-discount order-discount'>
                                                 <div>{item.discount}</div>
@@ -982,7 +1085,8 @@ function AssignmentManager(props) {
                                                 onClick={e => PackedItems(_id, item, 'filter', e)}>
                                                 {PackedItems(_id, item, 'find') &&
                                                     <FontAwesomeIcon icon={faCheckCircle}
-                                                        className={'fa-2x' + (PackedItems(_id, item, 'find') ? ' green' : '')} />}
+                                                        className={'fa-2x' + (PackedItems(_id, item, 'find')
+                                                            ? (request.type === 'Cancel' ? ' red ' : ' green ') : '')} />}
                                             </div>
                                             <div className="cart-image cart-img-order">
                                                 <img src={imageUrl + item.image} alt={item.nameEn} />
@@ -1004,9 +1108,7 @@ function AssignmentManager(props) {
                                                     type="button"
                                                     className="plus plus-cart plus-cart-order"
                                                     value={item._id}
-                                                    onClick={(e) => request.type !== 'Cancel'
-                                                        ? handlePlus(e, item)
-                                                        : MinusPlusDisabled(e)}>
+                                                    onClick={(e) => handlePlus(e, item)}>
                                                     <FontAwesome name='fa-plus' className="fas fa-plus" />
                                                 </button>
                                                 <p className="add-to-cart-qty float-bottom count count-order">{
@@ -1018,15 +1120,42 @@ function AssignmentManager(props) {
                                                     type="button"
                                                     className="minus minus-cart minus-cart-order"
                                                     value={item._id}
-                                                    onClick={(e) => request.type !== 'Cancel'
-                                                        ? handleMinus(e, item)
-                                                        : MinusPlusDisabled(e)}>
+                                                    onClick={(e) => handleMinus(e, item)}>
                                                     <FontAwesome name='fa-minus' className="fas fa-minus" />
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
                                 ))}
+                        </li>
+                        <li>
+                            <label className="label">Charges</label>
+                            <div className='status-container border-padding'>
+                                <div className='status-flex'>
+                                    <label className='label line-des'>Total Amount</label>
+                                    <div className='select-confirmation employee-name-dorpdown select-width'>
+                                        <select defaultValue={order.amount}>
+                                            <option>{order.amount} $</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className='status-flex'>
+                                    <label className='label line-des'>Payment Charge</label>
+                                    <div className='select-confirmation employee-name-dorpdown select-width'>
+                                        <select defaultValue={request.payment.charge}>
+                                            <option>{request.payment.charge} $</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                {request.delivery && <div className='status-flex'>
+                                    <label className='label line-des'>Delivery Charge</label>
+                                    <div className='select-confirmation employee-name-dorpdown select-width'>
+                                        <select defaultValue={request.delivery.charge}>
+                                            <option>{request.delivery.charge} $</option>
+                                        </select>
+                                    </div>
+                                </div>}
+                            </div>
                         </li>
                         <li>
                             {formAlertVisible && <div className="invalid">{formAlert}</div>}
@@ -1040,6 +1169,7 @@ function AssignmentManager(props) {
                                 setModelVisible(false)
                                 setCanceledItemList([])
                                 dispatch(backupActiveOrders())
+                                window.sessionStorage.removeItem('storedItems')
                             }}>
                                 Back
                             </button>

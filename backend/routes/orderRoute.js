@@ -96,10 +96,6 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
                     }
                 }
             })
-            /*const orderUpdated = await order.save()
-            if (orderUpdated) {
-                return res.status(200).send({ message: "Order has been assigned!", data: orderUpdated })
-            } else return*/
         }
 
         var employeeIdList = []
@@ -202,7 +198,7 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
                 requestTotallyCanceled(request, order)
                 statusModifier(request, order)
                 requestStatusModifier(request)
-                assignmentStatusModifier(request._id, order, currentHandlers)
+                assignmentStatusModifier(request, order, currentHandlers)
                 request.cart.qty = requestQtyCalc(request)
                 order.amount = amountCalc(order, request)
             })
@@ -238,7 +234,7 @@ router.delete("/:id", isAuth, isAdmin, async (req, res) => {
 ////////////////////////// Functions /////////////////////////////
 
 const requestTotallyCanceled = (request, order) => {
-    if (request.type === 'Prepare' || request.type === 'Place' /*&& cartUncompleted(request)*/) {
+    if (request.type === 'Prepare' || request.type === 'Place') {
 
         // are all items canceled => cancel request
         var totalCanceledCartAmount = 0
@@ -574,7 +570,7 @@ const statusApproval = (order, req_id, type, status) => {
                         }
                     }
 
-                } else obj = { approval: false, status: "You can't change status before confirming order!" }
+                } else obj = { approval: false, status: "You can't change status before confirming related requests!" }
                 return
             }
             //////////////////////// Request
@@ -792,189 +788,9 @@ const statusApproval = (order, req_id, type, status) => {
     return obj
 }
 
-// order assigner
-/*const autoAssigner = (assignment, req, handlers) => {
-
-    var requestAssigned = assignment.find(ass =>
-        ass.req_id == req._id && ass.status !== 'Rejected' && ass.status !== 'Canceled' && ass.type === 'Request')
-
-    var cartAssigned = assignment.find(ass =>
-        ass.req_id == req._id && ass.status !== 'Rejected' && ass.status !== 'Canceled' && ass.type === 'Cart')
-
-    var deliveryAssigned = assignment.find(ass =>
-        ass.req_id == req._id && ass.status !== 'Rejected' && ass.status !== 'Canceled' && ass.type === 'Delivery')
-
-    var paymentAssigned = assignment.find(ass =>
-        ass.req_id == req._id && ass.status !== 'Rejected' && ass.status !== 'Canceled' && ass.type === 'Payment')
-
-    if (req.status === 'Confirmed') {
-        if (!requestAssigned) { // add new
-            var requestHandler = handlers.find(handler => handler.requestHandler)
-
-            if (requestHandler) {
-                requestHandler.currentAssignments = requestHandler.currentAssignments + 1
-                requestHandler.save()
-                assignment[assignment.length] = {
-                    req_id: req._id,
-                    type: 'Request',
-                    date: date(),
-                    status: 'Pending',
-                    employeeName: requestHandler.firstName + ' ' + requestHandler.lastName,
-                    employeeId: requestHandler._id,
-                }
-                //req.assigned = true
-            } else assignment[assignment.length] = { // no handler available
-                req_id: req._id,
-                type: 'Request',
-                date: date(),
-                status: 'Unassigned',
-            }
-        } //else if (requestAssigned.status === 'Unassigned')
-
-        if (!cartAssigned) { // add new
-            var cartHandler = handlers.find(handler => handler.cartHandler)
-
-            if (cartHandler) {
-                cartHandler.currentAssignments = cartHandler.currentAssignments + 1
-                cartHandler.save()
-                assignment[assignment.length] = {
-                    req_id: req._id,
-                    type: 'Cart',
-                    date: date(),
-                    status: 'Pending',
-                    employeeName: cartHandler.firstName + ' ' + cartHandler.lastName,
-                    employeeId: cartHandler._id,
-                }
-                //req.cart.assigned = true
-            } else assignment[assignment.length] = { // no handler Available
-                req_id: req._id,
-                type: 'Cart',
-                date: date(),
-                status: 'Unassigned',
-            }
-        }
-
-        if (!paymentAssigned && req.delivery && req.delivery.status && !deliveryAssigned) {
-            if ((req.type === 'Place' || req.type === 'Return') && req.payment.title === 'Pay On Delivery') {
-                var delPayHandler = handlers.find(handler => handler.deliveryHandler && handler.paymentHandler)
-                //console.log(delPayHandler)
-                if (delPayHandler) {
-                    delPayHandler.currentAssignments = delPayHandler.currentAssignments + 1
-                    delPayHandler.save()
-                    assignment[assignment.length] = {
-                        req_id: req._id,
-                        type: 'Delivery',
-                        date: date(),
-                        status: 'Pending',
-                        employeeName: delPayHandler.firstName + ' ' + delPayHandler.lastName,
-                        employeeId: delPayHandler._id,
-                    }
-
-                    assignment[assignment.length] = {
-                        req_id: req._id,
-                        type: 'Payment',
-                        date: date(),
-                        status: 'Pending',
-                        employeeName: delPayHandler.firstName + ' ' + delPayHandler.lastName,
-                        employeeId: delPayHandler._id,
-                    }
-                    //req.delivery.assigned = true
-                    //req.payment.assigned = true
-                } else { // no handler available
-                    assignment[assignment.length] = {
-                        req_id: req._id,
-                        type: 'Delivery',
-                        date: date(),
-                        status: 'Unassigned',
-                    }
-
-                    assignment[assignment.length] = {
-                        req_id: req._id,
-                        type: 'Payment',
-                        date: date(),
-                        status: 'Unassigned',
-                    }
-                }
-            } else {// add new delivery handler
-                var deliveryHandler = handlers.find(handler => handler.deliveryHandler)
-
-                if (deliveryHandler) {
-                    deliveryHandler.currentAssignments = deliveryHandler.currentAssignments + 1
-                    deliveryHandler.save()
-                    assignment[assignment.length] = {
-                        req_id: req._id,
-                        type: 'Delivery',
-                        date: date(),
-                        status: 'Pending',
-                        employeeName: deliveryHandler.firstName + ' ' + deliveryHandler.lastName,
-                        employeeId: deliveryHandler._id,
-                    }
-                    //req.delivery.assigned = true
-                } else assignment[assignment.length] = {
-                    req_id: req._id,
-                    type: 'Delivery',
-                    date: date(),
-                    status: 'Unassigned',
-                }
-
-                if (req.payment.title === 'Pay On Delivery' && !paymentAssigned && req.payment.status !== 'Collected' && req.payment.status !== 'Canceled') { // add new
-                    var paymentHandler = deliveryHandler
-                    if (paymentHandler) {
-                        assignment[assignment.length] = {
-                            req_id: req._id,
-                            type: 'Payment',
-                            date: date(),
-                            status: 'Pending',
-                            employeeName: paymentHandler.firstName + ' ' + paymentHandler.lastName,
-                            employeeId: paymentHandler._id,
-                        }
-                        //req.payment.assigned = true
-                    } else assignment[assignment.length] = {
-                        req_id: req._id,
-                        type: 'Payment',
-                        date: date(),
-                        status: 'Unassigned',
-                    }
-
-                }
-            }
-        } else if (!paymentAssigned) {
-            var paymentHandler = handlers.find(handler => handler.paymentHandler && handler.jobPosition === 'Accountant')
-
-            if (paymentHandler) {
-                paymentHandler.currentAssignments = deliveryHandler.currentAssignments + 1
-                paymentHandler.save()
-                assignment[assignment.length] = {
-                    req_id: req._id,
-                    type: 'Payment',
-                    date: date(),
-                    status: 'Pending',
-                    employeeName: paymentHandler.firstName + ' ' + paymentHandler.lastName,
-                    employeeId: paymentHandler._id
-                }
-                //req.payment.assigned = true
-            } else assignment[assignment.length] = {
-                req_id: req._id,
-                type: 'Payment',
-                date: date(),
-                status: 'Unassigned',
-            }
-        }
-
-    } else if (req.status === 'Canceled' || req.status === 'Rejected') {
-        assignment.map(ass => {
-            if (ass.req_id == req._id) ass.status = 'Canceled'
-        })
-    }
-
-    //req.assigned = true
-    return assignment
-}*/
-
-const assignmentStatusModifier = (req_id, order, currentHandlers) => {
-    const request = order.request.find(request => request._id == req_id)
+const assignmentStatusModifier = (request, order, currentHandlers) => {
     const conditions = (ass) => {
-        return (ass.req_id == req_id || ass.receiptNum == request.receiptNum) && !ass.closedDate &&
+        return (ass.req_id == request._id || ass.receiptNum == request.receiptNum) && !ass.closedDate &&
             (ass.status === 'Pending' || ass.status === 'Accepted' || ass.status === 'Unassigned' || ass.status === 'Assigned')
     }
 
@@ -995,7 +811,7 @@ const assignmentStatusModifier = (req_id, order, currentHandlers) => {
         if (request.status === 'Confirmed' || request.status === 'on Hold') {
 
             if (!cartHandler && request.cart.status !== 'Packed' && request.cart.status !== 'Unpacked' && request.cart.status !== 'Canceled') {// create new
-                const accomplishedCartHandler = order.assignment.find(ass => (ass.req_id == req_id || ass.receiptNum == request.receiptNum) && ass.type === 'Cart' && ass.status === 'Accomplished')
+                const accomplishedCartHandler = order.assignment.find(ass => (ass.req_id == request._id || ass.receiptNum == request.receiptNum) && ass.type === 'Cart' && ass.status === 'Accomplished')
 
                 if (accomplishedCartHandler) {
                     accomplishedCartHandler.closedDate = undefined
@@ -1013,7 +829,7 @@ const assignmentStatusModifier = (req_id, order, currentHandlers) => {
             }
 
             if (!paymentHandler && request.payment.status !== 'Collected' && request.payment.status !== 'Refunded') {
-                const accomplishedPayHandler = order.assignment.find(ass => (ass.req_id == req_id || ass.receiptNum == request.receiptNum) && ass.type === 'Payment' && ass.status === 'Accomplished')
+                const accomplishedPayHandler = order.assignment.find(ass => (ass.req_id == request._id || ass.receiptNum == request.receiptNum) && ass.type === 'Payment' && ass.status === 'Accomplished')
 
                 if (accomplishedPayHandler) {
                     accomplishedPayHandler.closedDate = undefined
@@ -1058,56 +874,63 @@ const assignmentStatusModifier = (req_id, order, currentHandlers) => {
     }
 
     order.assignment.map(ass => {
-        if ((request._id == ass.req_id || request.receiptNum == ass.receiptNum) &&
-            ass.status !== 'Canceled' && ass.status !== 'Rejected' && ass.status !== 'Accomplished') {
-            ass.closedDate = undefined
-            if (ass.type === 'Request') {
-                if (request.status === 'Completed') {
-                    ass.status = 'Accomplished'
-                    if (ass.closedDate) ass.closedDate = date()
+        if (request._id == ass.req_id || request.receiptNum == ass.receiptNum) {
+            if (ass.status !== 'Canceled' && ass.status !== 'Rejected' && ass.status !== 'Accomplished') {
+                ass.closedDate = undefined
+                if (ass.type === 'Request') {
+                    if (request.status === 'Completed') {
+                        ass.status = 'Accomplished'
+                        if (ass.closedDate) ass.closedDate = date()
 
-                } else if (request.status === 'Rejected' || request.status === 'Canceled') {
-                    order.assignment.map(ass0 => { // cancel all assignments
-                        if (ass0.req_id == req_id) {
-                            ass0.closedDate = date()
-                            ass0.status = 'Canceled'
-                        }
-                    })
-                }
+                    } else if (request.status === 'Rejected' || request.status === 'Canceled') {
+                        order.assignment.map(ass0 => { // cancel all assignments
+                            if (ass0.req_id == request._id) {
+                                ass0.closedDate = date()
+                                ass0.status = 'Canceled'
+                            }
+                        })
+                    }
 
-            } else if (ass.type === 'Cart') {
-                if (request.cart.status === 'Packed' || request.cart.status === 'Unpacked') {
-                    ass.status = 'Accomplished'
-                    ass.closedDate = date()
-                } else if (request.cart.status === 'Canceled') {
-                    ass.status = 'Canceled'
-                    ass.closedDate = date()
-                    var handler = currentHandlers.find(handler => handler._id == ass.employeeId)
-                    if (handler) {
-                        handler.currentAssignments = handler.currentAssignments - 1
-                        handler.save()
+                } else if (ass.type === 'Cart') {
+                    if (request.cart.status === 'Packed' || request.cart.status === 'Unpacked') {
+                        ass.status = 'Accomplished'
+                        ass.closedDate = date()
+                    } else if (request.cart.status === 'Canceled') {
+                        ass.status = 'Canceled'
+                        ass.closedDate = date()
+                        /*var handler = currentHandlers.find(handler => handler._id == ass.employeeId)
+                        if (handler) {
+                            handler.currentAssignments = handler.currentAssignments - 1
+                            handler.save()
+                        }*/
+                    }
+                } else if (ass.type === 'Payment') {
+                    if (request.payment.status === 'Collected' || request.payment.status === 'Refunded') {
+                        ass.status = 'Accomplished'
+                        ass.closedDate = date()
+                        /*if (!ass.employeeId) {
+                            const requestHandler = order.assignment.find(ass0 => (ass0.req_id == request._id || ass0.receiptNum == request.receiptNum) && ass.type === 'Request' && ass.status !== 'Canceled' && )
+                        }*/
+                    } else if (request.payment.status === 'Canceled') {
+                        ass.status = 'Canceled'
+                        ass.closedDate = date()
+                    }
+                } else if (ass.type === 'Delivery') {
+                    if (request.delivery.status === 'Delivered' || request.delivery.status === 'Returned') {
+                        ass.status = 'Accomplished'
+                        ass.closedDate = date()
+                    } else if (request.delivery.status === 'Canceled') {
+                        ass.status = 'Canceled'
+                        ass.closedDate = date()
                     }
                 }
-            } else if (ass.type === 'Payment') {
-                if (request.payment.status === 'Collected' || request.payment.status === 'Refunded') {
-                    ass.status = 'Accomplished'
-                    ass.closedDate = date()
-                } else if (request.payment.status === 'Canceled') {
-                    ass.status = 'Canceled'
-                    ass.closedDate = date()
+                if (conditions(ass)) {
+                    if (request.status === 'on Hold') ass.onHold = true
+                    else ass.onHold = undefined
                 }
-            } else if (ass.type === 'Delivery') {
-                if (request.delivery.status === 'Delivered' || request.delivery.status === 'Returned') {
-                    ass.status = 'Accomplished'
-                    ass.closedDate = date()
-                } else if (request.delivery.status === 'Canceled') {
-                    ass.status = 'Canceled'
-                    ass.closedDate = date()
-                }
-            }
-            if (conditions(ass)) {
-                if (request.status === 'on Hold') ass.onHold = true
-                else ass.onHold = undefined
+            } else if (request.status === 'Canceled' || request.status === 'Rejected') {
+                ass.status = 'Canceled'
+                ass.closedDate = date()
             }
         }
     })
