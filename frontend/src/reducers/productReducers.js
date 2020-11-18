@@ -16,7 +16,7 @@ import {
   PRODUCTS_DETAILS_SUCCESS
 } from "../constants/constants";
 
-function productListReducer(state = { products: undefined }, action) {
+function productListReducer(state = { products: [] }, action) {
   // state = { products: [] } means default value of state is products of empty array
   switch (action.type) {
     case PRODUCT_LIST_REQUEST: // if sending request to server, show loading

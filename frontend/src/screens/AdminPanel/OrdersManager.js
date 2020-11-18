@@ -674,7 +674,7 @@ function OrdersManager(props) {
     const amountCalc = (request) => {
         var amount = 0
         request.map(req => {
-            if (req.status !== 'Pending')
+            if (req.status !== 'Canceled' && req.status !== 'Rejected')
                 amount = amount + parseFloat(req.amount)
         })
         return amount.toFixed(2)

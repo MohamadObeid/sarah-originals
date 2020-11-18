@@ -3,8 +3,8 @@ import { CART_ADD_ITEM, CART_REMOVE_ITEM, CART_UPDATE_ITEM, PACKED_ITEMS } from 
 
 const addToCart = (product) => async (dispatch, getState) => {
   if (product.length > 0) {
-    product.map(async prod => {
-      await dispatch({ type: CART_ADD_ITEM, payload: prod })
+    product.map(async product => {
+      await dispatch({ type: CART_ADD_ITEM, payload: product })
     })
   } else dispatch({ type: CART_ADD_ITEM, payload: product })
   const { cart: { cartItems } } = getState()

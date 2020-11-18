@@ -26,7 +26,6 @@ function App(props) {
 
   const { userInfo } = useSelector(state => state.userSignin)
   const { time } = useSelector(state => state.clock)
-  const { employee } = useSelector(state => state.employeeDetails)
 
   const getIPAddress = async () => {
     try {
@@ -61,11 +60,6 @@ function App(props) {
   useEffect(() => {
     !time && refreshClock()
     getIPAddress()
-    /*if (userInfo) {
-      console.log('here')
-      const employeeId = userInfo.employeeId
-      employeeId && dispatch(detailsEmployee(employeeId))
-    }*/
   }, [])
 
   // hide address bar in mobile

@@ -57,7 +57,6 @@ function AssignmentManager(props) {
     const [requestIndex, setRequestIndex] = useState()
     const [requestId, setRequestId] = useState()
     const [requestNum, setRequestNum] = useState()
-    const [requestItems, setRequestItems] = useState()
     const [itemsQty, setItemsQty] = useState()
     const [requestList, setRequestList] = useState([])
 
@@ -301,11 +300,13 @@ function AssignmentManager(props) {
         var allItemsArePacked = true
         storedItems.map(item => {
             const itemPacked = packed.find(i => i._id == item._id && i.req_id == request._id)
-            if (item.qty !== itemPacked.qty) allItemsArePacked = false
+            if (!itemPacked) allItemsArePacked = false
+            else if (item.qty !== itemPacked.qty) allItemsArePacked = false
+            if (!allItemsArePacked) return
         })
 
         if (allItemsArePacked) {
-
+            updateRequest.status = 'Confirmed'
             if (assignment.type === 'Request' || assignment.type === 'Cart') {
                 if (updateRequest.type === 'Prepare' || updateRequest.type === 'Place') {
                     updateRequest.cart.status = 'Packed' // cart status set packed
@@ -324,12 +325,13 @@ function AssignmentManager(props) {
                 // items selected
             }
 
-        } else {
+        } else if (assignment.type !== 'Request') {
             assignment.type === 'Cart' && setActionNote('Check all items to set cart completed')
             assignment.type === 'Payment' && setActionNote('Check all items to set payment completed')
             assignment.type === 'Delivery' && setActionNote('Check all items to set order completed')
             actionNoteHandler()
         }
+
         setModelVisible(false)
         // items in edit form are modified due to cancel requests => reset values to its original ones
         const activeOrders = JSON.parse(window.sessionStorage.getItem('activeOrders'))
@@ -339,7 +341,7 @@ function AssignmentManager(props) {
         selectedRequest.cart.items = activeRequest.cart.items
         selectedRequest.amount = activeRequest.amount
         selectedRequest.payment.charge = activeRequest.payment.charge
-        selectedRequest.delivery.charge = activeRequest.delivery.charge
+        if (selectedRequest.delivery) selectedRequest.delivery.charge = activeRequest.delivery.charge
 
         dispatch(saveOrder({
             ...order, req_id: request._id, command,
@@ -452,45 +454,47 @@ function AssignmentManager(props) {
     }
 
     const setItemsMaxQty = (order, request) => {
-        const selectedOrder = JSON.parse(window.sessionStorage.getItem('activeOrders'))
+        const selectedOrder = (JSON.parse(window.sessionStorage.getItem('activeOrders')) || [])
             .find(o => o._id == order._id)
-        const selectedReq = selectedOrder.request.find(req => req._id == request._id)
-        var storedItems = selectedReq.cart.items.map(i => { return i })
-        // Note: storedItem.qty is considered the max.qty
-        // decrease the canceled qty from the storedItem.qty according to existing cancel requests
-        const selectedRequestIndex = order.request.indexOf(request)
-        const cancelRequests = order.request.filter(req =>
-            req.type === 'Cancel' && req.modifiedRequestNum === selectedRequestIndex + 1 &&
-            req.status !== 'Canceled' && req.status !== 'Rejected') || []
+        if (selectedOrder) {
+            const selectedReq = selectedOrder.request.find(req => req._id == request._id)
+            var storedItems = selectedReq.cart.items.map(i => { return i })
+            // Note: storedItem.qty is considered the max.qty
+            // decrease the canceled qty from the storedItem.qty according to existing cancel requests
+            const selectedRequestIndex = order.request.indexOf(request)
+            const cancelRequests = order.request.filter(req =>
+                req.type === 'Cancel' && req.modifiedRequestNum === selectedRequestIndex + 1 &&
+                req.status !== 'Canceled' && req.status !== 'Rejected') || []
 
-        if (cancelRequests.length > 0) {
-            cancelRequests.map(req => {
-                req.cart.items.map(i => {
-                    const storedItem = storedItems.find(item => item._id == i._id)
-                    storedItem.qty = storedItem.qty - i.qty
-                    if (storedItem.qty === 0) {
-                        storedItems = storedItems.filter(item => item._id !== i._id)
-                    }
+            if (cancelRequests.length > 0) {
+                cancelRequests.map(req => {
+                    req.cart.items.map(i => {
+                        const storedItem = storedItems.find(item => item._id == i._id)
+                        storedItem.qty = storedItem.qty - i.qty
+                        if (storedItem.qty === 0) {
+                            storedItems = storedItems.filter(item => item._id !== i._id)
+                        }
+                    })
                 })
+            }
+            window.sessionStorage.setItem('storedItems', JSON.stringify(storedItems))
+            request.cart.items.map(i => {
+                const storedItem = storedItems.find(item => item._id == i._id) || undefined
+                if (storedItem)
+                    i.qty = storedItem.qty
+                else i.qty = 0
             })
-        }
-        window.sessionStorage.setItem('storedItems', JSON.stringify(storedItems))
-        request.cart.items.map(i => {
-            const storedItem = storedItems.find(item => item._id == i._id) || undefined
-            if (storedItem)
-                i.qty = storedItem.qty
-            else i.qty = 0
-        })
-        request.cart.items = request.cart.items.filter(item => item.qty !== 0)
-        // if cart.status === Packed/unpacked => set items packed
-        if (selectedReq.cart.status === 'Packed' || selectedReq.cart.status === 'Unpacked') {
-            var updatePacked = packedItems
-            request.cart.items.map(item => {
-                const itemPacked = updatePacked.find(i => i.req_id == request._id && i._id == item._id)
-                if (itemPacked) itemPacked.qty = item.qty
-                else updatePacked = [...updatePacked, { req_id: request._id, _id: item._id, qty: item.qty }]
-            })
-            dispatch(packItems(updatePacked))
+            request.cart.items = request.cart.items.filter(item => item.qty !== 0)
+            // if cart.status === Packed/unpacked => set items packed
+            if (selectedReq.cart.status === 'Packed' || selectedReq.cart.status === 'Unpacked') {
+                var updatePacked = packedItems
+                request.cart.items.map(item => {
+                    const itemPacked = updatePacked.find(i => i.req_id == request._id && i._id == item._id)
+                    if (itemPacked) itemPacked.qty = item.qty
+                    else updatePacked = [...updatePacked, { req_id: request._id, _id: item._id, qty: item.qty }]
+                })
+                dispatch(packItems(updatePacked))
+            }
         }
     }
 
@@ -711,7 +715,7 @@ function AssignmentManager(props) {
                 <thead>
                     <tr>
                         <th style={{ textAlign: 'center', width: '4rem' }}>Active</th>
-                        <th style={{ width: '10rem' }}>Due Date</th>
+                        <th style={{ width: '8rem' }}>Due Date</th>
                         <th style={{ width: '12rem' }}>Customer</th>
                         <th style={{ width: '10rem' }}>Request</th>
                         <th style={{ width: '10rem' }}>Assignment</th>
@@ -1052,22 +1056,22 @@ function AssignmentManager(props) {
                         <li>
                             <label className="label" htmlFor="searchKeyword">
                                 {(request.type === 'Cancel' ? 'Canceled ' : '') + 'Cart Items'}
-                                <p className="required">*</p>
                             </label>
-                            <div className='order-searchKeyword'>
-                                <input
-                                    type="text"
-                                    name="searchKeyword"
-                                    id="searchKeyword"
-                                    className='orders-user-phone'
-                                    value={searchKeyword || ''}
-                                    onChange={(e) => setSearchKeyword(e.target.value)}
-                                ></input>
-                                <button
-                                    className="button orders-search-btn"
-                                    onClick={searchItem}
-                                >Search</button>
-                            </div>
+                            {(assignment.type === 'Cart' || assignment.type === 'Request') &&
+                                <div className='order-searchKeyword'>
+                                    <input
+                                        type="text"
+                                        name="searchKeyword"
+                                        id="searchKeyword"
+                                        className='orders-user-phone'
+                                        value={searchKeyword || ''}
+                                        onChange={(e) => setSearchKeyword(e.target.value)}
+                                    ></input>
+                                    <button
+                                        className="button orders-search-btn"
+                                        onClick={searchItem}
+                                    >Search</button>
+                                </div>}
                             {request.cart.items &&
                                 request.cart.items.map((item) => (
                                     item && item.qty > 0 &&
@@ -1159,7 +1163,8 @@ function AssignmentManager(props) {
                         </li>
                         <li>
                             {formAlertVisible && <div className="invalid">{formAlert}</div>}
-                            <button type="submit" className="button primary">
+                            <button type="submit" className="button primary"
+                                disabled={assignment.status === 'Unassigned'}>
                                 {
                                     formAction == 'Copy' ? 'Create' :
                                         formAction == 'Update' ? 'Save' : formAction

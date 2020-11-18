@@ -22,33 +22,24 @@ function CartScreen(props) {
       const IDList = cartItems.map(item => {
         return item._id
       })
-      IDList.length > 0 &&
-        dispatch(detailsProduct(IDList))
+      IDList.length > 0
+        ? dispatch(detailsProduct(IDList))
+        : setProducts([])
     }
-    return () => {
-      //
-    };
   }, [])
 
   useEffect(() => {
-    if (productList.length > 0 && cartItems) {
+    if (productList.length > 0 && cartItems.length > 0) {
       cartItems.map(item => {
-        productList.map(product => {
-          if (product._id === item._id) {
-            if (item.qty > product.countInStock) {
-              item.qty = product.countInStock
-            }
-            product.qty = item.qty
-            item.countInStock = product.countInStock
-            return
-          }
-        })
+        const product = productList.find(product => product._id == item._id)
+        if (product) {
+          if (item.qty > product.countInStock) item.qty = product.countInStock
+          product.qty = item.qty
+          item.countInStock = product.countInStock
+        }
       })
       setProducts(productList)
     }
-    return () => {
-      //
-    };
   }, [productList])
 
   const checkoutHandler = () => {
@@ -59,7 +50,7 @@ function CartScreen(props) {
     if (item.qty === 0) {
       dispatch(removeFromCart(item._id))
       setProducts(products.filter(product => { return product._id !== item._id && product }))
-      setActionNote(`Product Deleted Succefully`);
+      setActionNote(`Product removed succefully!`);
       setActionNoteVisible(true);
       clearTimeout(timeOut)
       setTimeOut(setInterval(() => setActionNoteVisible(false), 3000))
@@ -72,7 +63,7 @@ function CartScreen(props) {
   const handleRemove = (item) => {
     dispatch(removeFromCart(item._id))
     setProducts(products.filter(product => { return product._id !== item._id && product }))
-    setActionNote(`Product Removed Succefully`);
+    setActionNote(`Product removed succefully!`);
     setActionNoteVisible(true);
     clearTimeout(timeOut)
     setTimeOut(setInterval(() => setActionNoteVisible(false), 3000))
@@ -92,26 +83,28 @@ function CartScreen(props) {
 
   const qtyCalc = () => {
     var totalqty = 0
-    cartItems.map(item => {
+    products.map(item => {
       totalqty = totalqty + item.qty
     })
     return totalqty
   }
 
-  const discountCalc = () => {
+  const discountCalc = (products) => {
     var discountAmount = 0
-    cartItems.map(item => {
-      if (item.discount > 0) { discountAmount = discountAmount + item.priceUsd * item.discount * 0.01 * item.qty }
+    products.map(item => {
+      if (item.discount > 0) {
+        discountAmount = discountAmount + item.priceUsd * item.discount * 0.01 * item.qty
+      }
     })
     return discountAmount.toFixed(2)
   }
 
-  const amountCalc = () => {
+  const amountCalc = (products) => {
     var cartAmount = 0
     products.map(item => {
       cartAmount = cartAmount + item.priceUsd * item.qty
     })
-    cartAmount = cartAmount - discountCalc()
+    cartAmount = cartAmount - discountCalc(products)
     return cartAmount.toFixed(2)
   }
 
@@ -132,10 +125,10 @@ function CartScreen(props) {
             </li>
             {products.length === 0 ? (
               <div style={{ paddingLeft: '1rem' }}>Cart is Empty</div>
-            ) : (products &&
+            ) : (cartItems &&
               products.map((item) => (
                 item && item.qty > 0 &&
-                <li style={{ position: 'relative' }}>
+                <li style={{ position: 'relative' }} key={item._id}>
                   {item.discount > 0 &&
                     <div className='product-discount order-discount'>
                       <div>{item.discount}</div>
@@ -152,7 +145,7 @@ function CartScreen(props) {
                       <div className="cart-price-cart">
                         ${item.priceUsd}<p className="cart-price-unit">/{item.unit}</p>
                       </div>
-                      <FontAwesome className="fas fa-trash fa-lg"
+                      <FontAwesome name='fa-trash' className="fas fa-trash fa-lg"
                         onClick={() => handleRemove(item)}
                       />
                     </div>
@@ -163,7 +156,7 @@ function CartScreen(props) {
                         className="plus plus-cart"
                         value={item._id}
                         onClick={(e) => handleplus(item)}>
-                        <FontAwesome className="fas fa-plus" />
+                        <FontAwesome name='fa-plus' className="fas fa-plus" />
                       </button>
                       <p className="add-to-cart-qty float-bottom count">{item.qty}</p>
                       <button
@@ -175,38 +168,38 @@ function CartScreen(props) {
                           handleMinus(e, item)
                         }
                         }>
-                        <FontAwesome className="fas fa-minus" />
+                        <FontAwesome name='fa-minus' className="fas fa-minus" />
                       </button>
                     </div>
                   </div>
                 </li>
-              ))
-              )}
+              )))}
           </ul>
         </div>
-        <div className="cart-action">
-          <div className='no-border'>
-            <div className='cart-total-qty'>
-              <div className='cart-total-label font-size'>Items</div>
-              <div className='total-num font-size'>{qtyCalc() + ' items'}</div>
+        {products.length > 0 &&
+          <div className="cart-action">
+            <div className='no-border'>
+              <div className='cart-total-qty'>
+                <div className='cart-total-label font-size'>Items</div>
+                <div className='total-num font-size'>{qtyCalc() + ' items'}</div>
+              </div>
+              <div className='cart-total-qty'>
+                <div className='cart-total-label font-size'>Discount</div>
+                <div className='total-num font-size'>{discountCalc(products) + ' $'}</div>
+              </div>
+              <div className='cart-total-qty cart-total'>
+                <div className='cart-total-label font-size'>Total</div>
+                <div className='total-num font-size'>{amountCalc(products) + ' $'}</div>
+              </div>
             </div>
-            <div className='cart-total-qty'>
-              <div className='cart-total-label font-size'>Discount</div>
-              <div className='total-num font-size'>{discountCalc() + ' $'}</div>
-            </div>
-            <div className='cart-total-qty cart-total'>
-              <div className='cart-total-label font-size'>Total</div>
-              <div className='total-num font-size'>{amountCalc() + ' $'}</div>
-            </div>
+            <button
+              onClick={checkoutHandler}
+              className="button primary cart-proceed-btn"
+              disabled={products.length == 0}>
+              Checkout
+            </button>
           </div>
-          <button
-            onClick={checkoutHandler}
-            className="button primary cart-proceed-btn"
-            disabled={products.length == 0}
-          >
-            Proceed To Checkout
-        </button>
-        </div>
+        }
       </div>
     </div>
   );

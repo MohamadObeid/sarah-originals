@@ -6,13 +6,15 @@ import Swiper from 'react-id-swiper';
 import HeroBanners from "./Components/HeroBanners";
 import FontAwesome from 'react-fontawesome';
 import { addToCart, removeFromCart, updateCart } from "../actions/cartActions";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
 
 function HomeScreen(props) {
   const imageUrl = window.location.origin + '/api/uploads/image/'
 
   const swiper = {
     shortSwipes: true,
-    slidesOffsetAfter: -35,
+    slidesOffsetAfter: -28,
     freeMode: true,
     freeModeMomentumRatio: 1,
     grabCursor: true,
@@ -29,50 +31,37 @@ function HomeScreen(props) {
   const [actionNote, setActionNote] = useState('Product Added Succefully');
   const [actionNoteVisible, setActionNoteVisible] = useState(false);
   const [timeOut, setTimeOut] = useState()
+  const [quickViewVisible, setQuickViewVisible] = useState(false)
+  const [quickViewProduct, setQuickViewProduct] = useState({})
 
-  const { products, loading, error } = useSelector((state) => state.productList);
-
+  const { products, loading } = useSelector((state) => state.productList);
   const { cartItems } = useSelector(state => state.cart);
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
   useEffect(() => {
-    dispatch(listProducts());
-    return () => {
-      //
-    }
+    dispatch(listProducts())
   }, [])
 
   useEffect(() => {
     if (products && cartItems) {
       cartItems.map(item => {
-        products.map(product => {
-          if (product._id === item._id) {
-            if (item.qty > product.countInStock) {
-              console.log(product.countInStock)
-              item.qty = product.countInStock
-            }
-            item.countInStock = product.countInStock
-            return
-          }
-        })
-      })
-    }
-    return () => {
-      //
-    };
-  }, [])
-
-  const inCartHandler = () => {
-    products.map(product => {
-      cartItems.map(item => {
-        if (item._id === product._id) {
-          toggleCartBtns(product)
+        const product = products.find(product => product._id === item._id)
+        if (product) {
+          if (item.qty > product.countInStock) item.qty = product.countInStock
           product.qty = item.qty
-          return
+          toggleCartBtns(product)
         }
       })
+    }
+  }, [products])
+
+  /*const inCartHandler = () => {
+    products.map(product => {
+      const item = cartItems.find(item => item._id === product._id)
+      if (item) {
+      }
     })
-  }
+  }*/
 
   const toggleCartBtns = (product) => {
     if (product.qty === 0) {
@@ -90,17 +79,17 @@ function HomeScreen(props) {
     const inCart = cartItems.find(item => item._id === product._id)
     if (inCart)
       dispatch(updateCart({
-        _id: product._id, qty: product.qty,
+        _id: product._id, qty: product.qty
       }))
     else {
       dispatch(addToCart({
-        _id: product._id, qty: product.qty,
+        _id: product._id, qty: product.qty
       }))
     }
-    setActionNote('Product added Successfully')
+    setActionNote('Product added successfully!')
     setActionNoteVisible(true)
     clearTimeout(timeOut)
-    setTimeOut(setInterval(() => setActionNoteVisible(false), 3000))
+    setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
   }
 
   const handleMinus = (product) => {
@@ -108,220 +97,268 @@ function HomeScreen(props) {
     toggleCartBtns(product);
     if (product.qty === 0) {
       dispatch(removeFromCart(product._id))
-      setActionNote('Product removed Successfully')
+      setActionNote('Product removed successfully!')
       setActionNoteVisible(true);
       clearTimeout(timeOut)
-      setTimeOut(setInterval(() => setActionNoteVisible(false), 3000))
+      setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
     }
     else dispatch(updateCart({
-      _id: product._id, nameEn: product.nameEn, image: product.image, qty: product.qty,
-      priceUsd: product.priceUsd, unit: product.unit
+      _id: product._id, qty: product.qty,
     }));
   }
 
   const handlePlus = (product) => {
-    if (product.countInStock > product.qty) {
+    if ((!product.qty || product.qty === 0) && product.countInStock > 0) {
+      product.qty = 1
+      product.animate = true
+      toggleCartBtns(product)
+      dispatch(addToCart({
+        _id: product._id, qty: product.qty
+      }))
+      setActionNote('Product added successfully!')
+      setActionNoteVisible(true)
+      clearTimeout(timeOut)
+      setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
+
+    } else if (product.countInStock > product.qty) {
       product.qty++
       dispatch(updateCart({
-        _id: product._id, nameEn: product.nameEn, image: product.image, qty: product.qty,
-        priceUsd: product.priceUsd, unit: product.unit
-      }));
+        _id: product._id, qty: product.qty,
+      }))
+
     } else {
-      setActionNote('Only ' + product.qty + product.unit + ' ' + product.nameEn + ' are Available in Stock')
+      setActionNote('Only ' + product.qty + product.unit + ' ' + product.nameEn + ' are available in stock!')
       setActionNoteVisible(true);
       clearTimeout(timeOut)
-      setTimeOut(setInterval(() => setActionNoteVisible(false), 3000))
+      setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
     }
   }
 
   /* Quick View */
 
-  const handleQuickView = (product) => {
-    document.querySelector('.quick-view').innerHTML =
-      `<div class="quick-view-overlay">
-        <div class="quick-view-container">
-          <div class="quick-view-product">
-            <div class='product-discount pdqv'>
-              <div>${product.discount}</div>
-              <div>%</div>
-            </div>
-            <div class="quick-view-image">
-              <img src=${imageUrl + product.image} alt="product" />
-            </div>
-            <div class='quick-view-details'>
-            <table class='quick-view-table'>
+  const quickView = () => {
+    return (
+      <div className="quick-view-container">
+        <div className="quick-view-product">
+          <div className='product-discount pdqv'>
+            <div>{quickViewProduct.discount}</div>
+            <div>%</div>
+          </div>
+          <div className="quick-view-image">
+            <img src={imageUrl + quickViewProduct.image} alt="product" />
+          </div>
+          <div className='quick-view-details'>
+            <table className='quick-view-table'>
               <tr>
-              <th>Name</th>
-              <td class='quick-view-header'>${product.nameEn}</td>
+                <th>Name</th>
+                <td className='quick-view-header'>{quickViewProduct.nameEn}</td>
               </tr>
               <tr>
-              <th>Brand</th>
-              <td class='quick-view-brand'>${product.brand}</td>
+                <th>Brand</th>
+                <td className='quick-view-brand'>{quickViewProduct.brand}</td>
               </tr>
               <tr>
-              <th>Price</th>
-              <td class='quick-view-price'>$${product.priceUsd}
-                <div class='quick-view-unit'>/${product.unit}</div>
-              </td>
-              <tr>
-              <th>Rate</th>
-              <td>${product.rating} Stars</td>
+                <th>Price</th>
+                <td className='quick-view-price'>${quickViewProduct.priceUsd}
+                  <div className='quick-view-unit'>/{quickViewProduct.unit}</div>
+                </td>
               </tr>
               <tr>
-              <th>Reviews</th>
-              <td>${product.numReviews}</td>
+                <th>Rate</th>
+                <td>{quickViewProduct.rating} Stars</td>
               </tr>
               <tr>
-              <th>Description</th>
-              <td>${product.description}</td>
+                <th>Reviews</th>
+                <td>{quickViewProduct.numReviews}</td>
               </tr>
-              </table>
-              <div class="product-add-to-cart quick-view-add-container">
+              <tr>
+                <th>Description</th>
+                <td>{quickViewProduct.description}</td>
+              </tr>
+            </table>
+            <div className="product-add-to-cart">
+              <button
+                type="button"
+                className={`add-to-cart-btn ${quickViewProduct.AddToCartClass}`}
+                value={quickViewProduct._id}
+                onClick={() => handleAddToCart(quickViewProduct)}>
+                Add To Cart
+                      </button>
+              <div className={`add-to-cart-btns hide ${quickViewProduct.PlusMinusClass}`}>
                 <button
                   type="button"
-                  class="add-to-cart-btn quick-view-add-to-cart"
-                  value=${product._id}>
-                    Add To Cart
+                  className="minus"
+                  onClick={() => handleMinus(quickViewProduct)}>
+                  <FontAwesome name='fa-minus' className="fas fa-minus" />
                 </button>
-                <div class='add-to-cart-btns quick-view-btns hide'>
-                  <button
-                    type="button"
-                    class="minus quick-view-minus"
-                    value=${product._id}>
-                      -
-                  </button>
-                  <p class="add-to-cart-qty count qty-cart">${product.qty}</p>
-                  <button
-                    type="button"
-                    class="plus  quick-view-plus"
-                    value=${product._id}>
-                      +
-                  </button>
-                </div>
+                <p className="add-to-cart-qty qty-cart count">{quickViewProduct.qty}</p>
+                <button
+                  type="button"
+                  className="plus"
+                  onClick={() => handlePlus(quickViewProduct)}>
+                  <FontAwesome name='fa-plus' className="fas fa-plus" />
+                </button>
               </div>
             </div>
           </div>
-          <div class="quick-view-bar">
-            <div>Add to WishList</div>
-            <div>More Details</div>
-          </div>
         </div>
-      </div>`;
+        <div className="quick-view-bar">
+          <div>Add to WishList</div>
+          <div>More Details</div>
+        </div>
+      </div>
+    )
+  }
 
-    if (product.qty > 0) {
-      document.querySelector('.add-to-cart-btns').classList.remove('hide');
-      document.querySelector('.add-to-cart-btn').classList.add('hide');
-    }
-
-    if (product.discount === 0) {
-      document.querySelector('.pdqv').style.display = 'none';
-    }
-
-    document.querySelector('.add-to-cart-btn').addEventListener('click', () => {
-      handleAddToCart(product);
-      document.querySelector('.count').innerText = product.qty;
-      document.querySelector('.add-to-cart-btns').classList.remove('hide');
-      document.querySelector('.add-to-cart-btn').classList.add('hide');
-    })
-
-    document.querySelector('.minus').addEventListener('click', () => {
-      handleMinus(product);
-      document.querySelector('.count').innerText = product.qty;
-      if (product.qty === 0) {
-        document.querySelector('.add-to-cart-btns').classList.add('hide');
-        document.querySelector('.add-to-cart-btn').classList.remove('hide');
-      }
-    })
-
-    document.querySelector('.plus').addEventListener('click', () => {
-      handlePlus(product);
-      document.querySelector('.count').innerText = product.qty;
-    })
-
+  const handleQuickView = (product) => {
+    setQuickViewProduct(product)
+    setQuickViewVisible(true)
     window.addEventListener('click', (e) => {
-      const quickViewOverlay = document.querySelector('.quick-view-overlay');
-      if (e.target === quickViewOverlay)
-        document.querySelector('.quick-view').innerHTML = '';
+      const quickViewOverlay = document.querySelector('.quick-view-overlay')
+      if (e.target === quickViewOverlay) {
+        setQuickViewVisible(false)
+      }
     })
   }
 
-  /* End Quick View */
+  /////////////////////////////////////////
+  //////////////ease-down//////////////////
 
-  return loading ? (
-    <div>loading...</div>
-  ) : error ? (
-    <div>{error}</div>
-  ) : (
-        <div>
-          {products && cartItems && inCartHandler()}
-          {actionNoteVisible &&
-            <div className="action-note">
-              <div>{actionNote}</div>
-            </div>}
-          <HeroBanners />
-          <div className='quick-view'></div>
-          <div className="products-slider-container">
-            <div className="products">
-              <Swiper {...swiper}>
-                {products && cartItems && products.map((product) => (
-                  <div className="product" key={product._id}>
-                    {inCartHandler()}
-                    {product.countInStock === 0 && <div className="product-out-of-stock"></div>}
-                    {product.discount > 0 &&
-                      <div className='product-discount'>
-                        <div>{product.discount}</div>
-                        <div>%</div>
-                      </div>
-                    }
-                    <div className="product-image" style={{ display: 'flex', alignItems: 'center' }}>
-                      <img src={imageUrl + product.image} alt="product"
-                        onClick={() => handleQuickView(product)} />
+
+
+  return (
+    <div>
+      {actionNoteVisible &&
+        <div className="action-note">
+          <div>{actionNote}</div>
+        </div>}
+      <HeroBanners />
+      {/*<div className='quick-view'>*/}
+      {quickViewVisible &&
+        <div className="quick-view-overlay">
+          {quickView()}
+        </div>}
+      <div className="products-slider-container">
+        <div className="products">
+          {products.length > 0 && !loading &&
+            <Swiper {...swiper}>
+              {products && cartItems && products.map((product) => (
+                <div className="product" key={product._id}>
+                  {product.countInStock === 0 && <div className="product-out-of-stock"></div>}
+                  {product.discount > 0 &&
+                    <div className='product-discount'>
+                      <div>{product.discount}</div>
+                      <div>%</div>
                     </div>
-                    <div className='product-details-container'>
-                      <div className="product-name">
-                        <Link to={"/product/" + product._id}>{product.nameEn}</Link>
-                      </div>
-                      <div className="product-brand">{product.brand}</div>
-                      <div className="product-price">
-                        <div className={product.discount > 0 ? 'before-discount' : 'nothing'}>${product.priceUsd}</div>
-                        {product.discount > 0 &&
-                          <div className='after-discount'>${Math.round(100 * (product.priceUsd - product.priceUsd * product.discount / 100)) / 100}</div>
-                        }
-                      </div>
+                  }
+                  <div className="product-image">
+                    <div className='title-skeleton'>Sarah Originals</div>
+                    <img src={imageUrl + product.image} alt="product"
+                      onClick={() => handleQuickView(product)} />
+                  </div>
+                  <div className='product-details-container'>
+                    <div className="product-name">
+                      <Link to={"/product/" + product._id}>{product.nameEn}</Link>
                     </div>
-                    <div className="product-add-to-cart">
-                      <button
-                        type="button"
-                        className={`add-to-cart-btn ${product.AddToCartClass}`}
-                        value={product._id}
-                        onClick={() => handleAddToCart(product)}>
-                        Add To Cart
-                      </button>
-                      <div className={`add-to-cart-btns hide ${product.PlusMinusClass}`}>
-                        <button
-                          type="button"
-                          className="minus"
-                          value={product._id}
-                          onClick={() => handleMinus(product)}>
-                          <FontAwesome name='fa-minus' className="fas fa-minus" />
-                        </button>
-                        <p className="add-to-cart-qty qty-cart count">{product.qty}</p>
-                        <button
-                          type="button"
-                          className="plus"
-                          value={product._id}
-                          onClick={() => handlePlus(product)}>
-                          <FontAwesome name='fa-plus' className="fas fa-plus" />
-                        </button>
+                    <div className="product-brand">{product.brand}</div>
+                    <div className="product-price">
+                      <div className={product.discount > 0 ? 'before-discount' : ''}>${product.priceUsd}</div>
+                      {product.discount > 0 &&
+                        <div className='after-discount'>${Math.round(100 * (product.priceUsd - product.priceUsd * product.discount / 100)) / 100}</div>
+                      }
+                      <div className='product-review-container'>
+                        <FontAwesomeIcon icon={faStar} className='faStar' />
+                        <div className='product-review'>4.5</div>
+                        <div className='product-review-qty'>(21)</div>
                       </div>
                     </div>
                   </div>
-                ))}
-              </Swiper>
-            </div>
-          </div>
+                  <div className="product-add-to-cart">
+                    <button
+                      type="button"
+                      className={`add-to-cart-btn ${product.AddToCartClass}`}
+                      value={product._id}
+                      onClick={() => handleAddToCart(product)}>
+                      Add To Cart
+                      </button>
+                    <div className={`add-to-cart-btns hide ${product.PlusMinusClass}`}>
+                      <button
+                        type="button"
+                        className="minus"
+                        onClick={() => handleMinus(product)}>
+                        <FontAwesome name='fa-minus' className="fas fa-minus" />
+                      </button>
+                      <p className="add-to-cart-qty qty-cart count">{product.qty}</p>
+                      <button
+                        type="button"
+                        className="plus"
+                        onClick={() => handlePlus(product)}>
+                        <FontAwesome name='fa-plus' className="fas fa-plus" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </Swiper>}
         </div>
-      );
+      </div>
+      {/*Test Slider*/}
+      <br /><br />
+      <div className="products-slider-container">
+        <div className="products">
+          {products.length > 0 && !loading &&
+            <Swiper {...swiper}>
+              {products && cartItems && products.map((product) => (
+                <div className="product" key={product._id}>
+                  {product.countInStock === 0 && <div className="product-out-of-stock"></div>}
+                  {product.discount > 0 &&
+                    <div className='product-discount'>
+                      <div>{product.discount}</div>
+                      <div>%</div>
+                    </div>
+                  }
+                  <div className='product-plus' onClick={() => handlePlus(product)}>
+                    <FontAwesome name='fa-plus' className="fas fa-plus" />
+                  </div>
+                  {product.qty > 0 &&
+                    <div>
+                      <div className={'product-new-qty ' + (product.animate ? 'af-qty' : 'ab-qty')}>
+                        {product.qty}
+                      </div>
+                      <div className={'product-minus ' + (product.animate ? 'af-minus' : 'ab-minus')}
+                        onClick={() => handleMinus(product)}>
+                        <FontAwesome name='fa-minus' className="fas fa-minus" />
+                      </div>
+                    </div>}
+                  <div className="product-image">
+                    <div className='title-skeleton'>Sarah Originals</div>
+                    <img src={imageUrl + product.image} alt="product"
+                      onClick={() => handleQuickView(product)} />
+                  </div>
+                  <div className='product-details-container'>
+                    <div className="product-name">
+                      <Link to={"/product/" + product._id}>{product.nameEn}</Link>
+                    </div>
+                    <div className="product-brand">{product.brand}</div>
+                    <div className="product-price">
+                      <div className={product.discount > 0 ? 'before-discount' : 'nothing'}>${product.priceUsd}</div>
+                      {product.discount > 0 &&
+                        <div className='after-discount'>${Math.round(100 * (product.priceUsd - product.priceUsd * product.discount / 100)) / 100}</div>
+                      }
+                      <div className='product-review-container'>
+                        <FontAwesomeIcon icon={faStar} className='faStar' />
+                        <div className='product-review'>4.5</div>
+                        <div className='product-review-qty'>(21)</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </Swiper>}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default HomeScreen;

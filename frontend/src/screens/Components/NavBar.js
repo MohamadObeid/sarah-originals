@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import { listCategory } from '../../actions/categoryActions';
 import FontAwesome from 'react-fontawesome';
-import { listProducts } from '../../actions/productActions';
 
 function Navbar() {
 
@@ -36,10 +35,7 @@ function Navbar() {
 
     const dispatch = useDispatch();
     useEffect(() => {
-        dispatch(listCategory());
-        return () => {
-            //
-        };
+        dispatch(listCategory())
     }, []);
 
     const handleHover = (e) => {
@@ -49,6 +45,66 @@ function Navbar() {
         } else setSubSidebarVisible(false);
     }
 
+    /////////////////////////////////////////
+    ////////////////Drag Btn/////////////////
+    const [xPosition, setXPosition] = useState()
+    const [yPosition, setYPosition] = useState()
+
+    const [active, setActive] = useState()
+    var currentX
+    var currentY
+    var initialX
+    var initialY
+    var xOffset = 0
+    var yOffset = 0
+
+    const drag = e => {
+        if (active) {
+            e.preventDefault()
+
+            /*if (e.type === "touchmove") {
+                currentX = initialX;*/
+            currentY = e.touches[0].clientY;
+            /*} else {
+                currentX = initialX;
+                currentY = e.clientY;
+            }
+
+            xOffset = currentX;
+            yOffset = currentY;*/
+
+            const dragBtn = e.currentTarget;
+            setTranslate(currentX, currentY, dragBtn);
+        }
+    }
+
+    const dragStart = e => {
+        /*if (e.type === "touchstart") {
+            initialX = e.touches[0].clientX - xOffset
+            initialY = e.touches[0].clientY - yOffset
+        } else {
+            initialX = e.clientX - xOffset
+            initialY = e.clientY - yOffset
+        }*/
+        setActive(true)
+    }
+
+    const dragEnd = e => {
+        /*initialX = currentX;
+        initialY = currentY;*/
+        setActive(false)
+    }
+
+    const setTranslate = (xPos, yPos, dragBtn) => {
+        setXPosition(xPos)
+        setYPosition(yPos)
+        const screenHeight = window.screen.height
+        dragBtn.style.top = (yPos / screenHeight * 100) + 'vh'
+    }
+
+    ////////////////End Drag/////////////////
+    /////////////////////////////////////////
+
     return (
         <div className="navbar-div">
             <header className="header">
@@ -57,12 +113,17 @@ function Navbar() {
                     <Link className="brand-name" to="/">Sarah Originals</Link>
                 </div>
                 <div className="header-links">
-                    <Link className="header-link-cart" to="/cart">
-                        {cartItems.reduce((total, item) => total + item.qty, 0) > 0 &&
-                            <p className='header-link-item'>
-                                {cartItems.reduce((total, item) => total + item.qty, 0)}
-                            </p>}
-                        <FontAwesome name='fa-cart-plus' className="fas fa-cart-plus fa-2x" />
+                    <Link className="header-link-cart" to="/cart"
+                        onTouchMove={drag}
+                        onTouchStart={dragStart}
+                        onTouchEnd={dragEnd}>
+                        <div className='item-qty-div'>
+                            {cartItems.reduce((total, item) => total + item.qty, 0) > 0 &&
+                                <p className='header-link-item'>
+                                    {cartItems.reduce((total, item) => total + item.qty, 0)}
+                                </p>}
+                            <FontAwesome name='fa-cart-plus' className="fas fa-cart-plus fa-2x" />
+                        </div>
                     </Link>
                     {
                         (userInfo && userInfo.name) ?
@@ -75,7 +136,10 @@ function Navbar() {
             <div className="sidebar-overlay">
                 <aside className="sidebar">
                     <h3 className="sidebar-header">Categories</h3>
-                    <FontAwesome name="fa-window-close" className="far fa-window-close fa-lg sidebar-close-button" onClick={() => closeSideBar()} />
+                    <FontAwesome name="fa-window-close"
+                        className="far fa-window-close fa-lg sidebar-close-button"
+                        onClick={() => closeSideBar()} />
+
                     <ul className="sidebar-ul">
                         {category && category.map(category => (
                             !category.headCategory &&

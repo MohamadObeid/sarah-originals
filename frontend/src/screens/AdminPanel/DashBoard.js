@@ -7,7 +7,7 @@ import {
   faThLarge, faTruck, faDoorOpen, faStarHalfAlt, faAddressCard, faCartArrowDown,
   faDollarSign,
   faCalendarCheck,
-  faTasks, faChartLine
+  faTasks, faChartLine, faCog
 } from '@fortawesome/free-solid-svg-icons'
 import { faComments as farComments } from '@fortawesome/free-regular-svg-icons'
 
@@ -23,7 +23,8 @@ import EmployeeManager from './EmployeeManager'
 import OrdersManager from './OrdersManager'
 import AssignmentManager from './AssignmentManager'
 import AttendanceManager from './AttendanceManager'
-import ChatManager from "./ChatManager";
+import ChatManager from "./ChatManager"
+import Controller from "./Controller"
 
 import { listProducts } from "../../actions/productActions"
 import { listCategory } from "../../actions/categoryActions"
@@ -35,8 +36,8 @@ import { listPayment } from "../../actions/paymentActions"
 import { detailsEmployee, listEmployees } from "../../actions/employeeActions"
 import { listReviews } from "../../actions/reviewActions"
 import { listOrders, listActiveOrders } from "../../actions/orderActions"
-import { listAssignment } from "../../actions/assignmentActions"
 import { listAttendance } from "../../actions/attendanceActions"
+import { getControls } from "../../actions/controlActions"
 import { listChat, listLiveUser, saveLiveUser, deleteChat } from "../../actions/chatActions"
 
 function DashBoard(props) {
@@ -60,6 +61,7 @@ function DashBoard(props) {
   const [ordersVisible, setOrdersVisible] = useState(false)
   const [attendanceVisible, setAttendanceVisible] = useState(false)
   const [chatVisible, setChatVisible] = useState(false)
+  const [controllerVisible, setControllerVisible] = useState(false)
 
   const dispatch = useDispatch();
 
@@ -76,8 +78,12 @@ function DashBoard(props) {
       dispatch(listUsers())
       dispatch(listEmployees())
       setUsersVisible(true)
-
     } else setUsersVisible(false)
+
+    if (manager === 'Controller') {
+      dispatch(getControls())
+      setControllerVisible(true)
+    } else setControllerVisible(false)
 
     if (manager === 'employee') {
       dispatch(listEmployees())
@@ -271,6 +277,13 @@ function DashBoard(props) {
                 style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
               Chat Manager</h4>
           </li>
+          <li onClick={() => managerHandler('Controller')}>
+            <h4 className="control-title">
+              <FontAwesomeIcon
+                icon={faCog}
+                style={{ width: '3rem', color: 'rgb(60, 60, 60)' }} />
+              Controller</h4>
+          </li>
         </ul>
       </form>
 
@@ -312,6 +325,9 @@ function DashBoard(props) {
 
       {/* Chat */}
       {chatVisible && <ChatManager />}
+
+      {/* Controller */}
+      {controllerVisible && <Controller />}
 
     </div>
   );

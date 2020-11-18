@@ -383,11 +383,47 @@ function Chatbox(props) {
         }
     }
 
+    /////////////////////////////////////////
+    ////////////////Drag Btn/////////////////
+
+    const [active, setActive] = useState()
+    var currentX
+    var currentY
+
+    const drag = e => {
+        if (active) {
+            e.preventDefault()
+            currentY = e.touches[0].clientY;
+            const dragBtn = e.currentTarget;
+            setTranslate(currentX, currentY, dragBtn);
+        }
+    }
+
+    const dragStart = e => {
+        console.log('here')
+        setActive(true)
+    }
+
+    const dragEnd = e => {
+        setActive(false)
+    }
+
+    const setTranslate = (xPos, yPos, dragBtn) => {
+        const screenHeight = window.screen.height
+        dragBtn.style.top = (yPos / screenHeight * 100) + 'vh'
+    }
+
+    ////////////////End Drag/////////////////
+    /////////////////////////////////////////
+
     return (
         <div>
             <div style={{ position: 'relative' }}>
                 {chatDetails
-                    ? <div className='chat-btn'>
+                    ? <div className='chat-btn'
+                        onTouchMove={drag}
+                        onTouchStart={dragStart}
+                        onTouchEnd={dragEnd}>
                         <FontAwesomeIcon
                             className='fa-comments fa-2x'
                             icon={faComments}
@@ -397,15 +433,13 @@ function Chatbox(props) {
                                     : closeChatBoxHandler()
                             }} />
                         {unseenVisible && unseen > 0 &&
-                            <div style={{ position: 'relative' }}>
-                                <div className='chatbox-unseen-msg'
-                                    onClick={() => {
-                                        !chatboxVisible
-                                            ? openChatBoxHandler()
-                                            : closeChatBoxHandler()
-                                    }}>
-                                    {unseen}
-                                </div>
+                            <div className='chatbox-unseen-msg'
+                                onClick={() => {
+                                    !chatboxVisible
+                                        ? openChatBoxHandler()
+                                        : closeChatBoxHandler()
+                                }}>
+                                {unseen}
                             </div>}
                     </div>
                     : <Popconfirm
@@ -424,7 +458,10 @@ function Chatbox(props) {
                             ? userInfo.isCallCenterAgent ? 'Ok' : "Start Live Chat"
                             : 'Sign In'}
                     >
-                        <div className='chat-btn'>
+                        <div className='chat-btn'
+                            onTouchMove={drag}
+                            onTouchStart={dragStart}
+                            onTouchEnd={dragEnd}>
                             <FontAwesomeIcon
                                 className='fa-comments fa-2x'
                                 icon={faComments} />

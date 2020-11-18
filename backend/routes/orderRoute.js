@@ -200,11 +200,11 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
                 requestStatusModifier(request)
                 assignmentStatusModifier(request, order, currentHandlers)
                 request.cart.qty = requestQtyCalc(request)
-                order.amount = amountCalc(order, request)
             })
             !forceAssignment && moveAssToSameHandler(order, req.body.type, req.body.req_id)
             setActive(order)
             setOrderClosed(order)
+            amountCalc(order)
         }
         //const handlersUpdated = await currentHandlers.save()
         const orderUpdated = await order.save()
@@ -436,22 +436,18 @@ const requestQtyCalc = (request) => {
     return parseFloat(qty).toFixed(2)
 }
 
-const amountCalc = (order, request) => {
+const amountCalc = (order) => {
     var amount = 0
     var allPlaceRequestsAreCanceled = true
 
     order.request.map(req => {
-        if (req.status === 'Confirmed' || req.status === 'Completed') {
-            if (order.request[0].status !== 'Pending')
-                amount = amount + parseFloat(req.amount)
-
-        } else if (req.status === 'Rejected' || req.status === 'Canceled')
-            if (req._id !== request._id) amount = amount + parseFloat(req.amount)
+        if (req.status !== 'Canceled' && req.status !== 'Rejected')
+            amount = amount + parseFloat(req.amount)
 
         if (req.type === 'Cancel' && order.request[req.modifiedRequestNum - 1].status !== 'Canceled') allPlaceRequestsAreCanceled = false
     })
-    if (allPlaceRequestsAreCanceled) return 0
-    return amount.toFixed(2)
+    if (allPlaceRequestsAreCanceled) order.amount = 0
+    order.amount = amount.toFixed(2)
 }
 
 const setActive = (order) => {
@@ -567,6 +563,7 @@ const statusApproval = (order, req_id, type, status) => {
                         } else {
                             if (status === 'Canceled') obj = { approval: true }
                             else if (status === 'Refunded') obj = { approval: false, status: "You can't refund uncollected payment! Instead set payment canceled." }
+                            else if (status === 'Uncollected') obj = { approval: true }
                         }
                     }
 
@@ -828,7 +825,7 @@ const assignmentStatusModifier = (request, order, currentHandlers) => {
                     }
             }
 
-            if (!paymentHandler && request.payment.status !== 'Collected' && request.payment.status !== 'Refunded') {
+            if (!paymentHandler && request.payment.status !== 'Collected' && request.payment.status !== 'Refunded' && request.payment.status !== 'Uncollected') {
                 const accomplishedPayHandler = order.assignment.find(ass => (ass.req_id == request._id || ass.receiptNum == request.receiptNum) && ass.type === 'Payment' && ass.status === 'Accomplished')
 
                 if (accomplishedPayHandler) {
@@ -905,7 +902,7 @@ const assignmentStatusModifier = (request, order, currentHandlers) => {
                         }*/
                     }
                 } else if (ass.type === 'Payment') {
-                    if (request.payment.status === 'Collected' || request.payment.status === 'Refunded') {
+                    if (request.payment.status === 'Collected' || request.payment.status === 'Refunded' || request.payment.status === 'Uncollected') {
                         ass.status = 'Accomplished'
                         ass.closedDate = date()
                         /*if (!ass.employeeId) {

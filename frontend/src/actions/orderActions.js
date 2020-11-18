@@ -65,7 +65,6 @@ const backupActiveOrders = (orders, command) => async (dispatch) => {
     else try {
         const activeOrders = JSON.parse(window.sessionStorage.getItem('activeOrders'))
         dispatch({ type: ORDER_LIST_SUCCESS, payload: activeOrders })
-        window.sessionStorage.removeItem('activeOrders')
     } catch (error) {
         dispatch({ type: ORDER_LIST_FAIL, payload: error.message })
     }

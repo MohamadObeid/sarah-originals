@@ -100,11 +100,20 @@ import {
   reviewDeleteReducer,
 } from "./reducers/reviewReducer";
 
+import {
+  controlReducer,
+  controlSaveReducer,
+} from "./reducers/controlReducer"
+
 const cartItems = cookie.getJSON("cartItems") || [];
 const userInfo = cookie.getJSON("userInfo") || null;
 const address = cookie.getJSON("address") || undefined;
 const paymentMethod = cookie.getJSON("paymentMethod") || undefined;
 const packedItems = JSON.parse(localStorage.getItem('packedItems')) || []
+
+const defaultControls = {
+  addToCart: 'Underside-Middle', // Underside-Middle, Rightside, Leftside, Upperside, Underside-Right, None
+}
 
 const initialState = {
   cart: { cartItems },
@@ -112,11 +121,14 @@ const initialState = {
   address: { address },
   paymentMethod: { paymentMethod },
   packed: { packedItems },
-};
+  controls: { defaultControls },
+}
 
 const reducer = combineReducers({
   time: timeReducer,
   clock: clockReducer,
+  controls: controlReducer,
+  controlSave: controlSaveReducer,
 
   productList: productListReducer,
   productDetails: productDetailsReducer,
