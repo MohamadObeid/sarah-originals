@@ -8,29 +8,29 @@ import {
     CONTROL_SAVE_FAIL
 } from "../constants/constants"
 
-const getControls = () => async (dispatch) => {
+const listControls = () => async (dispatch) => {
     dispatch({ type: CONTROL_LIST_REQUEST })
     try {
-        const data = await Axios.get('/api/controls')
-        dispatch({ type: CONTROL_LIST_SUCCESS, payload: data })
+        const { data } = await Axios.get('/api/controls')
+        console.log('here', data)
+        dispatch({ type: CONTROL_LIST_SUCCESS, payload: data[0] })
     } catch (error) {
         dispatch({ type: CONTROL_LIST_FAIL, payload: error })
     }
 }
 
 const saveControls = (controls) => async (dispatch, getState) => {
-    const { controls: { controls: defaultControls } } = getState()
     const { userSignin: { userInfo } } = getState()
 
-    dispatch({ type: CONTROL_SAVE_REQUEST, action: defaultControls })
+    dispatch({ type: CONTROL_SAVE_REQUEST })
     try {
-        const data = await Axios.get('/api/controls', controls, {
+        const { data } = await Axios.put('/api/controls/put', controls, {
             headers: { Authorization: 'Bearer ' + userInfo.token }
         })
         dispatch({ type: CONTROL_SAVE_SUCCESS, payload: data })
     } catch (error) {
-        dispatch({ type: CONTROL_SAVE_FAIL, payload: defaultControls })
+        dispatch({ type: CONTROL_SAVE_FAIL })
     }
 }
 
-export { getControls, saveControls } 
+export { listControls, saveControls } 

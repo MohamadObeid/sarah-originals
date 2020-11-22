@@ -16,15 +16,26 @@ import {
   PRODUCTS_DETAILS_SUCCESS
 } from "../constants/constants";
 
-const listProducts = (idList) => async (dispatch) => {
+const listProducts = (list) => async (dispatch) => {
   try {
-    dispatch({ type: PRODUCT_LIST_REQUEST, payload: idList });
+    dispatch({ type: PRODUCT_LIST_REQUEST/*, payload: idList */ })
     const { data } = await axios.get("/api/products")
-    dispatch({ type: PRODUCT_LIST_SUCCESS, payload: data });
+    dispatch({ type: PRODUCT_LIST_SUCCESS, payload: data })
   } catch (error) {
-    dispatch({ type: PRODUCT_LIST_FAIL, payload: error.message });
+    dispatch({ type: PRODUCT_LIST_FAIL, payload: error.message })
   }
-};
+}
+
+const listCollections = (list) => async (dispatch) => {
+  try {
+    dispatch({ type: PRODUCT_LIST_REQUEST })
+    const { data } = await axios.post('/api/products/collections',
+      { collections: list.collections, limit: list.limit })
+    dispatch({ type: PRODUCT_LIST_SUCCESS, payload: data })
+  } catch (error) {
+    dispatch({ type: PRODUCT_LIST_FAIL, payload: error.message })
+  }
+}
 
 const saveProduct = (product) => async (dispatch, getState) => {
   try {
@@ -83,5 +94,5 @@ const detailsProduct = (searchDetails) => async (dispatch) => {
 
 
 export {
-  listProducts, detailsProduct, saveProduct, deleteProduct
+  listProducts, detailsProduct, saveProduct, deleteProduct, listCollections
 };

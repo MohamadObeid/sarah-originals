@@ -158,7 +158,7 @@ function CartScreen(props) {
                         onClick={(e) => handleplus(item)}>
                         <FontAwesome name='fa-plus' className="fas fa-plus" />
                       </button>
-                      <p className="add-to-cart-qty float-bottom count">{item.qty}</p>
+                      <p className="add-to-cart-qty float-bottom">{item.qty}</p>
                       <button
                         type="button"
                         className="minus minus-cart"

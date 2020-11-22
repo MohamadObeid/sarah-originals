@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { getControls, saveControls } from '../../actions/controlActions'
+import { listControls, saveControls } from '../../actions/controlActions'
 
 function Controller() {
     const [productControl, setProductControl] = useState()

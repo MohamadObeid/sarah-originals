@@ -37,7 +37,7 @@ import { detailsEmployee, listEmployees } from "../../actions/employeeActions"
 import { listReviews } from "../../actions/reviewActions"
 import { listOrders, listActiveOrders } from "../../actions/orderActions"
 import { listAttendance } from "../../actions/attendanceActions"
-import { getControls } from "../../actions/controlActions"
+import { listControls } from "../../actions/controlActions"
 import { listChat, listLiveUser, saveLiveUser, deleteChat } from "../../actions/chatActions"
 
 function DashBoard(props) {
@@ -81,7 +81,7 @@ function DashBoard(props) {
     } else setUsersVisible(false)
 
     if (manager === 'Controller') {
-      dispatch(getControls())
+      dispatch(listControls())
       setControllerVisible(true)
     } else setControllerVisible(false)
 

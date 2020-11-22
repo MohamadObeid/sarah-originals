@@ -21,6 +21,7 @@ import assignmentRoute from './routes/assignmentRoute';
 import chatRoute from './routes/chatRoute';
 import liveChatRoute from './routes/liveUserRoute';
 import imageRouter from './routes/imageRoute';
+import controlsRoute from './routes/controlsRoute';
 
 /*import wifi from 'node-wifi'
 
@@ -84,6 +85,8 @@ app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')))
 
 app.use("/api/products", productRoute);
+
+app.use("/api/controls", controlsRoute);
 
 app.use("/api/uploads", imageRouter());
 

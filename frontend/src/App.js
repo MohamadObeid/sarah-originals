@@ -17,10 +17,32 @@ import axios from "axios";
 import { USER_SIGNIN_SUCCESS } from "./constants/constants";
 import { clock } from './actions/timeActions'
 import cookie from "js-cookie";
+import { listControls, saveControls } from "./actions/controlActions";
+import Ribbon from './screens/Components/Ribbon'
 
 function App(props) {
+  const defaultControls = {
+    addToCart: 'Underside-Middle', // Underside-Middle, Rightside-Top, Leftside, Upperside, Underside-Right, None
+    homePageCollections: ['Featured', 'Discount'],
+    productSwiperMaxLength: 10,
+    topRibbonVisible: true,
+    topRibbon: {
+      icon: 'faGift',
+      backgroundColor: '#ff8000f1',
+      text: 'Your first order is Delivery Free!',
+      fontSize: '2.8rem',
+      mobile: {
+        fontSize: '2rem'
+      }
+    },
+  }
 
   const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(listControls())
+    //dispatch(saveControls(defaultControls))
+  }, [])
+
   var IPaddress
   var refresh
 
@@ -75,6 +97,7 @@ function App(props) {
       <div className="grid-container">
         <NavBar />
         <div className="main">
+          <Ribbon />
           <Route path="/dashboard" component={DashBoard} />
           <Route path="/signin" component={SigninScreen} />
           <Route path="/register" component={RegisterScreen} />

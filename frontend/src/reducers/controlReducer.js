@@ -12,7 +12,6 @@ function controlReducer(state = { controls: undefined }, action) {
         case CONTROL_LIST_REQUEST:
             return {
                 loading: true,
-                controls: action.payload
             }
         case CONTROL_LIST_SUCCESS:
             return {
@@ -22,7 +21,6 @@ function controlReducer(state = { controls: undefined }, action) {
         case CONTROL_LIST_FAIL:
             return {
                 loading: false,
-                controls: action.payload
             }
         default:
             return state
@@ -50,4 +48,11 @@ function controlSaveReducer(state = { controls: {} }, action) {
     }
 }
 
-export { controlReducer, controlSaveReducer }
+const topRibbonVisible = (state = true, action) => {
+    switch (action.type) {
+        case 'TOP_RIBBON_VISIBLE': return action.payload
+        default: return state
+    }
+}
+
+export { controlReducer, controlSaveReducer, topRibbonVisible }

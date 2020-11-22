@@ -103,6 +103,7 @@ import {
 import {
   controlReducer,
   controlSaveReducer,
+  topRibbonVisible,
 } from "./reducers/controlReducer"
 
 const cartItems = cookie.getJSON("cartItems") || [];
@@ -111,17 +112,12 @@ const address = cookie.getJSON("address") || undefined;
 const paymentMethod = cookie.getJSON("paymentMethod") || undefined;
 const packedItems = JSON.parse(localStorage.getItem('packedItems')) || []
 
-const defaultControls = {
-  addToCart: 'Underside-Middle', // Underside-Middle, Rightside, Leftside, Upperside, Underside-Right, None
-}
-
 const initialState = {
   cart: { cartItems },
   userSignin: { userInfo },
   address: { address },
   paymentMethod: { paymentMethod },
   packed: { packedItems },
-  controls: { defaultControls },
 }
 
 const reducer = combineReducers({
@@ -129,6 +125,7 @@ const reducer = combineReducers({
   clock: clockReducer,
   controls: controlReducer,
   controlSave: controlSaveReducer,
+  topRibbonVisible: topRibbonVisible,
 
   productList: productListReducer,
   productDetails: productDetailsReducer,

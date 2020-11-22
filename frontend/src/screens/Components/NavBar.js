@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import { listCategory } from '../../actions/categoryActions';
 import FontAwesome from 'react-fontawesome';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser as farUser } from '@fortawesome/free-regular-svg-icons'
 
 function Navbar() {
 
@@ -129,7 +131,10 @@ function Navbar() {
                         (userInfo && userInfo.name) ?
                             <Link className="header-link-user" to='/profile'>
                                 Hi, {userInfo.name.split(" ")[0]}</Link> :
-                            <Link className="header-link-user" to="/signin">Sign In</Link>
+                            <Link className="header-link-user" to="/signin">
+                                Sign In
+                                <FontAwesomeIcon icon={farUser} className='farUser fa-lg' />
+                            </Link>
                     }
                 </div>
             </header>

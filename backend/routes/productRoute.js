@@ -6,22 +6,53 @@ const router = express.Router();
 // The use router gets and posts data from the server according to model.
 
 router.get("", async (req, res) => {
-
-  const products = await Product.find({});
+  const products = await Product.find({})
   res.send(products)
 });
 
 router.get("/:id", async (req, res) => {
   const productId = req.params.id;
-  const product = await Product.findOne({ _id: productId });
+  const product = await Product.findOne({ _id: productId })
   res.send(product);
 });
 
 router.post("/getproducts", async (req, res) => {
-  const products = await Product.find({ _id: req.body });
+  const products = await Product.find({ _id: req.body })
   if (products) {
     return res.status(201).send(products)
   }
+})
+
+router.post("/collections", async (req, res) => {
+  const collections = req.body.collections
+  const limit = req.body.limit
+  var collectionList = []
+
+  collections.map(async collection => {
+    var criteria = {}
+    var sort = {}
+
+    if (collection === 'Featured')
+      criteria = { isFeatured: { $eq: true } }
+    else if (collection === 'Popular')
+      criteria = { isPopular: { $eq: true } }
+    else if (collection === 'New Arrival')
+      criteria = { newArrival: { $eq: true } }
+    else if (collection === 'Special Offer')
+      criteria = { specialOffer: { $eq: true } }
+    else if (collection === 'Discount') {
+      criteria = { discount: { $gt: 0 } }
+      sort = { discount: -1 }
+    } else criteria = { category: collection }
+
+    const products = await Product.find({ ...criteria }).limit(limit).sort({ ...sort })
+    if (products) collectionList[collectionList.length] = { collection, products }
+
+    if (collectionList.length === collections.length) {
+      //console.log(collectionList)
+      return res.status(201).send(collectionList)
+    }
+  })
 })
 
 router.post("/searchKeyword", async (req, res) => {
@@ -62,6 +93,7 @@ router.post("", isAuth, isAdmin, async (req, res) => {
     active: req.body.active,
     rating: req.body.rating,
     numReviews: req.body.numReviews,
+    collections: req.body.collections
   });
   const newProduct = await product.save();
   if (newProduct) {
@@ -74,7 +106,7 @@ router.post("", isAuth, isAdmin, async (req, res) => {
 
 router.put("/:id", isAuth, isAdmin, async (req, res) => {
   const productId = req.params.id;
-  const product = await Product.findOne({ _id: productId });
+  const product = await Product.findOne({ _id: productId })
   if (req.body.activation) {
     if (req.body.activation === 'active') {
       product.active = req.body.active;
@@ -98,6 +130,7 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
     product.specialOffer = req.body.specialOffer;
     product.discount = req.body.discount;
     product.active = req.body.active;
+    product.collections = req.body.collections
   };
   const productUpdated = await product.save();
   if (productUpdated) {

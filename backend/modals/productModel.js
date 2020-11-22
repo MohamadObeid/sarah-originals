@@ -28,6 +28,7 @@ const productSchema = new mongoose.Schema({
   isPopular: { type: Boolean, required: true, default: false },
   newArrival: { type: Boolean, required: true, default: false },
   specialOffer: { type: Boolean, required: true, default: false },
+  tags: { type: Array, required: false },
   discount: { type: Number, default: 0, required: true },
   cancellable: { type: Boolean, required: false, default: false },
   refundable: { type: Boolean, required: false, default: false },

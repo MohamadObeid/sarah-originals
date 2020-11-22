@@ -9,7 +9,7 @@ function HeroBanners(props) {
     const swiper = {
         height: 200,
         slidesPerView: 1,
-        spaceBetween: 20,
+        spaceBetween: 10,
         grabCursor: true,
         loop: true,
         pagination: {
