@@ -29,27 +29,16 @@ router.post("/collections", async (req, res) => {
   var collectionList = []
 
   collections.map(async collection => {
-    var criteria = {}
-    var sort = {}
 
-    if (collection === 'Featured')
-      criteria = { isFeatured: { $eq: true } }
-    else if (collection === 'Popular')
-      criteria = { isPopular: { $eq: true } }
-    else if (collection === 'New Arrival')
-      criteria = { newArrival: { $eq: true } }
-    else if (collection === 'Special Offer')
-      criteria = { specialOffer: { $eq: true } }
-    else if (collection === 'Discount') {
-      criteria = { discount: { $gt: 0 } }
-      sort = { discount: -1 }
-    } else criteria = { category: collection }
+    const products = await Product.find({
+      $or: [
+        { collections: collection }, { category: collection }
+      ]
+    }).limit(limit).sort({ date: -1 })
 
-    const products = await Product.find({ ...criteria }).limit(limit).sort({ ...sort })
-    if (products) collectionList[collectionList.length] = { collection, products }
+    if (products) collectionList[collectionList.length] = { title: collection, products }
 
     if (collectionList.length === collections.length) {
-      //console.log(collectionList)
       return res.status(201).send(collectionList)
     }
   })
@@ -93,7 +82,7 @@ router.post("", isAuth, isAdmin, async (req, res) => {
     active: req.body.active,
     rating: req.body.rating,
     numReviews: req.body.numReviews,
-    collections: req.body.collections
+    collections: req.body.collections,
   });
   const newProduct = await product.save();
   if (newProduct) {

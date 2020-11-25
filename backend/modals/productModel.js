@@ -24,10 +24,11 @@ const productSchema = new mongoose.Schema({
   description: { type: String, required: true, default: '' },
   rating: { type: Number, default: 0, required: true },
   numReviews: { type: Number, min: 0, max: 5, default: 0, required: true },
-  isFeatured: { type: Boolean, required: true, default: false },
+  collections: { type: Array, required: false },
+  /*isFeatured: { type: Boolean, required: true, default: false },
   isPopular: { type: Boolean, required: true, default: false },
   newArrival: { type: Boolean, required: true, default: false },
-  specialOffer: { type: Boolean, required: true, default: false },
+  specialOffer: { type: Boolean, required: true, default: false },*/
   tags: { type: Array, required: false },
   discount: { type: Number, default: 0, required: true },
   cancellable: { type: Boolean, required: false, default: false },

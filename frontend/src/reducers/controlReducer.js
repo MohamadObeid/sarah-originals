@@ -7,11 +7,12 @@ import {
     CONTROL_SAVE_FAIL
 } from "../constants/constants"
 
-function controlReducer(state = { controls: undefined }, action) {
+function controlReducer(state = { controls: {}, loading: true }, action) {
     switch (action.type) {
         case CONTROL_LIST_REQUEST:
             return {
                 loading: true,
+                controls: {}
             }
         case CONTROL_LIST_SUCCESS:
             return {
@@ -27,7 +28,7 @@ function controlReducer(state = { controls: undefined }, action) {
     }
 }
 
-function controlSaveReducer(state = { controls: {} }, action) {
+function controlSaveReducer(state = { controls: {}, loading: true }, action) {
     switch (action.type) {
         case CONTROL_SAVE_REQUEST:
             return {

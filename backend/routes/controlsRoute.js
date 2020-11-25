@@ -33,6 +33,9 @@ router.put("/put", isAuth, isAdmin, async (req, res) => {
         controls.homePageCollections = req.body.homePageCollections
         controls.topRibbonVisible = req.body.topRibbonVisible
         controls.topRibbon = req.body.topRibbon
+        controls.navigationBar = req.body.navigationBar
+        controls.productRibbonVisible = req.body.productRibbonVisible
+        controls.productRibbon = req.body.productRibbon
     } else {
         const controls = new Controls(req.body)
         const controlsUpdated = await controls.save();

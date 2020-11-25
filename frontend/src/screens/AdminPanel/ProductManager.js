@@ -4,7 +4,7 @@ import { saveProduct, listProducts, deleteProduct } from "../../actions/productA
 import FontAwesome from 'react-fontawesome';
 import axios from 'axios';
 import { productFilters } from '../../constants/filters'
-import { unitList } from '../../constants/lists'
+import { unitList, collectionList } from '../../constants/lists'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faPlus } from "@fortawesome/free-solid-svg-icons";
 
@@ -48,6 +48,7 @@ function ProductManager() {
     const [specialOffer, setSpecialOffer] = useState(false);
     const [productProps, setProductProps] = useState();
     const [propertiesVisible, setPropertiesVisible] = useState(false);
+    const [collections, setCollections] = useState([])
 
     // for category inputs in form
     const { success: successSave } = useSelector(state => state.productSave);
@@ -75,6 +76,7 @@ function ProductManager() {
             setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
             setFormAction('');
         }
+        console.log(products)
         return () => {
             //
         };
@@ -101,6 +103,7 @@ function ProductManager() {
         setIsPopular(product.isPopular ? product.isPopular : false)
         setNewArrival(product.newArrival ? product.newArrival : false)
         setSpecialOffer(product.specialOffer ? product.specialOffer : false)
+        setCollections(product.collections || [])
         // filter dropdown from existed categories
         let catList = categoryList && categoryList.map(cat => cat.name);
         (product.category) &&
@@ -110,7 +113,7 @@ function ProductManager() {
         setDropdownList(catList.sort());
     };
 
-    const modifiedArray = (product) => {
+    /*const modifiedArray = (product) => {
         let modifiedNote = []
         if (nameEn !== product.nameEn) modifiedNote = [...modifiedNote, 'Name(en)']
         if (nameAr !== product.nameAr) modifiedNote = [...modifiedNote, 'Name(ar)']
@@ -123,7 +126,7 @@ function ProductManager() {
         if (countInStock !== product.countInStock) modifiedNote = [...modifiedNote, 'Quantity in Stock']
         if (description !== product.description) modifiedNote = [...modifiedNote, 'Description']
         return [...modified, { modified_date: Date.now() + 10800000, modified_by: userInfo.name, modified_note: modifiedNote }]
-    }
+    }*/
 
     const submitHandler = (e) => {
         e.preventDefault()
@@ -131,10 +134,10 @@ function ProductManager() {
         const nameExist = products.find(product => product.nameEn == nameEn)
         if (!productExist || productExist && formAction == 'Edit') {
             if (formAction == 'Copy' || formAction == 'Create')
-                dispatch(saveProduct({ modified: [], created_by: userInfo.name, creation_date: Date.now() + 10800000, nameEn, nameAr, image, brand, category, priceUsd, priceLbp, discount, countInStock, unit, description, active, isFeatured, isPopular, newArrival, specialOffer }))
+                dispatch(saveProduct({ modified: [], created_by: userInfo.name, creation_date: Date.now() + 10800000, nameEn, nameAr, image, brand, category, priceUsd, priceLbp, discount, countInStock, unit, description, active, isFeatured, isPopular, newArrival, specialOffer, collections }))
             else {
                 // set modified
-                dispatch(saveProduct({ modified: modifiedArray(productExist), created_by: productExist.created_by, creation_date: userInfo.creation_date, _id, nameEn, nameAr, image, brand, category, priceUsd, priceLbp, discount, countInStock, unit, description, active, isFeatured, isPopular, newArrival, specialOffer }))
+                dispatch(saveProduct({ /*modified: modifiedArray(productExist), */created_by: productExist.created_by, creation_date: userInfo.creation_date, _id, nameEn, nameAr, image, brand, category, priceUsd, priceLbp, discount, countInStock, unit, description, active, isFeatured, isPopular, newArrival, specialOffer, collections }))
             }
         } else if (nameExist) {
             setFormAlert('The product name already exists.')
@@ -151,7 +154,7 @@ function ProductManager() {
             setFormAction('Activat')
             product.active = true
         }
-        product.modified = [...product.modified, { modified_date: Date.now() + 10800000, modified_by: userInfo.name, modified_note: ['Activation'] }]
+        //product.modified = [...product.modified, { modified_date: Date.now() + 10800000, modified_by: userInfo.name, modified_note: ['Activation'] }]
         dispatch(saveProduct({ ...product, activation: 'active' }))
     }
 
@@ -192,13 +195,13 @@ function ProductManager() {
         }
     })
 
-    const fetchRecent = () => {
+    /*const fetchRecent = () => {
         axios.get('/api/uploads/recent')
             .then((response) => {
                 setImage(response.data.image.filename);
             })
             .catch(err => alert('Error: ' + err));
-    }
+    }*/
 
     const uploadImageHandler = (e) => {
         e.preventDefault();
@@ -212,8 +215,9 @@ function ProductManager() {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
             .then((response) => {
-                response.data.success && alert('File successfully uploaded');
-                fetchRecent();
+                response.data.success && alert('File successfully uploaded')
+                //fetchRecent();
+                setImage(response.data.image.filename)
                 setUploading(false)
             })
             .catch((err) => {
@@ -226,14 +230,14 @@ function ProductManager() {
         setModelVisible(false)
         await setProductProps(product)
         setDiscount(product.discount)
-        product.modified
+        /*product.modified
             ? setModified(product.modified)
-            : setModified([])
+            : setModified([])*/
         setPropertiesVisible(true)
     }
 
     //properties Handlers
-    const featuredHandler = (e, product) => {
+    /*const featuredHandler = (e, product) => {
         e.preventDefault()
         const prop = 'Featured'
         if (product.isFeatured)
@@ -278,11 +282,11 @@ function ProductManager() {
 
     const propHistoryHandler = (prop, product) => {
         setFormAction('Edit')
-        product.modified = [...modified, { modified_date: Date.now() + 10800000, modified_by: userInfo.name, modified_note: [prop] }]
+        //product.modified = [...modified, { modified_date: Date.now() + 10800000, modified_by: userInfo.name, modified_note: [prop] }]
         dispatch(saveProduct(product))
         setModified(product.modified)
         setProductValues(product)
-    }
+    }*/
 
     // Filter
 
@@ -344,7 +348,21 @@ function ProductManager() {
             setDropdownListVisible(false)
             dropdownOverlay.style.display = 'none'
         }
-    });
+    })
+
+    ////////////////////// collection
+
+    const addCollection = (e, collection) => {
+        e.preventDefault()
+        productProps.collections[productProps.collections.length] = collection
+        dispatch(saveProduct(productProps))
+    }
+
+    const removeCollection = (e, collection) => {
+        e.preventDefault()
+        productProps.collections = productProps.collections.filter(coll => coll !== collection)
+        dispatch(saveProduct(productProps))
+    }
 
     return (
         <div>
@@ -598,7 +616,7 @@ function ProductManager() {
                         <th>Category</th>
                         <th>Brand</th>
                         <th>In Stock</th>
-                        <th>Properties</th>
+                        <th>Discount</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -634,13 +652,9 @@ function ProductManager() {
                             <td>
                                 <div className="props-tags"
                                     onClick={(e) => showPropertiesHandler(product)}>
-                                    {product.isFeatured && <div className='prop-tag'>F</div>}
-                                    {product.isPopular && <div className='prop-tag'>P</div>}
-                                    {product.newArrival && <div className='prop-tag'>N</div>}
-                                    {product.specialOffer && <div className='prop-tag'>S</div>}
-                                    {product.discount > 0 && <div className='prop-tag' style={{ backgroundColor: 'rgb(255, 21, 21)' }}>{product.discount}%</div>}
-                                    {!product.isFeatured && !product.isPopular && !product.newArrival && !product.specialOffer && product.discount < 1 &&
-                                        <FontAwesomeIcon icon={faPlus} className='fas fa-exclamation-circle' />}
+                                    {product.discount > 0
+                                        ? <div className='prop-tag' style={{ backgroundColor: 'rgb(255, 21, 21)' }}>{product.discount}%</div>
+                                        : <FontAwesomeIcon icon={faPlus} className='fas fa-exclamation-circle' />}
                                 </div>
                             </td>
                             <td>
@@ -664,7 +678,27 @@ function ProductManager() {
                                 <th>Name</th>
                                 <td>{productProps.nameEn}</td>
                             </tr>
-                            <tr>
+                            {collectionList.map(collection => {
+                                const collectionExist = productProps.collections.find(coll => coll === collection) ? true : false
+                                return (
+                                    <tr>
+                                        <th className='collection-product-form'>{collection}</th>
+                                        <td>
+                                            <input
+                                                className='switch'
+                                                type='checkbox'
+                                                name={collection}
+                                                id="active s2"
+                                                checked={collectionExist}
+                                                onChange={(e) => e.target.checked
+                                                    ? addCollection(e, collection)
+                                                    : removeCollection(e, collection)}
+                                            ></input>
+                                        </td>
+                                    </tr>
+                                )
+                            })}
+                            {/*<tr>
                                 <th>Featured</th>
                                 <td>
                                     <input
@@ -732,7 +766,7 @@ function ProductManager() {
                                         style={{ marginLeft: '1rem', padding: '0.9rem' }}
                                         onClick={(e) => discountHandler(e, productProps)} className='primary button'>Save</button>
                                 </td>
-                            </tr>
+                            </tr>*/}
                         </table>
                         <button style={{ marginTop: '3rem' }} type="button" className="button secondary" onClick={() => setPropertiesVisible(false)}>
                             Back

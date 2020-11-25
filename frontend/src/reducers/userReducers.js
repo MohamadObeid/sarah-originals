@@ -1,15 +1,15 @@
 import { USER_SIGNIN_REQUEST, USER_SIGNIN_SUCCESS, USER_SIGNIN_FAIL, USER_REGISTER_REQUEST, USER_REGISTER_SUCCESS, USER_REGISTER_FAIL, USERS_LIST_REQUEST, USERS_LIST_SUCCESS, USERS_LIST_FAIL, USER_DELETE_REQUEST, USER_DELETE_SUCCESS, USER_DELETE_FAIL, USER_SAVE_SUCCESS, USER_SAVE_REQUEST, USER_ACTIVATION_SUCCESS, USER_DETAILS_REQUEST, USER_DETAILS_SUCCESS, USER_DETAILS_FAIL, CLEAR_SAVE_USER, CLEAR_SIGNIN_USER } from "../constants/constants";
 
-function userSigninReducer(state = { userInfo: undefined }, action) {
+function userSigninReducer(state = { loading: true, userInfo: {} }, action) {
     switch (action.type) {
         case CLEAR_SIGNIN_USER:
-            return { userInfo: undefined }
+            return { loading: true, userInfo: {} }
         case USER_SIGNIN_REQUEST:
-            return { loading: true, userInfo: action.payload };
+            return { loading: true, userInfo: {} };
         case USER_SIGNIN_SUCCESS:
             if (action.payload)
                 return { loading: false, success: true, userInfo: action.payload }
-            else return { loading: false, userInfo: undefined } // sined out
+            else return { loading: false, userInfo: {} } // sined out
         case USER_SIGNIN_FAIL:
             return { loading: false, error: action.payload }
         default:

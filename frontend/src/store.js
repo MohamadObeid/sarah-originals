@@ -107,7 +107,7 @@ import {
 } from "./reducers/controlReducer"
 
 const cartItems = cookie.getJSON("cartItems") || [];
-const userInfo = cookie.getJSON("userInfo") || null;
+const userInfo = cookie.getJSON("userInfo") || {};
 const address = cookie.getJSON("address") || undefined;
 const paymentMethod = cookie.getJSON("paymentMethod") || undefined;
 const packedItems = JSON.parse(localStorage.getItem('packedItems')) || []

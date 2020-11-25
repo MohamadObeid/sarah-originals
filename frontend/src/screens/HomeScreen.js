@@ -9,6 +9,7 @@ import FontAwesome from 'react-fontawesome';
 import { addToCart, removeFromCart, updateCart } from "../actions/cartActions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight, faStar } from "@fortawesome/free-solid-svg-icons";
+import ProductRibbon from './Components/ProductRibbon'
 
 function HomeScreen(props) {
   const imageUrl = window.location.origin + '/api/uploads/image/'
@@ -41,15 +42,16 @@ function HomeScreen(props) {
 
   const dispatch = useDispatch()
   useEffect(() => {
-    controls && //console.log(controls)
+    controls && controls.homePageCollections &&//console.log(controls)
       dispatch(listCollections({ collections: controls.homePageCollections, limit: 10 }))
   }, [controls])
 
   useEffect(() => {
     if (collections && !loading) {
-      const products = collections.map(coll => {
-        return coll.products
+      const products = collections.map(collection => {
+        return collection.products
       }).flat()
+
       setProducts(products)
     }
 
@@ -161,8 +163,7 @@ function HomeScreen(props) {
         <div className="quick-view-product">
           {quickViewProduct.discount > 0 &&
             <div className='product-discount pdqv'>
-              <div>{quickViewProduct.discount}</div>
-              <div>%</div>
+              <div>{quickViewProduct.discount}%</div>
             </div>}
           <div className="quick-view-image">
             <img src={imageUrl + quickViewProduct.image} alt="product" />
@@ -304,6 +305,7 @@ function HomeScreen(props) {
           <div>{actionNote}</div>
         </div>}
       <NavigationBar />
+      <ProductRibbon />
       <HeroBanners />
       {/*<div className='quick-view'>*/}
       {quickViewVisible &&
@@ -312,15 +314,16 @@ function HomeScreen(props) {
         </div>}
       {collections && !loading &&
         collections.map(collection => (
-          <div>
+          <div key={collection.title}>
             <div className="products-slider-container">
               <div className='slider-container-title-line'>
-                <div className='slider-container-title'>{collection.collection} Products</div>
+                <div className='slider-container-title'>{collection.title} Products</div>
                 <div className='slider-container-show-all'>show all
                 <FontAwesomeIcon icon={faChevronRight} className='faChevronRight' /></div>
               </div>
               <div className="products">
-                {collection.products.length > 0 && !loading &&
+                {collection.products &&
+                  collection.products.length > 0 && !loading &&
                   <Swiper {...swiper}>
                     {collection.products.map(product => (
                       <div className="product" key={product._id}>
