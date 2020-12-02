@@ -23,24 +23,26 @@ router.post("/getproducts", async (req, res) => {
   }
 })
 
-router.post("/collections", async (req, res) => {
+router.post("/views", async (req, res) => {
   const collections = req.body.collections
   const limit = req.body.limit
   var collectionList = []
 
+  console.log('incoming request')
   collections.map(async collection => {
-
+    console.log('requested')
     const products = await Product.find({
       $or: [
         { collections: collection }, { category: collection }
       ]
     }).limit(limit).sort({ date: -1 })
 
-    if (products) collectionList[collectionList.length] = { title: collection, products }
 
-    if (collectionList.length === collections.length) {
+    if (products) collectionList[collectionList.length] = { title: collection, products }
+    console.log(collections.indexOf(collection))
+    if (collectionList.length === collections.length)
       return res.status(201).send(collectionList)
-    }
+
   })
 })
 
@@ -83,6 +85,7 @@ router.post("", isAuth, isAdmin, async (req, res) => {
     rating: req.body.rating,
     numReviews: req.body.numReviews,
     collections: req.body.collections,
+    onSale: req.body.onSale,
   });
   const newProduct = await product.save();
   if (newProduct) {
@@ -120,8 +123,10 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
     product.discount = req.body.discount;
     product.active = req.body.active;
     product.collections = req.body.collections
-  };
-  const productUpdated = await product.save();
+    product.onSale = (req.body.onSale && req.body.onSale.amount > 0) ? req.body.onSale : {}
+  }
+
+  const productUpdated = await product.save()
   if (productUpdated) {
     // 201 is code of creating an item
     return res.status(200).send({ message: "Product has been updated!", data: productUpdated })

@@ -11,7 +11,7 @@ function userSigninReducer(state = { loading: true, userInfo: {} }, action) {
                 return { loading: false, success: true, userInfo: action.payload }
             else return { loading: false, userInfo: {} } // sined out
         case USER_SIGNIN_FAIL:
-            return { loading: false, error: action.payload }
+            return { loading: false, error: action.payload, userInfo: {} }
         default:
             return state;
     }

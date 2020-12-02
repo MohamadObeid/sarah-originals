@@ -2,15 +2,30 @@ import { CART_ADD_ITEM, CART_REMOVE_ITEM, CART_UPDATE_ITEM, PACKED_ITEMS } from 
 
 
 function cartReducer(state = { cartItems: [] }, action) {
+
   switch (action.type) {
+
     case CART_ADD_ITEM:
-      return { cartItems: [...state.cartItems, action.payload] }
-    case CART_UPDATE_ITEM:
-      return action.payload
-        ? { cartItems: state.cartItems.map((item) => item._id == action.payload._id ? action.payload : item) }
-        : { cartItems: [] }
-    case CART_REMOVE_ITEM:
-      return { cartItems: state.cartItems.filter((item) => item._id !== action.payload && item) }
+      if (action.payload.isArray) return { cartItems: action.payload.items }
+      else {
+        const { message, ...newItem } = action.payload
+        return { cartItems: [...state.cartItems, newItem], message }
+      }
+
+    case CART_UPDATE_ITEM: {
+      const { message, ...newItem } = action.payload
+      console.log(newItem)
+      return { cartItems: state.cartItems.map(item => item._id == newItem._id ? newItem : item), message }
+    }
+
+    case CART_REMOVE_ITEM: {
+      const { message, ...newItem } = action.payload
+      return { cartItems: state.cartItems.filter(item => item._id !== newItem._id), message }
+    }
+
+    case 'CLEAR_CART':
+      return { cartItems: [] }
+
     default:
       return state;
   }

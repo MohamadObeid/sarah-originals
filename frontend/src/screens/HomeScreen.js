@@ -1,76 +1,106 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { listCollections } from "../actions/productActions";
-import Swiper from 'react-id-swiper';
+import { listHomePageViews } from "../actions/viewsActions";
 import HeroBanners from "./Components/HeroBanners";
 import NavigationBar from "./Components/NavigationBar";
-import FontAwesome from 'react-fontawesome';
+import { SlideRibbon } from './Components/SlideRibbon'
+import FontAwesome from 'react-fontawesome'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faChevronRight, faStar } from "@fortawesome/free-solid-svg-icons"
+import Swiper from 'react-id-swiper'
+import { Link } from "react-router-dom"
+import { swiper } from '../constants/defaultControls'
 import { addToCart, removeFromCart, updateCart } from "../actions/cartActions";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronRight, faStar } from "@fortawesome/free-solid-svg-icons";
-import ProductRibbon from './Components/ProductRibbon'
 
 function HomeScreen(props) {
   const imageUrl = window.location.origin + '/api/uploads/image/'
 
-  const swiper = {
-    shortSwipes: true,
-    slidesOffsetAfter: 0,
-    freeMode: true,
-    freeModeMomentumRatio: 1,
-    grabCursor: true,
-    slidesPerView: 'auto',
-    pagination: {
-      el: '.swiper-pagination',
-      clickable: true,
-      type: 'bullets',
-      dynamicBullets: true,
-    },
-  }
-
   const [actionNote, setActionNote] = useState('Product Added Succefully');
   const [actionNoteVisible, setActionNoteVisible] = useState(false);
   const [timeOut, setTimeOut] = useState()
-  const [quickViewVisible, setQuickViewVisible] = useState(false)
-  const [quickViewProduct, setQuickViewProduct] = useState({})
   const [products, setProducts] = useState([])
 
-  const { products: collections, loading } = useSelector((state) => state.productList);
-  const { cartItems } = useSelector(state => state.cart);
-  const { controls } = useSelector(state => state.controls)
+  const { views, loading } = useSelector(state => state.views)
+  const { cartItems, message } = useSelector(state => state.cart);
+  const { controls, loading: loadingControls } = useSelector(state => state.controls)
+  const actions = useSelector(state => state.actions)
 
   const dispatch = useDispatch()
   useEffect(() => {
-    controls && controls.homePageCollections &&//console.log(controls)
-      dispatch(listCollections({ collections: controls.homePageCollections, limit: 10 }))
+    if (controls && controls.homePageCollections)
+      dispatch(listHomePageViews({ collections: controls.homePageCollections, limit: 10 }))
+
   }, [controls])
 
   useEffect(() => {
-    if (collections && !loading) {
-      const products = collections.map(collection => {
-        return collection.products
-      }).flat()
+    if (views.length > 0) {
+      setProducts(views.map(view => {
+        return view.products
+      }).flat())
 
-      setProducts(products)
-    }
-
-  }, [collections])
-
-  useEffect(() => {
-
-    if (products && cartItems) {
       cartItems.map(item => {
-        const productList = products.filter(product => product._id == item._id)
-        productList.map(product => {
+        const similarProducts = products.filter(product => product._id == item._id)
+        similarProducts.map(product => {
           if (item.qty > product.countInStock) item.qty = product.countInStock
           product.qty = item.qty
+          product.animate = true
           toggleCartBtns(product)
         })
       })
     }
+  }, [views])
 
-  }, [products])
+  useEffect(() => {
+    if (message) {
+      setActionNote(message)
+      setActionNoteVisible(true)
+      clearTimeout(timeOut)
+      setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
+    }
+
+  }, [cartItems])
+
+  const handleAddToCart = (product) => {
+
+    const productList = products.filter(pro => product._id == pro._id)
+    productList.map(pro => {
+      pro.qty = 1
+      toggleCartBtns(pro)
+    })
+
+    const inCart = cartItems.find(item => item._id === product._id)
+    if (inCart) dispatch(updateCart({ _id: product._id, qty: product.qty, message: 'Product Added Successfully!' }))
+    else dispatch(addToCart({ _id: product._id, qty: product.qty, message: 'Product Added Successfully!' }))
+  }
+
+  const handleMinus = (product, e) => {
+    const productList = products.filter(pro => product._id == pro._id)
+    productList.map(pro => {
+      pro.qty--
+      toggleCartBtns(pro)
+    })
+
+    if (product.qty === 0) dispatch(removeFromCart({ _id: product._id, message: 'Product Removed Successfully!' }))
+    else dispatch(updateCart({ _id: product._id, qty: product.qty }))
+  }
+
+  const handlePlus = (product, e) => {
+    if ((!product.qty || product.qty === 0) && product.countInStock > 0) {
+      const productList = products.filter(pro => product._id == pro._id)
+      productList.map(pro => {
+        pro.qty = 1
+        toggleCartBtns(pro)
+      })
+
+      dispatch(addToCart({ _id: product._id, qty: product.qty, message: 'Product Added Successfully!' }))
+
+    } else if (product.countInStock > product.qty) {
+      const productList = products.filter(pro => product._id == pro._id)
+      productList.map(product0 => product0.qty++)
+      dispatch(updateCart({ _id: product._id, qty: product.qty, message: 'Product Added Succefully!' }))
+
+    } else dispatch(updateCart({ _id: product._id, message: 'Only ' + product.qty + product.unit + ' ' + product.nameEn + ' are available in stock!' }))
+  }
 
   const toggleCartBtns = (product) => {
     if (product.qty === 0) {
@@ -82,141 +112,69 @@ function HomeScreen(props) {
     }
   }
 
-  const handleAddToCart = (product) => {
-    const productList = products.filter(pro => product._id == pro._id)
-    productList.map(pro => {
-      pro.qty = 1
-      toggleCartBtns(pro)
-    })
-    const inCart = cartItems.find(item => item._id === product._id)
-    if (inCart)
-      dispatch(updateCart({
-        _id: product._id, qty: product.qty
-      }))
-    else {
-      dispatch(addToCart({
-        _id: product._id, qty: product.qty
-      }))
-    }
-    setActionNote('Product added successfully!')
-    setActionNoteVisible(true)
-    clearTimeout(timeOut)
-    setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
-  }
+  const QuickView = (product) => {
 
-  const handleMinus = (product, e) => {
-    const productList = products.filter(pro => product._id == pro._id)
-    productList.map(pro => {
-      pro.qty--
-      toggleCartBtns(pro)
-    })
-    if (product.qty === 0) {
-      dispatch(removeFromCart(product._id))
-      setActionNote('Product removed successfully!')
-      setActionNoteVisible(true);
-      clearTimeout(timeOut)
-      setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
-    }
-    else dispatch(updateCart({
-      _id: product._id, qty: product.qty,
-    }))
-  }
-
-
-  const handlePlus = (product, e) => {
-    if ((!product.qty || product.qty === 0) && product.countInStock > 0) {
-      const productList = products.filter(pro => product._id == pro._id)
-      productList.map(pro => {
-        pro.qty = 1
-        toggleCartBtns(pro)
-      })
-      dispatch(addToCart({
-        _id: product._id, qty: product.qty
-      }))
-      setActionNote('Product added successfully!')
-      setActionNoteVisible(true)
-      clearTimeout(timeOut)
-      setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
-
-    } else if (product.countInStock > product.qty) {
-      const productList = products.filter(pro => product._id == pro._id)
-      productList.map(pro => {
-        pro.qty++
-      })
-      dispatch(updateCart({
-        _id: product._id, qty: product.qty,
-      }))
-
-    } else {
-      setActionNote('Only ' + product.qty + product.unit + ' ' + product.nameEn + ' are available in stock!')
-      setActionNoteVisible(true);
-      clearTimeout(timeOut)
-      setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
-    }
-  }
-
-  /* Quick View */
-
-  const quickView = () => {
     return (
       <div className="quick-view-container">
         <div className="quick-view-product">
-          {quickViewProduct.discount > 0 &&
+          {product.discount > 0 &&
             <div className='product-discount pdqv'>
-              <div>{quickViewProduct.discount}%</div>
+              <div>{product.discount}%</div>
             </div>}
           <div className="quick-view-image">
-            <img src={imageUrl + quickViewProduct.image} alt="product" />
+            <img src={imageUrl + product.image} alt="product" />
           </div>
           <div className='quick-view-details'>
             <table className='quick-view-table'>
-              <tr>
-                <th>Name</th>
-                <td className='quick-view-header'>{quickViewProduct.nameEn}</td>
-              </tr>
-              <tr>
-                <th>Brand</th>
-                <td className='quick-view-brand'>{quickViewProduct.brand}</td>
-              </tr>
-              <tr>
-                <th>Price</th>
-                <td className='quick-view-price'>${quickViewProduct.priceUsd}
-                  <div className='quick-view-unit'>/{quickViewProduct.unit}</div>
-                </td>
-              </tr>
-              <tr>
-                <th>Rate</th>
-                <td>{quickViewProduct.rating} Stars</td>
-              </tr>
-              <tr>
-                <th>Reviews</th>
-                <td>{quickViewProduct.numReviews}</td>
-              </tr>
-              <tr>
-                <th>Description</th>
-                <td>{quickViewProduct.description}</td>
-              </tr>
+              <tbody>
+                <tr>
+                  <th>Name</th>
+                  <td className='quick-view-header'>{product.nameEn}</td>
+                </tr>
+                <tr>
+                  <th>Brand</th>
+                  <td className='quick-view-brand'>{product.brand}</td>
+                </tr>
+                <tr>
+                  <th>Price</th>
+                  <td className='quick-view-price'>${product.priceUsd}
+                    <div className='quick-view-unit'>/{product.unit}</div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Rate</th>
+                  <td>{product.rating} Stars</td>
+                </tr>
+                <tr>
+                  <th>Reviews</th>
+                  <td>{product.numReviews}</td>
+                </tr>
+                <tr>
+                  <th>Description</th>
+                  <td>{product.description}</td>
+                </tr>
+              </tbody>
             </table>
             <div className="product-add-to-cart">
               <button
                 type="button"
-                className={`add-to-cart-btn ${quickViewProduct.AddToCartClass}`}
-                value={quickViewProduct._id}
-                onClick={() => handleAddToCart(quickViewProduct)}>
+                className={`add-to-cart-btn ${product.AddToCartClass}`}
+                value={product._id}
+                onClick={() => handleAddToCart(product)}>
                 Add To Cart
               </button>
-              <div className={`add-to-cart-btns hide ${quickViewProduct.PlusMinusClass}`}>
+              <div className={`add-to-cart-btns hide ${product.PlusMinusClass}`}>
                 <button
                   type="button"
                   className="minus"
-                  onClick={(e) => handleMinus(quickViewProduct, e)}>
+                  onClick={(e) => handleMinus(product, e)}>
                   <FontAwesome name='fa-minus' className="fas fa-minus" />
                 </button>
-                <p className="add-to-cart-qty">{quickViewProduct.qty}</p>
+                <p className="add-to-cart-qty">{product.qty}</p>
                 <button
                   type="button"
                   className="plus"
-                  onClick={() => handlePlus(quickViewProduct)}>
+                  onClick={() => handlePlus(product)}>
                   <FontAwesome name='fa-plus' className="fas fa-plus" />
                 </button>
               </div>
@@ -232,26 +190,25 @@ function HomeScreen(props) {
   }
 
   const handleQuickView = (product) => {
-    setQuickViewProduct(product)
-    setQuickViewVisible(true)
+    dispatch({ type: 'UPDATE_ACTIONS', payload: { quickView: { product } } })
     window.addEventListener('click', (e) => {
       const quickViewOverlay = document.querySelector('.quick-view-overlay')
       if (e.target === quickViewOverlay) {
-        setQuickViewVisible(false)
+        dispatch({ type: 'REMOVE_FROM_ACTIONS', payload: 'quickView' })
       }
     })
   }
 
-  const underSideMiddleAddToCart = (product) => {
+  const BottomCenterBtnsDesign = (product) => {
     return (
       <div className="product-add-to-cart">
         <button
           type="button"
-          className={`add-to-cart-btn ${product.AddToCartClass}`}
+          className={`add-to-cart-btn ${product.AddToCartBtnsClass}`}
           value={product._id}
-          onClick={() => handleAddToCart(product)}>
+          onClick={() => dispatch(handleAddToCart(product))}>
           Add To Cart
-        </button>
+                </button>
         <div className={`add-to-cart-btns hide ${product.PlusMinusClass}`}>
           <button
             type="button"
@@ -271,142 +228,125 @@ function HomeScreen(props) {
     )
   }
 
-  const rightSideTopAddToCart = (product) => {
+  const RightTopBtnsDesign = (product) => {
     return (
-      <div>
+      <>
         <div className='product-plus' onClick={(e) => handlePlus(product, e)}>
           <FontAwesome name='fa-plus' className="fas fa-plus" />
         </div>
-        {product.qty === 0 &&
-          <div>
-            <div className={'product-new-qty hide-qty'}>1</div>
-            <div className={'product-minus hide-minus'}>
-              <FontAwesome name='fa-minus' className="fas fa-minus" />
+        <div>
+          <div className={'product-new-qty right-qty-btn-transform ' +
+            (product.qty >= 1 ? 'animate' : '')}>
+            {product.qty}
+          </div>
+          <div className={'product-minus right-minus-btn-transform ' +
+            (product.qty >= 1 ? 'animate' : '')}
+            onClick={(e) => handleMinus(product, e)}>
+            <FontAwesome name='fa-minus' className="fas fa-minus" />
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  const AddToCartBtns = (product) => {
+    return (
+      controls.addToCartBtnsStyle === 'Bottom-Center'
+        ? BottomCenterBtnsDesign(product)
+        : controls.addToCartBtnsStyle === 'Right-Top'
+          ? RightTopBtnsDesign(product)
+          : <></>
+    )
+  }
+
+  const ProductSlide = (view) => {
+    return (
+      view.products.map(product => (
+        <div className="product" key={product._id}>
+          {product.countInStock === 0 && <div className="product-out-of-stock"></div>}
+          {product.discount > 0 &&
+            <div className='product-discount'>
+              <div>{product.discount}</div>
+              <div>%</div>
             </div>
-          </div>}
-        {product.qty > 0 &&
-          <div>
-            <div className={'product-new-qty animate-qty'}>
-              {product.qty}
+          }
+          <div className="product-image">
+            <div className='title-skeleton'>Sarah Originals</div>
+            <img src={imageUrl + product.image} alt="product"
+              onClick={() => handleQuickView(product)} />
+          </div>
+          <div className='product-details-container'>
+            <div className="product-name">
+              <Link to={"/product/" + product._id}>{product.nameEn}</Link>
             </div>
-            <div className={'product-minus animate-minus'}
-              onClick={(e) => handleMinus(product, e)}>
-              <FontAwesome name='fa-minus' className="fas fa-minus" />
+            <div className="product-brand">{product.brand}</div>
+            <div className="product-price">
+              <div className={product.discount > 0 ? 'before-discount' : ''}>${product.priceUsd}</div>
+              {product.discount > 0 &&
+                <div className='after-discount'>${Math.round(100 * (product.priceUsd - product.priceUsd * product.discount / 100)) / 100}</div>
+              }
+              <div className='product-review-container'>
+                <FontAwesomeIcon icon={faStar} className='faStar' />
+                <div className='product-review'>4.5</div>
+                <div className='product-review-qty'>(21)</div>
+              </div>
             </div>
-          </div>}
-      </div>
+          </div>
+          {AddToCartBtns(product)}
+        </div>)))
+  }
+
+  const ProductSwiper = () => {
+    return (
+      <>
+        {actions.quickView &&
+          <div className="quick-view-overlay">
+            {QuickView(actions.quickView.product)}
+          </div>
+        }
+
+        {views.map(view => (
+          <div key={view.title}>
+            <div className="products-slider-container">
+              <div className='slider-container-title-line'>
+                <div className='slider-container-title'>{view.title} Products</div>
+                <div className='slider-container-show-all'>show all
+                        <FontAwesomeIcon icon={faChevronRight} className='faChevronRight' /></div>
+              </div>
+              <div className="products">
+                {view.products &&
+                  view.products.length > 0 &&
+                  (window.innerWidth > 700 ?
+                    <Swiper {...swiper}>
+                      {ProductSlide(view)}
+                    </Swiper>
+                    : <div className='mobile-swiper-container'>
+                      {ProductSlide(view)}
+                    </div>
+                  )}
+              </div>
+            </div>
+          </div>))}
+      </>
     )
   }
 
   return (
-    <div>
+    <>
       {actionNoteVisible &&
         <div className="action-note">
           <div>{actionNote}</div>
         </div>}
-      <NavigationBar />
-      <ProductRibbon />
+
+      {controls && !loadingControls &&
+        <>
+          <NavigationBar />
+          {SlideRibbon(controls)}
+        </>
+      }
       <HeroBanners />
-      {/*<div className='quick-view'>*/}
-      {quickViewVisible &&
-        <div className="quick-view-overlay">
-          {quickView()}
-        </div>}
-      {collections && !loading &&
-        collections.map(collection => (
-          <div key={collection.title}>
-            <div className="products-slider-container">
-              <div className='slider-container-title-line'>
-                <div className='slider-container-title'>{collection.title} Products</div>
-                <div className='slider-container-show-all'>show all
-                <FontAwesomeIcon icon={faChevronRight} className='faChevronRight' /></div>
-              </div>
-              <div className="products">
-                {collection.products &&
-                  collection.products.length > 0 && !loading &&
-                  <Swiper {...swiper}>
-                    {collection.products.map(product => (
-                      <div className="product" key={product._id}>
-                        {product.countInStock === 0 && <div className="product-out-of-stock"></div>}
-                        {product.discount > 0 &&
-                          <div className='product-discount'>
-                            <div>{product.discount}</div>
-                            <div>%</div>
-                          </div>
-                        }
-                        <div className="product-image">
-                          <div className='title-skeleton'>Sarah Originals</div>
-                          <img src={imageUrl + product.image} alt="product"
-                            onClick={() => handleQuickView(product)} />
-                        </div>
-                        <div className='product-details-container'>
-                          <div className="product-name">
-                            <Link to={"/product/" + product._id}>{product.nameEn}</Link>
-                          </div>
-                          <div className="product-brand">{product.brand}</div>
-                          <div className="product-price">
-                            <div className={product.discount > 0 ? 'before-discount' : ''}>${product.priceUsd}</div>
-                            {product.discount > 0 &&
-                              <div className='after-discount'>${Math.round(100 * (product.priceUsd - product.priceUsd * product.discount / 100)) / 100}</div>
-                            }
-                            <div className='product-review-container'>
-                              <FontAwesomeIcon icon={faStar} className='faStar' />
-                              <div className='product-review'>4.5</div>
-                              <div className='product-review-qty'>(21)</div>
-                            </div>
-                          </div>
-                        </div>
-                        {rightSideTopAddToCart(product)}
-                      </div>
-                    ))}
-                  </Swiper>}
-              </div>
-            </div>
-            <br />
-          </div>))}
-      {/*Test Slider*/}
-      {/*<div className="products-slider-container">
-        <div className="products">
-          {products.length > 0 && !loading &&
-            <Swiper {...swiper}>
-              {products && cartItems && products.map((product) => (
-                <div className="product" key={product._id}>
-                  {product.countInStock === 0 && <div className="product-out-of-stock"></div>}
-                  {product.discount > 0 &&
-                    <div className='product-discount'>
-                      <div>{product.discount}</div>
-                      <div>%</div>
-                    </div>
-                  }
-                  {rightSideTopAddToCart(product)}
-                  <div className="product-image">
-                    <div className='title-skeleton'>Sarah Originals</div>
-                    <img src={imageUrl + product.image} alt="product"
-                      onClick={() => handleQuickView(product)} />
-                  </div>
-                  <div className='product-details-container'>
-        <div className="product-name">
-          <Link to={"/product/" + product._id}>{product.nameEn}</Link>
-        </div>
-        <div className="product-brand">{product.brand}</div>
-        <div className="product-price">
-          <div className={product.discount > 0 ? 'before-discount' : 'nothing'}>${product.priceUsd}</div>
-          {product.discount > 0 &&
-            <div className='after-discount'>${Math.round(100 * (product.priceUsd - product.priceUsd * product.discount / 100)) / 100}</div>
-          }
-          <div className='product-review-container'>
-            <FontAwesomeIcon icon={faStar} className='faStar' />
-            <div className='product-review'>4.5</div>
-            <div className='product-review-qty'>(21)</div>
-          </div>
-        </div>
-      </div>
-                </div>
-              ))}
-            </Swiper>}
-        </div>
-      </div>*/}
-    </div>
+      {views.length > 0 && !loading && ProductSwiper()}
+    </>
   );
 }
 

@@ -7,6 +7,7 @@ import {
   productDetailsReducer,
   productSaveReducer,
   productDeleteReducer,
+  Actions,
 } from "./reducers/productReducers";
 
 import {
@@ -106,6 +107,8 @@ import {
   topRibbonVisible,
 } from "./reducers/controlReducer"
 
+import { viewsReducer } from './reducers/viewsReducer'
+
 const cartItems = cookie.getJSON("cartItems") || [];
 const userInfo = cookie.getJSON("userInfo") || {};
 const address = cookie.getJSON("address") || undefined;
@@ -121,6 +124,8 @@ const initialState = {
 }
 
 const reducer = combineReducers({
+  actions: Actions,
+  views: viewsReducer,
   time: timeReducer,
   clock: clockReducer,
   controls: controlReducer,

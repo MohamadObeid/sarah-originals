@@ -26,17 +26,6 @@ const listProducts = (list) => async (dispatch) => {
   }
 }
 
-const listCollections = (list) => async (dispatch) => {
-  try {
-    dispatch({ type: PRODUCT_LIST_REQUEST })
-    const { data } = await axios.post('/api/products/collections',
-      { collections: list.collections, limit: list.limit })
-    dispatch({ type: PRODUCT_LIST_SUCCESS, payload: data })
-  } catch (error) {
-    dispatch({ type: PRODUCT_LIST_FAIL, payload: error.message })
-  }
-}
-
 const saveProduct = (product) => async (dispatch, getState) => {
   try {
     dispatch({ type: PRODUCT_SAVE_REQUEST, payload: product })
@@ -94,5 +83,5 @@ const detailsProduct = (searchDetails) => async (dispatch) => {
 
 
 export {
-  listProducts, detailsProduct, saveProduct, deleteProduct, listCollections
+  listProducts, detailsProduct, saveProduct, deleteProduct
 };

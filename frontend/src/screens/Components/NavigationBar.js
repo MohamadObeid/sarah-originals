@@ -20,13 +20,14 @@ function NavigationBar() {
     useEffect(() => {
         if (searchContainerVisible) {
             const input = document.querySelector('.text-input')
-            input.focus()
+            input.focus() // move cursor to text-input
         }
         if (controls && !loading) setNavigationBar(controls.navigationBar)
     }, [searchContainerVisible, controls])
 
     useEffect(() => {
         if (navigationBar) setVariables(navigationBar)
+
     }, [])
 
     const setVariables = (navigationBar) => {
@@ -45,7 +46,7 @@ function NavigationBar() {
     useLayoutEffect(() => {
 
         const handleScroll = () => {
-            var top = '50'
+            var top = 50
 
             if (topRibbonVisible)
                 top = parseInt(top) + parseInt(controls.topRibbon.height)
@@ -67,15 +68,16 @@ function NavigationBar() {
         setSearchKeyword('')
         setAnimateSearchContainer('')
     }
+    const searchContStyle = { paddingTop: '1rem' }
 
     return (
         <div>
             {navigationBar &&
                 <div className='navigation-bar'>
-                    <div className={'navigation-bar-container ' + animateNavBar}>
+                    <div className={'navigation-bar-container ' + animateNavBar} style={topRibbonVisible && window.innerWidth <= 700 ? searchContStyle : {}}>
                         <div className='nav-category-container'>
                             <div className='nav-category-icon'>
-                                < AppstoreOutlined className='category-icon' />
+                                <AppstoreOutlined className='category-icon' />
                             </div>
                             <div className='nav-category-header'>{navigationBar.mainHeader.title}</div>
                             <div className='nav-category-border'></div>

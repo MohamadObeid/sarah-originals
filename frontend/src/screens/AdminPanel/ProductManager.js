@@ -4,9 +4,10 @@ import { saveProduct, listProducts, deleteProduct } from "../../actions/productA
 import FontAwesome from 'react-fontawesome';
 import axios from 'axios';
 import { productFilters } from '../../constants/filters'
-import { unitList, collectionList } from '../../constants/lists'
+import { unitList, collectionList, rateUnitList } from '../../constants/lists'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { date } from "../../methods/methods";
 
 function ProductManager() {
     const imageUrl = window.location.origin + '/api/uploads/image/'
@@ -26,6 +27,8 @@ function ProductManager() {
     const [productValues, setProductValues] = useState()
     const [uploadedImageUrl, setUploadedImageUrl] = useState()
     const [timeOut, setTimeOut] = useState()
+    const [onSale, setOnSale] = useState()
+    const [saleAmount, setSaleAmount] = useState('')
     //const [brandList, setBrandList] = useState()
 
     const [_id, setId] = useState();
@@ -76,6 +79,7 @@ function ProductManager() {
             setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
             setFormAction('');
         }
+
         console.log(products)
         return () => {
             //
@@ -226,14 +230,22 @@ function ProductManager() {
             });
     };
 
-    const showPropertiesHandler = async (product) => {
+    const showPropertiesHandler = (product) => {
         setModelVisible(false)
-        await setProductProps(product)
+        setProductProps(product)
         setDiscount(product.discount)
         /*product.modified
             ? setModified(product.modified)
             : setModified([])*/
         setPropertiesVisible(true)
+        if (product.onSale) {
+            setOnSale(product.onSale.onSale || false)
+            setSaleAmount(product.onSale.saleAmount || undefined)
+
+        } else {
+            setOnSale(false)
+            setSaleAmount(undefined)
+        }
     }
 
     //properties Handlers
@@ -355,13 +367,27 @@ function ProductManager() {
     const addCollection = (e, collection) => {
         e.preventDefault()
         productProps.collections[productProps.collections.length] = collection
-        dispatch(saveProduct(productProps))
+        //dispatch(saveProduct(productProps))
     }
 
     const removeCollection = (e, collection) => {
         e.preventDefault()
         productProps.collections = productProps.collections.filter(coll => coll !== collection)
-        dispatch(saveProduct(productProps))
+        //dispatch(saveProduct(productProps))
+    }
+
+    const propsSaveHandler = (e, product) => {
+        e.preventDefault()
+        if (product.onSale)
+            if (product.onSale.saleAmount == 0 || !product.onSale.saleAmount) {
+                product.onSale = undefined
+            } else {
+                product.onSale.saleAmount = saleAmount
+                product.onSale.onSale = onSale
+            }
+
+        dispatch(saveProduct(product))
+        setPropertiesVisible(false)
     }
 
     return (
@@ -674,101 +700,120 @@ function ProductManager() {
                         <FontAwesome name="fa-window-close" className="far fa-window-close fa-lg" onClick={() => setPropertiesVisible(false)} />
                         <h2 style={{ marginTop: '3rem' }}>Product Properties</h2>
                         <table className='properties-table'>
-                            <tr>
-                                <th>Name</th>
-                                <td>{productProps.nameEn}</td>
-                            </tr>
-                            {collectionList.map(collection => {
-                                const collectionExist = productProps.collections.find(coll => coll === collection) ? true : false
-                                return (
-                                    <tr>
-                                        <th className='collection-product-form'>{collection}</th>
-                                        <td>
-                                            <input
-                                                className='switch'
-                                                type='checkbox'
-                                                name={collection}
-                                                id="active s2"
-                                                checked={collectionExist}
-                                                onChange={(e) => e.target.checked
-                                                    ? addCollection(e, collection)
-                                                    : removeCollection(e, collection)}
-                                            ></input>
-                                        </td>
-                                    </tr>
-                                )
-                            })}
-                            {/*<tr>
-                                <th>Featured</th>
-                                <td>
-                                    <input
-                                        className='switch'
-                                        type='checkbox'
-                                        name={productProps._id}
-                                        id="active s2"
-                                        value={productProps.isFeatured}
-                                        checked={productProps.isFeatured}
-                                        onChange={(e) => featuredHandler(e, productProps)}
-                                    ></input>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Popular</th>
-                                <td>
-                                    <input
-                                        className='switch'
-                                        type="checkbox"
-                                        name={productProps._id}
-                                        id="active s2"
-                                        value={productProps.isPopular}
-                                        checked={productProps.isPopular}
-                                        onChange={(e) => popularHandler(e, productProps)}
-                                    ></input>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>New Arrival</th>
-                                <td>
-                                    <input
-                                        className='switch'
-                                        type="checkbox"
-                                        name={productProps._id}
-                                        id="active s2"
-                                        value={productProps.newArrival}
-                                        checked={productProps.newArrival}
-                                        onChange={(e) => newArrivalHandler(e, productProps)}
-                                    ></input>
-                                </td>
-                            </tr>
-                            <tr><th>Special Offer</th>
-                                <td>
-                                    <input
-                                        className='switch'
-                                        type="checkbox"
-                                        name={productProps._id}
-                                        id="active s2"
-                                        value={productProps.specialOffer}
-                                        checked={productProps.specialOffer}
-                                        onChange={(e) => specialOfferHandler(e, productProps)}
-                                    ></input>
-                                </td>
-                            </tr>
-                            <tr><th>Discount (%)</th>
-                                <td>
-                                    <input
-                                        className='discount-input'
-                                        type="text"
-                                        id="discount"
-                                        value={discount}
-                                        onChange={(e) => setDiscount(e.target.value)}
-                                    ></input>
-                                    <button
-                                        style={{ marginLeft: '1rem', padding: '0.9rem' }}
-                                        onClick={(e) => discountHandler(e, productProps)} className='primary button'>Save</button>
-                                </td>
-                            </tr>*/}
+                            <tbody>
+                                <tr>
+                                    <th className='collection-product-form'>Name</th>
+                                    <td>{productProps.nameEn}</td>
+                                </tr>
+                                {collectionList.map(collection => {
+                                    const collectionExist = productProps.collections.find(coll => coll === collection) ? true : false
+                                    return (
+                                        <tr key={collection}>
+                                            <th className='collection-product-form'>{collection}</th>
+                                            <td>
+                                                <input
+                                                    className='switch'
+                                                    type='checkbox'
+                                                    name={collection}
+                                                    id={"s2 " + collection}
+                                                    checked={collectionExist}
+                                                    onChange={(e) => e.target.checked
+                                                        ? addCollection(e, collection)
+                                                        : removeCollection(e, collection)}
+                                                ></input>
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                                <tr>
+                                    <th className='collection-product-form' htmlFor="onSale">on Sale</th>
+                                    <td>
+                                        <input
+                                            className='switch'
+                                            type='checkbox'
+                                            name='onSale'
+                                            id="onSale s2"
+                                            checked={onSale || false}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setOnSale(true)
+                                                    productProps.onSale = {}
+                                                    productProps.onSale.onSale = true
+                                                    productProps.onSale.startDate = date()
+                                                    productProps.onSale.endDate = date()
+                                                    productProps.onSale.unit = '%'
+                                                } else {
+                                                    setOnSale(false)
+                                                    productProps.onSale = undefined
+                                                }
+                                            }}
+                                        ></input>
+                                    </td>
+                                </tr>
+                            </tbody>
                         </table>
-                        <button style={{ marginTop: '3rem' }} type="button" className="button secondary" onClick={() => setPropertiesVisible(false)}>
+
+                        {productProps.onSale && productProps.onSale.onSale &&
+                            <div className='onSale-cont'>
+                                <label className='label' htmlFor='saleAmount'>Sale<p className="required">*</p></label>
+                                <div>
+                                    <input
+                                        type="number"
+                                        name="saleAmount"
+                                        id="saleAmount"
+                                        className='orders-user-phone'
+                                        value={saleAmount || ''}
+                                        onChange={(e) => {
+                                            setSaleAmount(e.target.value)
+                                            productProps.onSale.saleAmount = e.target.value
+                                        }}
+                                    ></input>
+                                    <select
+                                        value={productProps.onSale.unit || '%'}
+                                        onChange={e => {
+                                            productProps.onSale.unit = e.target.selectedIndex ?
+                                                e.target.options[e.target.selectedIndex].value :
+                                                e.target.value
+                                        }}>
+                                        {rateUnitList && rateUnitList.map(unit => (
+                                            <option value={unit} key={unit}>
+                                                {unit}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <label className='label' htmlFor='start-date'>Start Date<p className="required">*</p></label>
+                                <input
+                                    type="datetime-local"
+                                    name="start-date"
+                                    id="start-date"
+                                    className='orders-user-phone'
+                                    value={productProps.onSale.startDate || date()}
+                                    onChange={(e) => {
+                                        productProps.onSale.startDate = e.target.value
+                                        document.querySelector(`#end-date ${productProps._id}`).min = e.target.value
+                                    }}
+                                    min={date()}
+                                ></input>
+
+                                <label className='label' htmlFor='end-date'>End Date<p className="required">*</p></label>
+                                <input
+                                    type="datetime-local"
+                                    name="end-date"
+                                    id={"end-date " + productProps._id}
+                                    className='orders-user-phone'
+                                    value={productProps.onSale.endDate || date()}
+                                    onChange={(e) => productProps.onSale.endDate = e.target.value}
+                                    min={date()}
+                                ></input>
+                            </div>}
+
+                        <button type="submit" className="button primary" onClick={(e) => propsSaveHandler(e, productProps)}>Save</button>
+                        <button type="button" className="button secondary" onClick={() => {
+                            setPropertiesVisible(false); if (productProps.onSale) {
+                                if (productProps.onSale.saleAmount === 0 || !productProps.onSale.saleAmount) productProps.onSale = undefined
+                            }
+                        }}>
                             Back
                         </button>
                     </div>
@@ -814,7 +859,7 @@ function ProductManager() {
                     </div>
                 </div>
             }
-        </div>
+        </div >
     );
 }
 export default ProductManager;

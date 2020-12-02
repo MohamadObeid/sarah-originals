@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { BrowserRouter, Route } from "react-router-dom";
 import "./index.css";
 import HomeScreen from "./screens/HomeScreen";
@@ -23,6 +23,8 @@ import { defaultControls } from './constants/defaultControls'
 
 function App(props) {
 
+  const [hideTopRibbon, setHideTopRibbon] = useState(false)
+  const topRibbonVisible = useSelector(state => state.topRibbonVisible)
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(listControls())
@@ -70,6 +72,12 @@ function App(props) {
     getIPAddress()
   }, [])
 
+  useLayoutEffect(() => {
+    const URL = window.location.href
+    if (URL.includes('dashboard')) setHideTopRibbon(true)
+    else setHideTopRibbon(false)
+  }, [window.location.href])
+
   // hide address bar in mobile
   /*window.addEventListener("load", function () {
     setTimeout(function () {
@@ -83,7 +91,7 @@ function App(props) {
       <div className="grid-container">
         <NavBar />
         <div className="main">
-          {userInfo && userInfo.isAdmin && <Ribbon />}
+          {topRibbonVisible && !hideTopRibbon && <Ribbon />}
           <Route path="/dashboard" component={DashBoard} />
           <Route path="/signin" component={SigninScreen} />
           <Route path="/register" component={RegisterScreen} />

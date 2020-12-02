@@ -130,7 +130,7 @@ function CartScreen(props) {
                 item && item.qty > 0 &&
                 <li style={{ position: 'relative' }} key={item._id}>
                   {item.discount > 0 &&
-                    <div className='product-discount order-discount'>
+                    <div className='product-discount cart-discount'>
                       <div>{item.discount}</div>
                       <div>%</div>
                     </div>}
@@ -142,7 +142,7 @@ function CartScreen(props) {
                       <Link to={"/product/" + item._id}>
                         <div className="item-name">{item.nameEn}</div>
                       </Link>
-                      <div className="cart-price-cart">
+                      <div className="cart-price">
                         ${item.priceUsd}<p className="cart-price-unit">/{item.unit}</p>
                       </div>
                       <FontAwesome name='fa-trash' className="fas fa-trash fa-lg"

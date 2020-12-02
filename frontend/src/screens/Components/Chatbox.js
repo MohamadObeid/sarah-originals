@@ -14,7 +14,7 @@ import {
     saveChat, detailsChat, listLiveUser, saveLiveUser, deleteLiveUser, detailsLiveUser
 } from './../../actions/chatActions'
 import { CHAT_DETAILS_SUCCESS, CHAT_SAVE_SUCCESS } from "../../constants/constants";
-import audio from './swiftly.mp3'
+//import audio from './swiftly.mp3'
 import UIfx from 'uifx';
 import { Popconfirm } from 'antd'
 import cookie from "js-cookie";
@@ -23,7 +23,8 @@ import { refreshLiveUsers } from "../../methods/methods";
 function Chatbox(props) {
     const imageUrl = window.location.origin + '/api/uploads/image/'
     const dispatch = useDispatch()
-    const tick = new UIfx(audio)
+    //const tick = new UIfx(audio)
+    const [tick, setTick] = useState()
     const [chatboxVisible, setChatboxVisible] = useState(false)
     const [startChatVisible, setStartChatVisible] = useState(true)
     const [endChatVisible, setEndChatVisible] = useState(false)
@@ -82,6 +83,9 @@ function Chatbox(props) {
     }, [])
 
     const lunchLiveChat = async (liveUser) => {
+        //const audio = React.lazy(() => import('./swiftly.mp3'))
+        const audio = require('./swiftly.mp3')
+        setTick(new UIfx(audio))
         setChatboxVisible(false)
         dispatch(detailsChat(liveUser.chatId))
         setChatId(liveUser.chatId)

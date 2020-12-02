@@ -117,4 +117,18 @@ function productDeleteReducer(state = { data: {} }, action) {
   }
 }
 
-export { productListReducer, productDetailsReducer, productSaveReducer, productDeleteReducer };
+function Actions(state = {}, action) {
+  switch (action.type) {
+    case 'UPDATE_ACTIONS':
+      return ({ ...action.payload, ...state }) // ex. dispatch({type, payload: {visible: true}})
+
+    case 'REMOVE_FROM_ACTIONS':
+      { const { [action.payload]: _, ...updatedState } = state; return (updatedState) }
+
+    default: return state
+  }
+}
+
+export {
+  productListReducer, productDetailsReducer, productSaveReducer, productDeleteReducer, Actions
+};

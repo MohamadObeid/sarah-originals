@@ -23,7 +23,8 @@
     "multer-s3": "^2.9.0",
     "node-wifi": "^2.0.13",
     "package": "^1.0.1",
-    "react-router-dom": "^5.2.0"
+    "react-router-dom": "^5.2.0",
+    "telesignsdk": "^2.2.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.1",

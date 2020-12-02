@@ -130,7 +130,9 @@ function Navbar() {
                     {
                         (userInfo && userInfo.name) ?
                             <Link className="header-link-user" to='/profile'>
-                                Hi, {userInfo.name.split(" ")[0]}</Link> :
+                                Hi, {userInfo.name.split(" ")[0]}
+                                <FontAwesomeIcon icon={farUser} className='farUser fa-lg' />
+                            </Link> :
                             <Link className="header-link-user" to="/signin">
                                 Sign In
                                 <FontAwesomeIcon icon={farUser} className='farUser fa-lg' />

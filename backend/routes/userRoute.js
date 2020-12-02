@@ -2,6 +2,22 @@ import express from "express";
 import User from "../modals/userModel";
 import { getToken } from "../util";
 import { isAuth, isAdmin } from '../util';
+import process from 'process'
+import TeleSignSDK from 'telesignsdk'
+
+///////////////////////// SMS Authentication //////////////////////////////
+//const readline = require('readline');
+const customerId = "196201E6-7136-4425-8F17-B57D65BD3AAD";
+const apiKey = "jIxb4tih9CI0aCg7mP4YFUGoKTGCe3eRBkvcD2aWJsUv4iU1+dm/VQLEqaumScfWatGcgU6hzueF0oyBdxW4ZA==";
+const rest_endpoint = "https://rest-api.telesign.com";
+const timeout = 60 * 1000; // 60 secs
+
+const client = new TeleSignSDK(
+  customerId,
+  apiKey,
+  rest_endpoint,
+  timeout // optional
+)
 
 const router = express.Router();
 
@@ -11,9 +27,9 @@ router.post("/signin", async (req, res) => {
     password: req.body.password,
   })
 
-  var lastIndex = user.activity.length ? user.activity.length - 1 : 0
   //console.log(user)
   if (user) {
+    var lastIndex = user.activity.length ? user.activity.length - 1 : 0
     if (req.body.request === 'signout') { // signout request
       user.activity[lastIndex].end = Date.now() + 7200000
       user.lastActivity = Date.now() + 7200000
@@ -24,7 +40,7 @@ router.post("/signin", async (req, res) => {
 
     } else if (req.body.request === 'signin') { //signin request
       if (!user.active) {
-        if (lastIndex > 0 && !user.activity[lastIndex].end)
+        if (lastIndex > 0 && !user.activity[lastIndex].end || user.activity.length === 0)
           user.activity[lastIndex].end = user.lastActivity + 25000
         user.active = true
         user.activity = [...user.activity, { start: Date.now() + 7200000, IP: req.body.IP }]
@@ -48,7 +64,9 @@ router.post("/signin", async (req, res) => {
       user = await user.save()
       console.log(user.email + ' resignin')
     }
-
+    /*console.log(user)
+    user.activity = []
+    user.save()*/
     user.active &&
       res.send({
         _id: user._id,
@@ -70,7 +88,7 @@ router.post("/signin", async (req, res) => {
       })
 
     // set user inactive
-    setTimeout(async () => {
+    /*setTimeout(async () => {
       const user = await User.findOne({
         email: req.body.email,
         password: req.body.password,
@@ -88,14 +106,95 @@ router.post("/signin", async (req, res) => {
           //console.log(user)
         }
       }
-    }, 30000)
+    }, 30000)*/
 
   } else {
     res.status(401).send({ msg: "Invalid Email or Password." });
   }
 })
 
+router.post('/verifySMS', async (req, res) => {
+
+  console.log("## MessagingClient.message ##");
+
+  //////////////// SMS authentication
+  const phoneNumber = req.body.phone//"96181026725";
+  const messageType = "ARN";
+  const verifyCode = Date.now().slice(12);
+  const message = "Your code is " + verifyCode;
+
+  client.sms.message(messageCallback, phoneNumber, message, messageType)
+
+  function messageCallback(error, responseBody) {
+    if (error === null) {
+      console.log(`Messaging response for messaging phone number: ${phoneNumber}` +
+        ` => code: ${responseBody['status']['code']}` +
+        `, description: ${responseBody['status']['description']}`);
+
+      res.send({ message: "SMS verification code has been sent!", data: newUser })
+
+    } else {
+      32658
+      res.send("Unable to send message. " + error);
+    }
+  }
+  /*prompt('Enter the verification code received:\n', function (input) {
+    if (input === verifyCode) {
+      console.log('Your code is correct.');
+    } else {
+      console.log('Your code is incorrect. input: ' + input + ", code: " + verifyCode);
+    }
+    process.exit();
+  });
+
+  function prompt(question, callback) {
+    const stdin = process.stdin
+    const stdout = process.stdout
+
+    stdin.resume();
+    stdout.write(question);
+
+    stdin.once('data', function (data) {
+      callback(data.toString().trim())
+    })
+  }*/
+
+  /*
+  // springedge send sms
+
+var springedge = require('springedge');
+
+var params = {
+  'apikey': '', // API Key
+  'sender': 'SEDEMO', // Sender Name
+  'to': [
+    '919019xxxxxxxx'  //Moblie Number
+  ],
+  'message': 'test+message',
+  'format': 'json'
+};
+
+springedge.messages.send(params, 5000, function (err, response) {
+  if (err) {
+    return console.log(err);
+  }
+  console.log(response);
+});
+// Result:
+{
+  "groupID":xxxx,
+  "MessageIDs":"xxxxx-x",
+  "status":"AWAITED-DLR"
+}
+Or in case of an error:
+
+{
+  "error":"Invalid Mobile Numbers"
+}*/
+})
+
 router.post("/register", async (req, res) => {
+
   const user = new User({
     name: req.body.name,
     email: req.body.email,

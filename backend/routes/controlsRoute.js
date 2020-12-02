@@ -1,7 +1,6 @@
 import express from "express";
 import Controls from "../modals/controlsModel";
 import { isAuth, isAdmin } from '../util';
-import mongoose from 'mongoose'
 
 const router = express.Router();
 
@@ -10,7 +9,7 @@ router.get("", async (req, res) => {
     /*controls.map(async control => {
         const controlsDeleted = await Controls.findByIdAndRemove(control._id);
     })*/
-    //console.log(controls)
+    //console.log('get', controls)
     res.send(controls)
 });
 
@@ -27,15 +26,19 @@ router.get("", async (req, res) => {
 });*/
 
 router.put("/put", isAuth, isAdmin, async (req, res) => {
-    const controls = await Controls.findOne({ addToCart: { $eq: req.body.addToCart } })
+    const controls = await Controls.findOne({ active: { $eq: true } })
+    //console.log(controls)
     if (controls) {
-        controls.addToCart = req.body.addToCart
+        controls.active = req.body.active
+        controls.addToCartBtnsStyle = req.body.addToCartBtnsStyle
         controls.homePageCollections = req.body.homePageCollections
         controls.topRibbonVisible = req.body.topRibbonVisible
         controls.topRibbon = req.body.topRibbon
         controls.navigationBar = req.body.navigationBar
-        controls.productRibbonVisible = req.body.productRibbonVisible
-        controls.productRibbon = req.body.productRibbon
+        controls.slideRibbonVisible = req.body.slideRibbonVisible
+        controls.slideRibbon = req.body.slideRibbon
+        controls.homePageViews = req.body.homePageViews
+
     } else {
         const controls = new Controls(req.body)
         const controlsUpdated = await controls.save();

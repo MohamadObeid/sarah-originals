@@ -52,7 +52,7 @@ function SigninScreen(props) {
   }, [])
 
   useEffect(() => {
-    if (userInfo) {
+    if (Object.keys(userInfo).length > 0) {
       props.history.push(redirect)
     }
     return () => {
@@ -107,12 +107,15 @@ function SigninScreen(props) {
                 Sign in
             </button>
             </li>
-            <li className="new-to">New to Sarah Orginals?</li>
+            <li className="already-have">
+              <p>New to Sarah Orginals? <Link to={redirect == '/' ? "/register" : '/register?redirect=' + redirect}>Sign up</Link></p>
+            </li>
+            {/*<li className="new-to">New to Sarah Orginals?</li>
             <li>
               <Link to={redirect == '/' ? "/register" : '/register?redirect=' + redirect} className="button secondary">
                 Create a Sarah Originals account
             </Link>
-            </li>
+            </li>*/}
           </ul>
         </form>
       </div>
