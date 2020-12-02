@@ -23,29 +23,6 @@ router.post("/getproducts", async (req, res) => {
   }
 })
 
-router.post("/views", async (req, res) => {
-  const collections = req.body.collections
-  const limit = req.body.limit
-  var collectionList = []
-
-  console.log('incoming request')
-  collections.map(async collection => {
-    console.log('requested')
-    const products = await Product.find({
-      $or: [
-        { collections: collection }, { category: collection }
-      ]
-    }).limit(limit).sort({ date: -1 })
-
-
-    if (products) collectionList[collectionList.length] = { title: collection, products }
-    console.log(collections.indexOf(collection))
-    if (collectionList.length === collections.length)
-      return res.status(201).send(collectionList)
-
-  })
-})
-
 router.post("/searchKeyword", async (req, res) => {
   const searchKeyword = req.body.searchKeyword
     ? {

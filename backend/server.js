@@ -22,6 +22,7 @@ import chatRoute from './routes/chatRoute';
 import liveChatRoute from './routes/liveUserRoute';
 import imageRouter from './routes/imageRoute';
 import controlsRoute from './routes/controlsRoute';
+import viewsRoute from './routes/viewsRoute';
 
 /*import wifi from 'node-wifi'
 
@@ -113,6 +114,8 @@ app.use("/api/assignment", assignmentRoute);
 app.use("/api/chat", chatRoute);
 
 app.use("/api/live", liveChatRoute);
+
+app.use("/api/views", viewsRoute)
 
 //app.use("/api/image", imageRoute);
 

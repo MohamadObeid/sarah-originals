@@ -14,6 +14,7 @@ function viewsReducer(state = { views: [] }, action) {
             return {
                 loading: false,
                 error: action.payload,
+                views: [],
             };
         default:
             return state;
