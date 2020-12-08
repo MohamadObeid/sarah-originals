@@ -6,13 +6,14 @@ import { SlideRibbon } from './Components/SlideRibbon'
 import FontAwesome from 'react-fontawesome'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronRight, faStar } from "@fortawesome/free-solid-svg-icons"
-import Swiper from 'react-id-swiper'
 import { Link } from "react-router-dom"
-import { swiper } from '../constants/defaultControls'
-import { addToCart, removeFromCart, updateCart } from "../actions/cartActions"; import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons'
+import { addToCart, removeFromCart, updateCart } from "../actions/cartActions";
+import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { AppstoreOutlined } from '@ant-design/icons';
+import Swiper from 'react-id-swiper';
+//import ScrollBox from './Components/ScrollBox';
 
-function HomeScreen(props) {
+const HomeScreen = React.memo(props => {
   const imageUrl = window.location.origin + '/api/uploads/image/'
 
   const [actionNote, setActionNote] = useState('Product Added Succefully');
@@ -34,19 +35,26 @@ function HomeScreen(props) {
       }
       setNavigationBar(controls.navigationBar)
 
-      if (controls.homePageCollections)
-        dispatch(listHomePageViews({ collections: controls.homePageCollections, limit: 10 }))
+      if (controls.homePageViews)
+        dispatch(listHomePageViews({ views: controls.homePageViews }))
+
     }
   }, [controls])
 
   useEffect(() => {
     if (views.length > 0) {
-      setProducts(views.map(view => {
-        return view.products
-      }).flat())
+
+      const productList = views
+        .filter(view => view.type === 'Product Box')
+        .map(view => {
+          view.products.map(product => delete product['qty'])
+          return view.products
+        }).flat()
+
+      setProducts(productList)
 
       cartItems.map(item => {
-        const similarProducts = products.filter(product => product._id == item._id)
+        const similarProducts = productList.filter(product => product._id == item._id)
         similarProducts.map(product => {
           if (item.qty > product.countInStock) item.qty = product.countInStock
           product.qty = item.qty
@@ -62,10 +70,21 @@ function HomeScreen(props) {
       setActionNote(message)
       setActionNoteVisible(true)
       clearTimeout(timeOut)
-      setTimeOut(setInterval(() => setActionNoteVisible(false), 5000))
+      setTimeOut(setInterval(() => {
+        setActionNoteVisible(false)
+      }, 5000))
+      dispatch({ type: 'CLEAR_MESSAGE', payload: cartItems }) // clear message
     }
-
   }, [cartItems])
+
+  const [mobileScreen, setMobileScreen] = useState(window.innerWidth <= 700 ? true : false)
+
+  useEffect(() => {
+    window.addEventListener("resize", function () {
+      if (window.innerWidth <= 700) setMobileScreen(true)
+      else setMobileScreen(false)
+    })
+  }, [])
 
   const handleAddToCart = (product) => {
 
@@ -104,7 +123,7 @@ function HomeScreen(props) {
     } else if (product.countInStock > product.qty) {
       const productList = products.filter(pro => product._id == pro._id)
       productList.map(product0 => product0.qty++)
-      dispatch(updateCart({ _id: product._id, qty: product.qty, message: 'Product Added Succefully!' }))
+      dispatch(updateCart({ _id: product._id, qty: product.qty, message: 'Product Added Successfully!' }))
 
     } else dispatch(updateCart({ _id: product._id, message: 'Only ' + product.qty + product.unit + ' ' + product.nameEn + ' are available in stock!' }))
   }
@@ -268,7 +287,7 @@ function HomeScreen(props) {
 
   const ProductSlide = (view) => {
     return (
-      view.products.map(product => (
+      view.products.map((product) => (
         <div className="product" key={product._id}>
           {product.countInStock === 0 && <div className="product-out-of-stock"></div>}
           {product.discount > 0 &&
@@ -280,6 +299,7 @@ function HomeScreen(props) {
           <div className="product-image">
             <div className='title-skeleton'>Sarah Originals</div>
             <img src={imageUrl + product.image} alt="product"
+              onLoad={e => { e.currentTarget.previousSibling.classList.add('hide') }}
               onClick={() => handleQuickView(product)} />
           </div>
           <div className='product-details-container'>
@@ -334,17 +354,28 @@ function HomeScreen(props) {
     headerBorder.style.backgroundColor = navigationBar.headers.borderColor
   }
 
+  const [actionNoteTop, setActionNoteTop] = useState('0.5rem')
+
   useLayoutEffect(() => {
 
     const handleScroll = () => {
-      var top = 50
+      var topRibbon = 50
 
       if (topRibbonVisible)
-        top = parseInt(top) + parseInt(controls.topRibbon.height)
+        topRibbon = parseInt(topRibbon) + parseInt(controls.topRibbon.height)
 
-      if (window.scrollY >= top)
+      //setActionNoteTop(actionNoteTop)
+
+      if (window.scrollY >= topRibbon) {
         setAnimateNavBar('animateNavBar')
-      else setAnimateNavBar('')
+        window.innerWidth > 700
+          ? setActionNoteTop('54px')
+          : setActionNoteTop('68px')
+
+      } else {
+        setAnimateNavBar('')
+        setActionNoteTop('4px')
+      }
     }
 
     controls && controls.topRibbon &&
@@ -452,19 +483,13 @@ function HomeScreen(props) {
   const ProductSwiper = () => {
     return (
       <>
-        {actions.quickView &&
-          <div className="quick-view-overlay">
-            {QuickView(actions.quickView.product)}
-          </div>
-        }
-
-        {views.map(view => (
-          <div key={view.title}>
+        {views.map(view => (view.type === 'Product Box' &&
+          <div key={view.title} className='view-container'>
             <div className="products-slider-container">
               <div className='slider-container-title-line'>
-                <div className='slider-container-title'>{view.title} Products</div>
+                <div className='slider-container-title'>{view.name} Products</div>
                 <div className='slider-container-show-all'>show all
-                        <FontAwesomeIcon icon={faChevronRight} className='faChevronRight' /></div>
+                  <FontAwesomeIcon icon={faChevronRight} className='faChevronRight' /></div>
               </div>
               <div className="products">
                 {view.products &&
@@ -476,31 +501,193 @@ function HomeScreen(props) {
                     : <div className='mobile-swiper-container'>
                       {ProductSlide(view)}
                     </div>
+                    /*<ScrollBox>
+                      {ProductSlide(view)}
+                    </ScrollBox>*/
                   )}
               </div>
             </div>
-          </div>))}
+          </div>))
+        }
       </>
     )
   }
 
+  //////////////////////////////////// Slide Ribbon Props ///////////////////////////////////
+
+  const swiper = {
+    slidesOffsetAfter: 0,
+    freeMode: true,
+    grabCursor: true,
+    slidesPerView: 'auto',
+  }
+
+  const [slideRibbonProps, setSlideRibbonProps] = useState()
+  const [heroBannerProps, setHeroBannerProps] = useState()
+
+  useEffect(() => {
+    if (controls.slideRibbon) {
+      const slideRibbon = controls.slideRibbon[0]
+      const slideBorder = slideRibbon.slide.border + ' solid #f9f9f9'
+      const slideBackgroundColor = slideRibbon.slide.backgroundColor
+      const slideFlexDirection = slideRibbon.slide.flexDirection
+      const slideTitleJustify = slideRibbon.slide.title.justifyContent
+      const titleBackgroundColor = slideRibbon.title.backgroundColor
+      const slideTitleDisplay = slideRibbon.slide.title.display
+
+      const ribbonWidth = !mobileScreen
+        ? slideRibbon.ribbon.width
+        : slideRibbon.mobile.ribbon.width
+
+      const slideWidth = !mobileScreen
+        ? slideRibbon.slide.width
+        : slideRibbon.mobile.slide.width
+
+      const imgHeight = !mobileScreen
+        ? slideRibbon.image.maxHeight
+        : slideRibbon.mobile.image.maxHeight
+
+      const imgWidth = !mobileScreen
+        ? slideRibbon.image.maxWidth
+        : slideRibbon.mobile.image.maxWidth
+
+      const imgContWidth = !mobileScreen
+        ? slideRibbon.image.containerWidth
+        : slideRibbon.mobile.image.containerWidth
+
+      const imgContHeight = !mobileScreen
+        ? slideRibbon.image.containerHeight
+        : slideRibbon.mobile.image.containerHeight
+
+
+      ////////////////////////////////Styles/////////////////////////////////////
+
+      const RibbonContStyle = { width: ribbonWidth }
+      const slideSwiperContStyle = { maxWidth: ribbonWidth, minWidth: ribbonWidth }
+      const slideContStyle = { maxWidth: slideWidth, minWidth: slideWidth, border: slideBorder, backgroundColor: slideBackgroundColor, flexDirection: slideFlexDirection }
+      const imgContStyle = { width: imgContWidth, height: imgContHeight }
+      const imgStyle = { maxWidth: imgWidth, maxHeight: imgHeight }
+      const slideTitleContStyle = { justifyContent: slideTitleJustify, display: slideTitleDisplay }
+      const titleStyle = {
+        color: { color: titleBackgroundColor },
+        backgroundColor: { backgroundColor: titleBackgroundColor },
+      }
+
+      setSlideRibbonProps({
+        slideRibbon, imageUrl, RibbonContStyle, slideSwiperContStyle, slideContStyle,
+        imgContStyle, imgStyle, slideTitleContStyle, swiper, titleStyle, mobileScreen
+      })
+    }
+
+    if (controls.imageBox && controls.imageBox.length > 0) {
+      const heroBanner = controls.imageBox.find(box => box.name === 'Hero') || false
+      if (heroBanner) {
+
+        const flexDirection = heroBanner.flexDirection
+        const paddingAround = heroBanner.paddingAround
+        const paddingBetween = heroBanner.paddingBetween
+        const backgroundColor = heroBanner.backgroundColor
+        const mainBanner = heroBanner.swiper
+        const submainBanner = heroBanner.fixed
+        const mobile = heroBanner.mobile
+        const swiperSlides = heroBanner.swiperSlides || []
+        const fixedSlides = heroBanner.fixedSlides || []
+
+        const heroBannersStyle = !mobileScreen
+          ? { flexDirection, padding: paddingAround, backgroundColor }
+          : { flexDirection: mobile.flexDirection, padding: mobile.paddingAround, backgroundColor }
+
+        const mainHeroBannerStyle = !mobileScreen
+          ? {
+            width: mainBanner.width,
+            display: mainBanner.display,
+            height: mainBanner.height,
+            borderRadius: mainBanner.borderRadius
+          }
+          : {
+            width: mobile.swiper.width,
+            display: mobile.swiper.display,
+            height: mobile.swiper.height,
+            borderRadius: mobile.swiper.borderRadius
+          }
+
+        const submainHeroBannerStyle = !mobileScreen
+          ? {
+            width: submainBanner.width,
+            display: submainBanner.display,
+            height: submainBanner.height,
+            flexWrap: submainBanner.flexWrap,
+            padding: submainBanner.paddingAround
+          }
+          : {
+            width: mobile.fixed.width,
+            display: mobile.fixed.display,
+            height: mobile.fixed.height,
+            flexWrap: mobile.fixed.flexWrap,
+            padding: mobile.fixed.paddingAround
+          }
+
+        const bannerMarginStyle = !mobileScreen
+          ? {
+            minWidth: paddingBetween,
+            maxWidth: paddingBetween,
+            minHeight: paddingBetween,
+            maxHeight: paddingBetween,
+          }
+          : {
+            minWidth: mobile.fixed.paddingBetween,
+            maxWidth: mobile.fixed.paddingBetween,
+            minHeight: mobile.fixed.paddingBetween,
+            maxHeight: mobile.fixed.paddingBetween
+          }
+
+        const heroSubmainImgStyle = !mobileScreen
+          ? {
+            height: submainBanner.imgHeight,
+            width: submainBanner.imgWidth,
+            borderRadius: submainBanner.imgBorderRadius
+          }
+          : {
+            height: mobile.fixed.imgHeight,
+            width: mobile.fixed.imgWidth,
+            borderRadius: submainBanner.imgBorderRadius
+          }
+
+        setHeroBannerProps({
+          imageUrl, heroBanner, heroBannersStyle, mainHeroBannerStyle, submainHeroBannerStyle,
+          bannerMarginStyle, heroSubmainImgStyle, swiperSlides, fixedSlides
+        })
+      }
+    }
+
+  }, [controls, mobileScreen])
+
   return (
     <>
       {actionNoteVisible &&
-        <div className="action-note">
+        <div style={{ top: actionNoteTop }} className="action-note">
           <div>{actionNote}</div>
+          <div className='faTimes-action-note'>
+            <FontAwesomeIcon icon={faTimes} onClick={e => setActionNoteVisible(false)} />
+          </div>
         </div>}
+
+      {actions.quickView &&
+        <div className="quick-view-overlay">
+          {QuickView(actions.quickView.product)}
+        </div>
+      }
 
       {controls && !loadingControls &&
         <>
           {navigationBar && NavigationBar()}
-          {SlideRibbon(controls)}
+          {slideRibbonProps && <SlideRibbon slideRibbonProps={slideRibbonProps} />}
         </>
       }
-      <HeroBanners />
+      {heroBannerProps && <HeroBanners heroBannerProps={heroBannerProps} />}
       {views.length > 0 && !loading && ProductSwiper()}
     </>
   );
-}
+})
 
 export default HomeScreen;

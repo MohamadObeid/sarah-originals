@@ -5,6 +5,8 @@ function cartReducer(state = { cartItems: [] }, action) {
 
   switch (action.type) {
 
+    case 'CLEAR_MESSAGE': return { cartItems: action.payload, message: false }
+
     case CART_ADD_ITEM:
       if (action.payload.isArray) return { cartItems: action.payload.items }
       else {
@@ -14,7 +16,6 @@ function cartReducer(state = { cartItems: [] }, action) {
 
     case CART_UPDATE_ITEM: {
       const { message, ...newItem } = action.payload
-      console.log(newItem)
       return { cartItems: state.cartItems.map(item => item._id == newItem._id ? newItem : item), message }
     }
 

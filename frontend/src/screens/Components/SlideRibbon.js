@@ -1,63 +1,41 @@
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Swiper from 'react-id-swiper';
-import { TitleContainer } from './TitleContainer'
+//import { TitleContainer } from './TitleContainer'
 
-export const SlideRibbon = (controls) => {
-    const imageUrl = window.location.origin + '/api/uploads/image/'
+export const SlideRibbon = React.memo(props => {
 
-    const swiper = {
-        shortSwipes: true,
-        slidesOffsetAfter: 0,
-        freeMode: true,
-        freeModeMomentumRatio: 1,
-        grabCursor: true,
-        slidesPerView: 'auto',
+    const {
+        slideRibbon, imageUrl, RibbonContStyle, slideSwiperContStyle, slideContStyle,
+        imgContStyle, imgStyle, slideTitleContStyle, swiper, titleStyle, mobileScreen
+    } = props.slideRibbonProps
+
+    const TitleContainer = () => {
+
+        if (slideRibbon.title.design === 'fish') {
+            return (
+                <>
+                    <div className='fish-title-border' style={titleStyle.backgroundColor}></div>
+                    <div className='fish-title-cont'>
+                        <div className='fish-title-left-border' style={titleStyle.color}></div>
+                        <div className='fish-title' style={titleStyle.backgroundColor}>
+                            {slideRibbon.title.title}
+                        </div>
+                        <div className='fish-title-right-border' style={titleStyle.color}></div>
+                    </div>
+                </>
+            )
+        } else if (slideRibbon.title.design === 'show-all') {
+            return (
+                <div className='slider-container-title-line'>
+                    <div className='slider-container-title'>{slideRibbon.title.title} Products</div>
+                    <div className='slider-container-show-all'>show all
+                    <FontAwesomeIcon icon={faChevronRight} className='faChevronRight' /></div>
+                </div>
+            )
+        } else return (<></>)
     }
-
-    //////////////////////////////////// Props ///////////////////////////////////
-
-    const slideRibbon = controls.slideRibbon[0]
-    const slideBorder = slideRibbon.slide.border + ' solid #f9f9f9'
-    const slideBackgroundColor = slideRibbon.slide.backgroundColor
-    const slideFlexDirection = slideRibbon.slide.flexDirection
-    const slideTitleJustify = slideRibbon.slide.title.justifyContent
-    const slideTitleDisplay = slideRibbon.slide.title.display
-
-    const ribbonWidth = window.innerWidth > 700
-        ? slideRibbon.ribbon.width
-        : slideRibbon.mobile.ribbon.width
-
-    const slideWidth = window.innerWidth > 700
-        ? slideRibbon.slide.width
-        : slideRibbon.mobile.slide.width
-
-    const imgHeight = window.innerWidth > 700
-        ? slideRibbon.image.maxHeight
-        : slideRibbon.mobile.image.maxHeight
-
-    const imgWidth = window.innerWidth > 700
-        ? slideRibbon.image.maxWidth
-        : slideRibbon.mobile.image.maxWidth
-
-    const imgContWidth = window.innerWidth > 700
-        ? slideRibbon.image.containerWidth
-        : slideRibbon.mobile.image.containerWidth
-
-    const imgContHeight = window.innerWidth > 700
-        ? slideRibbon.image.containerHeight
-        : slideRibbon.mobile.image.containerHeight
-
-
-    ////////////////////////////////Styles/////////////////////////////////////
-
-    const RibbonContStyle = { width: ribbonWidth }
-    const slideSwiperContStyle = { maxWidth: ribbonWidth, minWidth: ribbonWidth }
-    const slideContStyle = { maxWidth: slideWidth, minWidth: slideWidth, border: slideBorder, backgroundColor: slideBackgroundColor, flexDirection: slideFlexDirection }
-    const imgContStyle = { width: imgContWidth, height: imgContHeight }
-    const imgStyle = { maxWidth: imgWidth, maxHeight: imgHeight }
-    const slideTitleContStyle = { justifyContent: slideTitleJustify, display: slideTitleDisplay }
 
     return (
         <>
@@ -67,7 +45,7 @@ export const SlideRibbon = (controls) => {
                     {TitleContainer(slideRibbon)}
                     <div className='product-swiper-container' style={slideSwiperContStyle}>
                         {slideRibbon.slides &&
-                            (window.innerWidth > 700 ?
+                            (!mobileScreen ?
                                 <Swiper {...swiper}>
                                     {slideRibbon.slides.map(product => (
                                         <div className='slide-ribbon-container' style={slideContStyle}
@@ -96,10 +74,11 @@ export const SlideRibbon = (controls) => {
                                             </div>
                                         </div>
                                     ))}
-                                </div>)}
+                                </div>
+                            )}
                     </div>
                 </div>
             </div>
         </>
     )
-}
+})

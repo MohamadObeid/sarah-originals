@@ -6,7 +6,7 @@ import FontAwesome from 'react-fontawesome';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser as farUser } from '@fortawesome/free-regular-svg-icons'
 
-function Navbar() {
+const Navbar = React.memo(props => {
 
     const { userInfo } = useSelector(state => state.userSignin);
     const { cartItems } = useSelector(state => state.cart);
@@ -174,6 +174,6 @@ function Navbar() {
             </div>
         </div >
     )
-}
+})
 
 export default Navbar;

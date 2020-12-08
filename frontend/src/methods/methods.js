@@ -184,18 +184,22 @@ const refreshLiveUsers = () => async (dispatch) => {
 }
 
 const creationDatePrettier = (date) => {
-    var dateNum = date.split("T", 1)[0]
-    var time = date.slice(date.indexOf('T') + 1, date.length)
-    var dateDay = dateNum.slice(8, 10)
-    var dateMonth = dateNum.slice(5, 7)
-    var dateYear = dateNum.slice(0, 4)
-    var timeHour = time.slice(0, 2)
-    var timeMin = time.slice(3, 5)
-    //var timeSec = time.slice(6, 8)
-    timeHour = parseInt(timeHour) < 10 ? '0' + parseInt(timeHour) : timeHour
-    timeMin = parseInt(timeMin) < 10 ? '0' + parseInt(timeMin) : timeMin
+    if (date) {
+        var dateNum = date.split("T", 1)[0]
+        var time = date.slice(date.indexOf('T') + 1, date.length)
+        var dateDay = dateNum.slice(8, 10)
+        var dateMonth = dateNum.slice(5, 7)
+        var dateYear = dateNum.slice(0, 4)
+        var timeHour = time.slice(0, 2)
+        var timeMin = time.slice(3, 5)
+        //var timeSec = time.slice(6, 8)
+        timeHour = parseInt(timeHour) < 10 ? '0' + parseInt(timeHour) : timeHour
+        timeMin = parseInt(timeMin) < 10 ? '0' + parseInt(timeMin) : timeMin
 
-    return dateDay + '-' + dateMonth + '-' + dateYear + ' ' + timeHour + ':' + timeMin
+        return dateDay + '-' + dateMonth + '-' + dateYear + ' ' + timeHour + ':' + timeMin
+    }
+
+    return date
 }
 
 

@@ -48,7 +48,7 @@ function CartScreen(props) {
 
   const handleMinus = (e, item) => {
     if (item.qty === 0) {
-      dispatch(removeFromCart(item._id))
+      dispatch(removeFromCart({ _id: item._id }))
       setProducts(products.filter(product => { return product._id !== item._id && product }))
       setActionNote(`Product removed succefully!`);
       setActionNoteVisible(true);
@@ -61,7 +61,7 @@ function CartScreen(props) {
   }
 
   const handleRemove = (item) => {
-    dispatch(removeFromCart(item._id))
+    dispatch(removeFromCart({ _id: item._id }))
     setProducts(products.filter(product => { return product._id !== item._id && product }))
     setActionNote(`Product removed succefully!`);
     setActionNoteVisible(true);
@@ -99,7 +99,15 @@ function CartScreen(props) {
     return discountAmount.toFixed(2)
   }
 
-  const amountCalc = (products) => {
+  const totalAmountCalc = (products) => {
+    var cartAmount = 0
+    products.map(item => {
+      cartAmount = cartAmount + item.priceUsd * item.qty
+    })
+    return cartAmount.toFixed(2)
+  }
+
+  const payableAmountCalc = (products) => {
     var cartAmount = 0
     products.map(item => {
       cartAmount = cartAmount + item.priceUsd * item.qty
@@ -184,12 +192,18 @@ function CartScreen(props) {
                 <div className='total-num font-size'>{qtyCalc() + ' items'}</div>
               </div>
               <div className='cart-total-qty'>
+                <div className='cart-total-label font-size'>Total</div>
+                <strike className='total-num font-size slashed'>
+                  <div className='slash-over'></div>
+                  {totalAmountCalc(products) + ' $'}</strike>
+              </div>
+              <div className='cart-total-qty'>
                 <div className='cart-total-label font-size'>Discount</div>
-                <div className='total-num font-size'>{discountCalc(products) + ' $'}</div>
+                <div className='total-num font-size'>{'-' + discountCalc(products) + ' $'}</div>
               </div>
               <div className='cart-total-qty cart-total'>
-                <div className='cart-total-label font-size'>Total</div>
-                <div className='total-num font-size'>{amountCalc(products) + ' $'}</div>
+                <div className='cart-total-label font-size'>Payable</div>
+                <div className='total-num font-size'>{payableAmountCalc(products) + ' $'}</div>
               </div>
             </div>
             <button

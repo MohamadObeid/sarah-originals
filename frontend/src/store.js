@@ -7,7 +7,6 @@ import {
   productDetailsReducer,
   productSaveReducer,
   productDeleteReducer,
-  Actions,
 } from "./reducers/productReducers";
 
 import {
@@ -105,6 +104,7 @@ import {
   controlReducer,
   controlSaveReducer,
   topRibbonVisible,
+  actions,
 } from "./reducers/controlReducer"
 
 import { viewsReducer } from './reducers/viewsReducer'
@@ -124,7 +124,7 @@ const initialState = {
 }
 
 const reducer = combineReducers({
-  actions: Actions,
+  actions: actions,
   views: viewsReducer,
   time: timeReducer,
   clock: clockReducer,

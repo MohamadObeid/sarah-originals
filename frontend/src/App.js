@@ -21,7 +21,7 @@ import { listControls, saveControls } from "./actions/controlActions";
 import Ribbon from './screens/Components/Ribbon'
 import { defaultControls } from './constants/defaultControls'
 
-function App(props) {
+const App = React.memo(props => {
 
   const [hideTopRibbon, setHideTopRibbon] = useState(false)
   const topRibbonVisible = useSelector(state => state.topRibbonVisible)
@@ -106,6 +106,6 @@ function App(props) {
       </div>
     </BrowserRouter >
   );
-}
+})
 
 export default App;

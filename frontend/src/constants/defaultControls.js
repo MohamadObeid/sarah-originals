@@ -4,7 +4,14 @@ export const defaultControls = {
     homePageCollections: ['Featured', 'New Arrival', 'Popular'],
     productSwiperMaxLength: 10,
     homePageViews: [
-        { type: 'Slide Ribbon', name: 'Product Images Slide' },
+        { active: true, type: 'Light Box', name: 'Top Ribbon' },
+        { active: true, type: 'Navigation Bar', name: 'Secondary Navigation Bar' },
+        { active: true, type: 'Image Box', name: 'Surprizing Products' },
+        { active: true, type: 'Image Box', name: 'Hero' },
+        { active: true, type: 'Product Box', name: 'Featured' },
+        { active: true, type: 'Image Box', name: 'All Categories' },
+        { active: true, type: 'Product Box', name: 'New Arrival' },
+        { active: true, type: 'Product Box', name: 'Popular' },
     ],
     topRibbonVisible: true,
     topRibbon: {
@@ -17,7 +24,82 @@ export const defaultControls = {
             fontSize: '2rem'
         }
     },
+    imageBox: [{ // is a box and contains a swiper
+        active: true,
+        name: 'Hero',
+        flexDirection: 'row',
+        paddingAround: '2rem 4rem',
+        paddingBetween: '1rem',
+        backgroundColor: '#f9f9f9',
+        title: { //
+            display: 'none', //
+            title: '', //
+            design: '', //
+            backgroundColor: '', //
+        },
+        swiper: { //
+            display: 'block',
+            height: '40rem',
+            width: '64vw',
+            borderRadius: '0.5rem',
+        },
+        fixed: {
+            display: 'flex',
+            height: '40rem',
+            flexWrap: 'wrap',
+            width: '100%',
+            paddingAround: '0',
+            imgBorderRadius: '0.5rem',
+            imgHeight: 'calc(50% - 0.5rem)',
+            imgWidth: 'inherit',
+        },
+        mobile: {
+            flexDirection: 'column',
+            paddingAround: '0.5rem',
+            paddingBetween: '0.5rem',
+            backgroundColor: '#fff',
+            swiper: { //
+                display: 'block',
+                height: '19rem',
+                width: '100vw',
+                borderRadius: '0',
+            },
+            fixed: { //
+                display: 'flex',
+                height: '10rem',
+                flexWrap: 'nowrap',
+                width: '100%',
+                paddingAround: '0 0.25rem',
+                imgBorderRadius: '0.5rem',
+                imgHeight: 'inherit',
+                imgWidth: 'calc(50% - 0.25rem)',
+            },
+        },
+        swiperSlides: [{ //
+            title: 'Frozen Cocktail',
+            src: '../../images/sample-1.jpg',
+            link: ''
+        }, {
+            title: 'Cashews Raw',
+            src: '../../images/sample-2.jpg',
+            link: ''
+        }, {
+            title: 'Light FruDoza',
+            src: '../../images/sample-3.jpg',
+            link: ''
+        }],
+        fixedSlides: [{
+            title: 'Frozen Cocktail',
+            src: '../../images/sample-1.jpg',
+            link: ''
+        }, {
+            title: 'Cashews Raw',
+            src: '../../images/sample-2.jpg',
+            link: ''
+        }],
+    }],
     navigationBar: {
+        active: true,
         backgroundColor: '#fff',
         width: '95%',
         mainHeader: {
@@ -40,8 +122,9 @@ export const defaultControls = {
         }
     },
 
-    slideRibbon: [{
-        name: 'Product Images Slide',
+    slideRibbon: [{ // must become imageSwiper
+        active: true,
+        name: 'Surprising Products',
         ribbon: {
             width: '94vw',
         },

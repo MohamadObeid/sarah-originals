@@ -26,7 +26,7 @@ router.get("", async (req, res) => {
 });*/
 
 router.put("/put", isAuth, isAdmin, async (req, res) => {
-    const controls = await Controls.findOne({ active: { $eq: true } })
+    const controls = await Controls.findOne({ _id: { $eq: '5fc2ff0bdd745917d40ae217' } })
     //console.log(controls)
     if (controls) {
         controls.active = req.body.active
@@ -38,6 +38,7 @@ router.put("/put", isAuth, isAdmin, async (req, res) => {
         controls.slideRibbonVisible = req.body.slideRibbonVisible
         controls.slideRibbon = req.body.slideRibbon
         controls.homePageViews = req.body.homePageViews
+        controls.imageBox = req.body.imageBox
 
     } else {
         const controls = new Controls(req.body)

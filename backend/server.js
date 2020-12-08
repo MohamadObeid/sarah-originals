@@ -20,7 +20,7 @@ import attendanceRoute from './routes/attendanceRoute';
 import assignmentRoute from './routes/assignmentRoute';
 import chatRoute from './routes/chatRoute';
 import liveChatRoute from './routes/liveUserRoute';
-import imageRouter from './routes/imageRoute';
+import imageRoute from './routes/imageRoute';
 import controlsRoute from './routes/controlsRoute';
 import viewsRoute from './routes/viewsRoute';
 
@@ -89,7 +89,7 @@ app.use("/api/products", productRoute);
 
 app.use("/api/controls", controlsRoute);
 
-app.use("/api/uploads", imageRouter());
+app.use("/api/uploads", imageRoute);
 
 app.use("/api/users", userRoute);
 
@@ -116,8 +116,6 @@ app.use("/api/chat", chatRoute);
 app.use("/api/live", liveChatRoute);
 
 app.use("/api/views", viewsRoute)
-
-//app.use("/api/image", imageRoute);
 
 app.use('/api/uploads/image', express.static(path.join(__dirname, '/../frontend/uploads')));
 

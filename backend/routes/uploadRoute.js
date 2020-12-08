@@ -1,9 +1,9 @@
 import express from 'express';
 import multer from 'multer';
-import { isAuth } from '../util';
+/*import { isAuth } from '../util';
 import multerS3 from 'multer-s3';
 import aws from 'aws-sdk';
-import config from '../config';
+import config from '../config';*/
 
 const router = express.Router()
 

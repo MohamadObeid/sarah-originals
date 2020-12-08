@@ -22,6 +22,7 @@ function controlReducer(state = { controls: {}, loading: true }, action) {
         case CONTROL_LIST_FAIL:
             return {
                 loading: false,
+                controls: {},
             }
         default:
             return state
@@ -56,4 +57,16 @@ const topRibbonVisible = (state = true, action) => {
     }
 }
 
-export { controlReducer, controlSaveReducer, topRibbonVisible }
+function actions(state = {}, action) {
+    switch (action.type) {
+        case 'UPDATE_ACTIONS':
+            return ({ ...action.payload, ...state }) // ex. dispatch({type, payload: {visible: true}})
+
+        case 'REMOVE_FROM_ACTIONS':
+            { const { [action.payload]: _, ...updatedState } = state; return (updatedState) }
+
+        default: return state
+    }
+}
+
+export { controlReducer, controlSaveReducer, topRibbonVisible, actions }
