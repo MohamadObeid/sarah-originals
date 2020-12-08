@@ -11,7 +11,7 @@ function CartScreen(props) {
   const [actionNoteVisible, setActionNoteVisible] = useState(false);
   const [timeOut, setTimeOut] = useState()
 
-  const { cartItems } = useSelector((state) => state.cart)
+  const { cartItems } = useSelector(state => state.cart)
   const { product: productList } = useSelector(state => state.productDetails)
   const [products, setProducts] = useState([])
 
@@ -133,55 +133,54 @@ function CartScreen(props) {
             </li>
             {products.length === 0 ? (
               <div style={{ paddingLeft: '1rem' }}>Cart is Empty</div>
-            ) : (cartItems &&
-              products.map((item) => (
-                item && item.qty > 0 &&
-                <li style={{ position: 'relative' }} key={item._id}>
-                  {item.discount > 0 &&
-                    <div className='product-discount cart-discount'>
-                      <div>{item.discount}</div>
-                      <div>%</div>
-                    </div>}
-                  <div className="cart-list-items">
-                    <div className="cart-image">
-                      <img src={imageUrl + item.image} alt={item.nameEn} />
-                    </div>
-                    <div className="cart-name">
-                      <Link to={"/product/" + item._id}>
-                        <div className="item-name">{item.nameEn}</div>
-                      </Link>
-                      <div className="cart-price">
-                        ${item.priceUsd}<p className="cart-price-unit">/{item.unit}</p>
-                      </div>
-                      <FontAwesome name='fa-trash' className="fas fa-trash fa-lg"
-                        onClick={() => handleRemove(item)}
-                      />
-                    </div>
-
-                    <div className='cart-btns'>
-                      <button
-                        type="button"
-                        className="plus plus-cart"
-                        value={item._id}
-                        onClick={(e) => handleplus(item)}>
-                        <FontAwesome name='fa-plus' className="fas fa-plus" />
-                      </button>
-                      <p className="add-to-cart-qty float-bottom">{item.qty}</p>
-                      <button
-                        type="button"
-                        className="minus minus-cart"
-                        value={item._id}
-                        onClick={(e) => {
-                          item.qty -= 1;
-                          handleMinus(e, item)
-                        }
-                        }>
-                        <FontAwesome name='fa-minus' className="fas fa-minus" />
-                      </button>
-                    </div>
+            ) : (products.map((item) => (
+              item && item.qty > 0 &&
+              <li style={{ position: 'relative' }} key={item._id}>
+                {item.discount > 0 &&
+                  <div className='product-discount cart-discount'>
+                    <div>{item.discount}</div>
+                    <div>%</div>
+                  </div>}
+                <div className="cart-list-items">
+                  <div className="cart-image">
+                    <img src={imageUrl + item.image} alt={item.nameEn} />
                   </div>
-                </li>
-              )))}
+                  <div className="cart-name">
+                    <Link to={"/product/" + item._id}>
+                      <div className="item-name">{item.nameEn}</div>
+                    </Link>
+                    <div className="cart-price">
+                      ${item.priceUsd}<p className="cart-price-unit">/{item.unit}</p>
+                    </div>
+                    <FontAwesome name='fa-trash' className="fas fa-trash fa-lg"
+                      onClick={() => handleRemove(item)}
+                    />
+                  </div>
+
+                  <div className='cart-btns'>
+                    <button
+                      type="button"
+                      className="plus plus-cart"
+                      value={item._id}
+                      onClick={(e) => handleplus(item)}>
+                      <FontAwesome name='fa-plus' className="fas fa-plus" />
+                    </button>
+                    <p className="add-to-cart-qty float-bottom">{item.qty}</p>
+                    <button
+                      type="button"
+                      className="minus minus-cart"
+                      value={item._id}
+                      onClick={(e) => {
+                        item.qty -= 1;
+                        handleMinus(e, item)
+                      }
+                      }>
+                      <FontAwesome name='fa-minus' className="fas fa-minus" />
+                    </button>
+                  </div>
+                </div>
+              </li>
+            )))}
           </ul>
         </div>
         {products.length > 0 &&
