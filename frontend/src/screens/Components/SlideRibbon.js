@@ -1,21 +1,20 @@
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState, useEffect } from 'react'
-import Swiper from 'react-id-swiper';
-//import { TitleContainer } from './TitleContainer'
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import React from 'react'
+import Swiper from 'react-id-swiper'
 
 export const SlideRibbon = React.memo(props => {
-
+    console.log('rendering slide ribbon')
     const {
         slideRibbon, imageUrl, RibbonContStyle, slideSwiperContStyle, slideContStyle,
         imgContStyle, imgStyle, slideTitleContStyle, swiper, titleStyle, mobileScreen
-    } = props.slideRibbonProps
+    } = props.imageBox
 
     const TitleContainer = () => {
 
         if (slideRibbon.title.design === 'fish') {
             return (
-                <>
+                <div className='fish-title-design'>
                     <div className='fish-title-border' style={titleStyle.backgroundColor}></div>
                     <div className='fish-title-cont'>
                         <div className='fish-title-left-border' style={titleStyle.color}></div>
@@ -24,7 +23,7 @@ export const SlideRibbon = React.memo(props => {
                         </div>
                         <div className='fish-title-right-border' style={titleStyle.color}></div>
                     </div>
-                </>
+                </div>
             )
         } else if (slideRibbon.title.design === 'show-all') {
             return (
@@ -42,7 +41,7 @@ export const SlideRibbon = React.memo(props => {
             <div className='product-ribbon-overlay'>
                 <div className='product-ribbon-container'
                     style={RibbonContStyle}>
-                    {TitleContainer(slideRibbon)}
+                    {TitleContainer()}
                     <div className='product-swiper-container' style={slideSwiperContStyle}>
                         {slideRibbon.slides &&
                             (!mobileScreen ?

@@ -49,9 +49,6 @@ const Navbar = React.memo(props => {
 
     /////////////////////////////////////////
     ////////////////Drag Btn/////////////////
-    const [xPosition, setXPosition] = useState()
-    const [yPosition, setYPosition] = useState()
-
     const [active, setActive] = useState()
     var currentX
     var currentY
@@ -75,8 +72,8 @@ const Navbar = React.memo(props => {
             xOffset = currentX;
             yOffset = currentY;*/
 
-            const dragBtn = e.currentTarget;
-            setTranslate(currentX, currentY, dragBtn);
+            const screenHeight = window.screen.height
+            e.currentTarget.style.top = (currentY / screenHeight * 100) + 'vh'
         }
     }
 
@@ -95,13 +92,6 @@ const Navbar = React.memo(props => {
         /*initialX = currentX;
         initialY = currentY;*/
         setActive(false)
-    }
-
-    const setTranslate = (xPos, yPos, dragBtn) => {
-        setXPosition(xPos)
-        setYPosition(yPos)
-        const screenHeight = window.screen.height
-        dragBtn.style.top = (yPos / screenHeight * 100) + 'vh'
     }
 
     ////////////////End Drag/////////////////

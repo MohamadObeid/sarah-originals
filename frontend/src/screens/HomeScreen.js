@@ -1,25 +1,26 @@
 import React, { useEffect, useState, useLayoutEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { listHomePageViews } from "../actions/viewsActions";
-import HeroBanners from "./Components/HeroBanners";
 import { SlideRibbon } from './Components/SlideRibbon'
 import FontAwesome from 'react-fontawesome'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronRight, faStar } from "@fortawesome/free-solid-svg-icons"
 import { Link } from "react-router-dom"
 import { addToCart, removeFromCart, updateCart } from "../actions/cartActions";
-import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons'
-import { AppstoreOutlined } from '@ant-design/icons';
+import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import Swiper from 'react-id-swiper';
+import { ImageBox } from "./Components/ImageBox";
+import { NavigationBar } from "./Components/NavigationBar";
 //import ScrollBox from './Components/ScrollBox';
 
 const HomeScreen = React.memo(props => {
   const imageUrl = window.location.origin + '/api/uploads/image/'
 
-  const [actionNote, setActionNote] = useState('Product Added Succefully');
+  const [actionNote, setActionNote] = useState('Product Added Succefully')
   const [actionNoteVisible, setActionNoteVisible] = useState(false);
   const [timeOut, setTimeOut] = useState()
   const [products, setProducts] = useState([])
+  const [navigationBar, setNavigationBar] = useState()
 
   const { views, loading } = useSelector(state => state.views)
   const { cartItems, message } = useSelector(state => state.cart);
@@ -29,15 +30,10 @@ const HomeScreen = React.memo(props => {
   const dispatch = useDispatch()
   useEffect(() => {
     if (Object.keys(controls).length > 0) {
-      if (searchContainerVisible) {
-        const input = document.querySelector('.text-input')
-        input.focus() // move cursor to text-input
-      }
       setNavigationBar(controls.navigationBar)
 
       if (controls.homePageViews)
         dispatch(listHomePageViews({ views: controls.homePageViews }))
-
     }
   }, [controls])
 
@@ -86,6 +82,9 @@ const HomeScreen = React.memo(props => {
     })
   }, [])
 
+  //const mobileScreen = window.innerWidth <= 700 ? true : false
+
+  // Add to Cart Handler
   const handleAddToCart = (product) => {
 
     const productList = products.filter(pro => product._id == pro._id)
@@ -99,6 +98,7 @@ const HomeScreen = React.memo(props => {
     else dispatch(addToCart({ _id: product._id, qty: product.qty, message: 'Product Added Successfully!' }))
   }
 
+  //Minus Handler
   const handleMinus = (product, e) => {
     const productList = products.filter(pro => product._id == pro._id)
     productList.map(pro => {
@@ -110,6 +110,7 @@ const HomeScreen = React.memo(props => {
     else dispatch(updateCart({ _id: product._id, qty: product.qty }))
   }
 
+  // Plus Handler
   const handlePlus = (product, e) => {
     if ((!product.qty || product.qty === 0) && product.countInStock > 0) {
       const productList = products.filter(pro => product._id == pro._id)
@@ -128,6 +129,7 @@ const HomeScreen = React.memo(props => {
     } else dispatch(updateCart({ _id: product._id, message: 'Only ' + product.qty + product.unit + ' ' + product.nameEn + ' are available in stock!' }))
   }
 
+  // Toogle Handler
   const toggleCartBtns = (product) => {
     if (product.qty === 0) {
       product.AddToCartClass = 'show';
@@ -138,6 +140,7 @@ const HomeScreen = React.memo(props => {
     }
   }
 
+  // Product Quick View
   const QuickView = (product) => {
 
     return (
@@ -215,6 +218,7 @@ const HomeScreen = React.memo(props => {
     )
   }
 
+  // Product Quick View Handler
   const handleQuickView = (product) => {
     dispatch({ type: 'UPDATE_ACTIONS', payload: { quickView: { product } } })
     window.addEventListener('click', (e) => {
@@ -225,6 +229,7 @@ const HomeScreen = React.memo(props => {
     })
   }
 
+  // Add to Cart Btns design 1
   const BottomCenterBtnsDesign = (product) => {
     return (
       <div className="product-add-to-cart">
@@ -254,6 +259,7 @@ const HomeScreen = React.memo(props => {
     )
   }
 
+  // Add to Cart Btns design 2
   const RightTopBtnsDesign = (product) => {
     return (
       <>
@@ -275,6 +281,7 @@ const HomeScreen = React.memo(props => {
     )
   }
 
+  // Add to Cart Btns Designs Handler
   const AddToCartBtns = (product) => {
     return (
       controls.addToCartBtnsStyle === 'Bottom-Center'
@@ -285,10 +292,11 @@ const HomeScreen = React.memo(props => {
     )
   }
 
+  // Product Slide View
   const ProductSlide = (view) => {
     return (
       view.products.map((product) => (
-        <div className="product" key={product._id}>
+        <div className="product" key={product._id} style={{ backgroundColor: '#fff' }}>
           {product.countInStock === 0 && <div className="product-out-of-stock"></div>}
           {product.discount > 0 &&
             <div className='product-discount'>
@@ -326,191 +334,36 @@ const HomeScreen = React.memo(props => {
   ////////////////////////////////////////////////
   //////////////// Navigation Bar ////////////////
 
-  const [animateNavBar, setAnimateNavBar] = useState('')
-  const [searchContainerVisible, setSearchContainerVisible] = useState()
-  const [searchKeyword, setSearchKeyword] = useState('')
-  const [animateSearchContainer, setAnimateSearchContainer] = useState('')
-  const [animateNavHeader, setAnimateNavHeader] = useState('')
-  const [navigationBar, setNavigationBar] = useState()
-  const [mouseXCoordinate, setMouseXCoordinate] = useState(false)
-  const [reverse, setReverse] = useState(false)
-
-  const topRibbonVisible = useSelector(state => state.topRibbonVisible)
-
-  useEffect(() => {
-    if (navigationBar) setVariables(controls.navigationBar)
-  }, [])
-
-  const setVariables = (navigationBar) => {
-    const navigationBarContainer = document.querySelector('.navigation-bar-container')
-    navigationBarContainer.style.width = navigationBar.width
-    navigationBarContainer.style.backgroundColor = navigationBar.backgroundColor
-
-    const navHeader = document.querySelector('.nav-header')
-    navHeader.style.fontSize = navigationBar.headers.fontSize
-    navHeader.style.padding = '1.5rem ' + navigationBar.headers.padding
-
-    const headerBorder = document.querySelector('.header-border-bottom')
-    headerBorder.style.backgroundColor = navigationBar.headers.borderColor
-  }
-
   const [actionNoteTop, setActionNoteTop] = useState('0.5rem')
 
-  useLayoutEffect(() => {
-
-    const handleScroll = () => {
-      var topRibbon = 50
-
-      if (topRibbonVisible)
-        topRibbon = parseInt(topRibbon) + parseInt(controls.topRibbon.height)
-
-      //setActionNoteTop(actionNoteTop)
-
-      if (window.scrollY >= topRibbon) {
-        setAnimateNavBar('animateNavBar')
-        window.innerWidth > 700
-          ? setActionNoteTop('54px')
-          : setActionNoteTop('68px')
-
-      } else {
-        setAnimateNavBar('')
-        setActionNoteTop('4px')
-      }
-    }
-
-    controls && controls.topRibbon &&
-      window.addEventListener('scroll', handleScroll)
-
-    return () => window.removeEventListener('scroll', handleScroll)
-
-  }, [controls, topRibbonVisible])
-
-  const closeSearchContainer = e => {
-    setSearchContainerVisible(false)
-    setSearchKeyword('')
-    setAnimateSearchContainer('')
-  }
-
-  const NavigationBar = () => {
-    return (
-      <>
-        <div className='navigation-bar'>
-          <div className={'navigation-bar-container ' + animateNavBar} style={topRibbonVisible && window.innerWidth <= 700 ? { paddingTop: '1rem' } : {}}>
-            <div className='nav-category-container'>
-              <div className='nav-category-icon'>
-                <AppstoreOutlined className='category-icon' />
-              </div>
-              <div className='nav-category-header'>{navigationBar.mainHeader.title}</div>
-              <div className='nav-category-border'></div>
-            </div>
-            <div className='nav-headers'>
-              <div className='nav-headers-container'
-                onMouseLeave={e => {
-                  /*setMouseOver(false)*/
-                  setAnimateNavHeader('')
-                }}>
-                {navigationBar.headers.content.map(header => (
-                  <div className='nav-header' key={header._id}
-                    onMouseLeave={(e) => {
-                      if (e.pageX < mouseXCoordinate) {
-                        setReverse(animateNavHeader - 1)
-                      } else setReverse(animateNavHeader)
-                    }}
-                    onMouseEnter={e => {
-                      setAnimateNavHeader(navigationBar.headers.content.indexOf(header))
-                      setMouseXCoordinate(e.pageX)
-                    }}>
-                    {header.title}
-                    <div className={'header-border-bottom ' + (
-                      reverse === navigationBar.headers.content.indexOf(header)
-                        ? 'right ' : 'left ') +
-                      (animateNavHeader === navigationBar.headers.content.indexOf(header)
-                        ? 'animate-border-bottom' : '')}></div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className='nav-search-container'>
-              <div className='nav-search-bar'>
-                <div className='nav-search-icon'>
-                  <FontAwesomeIcon icon={faSearch} className='search-icon' />
-                </div>
-                <input type='text' className='nav-search-text'
-                  onClickCapture={e => {
-                    setSearchContainerVisible(true)
-                    setAnimateSearchContainer('animate-search-container')
-                  }}
-                  value={searchKeyword || ''} onChange={e => setSearchKeyword(e.target.value)}
-                  placeholder='Search for product, brand, category...'></input>
-                <div className='nav-search-close-icon'
-                  onClick={closeSearchContainer} >
-                  <FontAwesomeIcon icon={faTimes} className='close-icon' />
-                </div>
-                {searchContainerVisible &&
-                  <div className={'nav-search-help ' + animateSearchContainer}>
-                    <div className='nav-search-bar-container'>
-                      <div className='nav-search-icon'>
-                        <FontAwesomeIcon icon={faSearch} className='search-icon' />
-                      </div>
-                      <input type='text' className='nav-search-text text-input'
-                        placeholder='Search for product, brand, category...'></input>
-                      <div className='nav-search-close-icon'
-                        onClick={closeSearchContainer}
-                        value={searchKeyword || ''}
-                        onChange={e => setSearchKeyword(e.target.value)} >
-                        <FontAwesomeIcon icon={faTimes} className='close-icon' />
-                      </div>
-                    </div>
-                    <div className='search-bar-border-bottom'></div>
-                    <div className='search-bar-help-cont'>
-                      <div className='search-bar-help-title'>Trending: </div>
-                      <div className='nav-search-help-words'>
-                        {navigationBar.searchBar.mostSearchedWords.map(word => (
-                          <div className='nav-search-help-word'>{word}</div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className='navigation-height'></div>
-      </>
-    )
-  }
-
   const ProductSwiper = () => {
-    return (
-      <>
-        {views.map(view => (view.type === 'Product Box' &&
-          <div key={view.title} className='view-container'>
-            <div className="products-slider-container">
-              <div className='slider-container-title-line'>
-                <div className='slider-container-title'>{view.name} Products</div>
-                <div className='slider-container-show-all'>show all
+    return (views.map(view => view.type === 'Product Box'
+      ? <div className="products-slider-container">
+        <div className='slider-container-title-line'>
+          <div className='slider-container-title'>{view.name} Products</div>
+          <div className='slider-container-show-all'>show all
                   <FontAwesomeIcon icon={faChevronRight} className='faChevronRight' /></div>
+        </div>
+        <div className="products">
+          {view.products && view.products.length > 0 &&
+            (window.innerWidth > 700 ?
+              <Swiper {...swiper}>
+                {ProductSlide(view)}
+              </Swiper>
+              : <div className='mobile-swiper-container'>
+                {ProductSlide(view)}
               </div>
-              <div className="products">
-                {view.products &&
-                  view.products.length > 0 &&
-                  (window.innerWidth > 700 ?
-                    <Swiper {...swiper}>
-                      {ProductSlide(view)}
-                    </Swiper>
-                    : <div className='mobile-swiper-container'>
-                      {ProductSlide(view)}
-                    </div>
-                    /*<ScrollBox>
-                      {ProductSlide(view)}
-                    </ScrollBox>*/
-                  )}
-              </div>
-            </div>
-          </div>))
-        }
-      </>
-    )
+              /*<ScrollBox>
+                {ProductSlide(view)}
+              </ScrollBox>*/
+            )}
+        </div>
+      </div>
+      : view.type === 'Image Box'
+        ? controls.imageBox.find(box => box.name === view.name) &&
+        <ImageBox imageBox={controls.imageBox.find(box => box.name === view.name)} mobileScreen={mobileScreen} />
+        : <></>
+    ))
   }
 
   //////////////////////////////////// Slide Ribbon Props ///////////////////////////////////
@@ -522,10 +375,10 @@ const HomeScreen = React.memo(props => {
     slidesPerView: 'auto',
   }
 
-  const [slideRibbonProps, setSlideRibbonProps] = useState()
-  const [heroBannerProps, setHeroBannerProps] = useState()
+  const [imageBoxCategories, setimageBoxCategories] = useState()
 
   useEffect(() => {
+
     if (controls.slideRibbon) {
       const slideRibbon = controls.slideRibbon[0]
       const slideBorder = slideRibbon.slide.border + ' solid #f9f9f9'
@@ -573,91 +426,10 @@ const HomeScreen = React.memo(props => {
         backgroundColor: { backgroundColor: titleBackgroundColor },
       }
 
-      setSlideRibbonProps({
+      setimageBoxCategories({
         slideRibbon, imageUrl, RibbonContStyle, slideSwiperContStyle, slideContStyle,
         imgContStyle, imgStyle, slideTitleContStyle, swiper, titleStyle, mobileScreen
       })
-    }
-
-    if (controls.imageBox && controls.imageBox.length > 0) {
-      const heroBanner = controls.imageBox.find(box => box.name === 'Hero') || false
-      if (heroBanner) {
-
-        const flexDirection = heroBanner.flexDirection
-        const paddingAround = heroBanner.paddingAround
-        const paddingBetween = heroBanner.paddingBetween
-        const backgroundColor = heroBanner.backgroundColor
-        const mainBanner = heroBanner.swiper
-        const submainBanner = heroBanner.fixed
-        const mobile = heroBanner.mobile
-        const swiperSlides = heroBanner.swiperSlides || []
-        const fixedSlides = heroBanner.fixedSlides || []
-
-        const heroBannersStyle = !mobileScreen
-          ? { flexDirection, padding: paddingAround, backgroundColor }
-          : { flexDirection: mobile.flexDirection, padding: mobile.paddingAround, backgroundColor }
-
-        const mainHeroBannerStyle = !mobileScreen
-          ? {
-            width: mainBanner.width,
-            display: mainBanner.display,
-            height: mainBanner.height,
-            borderRadius: mainBanner.borderRadius
-          }
-          : {
-            width: mobile.swiper.width,
-            display: mobile.swiper.display,
-            height: mobile.swiper.height,
-            borderRadius: mobile.swiper.borderRadius
-          }
-
-        const submainHeroBannerStyle = !mobileScreen
-          ? {
-            width: submainBanner.width,
-            display: submainBanner.display,
-            height: submainBanner.height,
-            flexWrap: submainBanner.flexWrap,
-            padding: submainBanner.paddingAround
-          }
-          : {
-            width: mobile.fixed.width,
-            display: mobile.fixed.display,
-            height: mobile.fixed.height,
-            flexWrap: mobile.fixed.flexWrap,
-            padding: mobile.fixed.paddingAround
-          }
-
-        const bannerMarginStyle = !mobileScreen
-          ? {
-            minWidth: paddingBetween,
-            maxWidth: paddingBetween,
-            minHeight: paddingBetween,
-            maxHeight: paddingBetween,
-          }
-          : {
-            minWidth: mobile.fixed.paddingBetween,
-            maxWidth: mobile.fixed.paddingBetween,
-            minHeight: mobile.fixed.paddingBetween,
-            maxHeight: mobile.fixed.paddingBetween
-          }
-
-        const heroSubmainImgStyle = !mobileScreen
-          ? {
-            height: submainBanner.imgHeight,
-            width: submainBanner.imgWidth,
-            borderRadius: submainBanner.imgBorderRadius
-          }
-          : {
-            height: mobile.fixed.imgHeight,
-            width: mobile.fixed.imgWidth,
-            borderRadius: submainBanner.imgBorderRadius
-          }
-
-        setHeroBannerProps({
-          imageUrl, heroBanner, heroBannersStyle, mainHeroBannerStyle, submainHeroBannerStyle,
-          bannerMarginStyle, heroSubmainImgStyle, swiperSlides, fixedSlides
-        })
-      }
     }
 
   }, [controls, mobileScreen])
@@ -680,11 +452,10 @@ const HomeScreen = React.memo(props => {
 
       {controls && !loadingControls &&
         <>
-          {navigationBar && NavigationBar()}
-          {slideRibbonProps && <SlideRibbon slideRibbonProps={slideRibbonProps} />}
+          {navigationBar && <NavigationBar navigationBar={navigationBar} />}
+          {imageBoxCategories && <SlideRibbon imageBox={imageBoxCategories} />}
         </>
       }
-      {heroBannerProps && <HeroBanners heroBannerProps={heroBannerProps} />}
       {views.length > 0 && !loading && ProductSwiper()}
     </>
   );

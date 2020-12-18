@@ -14,6 +14,7 @@ const connect = mongoose.createConnection(mongodbUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
+
 connect.once('open', () => {
     // initialize stream
     gfs = new mongoose.mongo.GridFSBucket(connect.db, {

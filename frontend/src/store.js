@@ -103,7 +103,6 @@ import {
 import {
   controlReducer,
   controlSaveReducer,
-  topRibbonVisible,
   actions,
 } from "./reducers/controlReducer"
 
@@ -130,7 +129,6 @@ const reducer = combineReducers({
   clock: clockReducer,
   controls: controlReducer,
   controlSave: controlSaveReducer,
-  topRibbonVisible: topRibbonVisible,
 
   productList: productListReducer,
   productDetails: productDetailsReducer,

@@ -3,34 +3,43 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGift, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { useDispatch, useSelector } from 'react-redux';
 
-function Ribbon() {
-    const [ribbonVisible, setRibbonVisible] = useState()
-    const { controls } = useSelector(state => state.controls)
+export const Ribbon = React.memo(props => {
     const [ribbonTextStyle, setRibbonTextStyle] = useState({})
     const [ribbonContainerStyle, setRibbonContainerStyle] = useState({})
     const [ribbonText, setRibbonText] = useState('')
+
+    const { controls } = useSelector(state => state.controls)
+    const actions = useSelector(state => state.actions)
+
+    useEffect(() => {
+        const URL = window.location.href
+        if (URL.includes('dashboard')) dispatch({ type: 'REMOVE_FROM_ACTIONS', payload: 'topRibbonVisible' })
+        else dispatch({ type: 'UPDATE_ACTIONS', payload: { topRibbonVisible: true } })
+
+    }, [window.location.href])
 
     const dispatch = useDispatch()
     useEffect(() => {
         if (controls && controls.topRibbonVisible) {
             setRibbonSettings()
-            dispatch({ type: 'TOP_RIBBON_VISIBLE', payload: true })
+            dispatch({ type: 'UPDATE_ACTIONS', payload: { topRibbonVisible: true } })
         }
+
     }, [controls])
 
     const setRibbonSettings = () => {
-        setRibbonVisible(controls.topRibbonVisible)
         var x = window.matchMedia("(max-width: 700px)")
-        if (x.matches) {
+        if (x.matches)
             setRibbonTextStyle({
                 text: controls.topRibbon.text,
                 fontSize: controls.topRibbon.mobile.fontSize,
             })
-        } else
+        else
             setRibbonTextStyle({
                 text: controls.topRibbon.text,
                 fontSize: controls.topRibbon.fontSize,
             })
+
         setRibbonContainerStyle({
             backgroundColor: controls.topRibbon.backgroundColor
         })
@@ -39,14 +48,13 @@ function Ribbon() {
 
     return (
         <div>
-            {ribbonVisible &&
+            {actions.topRibbonVisible &&
                 <div className='top-ribbon-overlay'>
                     <div className='top-ribbon-container' style={{ ...ribbonContainerStyle }}>
                         <div className='top-ribbon'>
-                            <FontAwesomeIcon icon={faTimes} className='faTimes' onClick={e => {
-                                setRibbonVisible(false)
-                                dispatch({ type: 'TOP_RIBBON_VISIBLE', payload: false })
-                            }} />
+                            <FontAwesomeIcon icon={faTimes} className='faTimes' onClick={e =>
+                                dispatch({ type: 'REMOVE_FROM_ACTIONS', payload: 'topRibbonVisible' })
+                            } />
                             <div className='top-ribbon-icon-container'>
                                 <FontAwesomeIcon icon={faGift} className='faGifts fa-2x' />
                             </div>
@@ -56,6 +64,4 @@ function Ribbon() {
                 </div>}
         </div>
     )
-}
-
-export default Ribbon
+})

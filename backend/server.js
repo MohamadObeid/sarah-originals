@@ -3,10 +3,9 @@ import config from "./config";
 import path from 'path';
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
-import logger from 'morgan'
-import cors from 'cors';
+/*import logger from 'morgan'
+import cors from 'cors';*/
 import methodOverride from 'method-override'
-
 import userRoute from "./routes/userRoute";
 import productRoute from "./routes/productRoute";
 import orderRoute from './routes/orderRoute';
@@ -120,12 +119,10 @@ app.use("/api/views", viewsRoute)
 app.use('/api/uploads/image', express.static(path.join(__dirname, '/../frontend/uploads')));
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
+/*app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
 app.use(cors({ origin: '*' }));
-
-app.use(logger('dev'));
+app.use(logger('dev'));*/
 
 app.use(express.static(path.join(__dirname, '/../frontend/build')));
 

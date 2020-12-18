@@ -18,24 +18,24 @@ import { USER_SIGNIN_SUCCESS } from "./constants/constants";
 import { clock } from './actions/timeActions'
 import cookie from "js-cookie";
 import { listControls, saveControls } from "./actions/controlActions";
-import Ribbon from './screens/Components/Ribbon'
+import { Ribbon } from './screens/Components/Ribbon'
 import { defaultControls } from './constants/defaultControls'
 
 const App = React.memo(props => {
+  const { controls } = useSelector(state => state.controls)
 
-  const [hideTopRibbon, setHideTopRibbon] = useState(false)
-  const topRibbonVisible = useSelector(state => state.topRibbonVisible)
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(listControls())
     dispatch(saveControls(defaultControls))
+    dispatch(signin({ email: userInfo.email, password: userInfo.password, request: 'signin' }))
   }, [])
 
   var IPaddress
   var refresh
 
   const { userInfo } = useSelector(state => state.userSignin)
-  const { time } = useSelector(state => state.clock)
+  //const { time } = useSelector(state => state.clock)
 
   const getIPAddress = async () => {
     try {
@@ -45,10 +45,10 @@ const App = React.memo(props => {
           IPaddress = IP.country_name + ', ' + IP.city
         })
     } catch (error) { }
-    if (userInfo) {
+    /*if (userInfo) {
       await dispatch(signin({ email: userInfo.email, password: userInfo.password, IPaddress, request: 'signin' }))
       setTimeout(refreshActiveUser, 25000)
-    }
+    }*/
   }
 
   const refreshActiveUser = async () => {
@@ -68,15 +68,9 @@ const App = React.memo(props => {
   }
 
   useEffect(() => {
-    !time && refreshClock()
+    //!time && refreshClock()
     getIPAddress()
   }, [])
-
-  useLayoutEffect(() => {
-    const URL = window.location.href
-    if (URL.includes('dashboard')) setHideTopRibbon(true)
-    else setHideTopRibbon(false)
-  }, [window.location.href])
 
   // hide address bar in mobile
   /*window.addEventListener("load", function () {
@@ -91,7 +85,7 @@ const App = React.memo(props => {
       <div className="grid-container">
         <NavBar />
         <div className="main">
-          {topRibbonVisible && !hideTopRibbon && <Ribbon />}
+          <Ribbon />
           <Route path="/dashboard" component={DashBoard} />
           <Route path="/signin" component={SigninScreen} />
           <Route path="/register" component={RegisterScreen} />

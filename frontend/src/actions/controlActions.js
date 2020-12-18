@@ -12,7 +12,7 @@ const listControls = () => async (dispatch) => {
     dispatch({ type: CONTROL_LIST_REQUEST })
     try {
         const { data } = await Axios.get('/api/controls')
-        console.log('here', data[0])
+        console.log('controls', data[0])
         data[0]
             ? dispatch({ type: CONTROL_LIST_SUCCESS, payload: data[0] })
             : dispatch({ type: CONTROL_LIST_REQUEST, payload: {} })

@@ -50,13 +50,6 @@ function controlSaveReducer(state = { controls: {}, loading: true }, action) {
     }
 }
 
-const topRibbonVisible = (state = true, action) => {
-    switch (action.type) {
-        case 'TOP_RIBBON_VISIBLE': return action.payload
-        default: return state
-    }
-}
-
 function actions(state = {}, action) {
     switch (action.type) {
         case 'UPDATE_ACTIONS':
@@ -69,4 +62,4 @@ function actions(state = {}, action) {
     }
 }
 
-export { controlReducer, controlSaveReducer, topRibbonVisible, actions }
+export { controlReducer, controlSaveReducer, actions }
