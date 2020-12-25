@@ -34,6 +34,7 @@ const HomeScreen = React.memo(props => {
 
       if (controls.homePageViews)
         dispatch(listHomePageViews({ views: controls.homePageViews }))
+      document.getElementsByTagName('HTML')[0].style.backgroundColor = controls.backgroundColor
     }
   }, [controls])
 
@@ -239,7 +240,7 @@ const HomeScreen = React.memo(props => {
           value={product._id}
           onClick={() => dispatch(handleAddToCart(product))}>
           Add To Cart
-                </button>
+        </button>
         <div className={`add-to-cart-btns hide ${product.PlusMinusClass}`}>
           <button
             type="button"

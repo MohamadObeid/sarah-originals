@@ -26,10 +26,11 @@ router.get("", async (req, res) => {
 });*/
 
 router.put("/put", isAuth, isAdmin, async (req, res) => {
-    const controls = await Controls.findOne({ _id: { $eq: '5fc2ff0bdd745917d40ae217' } })
+    const controls = await Controls.findOne({ _id: { $eq: /*'5fd0806998049b03400861a7'*/'5fc2ff0bdd745917d40ae217' } })
     //console.log(controls)
     if (controls) {
         controls.active = req.body.active
+        controls.backgroundColor = req.body.backgroundColor
         controls.addToCartBtnsStyle = req.body.addToCartBtnsStyle
         controls.homePageCollections = req.body.homePageCollections
         controls.topRibbonVisible = req.body.topRibbonVisible
