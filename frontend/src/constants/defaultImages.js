@@ -42,8 +42,10 @@ import img19 from '../images/banner-sample-8.jpg';
 import img20 from '../images/banner-sample-9.jpg';
 import img21 from '../images/banner-sample-10.jpg';
 import img22 from '../images/banner-sample-11.jpg';
+const imageUrl = window.location.origin + '/api/uploads/image/'
 
 export const url = (src) => {
+    if (!src.includes('images')) return imageUrl + src
     return (
         src === '../../images/sample-1.jpg'
             ? img01

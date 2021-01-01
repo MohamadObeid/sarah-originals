@@ -1,31 +1,74 @@
 import React, { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronCircleRight, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faChevronCircleRight, faChevronLeft, faChevronRight, faCircle, faStar } from '@fortawesome/free-solid-svg-icons';
 import { url } from '../../constants/defaultImages'
+import { useDispatch } from 'react-redux'
+import { Link } from 'react-router-dom';
 
-export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen }) => {
+export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen, products }) => {
+    const dispatch = useDispatch()
     const mobile = slideBox.mobile
-    const slides = slideBox.slides || []
+    const slides = products ? [...slideBox.slides, ...products] : slideBox.slides || []
+    const skeleton = !mobileScreen ? slideBox.skeleton : mobile.skeleton
+
+    const scrollBehavior = (!mobileScreen
+        ? slideBox.swiper.scroll.behavior
+        : mobile.swiper.scroll.behavior) || 'auto'
 
     const slidesOverlayStyle = !mobileScreen
         ? {
             display: slideBox.display,
             width: slideBox.width,
             height: slideBox.height,
+            position: 'relative',
+            overflow: 'hidden',
         } : {
             display: mobile.display,
             width: mobile.width,
             height: mobile.height,
+            position: 'relative',
+            overflow: 'hidden',
         }
 
     const slidesWrapperStyle = {
-        width: 'inherit',
-        height: 'inherit',
+        width: '100%',
+        height: '100%',
+        padding: !mobileScreen ? slideBox.paddingAround : mobile.paddingAround,
+        borderRadius: !mobileScreen ? slideBox.borderRadius : mobile.borderRadius
     }
 
-    const [swiperBox, setSwiperBox] = useState({})
-    const [rightChevronWrapperBackgound, setRightChevronWrapperBackgound] = useState()
-    const [leftChevronWrapperBackgound, setleftChevronWrapperBackgound] = useState()
+    const [swiperBox, setSwiperBox] = useState(!mobileScreen
+        ? {
+            height: slideBox.height,
+            display: slideBox.display,
+            flexWrap: slideBox.flexWrap,
+            backgroundColor: slideBox.backgroundColor,
+            gridColumnGap: slideBox.paddingBetween,
+            gridRowGap: slideBox.paddingBetween,
+            gridTemplateColumns: `repeat(auto-fit, minmax(${slideBox.slideWidth}, 1fr))`,
+            borderRadius: slideBox.slideBorderRadius,
+            maxHeight: slideBox.showMore.display === 'none' ? '2000px' : slideBox.slideHeight,
+            overflow: scrollBehavior === 'auto' ? 'auto' : 'hidden'
+        } : {
+            height: mobile.height,
+            display: mobile.display,
+            flexWrap: mobile.flexWrap,
+            backgroundColor: mobile.backgroundColor,
+            gridColumnGap: mobile.paddingBetween,
+            gridRowGap: mobile.paddingBetween,
+            gridTemplateColumns: `repeat(auto-fit, minmax(${mobile.slideWidth}, 1fr))`,
+            borderRadius: mobile.slideBorderRadius,
+            maxHeight: mobile.showMore.display === 'none' ? '2000px' : mobile.slideHeight,
+            overflow: scrollBehavior === 'auto' ? 'auto' : 'hidden'
+        })
+
+    const [rightChevronWrapperBackgound, setRightChevronWrapperBackgound] = useState(!mobileScreen
+        ? { backgroundColor: slideBox.swiper.chevrons.backgroundColor }
+        : { backgroundColor: mobile.swiper.chevrons.backgroundColor })
+
+    const [leftChevronWrapperBackgound, setleftChevronWrapperBackgound] = useState(!mobileScreen
+        ? { backgroundColor: slideBox.swiper.chevrons.backgroundColor }
+        : { backgroundColor: mobile.swiper.chevrons.backgroundColor })
 
     const slideWrapperStyle = !mobileScreen
         ? {
@@ -42,21 +85,38 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen }) => 
             backgroundColor: mobile.slideBackgroundColor,
         }
 
-    const imageStyle = !mobileScreen
+    const imageWrapStyle = !mobileScreen
         ? {
             height: slideBox.slideTitle.display !== 'none'
                 ? `calc(${slideBox.imgHeight} - ${slideBox.slideTitle.height})`
                 : slideBox.imgHeight,
             borderRadius: slideBox.imgBorderRadius,
-            transform: !slideBox.imgAnimation && 'unset',
-            width: slideBox.imgWidth
+            width: slideBox.imgForceWidth && slideBox.imgWidth,
+            maxWidth: slideBox.imgWidth
         } : {
             height: mobile.slideTitle.display !== 'none'
                 ? `calc(${mobile.imgHeight} - ${mobile.slideTitle.height})`
                 : mobile.imgHeight,
             borderRadius: mobile.imgBorderRadius,
+            width: mobile.imgForceWidth && mobile.imgWidth,
+            maxWidth: mobile.imgWidth
+        }
+
+    const imageStyle = !mobileScreen
+        ? {
+            height: slideBox.imgForceWidth && slideBox.imgHeight,
+            maxHeight: slideBox.imgHeight,
+            borderRadius: slideBox.imgBorderRadius,
+            transform: !slideBox.imgAnimation && 'unset',
+            width: slideBox.imgForceWidth && slideBox.imgWidth,
+            maxWidth: slideBox.imgWidth
+        } : {
+            height: mobile.imgForceWidth && mobile.imgHeight,
+            maxHeight: mobile.imgHeight,
+            borderRadius: mobile.imgBorderRadius,
             transform: !mobile.imgAnimation && 'unset',
-            width: mobile.imgWidth
+            width: mobile.imgForceWidth && mobile.imgWidth,
+            maxWidth: mobile.imgWidth
         }
 
     const slideTitleStyle = !mobileScreen
@@ -81,14 +141,14 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen }) => 
             width: slideBox.swiper.chevrons.width,
             hoverBackgroundColor: slideBox.swiper.chevrons.hoverBackgroundColor,
             initialBackgroundColor: slideBox.swiper.chevrons.backgroundColor,
-            boxShadow: slideBox.swiper.chevrons.backgroundColor === '#00000000' && 'none'
+            boxShadow: !slideBox.swiper.chevrons.boxShadow && 'none'
         } : {
             display: mobile.swiper.chevrons.display,
             height: mobile.swiper.chevrons.height,
             width: mobile.swiper.chevrons.width,
             hoverBackgroundColor: mobile.swiper.chevrons.hoverBackgroundColor,
             initialBackgroundColor: mobile.swiper.chevrons.backgroundColor,
-            boxShadow: mobile.swiper.chevrons.backgroundColor === '#00000000' && 'none'
+            boxShadow: !mobile.swiper.chevrons.boxShadow && 'none'
         }
 
     const leftChevronWrapper = !mobileScreen
@@ -148,7 +208,9 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen }) => 
 
     const circleRightChevronStyle = { color: slideBox.showMore.color }
 
-    const linkSlide = (e, src) => { }
+    const linkSlide = (e, src) => {
+        //handleQuickView({})
+    }
 
     const [showMoreText, setShowMoreText] = useState(slideBox.showMore.moreText)
     const [pageYOffset, setPageYOffset] = useState()
@@ -184,31 +246,25 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen }) => 
     var scrollWidth = 0
     var scrollHeight = 0
 
-    const scrollBehavior = (!mobileScreen
-        ? slideBox.swiper.scroll.behavior
-        : mobile.swiper.scroll.behavior) || 'auto'
-
     var gapWidth = !mobileScreen
         ? slideBox.paddingBetween
         : mobile.paddingBetween
 
-    const slideWidthInit = !mobileScreen // init slideWidth
-        ? slideBox.slideWidth : mobile.slideWidth
-
-    const slideHeightInit = !mobileScreen
-        ? slideBox.slideHeight : mobile.slideHeight
-
     const [slideWidth, setSlideWidth] = useState()
     const [slideHeight, setSlideHeight] = useState()
+    const [bulletWidth, setBulletWidth] = useState()
 
     if (gapWidth.includes('rem')) gapWidth = parseFloat(gapWidth) * 10
     else gapWidth = parseFloat(gapWidth)
 
     var skip = (!mobileScreen
-        ? slideBox.swiper.chevrons.skip
-        : mobile.swiper.chevrons.skip) || 1
+        ? slideBox.swiper.skip
+        : mobile.swiper.skip) || 1
 
-    var widthSlideSkipper = (slideWidth + gapWidth) * skip
+    var widthSlideSkipper = slideWidth
+        ? (slideWidth + gapWidth) * skip
+        : slideWidth * skip
+
     var heightSlideSkipper = (slideHeight + gapWidth) * skip
 
     const duration = !mobileScreen
@@ -219,114 +275,99 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen }) => 
         ? slideBox.swiper.autoPlay.run
         : mobile.swiper.autoPlay.run
 
-    const overflowY = !mobileScreen
-        ? slideBox.overflowY
-        : mobile.overflowY
-
     const scrollAutoToggle = !mobileScreen
         ? slideBox.swiper.scroll.autoToggle
         : mobile.swiper.scroll.autoToggle
 
     const verticalSwiper = !mobileScreen
-        ? (slideBox.swiper.direction === 'Y' && true)
-        : (mobile.swiper.direction === 'Y' && true)
+        ? (slideBox.swiper.direction === 'Y' ? true : false)
+        : (mobile.swiper.direction === 'Y' ? true : false)
 
     const [swiperWrapper, setSwiperWrapper] = useState()
+    const [bulletsWrapper, setBulletsWrapper] = useState()
     const [leftChevron, setLeftChevron] = useState()
     const [rightChevron, setRightChevron] = useState()
-    const [topChevron, setTopChevron] = useState()
-    const [bottomChevron, setBottomChevron] = useState()
     const [timeOut, setTimeOut] = useState()
+    const [slideIndex, setSlideIndex] = useState()
+
+    const getSlideSize = (e) => {
+        setSlideWidth(e.currentTarget.offsetWidth)
+        setSlideHeight(e.currentTarget.offsetHeight)
+    }
 
     useEffect(() => {
-
-        if (swiperWrapper && !slideWidth) { // ex. slideWidth = 100%
-            ToggleChevrons()
-            // set sLideWidth value
-            if (slideWidthInit.includes('%')) {
-                const percentage = parseFloat(slideWidthInit) * 0.01
-                setSlideWidth(swiperWrapper.clientWidth * percentage)
-            } else if (slideWidthInit.includes('rem'))
-                setSlideWidth(parseFloat(slideWidthInit) * 10)
-            else setSlideWidth(parseFloat(slideWidthInit))
-        }
-
-        if (swiperWrapper && !slideHeight) {
-            ToggleChevrons()
-            // set slideHeight value
-            if (slideHeightInit.includes('%')) {
-                const percentage = parseFloat(slideHeightInit) * 0.01
-                setSlideHeight(swiperWrapper.clientWidth * percentage)
-            } else if (slideHeightInit.includes('rem'))
-                setSlideHeight(parseFloat(slideHeightInit) * 10)
-            else setSlideHeight(parseFloat(slideHeightInit))
-        }
+        if (slideWidth) widthSlideSkipper = (slideWidth + gapWidth) * skip
+        if (slideHeight) heightSlideSkipper = (slideHeight + gapWidth) * skip
 
         if (slideWidth && !timeOut && autoPlay) // run autoPlay
             setTimeOut(setInterval(() => chevronRight(), duration))
 
-        /*if (slideHeight && !timeOut && autoPlay) // run autoPlay
-            setTimeOut(setInterval(() => chevronBottom(), duration))*/
+    }, [slideWidth, slideHeight])
 
-    }, [swiperWrapper, slideWidth])
-
-    const mouseDownHandler = e => {
-        e.preventDefault()
+    const mouseDownHandler = (e) => {
+        !touchScreen && e.preventDefault()
         swiperWrapper.style.scrollBehavior = 'auto'
         drag = true
 
         clientX = e.clientX || e.touches[0].clientX
         clientY = e.clientY || e.touches[0].clientY
-        prevClientX = e.clientX || e.touches[0].clientX
-        prevClientY = e.clientY || e.touches[0].clientY
+        prevClientX = clientX
+        prevClientY = clientY
 
         scrollLeft = e.currentTarget.scrollLeft
         scrollTop = e.currentTarget.scrollTop
         scrollWidth = e.currentTarget.scrollWidth - e.currentTarget.clientWidth
         scrollHeight = e.currentTarget.scrollHeight - e.currentTarget.clientHeight
 
-        window.addEventListener('mousemove', mouseMoveHandler)
-        window.addEventListener('mouseup', mouseUpHandler)
-        window.addEventListener('touchend', mouseUpHandler)
+        if (!touchScreen) {
+            window.addEventListener('mousemove', mouseMoveHandler)
+            window.addEventListener('mouseup', mouseUpHandler)
+        } else {
+            window.addEventListener('touchend', mouseUpHandler)
+            window.addEventListener('touchmove', touchMoveHandler)
+        }
 
         clearTimeout(timeOut)
     }
 
     const mouseUpHandler = (e) => {
+        drag = false
         swiperWrapper.style.scrollBehavior = scrollBehavior
         ToggleScroll(e)
-        drag = false
-        clientX = 0
-        clientY = 0
-        prevClientX = 0
-        prevClientY = 0
         window.removeEventListener('mousemove', mouseMoveHandler)
         window.removeEventListener('mouseup', mouseUpHandler)
         window.removeEventListener('touchend', mouseUpHandler)
+        window.removeEventListener('touchmove', touchMoveHandler)
 
         autoPlay && setTimeOut(setInterval(() => chevronRight(), duration))
     }
-
+    var lastClientX
+    var mouseTravel
     const mouseMoveHandler = (e) => {
         if (drag) {
-            if (e.clientX > clientX && swiperWrapper.scrollLeft === 0) {// case scroll is 0
-                scrollLeft = 0
-                clientX = e.clientX
-            }
-            if (e.clientY > clientY && swiperWrapper.scrollTop === 0) {// case scroll is 0
-                scrollTop = 0
-                clientY = e.clientY
-            }
-            swiperWrapper.scrollLeft = scrollLeft - (e.clientX - clientX)
-            swiperWrapper.scrollTop = scrollTop - (e.clientY - clientY)
+            if (verticalSwiper) {
 
-            if (swiperWrapper.scrollLeft === scrollWidth) {// case scroll is maximum
-                scrollLeft = swiperWrapper.scrollLeft
-                clientX = e.clientX
-            }
-            if (swiperWrapper.scrollTop === scrollHeight) {// case scroll is maximum
-                scrollTop = swiperWrapper.scrollTop
-                clientY = e.clientY
+                if (e.clientY > clientY && swiperWrapper.scrollTop === 0) {// case scroll is 0
+                    scrollTop = 0
+                    clientY = e.clientY
+                }
+                swiperWrapper.scrollTop = scrollTop - (e.clientY - clientY)
+                if (swiperWrapper.scrollTop === scrollHeight) {// case scroll is maximum
+                    scrollTop = swiperWrapper.scrollTop
+                    clientY = e.clientY
+                }
+            } else {
+                mouseTravel = Math.abs(lastClientX - e.clientX)
+                lastClientX = e.clientX
+                if (e.clientX > clientX && swiperWrapper.scrollLeft === 0) {// case scroll is 0
+                    scrollLeft = 0
+                    clientX = e.clientX
+                }
+                swiperWrapper.scrollLeft = scrollLeft - (e.clientX - clientX)
+                if (swiperWrapper.scrollLeft === scrollWidth) {// case scroll is maximum
+                    scrollLeft = swiperWrapper.scrollLeft
+                    clientX = e.clientX
+                }
             }
         }
     }
@@ -335,20 +376,51 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen }) => 
         mouseDownHandler(e)
     }
 
+    const touchMoveHandler = e => {
+        if (drag) {
+            if (verticalSwiper) {
+
+                if (e.touches[0].clientY > clientY && swiperWrapper.scrollTop === 0) {// case scroll is 0
+                    scrollTop = 0
+                    clientY = e.touches[0].clientY
+                }
+                swiperWrapper.scrollTop = scrollTop - (e.touches[0].clientY - clientY)
+                if (swiperWrapper.scrollTop === scrollHeight) {// case scroll is maximum
+                    scrollTop = swiperWrapper.scrollTop
+                    clientY = e.touches[0].clientY
+                }
+
+            } else {
+
+                if (e.touches[0].clientX > clientX && swiperWrapper.scrollLeft === 0) {// case scroll is 0
+                    scrollLeft = 0
+                    clientX = e.touches[0].clientX
+                }
+                swiperWrapper.scrollLeft = scrollLeft - (e.touches[0].clientX - clientX)
+
+                if (swiperWrapper.scrollLeft === scrollWidth) {// case scroll is maximum
+                    scrollLeft = swiperWrapper.scrollLeft
+                    clientX = e.touches[0].clientX
+                }
+            }
+        }
+    }
+
     const chevronRight = e => {
         if (swiperWrapper) {
             if (verticalSwiper) {
                 chevronBottom(e)
                 return
             }
-
             swiperWrapper.style.scrollBehavior = 'smooth'
             var visibleWidthofSlide = (swiperWrapper.clientWidth + swiperWrapper.scrollLeft) % (slideWidth + gapWidth)
             scrollLeft = swiperWrapper.scrollLeft
-            if (swiperWrapper.scrollWidth === (swiperWrapper.clientWidth + swiperWrapper.scrollLeft)
-                || swiperWrapper.scrollWidth === (swiperWrapper.clientWidth + swiperWrapper.scrollLeft) + 1)
+            if (swiperWrapper.scrollWidth === (swiperWrapper.clientWidth + swiperWrapper.scrollLeft))
+                swiperWrapper.scrollLeft = 0
+            else if (swiperWrapper.scrollWidth === (swiperWrapper.clientWidth + swiperWrapper.scrollLeft) + 1)
                 swiperWrapper.scrollLeft = 0
             else if (visibleWidthofSlide === slideWidth) scrollLeft += widthSlideSkipper
+            else if (visibleWidthofSlide === slideWidth - 1) scrollLeft += widthSlideSkipper
             else scrollLeft += slideWidth - visibleWidthofSlide + (widthSlideSkipper - (slideWidth + gapWidth))
             swiperWrapper.scrollLeft = scrollLeft
         }
@@ -408,7 +480,6 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen }) => 
             : mobile.swiper.chevrons.display
 
         if (!isNaN(scrollLeft) && autoToggle && chevronsVisible !== 'none') {
-            //console.log(swiperWrapper.scrollLeft, swiperWrapper.scrollWidth - swiperWrapper.clientWidth)
             if (verticalSwiper
                 ? swiperWrapper.scrollTop + swiperWrapper.clientHeight === swiperWrapper.scrollHeight
                 : swiperWrapper.scrollLeft + swiperWrapper.clientWidth === swiperWrapper.scrollWidth) // maximum right
@@ -421,35 +492,47 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen }) => 
                 leftChevron.style.display = 'none'
             else leftChevron.style.display = 'flex'
         }
+        if (!verticalSwiper) {
+            var index = parseInt((swiperWrapper.scrollLeft + swiperWrapper.clientWidth + gapWidth) / (slideWidth + gapWidth) + 0.01) - 1
+            if (slideIndex !== index) {
+                //const bulletsWrapper = document.getElementsByClassName(slideBox._id)[0]
+                setSlideIndex(index)
+                //if ((slides.length - 1 - index) > 1 && index !== 0 && index !== 1)
+                //bulletsWrapper.scrollLeft += 15
+            }
+        } else {
+            var index = parseInt((swiperWrapper.scrollTop + swiperWrapper.clientHeight + gapWidth) / (slideHeight + gapWidth) + 0.01) - 1
+            if (slideIndex !== index) {
+                setSlideIndex(index)
+                //bulletsWrapper.scrollLeft -= bulletWidth
+            }
+        }
     }
 
     const ToggleScroll = e => {
+        const currClientX = !touchScreen ? e.clientX : e.changedTouches[0].clientX
+        const currClientY = !touchScreen ? e.clientY : e.changedTouches[0].clientY
+        const minScroll = !verticalSwiper ? swiperWrapper.scrollLeft === 0 : swiperWrapper.scrollTop === 0
+        const maxScroll = !verticalSwiper ? scrollWidth === swiperWrapper.scrollLeft : scrollHeight === swiperWrapper.scrollTop
 
-        if (scrollBehavior === 'smooth') {
-            if (e.clientX < clientX) chevronRight(e)
-            else if (e.clientX > clientX) chevronLeft(e)
-            if (e.changedTouches) {
-                if (e.changedTouches[0].clientX < clientX) chevronRight(e)
-                else if (e.changedTouches[0].clientX > clientX) chevronLeft(e)
-            }
-
-            if (e.clientY < clientY) chevronBottom(e)
-            else if (e.clientY > clientY) chevronTop(e)
-            if (!e.clientY) {
-                if (e.changedTouches[0].clientY < clientY) chevronBottom(e)
-                else if (e.changedTouches[0].clientY > clientY) chevronTop(e)
+        if (scrollBehavior === 'smooth') { // auto scroll
+            if (verticalSwiper) {
+                if (currClientY < clientY && !maxScroll) chevronRight(e)
+                else if (currClientY > clientY && !minScroll) chevronLeft(e)
+            } else if (!verticalSwiper) {
+                if (currClientX < clientX && !maxScroll) chevronRight(e)//swiperWrapper.scrollLeft += Math.pow(mouseTravel, 2)
+                else if (currClientX > clientX && !minScroll) chevronLeft(e)//swiperWrapper.scrollLeft -= Math.pow(mouseTravel, 2)
             }
         }
 
-        if (scrollAutoToggle)
-            if (!verticalSwiper && e.clientX !== prevClientX) {
-                if (swiperWrapper.scrollLeft === 0) chevronLeft(e)
-                else if (scrollWidth === swiperWrapper.scrollLeft) chevronRight(e)
+        if (scrollAutoToggle) // toggle scroll if scroll on min or max
+            if (!verticalSwiper && currClientX !== prevClientX) {
+                if (minScroll) chevronLeft(e)
+                else if (maxScroll) chevronRight(e)
 
-            } else if (verticalSwiper && e.clientY !== prevClientY) {
-                if (swiperWrapper.scrollTop === 0) chevronTop(e)
-                else if (scrollHeight === swiperWrapper.scrollTop) chevronBottom(e)
-
+            } else if (verticalSwiper && currClientY !== prevClientY) {
+                if (minScroll) chevronTop(e)
+                else if (maxScroll) chevronBottom(e)
             }
     }
 
@@ -492,50 +575,123 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen }) => 
         }
     })
 
+    ////////////////////// Bullets ///////////////////////
+
+    const Bullets = React.memo(() => {
+        const bullets = !mobileScreen
+            ? slideBox.swiper.bullets
+            : mobile.swiper.bullets
+
+        const bulletsCont = {
+            display: bullets.display,
+            bottom: bullets.bottom,
+        }
+
+        const bulletsWrap = {
+            gridColumnGap: bullets.paddingBetween,
+            gridRowGap: bullets.paddingBetween,
+        }
+
+        const bulletCont = {}
+        const bulletWrap = {}
+
+        const bullet = {
+            fontSize: bullets.fontSize,
+        }
+
+        const setWrapWidth = e => {
+            var gapWidth = bullets.paddingBetween
+            if (gapWidth.includes('rem')) gapWidth = parseFloat(bullets.paddingBetween) * 10
+            else gapWidth = parseFloat(bullets.paddingBetween)
+            setBulletWidth(e.currentTarget.offsetWidth + gapWidth)
+        }
+
+        return (
+            <div style={bulletsCont} className='bullets-cont'>
+                <div style={bulletsWrap} className='bullets-wrap'>
+                    {slides.map(slide =>
+                        <div style={bulletCont} key={slides.indexOf(slide)} className='slide-wrapper'>
+                            <div style={bulletWrap} onError={e => !bulletWidth && setWrapWidth(e)}>
+                                <img src='' style={{ display: 'none' }} />
+                                <FontAwesomeIcon style={{ ...bullet, color: slides.indexOf(slide) === slideIndex ? '#00bdd9' : '#eeeeee' }}
+                                    icon={faCircle} />
+                            </div>
+                        </div>)}
+                </div>
+            </div>
+        )
+    })
+
+    /////////////////////// Badges ///////////////////////
+
+    //const badgesList = ['4%', '5%', '10%']
+    const badges = (!mobileScreen ? slideBox.badges : mobile.badges) || {}
+
+    const badgesWrap = {
+        display: badges.display,
+        top: badges.top,
+        left: badges.left,
+        gridRowGap: badges.paddingBetween,
+        gridColumnGap: badges.paddingBetween,
+        gridTemplateColumns: `repeat(auto-fit, minmax(${badges.badgeWidth}, 1fr))`,
+    }
+    const badgeWrap = {
+        height: badges.badgeHeight,
+        width: badges.badgeWidth,
+        borderRadius: badges.borderRadius,
+    }
+    const badgeStyle = {
+        color: badges.color,
+        fontSize: badges.fontSize
+    }
+
+    /*const [badgeList, setBadgeList] = useState()
     useEffect(() => {
-        setSwiperBox(!mobileScreen
-            ? {
-                height: slideBox.height,
-                display: slideBox.display,
-                flexWrap: slideBox.flexWrap,
-                padding: slideBox.paddingAround,
-                justifyContent: slideBox.justifyContent,
-                backgroundColor: slideBox.backgroundColor,
-                gridColumnGap: slideBox.paddingBetween,
-                gridRowGap: slideBox.paddingBetween,
-                gridTemplateColumns: `repeat(auto-fit, minmax(${slideBox.slideWidth}, 1fr))`,
-                borderRadius: slideBox.slideBorderRadius,
-                maxHeight: slideBox.showMore.display === 'none' ? '2000px' : slideBox.slideHeight,
-                touchAction: autoPlay && slideBox.slideWidth === '100%' && 'none',
-                overflowY: slideBox.overflowY
-            } : {
-                height: mobile.height,
-                display: mobile.display,
-                flexWrap: mobile.flexWrap,
-                padding: mobile.paddingAround,
-                justifyContent: mobile.justifyContent,
-                backgroundColor: mobile.backgroundColor,
-                gridColumnGap: mobile.paddingBetween,
-                gridRowGap: mobile.paddingBetween,
-                gridTemplateColumns: `repeat(auto-fit, minmax(${mobile.slideWidth}, 1fr))`,
-                borderRadius: mobile.slideBorderRadius,
-                maxHeight: mobile.showMore.display === 'none' ? '2000px' : mobile.slideHeight,
-                touchAction: autoPlay && mobile.slideWidth === '100%' && 'none',
-                overflowY: mobile.overflowY,
+        if (badges && badgesList && !badgeList)
+            setBadgeList([...badges.badges, ...badgesList])
+    }, [badges, badgesList])*/
+
+    const Badges = React.memo((discount) => {
+        const disc = (discount.discount && discount.discount !== 0 && [discount.discount + '%']) || []
+        const badgeList = [...badges.badges, ...disc]
+        return (
+            <div className='badges-wrap' style={badgesWrap}>
+                {badgeList && badgeList.map(badge =>
+                    <div className='badge-wrap'
+                        style={{ ...badgeWrap, backgroundColor: badges.backgroundColors[badgeList.indexOf(badge)] }}>
+                        <div style={badgeStyle}>{badge}</div>
+                    </div>)}
+            </div>
+        )
+    })
+
+    // Product Quick View Handler
+    const handleQuickView = (product) => {
+        dispatch({ type: 'UPDATE_ACTIONS', payload: { quickView: { product } } })
+        window.addEventListener('click', (e) => {
+            const quickViewOverlay = document.querySelector('.quick-view-overlay')
+            if (e.target === quickViewOverlay) {
+                dispatch({ type: 'REMOVE_FROM_ACTIONS', payload: 'quickView' })
+            }
+        })
+    }
+
+    useEffect(() => {
+        const element = document.getElementsByClassName(slideBox._id)[0]
+        if (element) {
+            const titleElements = [...element.getElementsByClassName('product-name')]
+            var maxHeight = 0
+            titleElements.map(e => {
+                if (e.offsetHeight > maxHeight) maxHeight = e.offsetHeight
             })
-
-        setRightChevronWrapperBackgound(!mobileScreen
-            ? { backgroundColor: slideBox.swiper.chevrons.backgroundColor }
-            : { backgroundColor: mobile.swiper.chevrons.backgroundColor })
-
-        setleftChevronWrapperBackgound(!mobileScreen
-            ? { backgroundColor: slideBox.swiper.chevrons.backgroundColor }
-            : { backgroundColor: mobile.swiper.chevrons.backgroundColor })
-
-    }, [mobileScreen])
+            for (var i = 0, len = titleElements.length; i < len; i++) {
+                titleElements[i].style["height"] = maxHeight + 'px';
+            }
+        }
+    }, [])
 
     return (
-        <div className='slides-overlay' style={slidesOverlayStyle}>
+        <div className={'slides-overlay ' + slideBox._id} style={slidesOverlayStyle}>
             <div className='flex-slides-wrapper'>
                 <div className='fixed-slides-wrapper' style={slidesWrapperStyle}>
 
@@ -567,29 +723,57 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen }) => 
                     </div>
 
                     {/*////////////////////// Swiper ///////////////////////*/}
-                    <div className="hero-banner-submain" style={swiperBox}
-                        onMouseDown={e => mouseDownHandler(e)}
-                        onTouchStart={e => touchStartHandler(e)}
+                    <div className="slideBox-wrapper" style={swiperBox}
+                        onMouseDown={e => swiperWrapper && mouseDownHandler(e)}
+                        onTouchStart={e => swiperWrapper && touchStartHandler(e)}
                         onError={e => setSwiperWrapper(e.currentTarget)}
                         onScroll={ToggleChevrons}>
                         <img src='' style={{ display: 'none' }} />
                         {slides.length > 0 && slides.map(slide =>
-                            <div className='slide-wrapper' style={slideWrapperStyle} key={slides.indexOf(slide)}>
-                                <img src={/*imageUrl + slide.src*/url(slide.src)}
-                                    className="hero-submain-img"
-                                    style={imageStyle}
-                                    onClick={e => linkSlide(e, slide.link)}>
-                                </img>
-                                <div className='slide-title' style={slideTitleStyle}>
-                                    {slide.title}
-                                    {!mobileScreen && <FontAwesomeIcon icon={faChevronCircleRight} style={circleRightChevronStyle} />}
+                            <div className='slide-wrapper' style={slideWrapperStyle} key={slides.indexOf(slide)}
+                                onLoadCapture={getSlideSize}>
+                                <Badges discount={slide.discount} />
+                                <div className='image-wrap' style={imageWrapStyle}>
+                                    {/*<div className='image-skeleton' style={skeleton}>Sarah Originals</div>*/}
+                                    <img src={/*imageUrl + slide.src*/url(slide.src || slide.image)}
+                                        className="hero-submain-img"
+                                        style={imageStyle}
+                                        onClick={e => linkSlide(e, slide.link)}
+                                    //onLoad={e => { e.currentTarget.previousSibling.classList.add('hide') }}
+                                    />
                                 </div>
+                                {!products
+                                    ? <div className='data-container-0'>
+                                        <div className='slide-title' style={slideTitleStyle}>
+                                            {slide.title}
+                                            {!mobileScreen && <FontAwesomeIcon icon={faChevronCircleRight} style={circleRightChevronStyle} />}
+                                        </div>
+                                    </div>
+                                    : <div className='data-container'>
+                                        <div className="product-name">
+                                            <Link to={"/product/" + slide._id}>
+                                                <div className='product-nameEn'>{slide.nameEn}</div>
+                                            </Link>
+                                        </div>
+                                        {/*Done*/}
+                                        <div className="product-brand">{slide.brand}</div>
+                                        <div className="product-price">
+                                            <div className={slide.discount > 0 ? 'before-discount' : ''}>${slide.priceUsd}</div>
+                                            {slide.discount > 0 &&
+                                                <div className='after-discount'>${Math.round(100 * (slide.priceUsd - slide.priceUsd * slide.discount / 100)) / 100}</div>
+                                            }
+                                            <div className='product-review-container'>
+                                                <FontAwesomeIcon icon={faStar} className='faStar' />
+                                                <div className='product-review'>4.5</div>
+                                                <div className='product-review-qty'>(21)</div>
+                                            </div>
+                                        </div>
+                                    </div>}
                             </div>
                         )}
                     </div>
                 </div>
-
-                {/*////////////////////// Show more ////////////////////////*/}
+                <Bullets />
                 <ShowMore />
             </div>
         </div>

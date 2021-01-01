@@ -55,12 +55,23 @@ const controlsSchema = new mongoose.Schema({
             paddingAround: { type: String, required: false, default: '0' },
             paddingBetween: { type: String, required: false, default: '0' },
             backgroundColor: { type: String, required: false, default: 'inherit' },
+            borderRadius: { type: String, required: false, default: '0.2rem' },
+            height: { type: String, required: false, default: 'fit-content' },
+            width: { type: String, required: false, default: 'fit-content' },
             title: {
                 display: { type: String, required: false, default: 'none' },
                 title: { type: String, required: false, default: '' },
-                fontSize: { type: String, required: false, default: '1.5rem' },
-                design: { type: String, required: false, default: 'fish' },
-                backgroundColor: { type: String, required: false, default: 'inherit' },
+                fontSize: { type: String, required: false, default: '1.7rem' },
+                padding: { type: String, required: false, default: '1rem' },
+                design: { type: String, required: false, default: 'Classic-1' },
+                border: { type: String, required: false, default: '1px solid blue' },
+                showAll: {
+                    fontSize: { type: String, required: false, default: '1.3rem' },
+                    color: { type: String, required: false, default: '#00000080' },
+                    border: { type: String, required: false, default: '1px solid #00000020' },
+                    button: { type: Boolean, required: false, default: false },
+                    top: { type: String, required: false, default: '1rem' },
+                }
             },
             mobile: {
                 display: { type: String, required: false, default: 'flex' },
@@ -69,16 +80,29 @@ const controlsSchema = new mongoose.Schema({
                 paddingAround: { type: String, required: false, default: '0' },
                 paddingBetween: { type: String, required: false, default: '0' },
                 backgroundColor: { type: String, required: false, default: 'inherit' },
+                borderRadius: { type: String, required: false, default: '0rem' },
+                height: { type: String, required: false, default: 'fit-content' },
+                width: { type: String, required: false, default: 'fit-content' },
                 title: {
                     display: { type: String, required: false, default: 'none' },
                     title: { type: String, required: false, default: '' },
                     fontSize: { type: String, required: false, default: '1.2rem' },
-                    design: { type: String, required: false, default: 'fish' },
-                    backgroundColor: { type: String, required: false, default: 'inherit' },
+                    design: { type: String, required: false, default: 'Classic-1' },
+                    padding: { type: String, required: false, default: '0.5rem' },
+                    border: { type: String, required: false, default: '1px solid blue' },
+                    iconColor: { type: String, required: false, default: 'blue' },
+                    showAll: {
+                        fontSize: { type: String, required: false, default: '1rem' },
+                        color: { type: String, required: false, default: '#00000080' },
+                        border: { type: String, required: false, default: '1px solid #00000020' },
+                        button: { type: Boolean, required: false, default: false },
+                        top: { type: String, required: false, default: '1rem' },
+                    }
                 },
             },
             slideBox: {
                 type: [{
+                    type: { type: String, required: false, default: 'Image' },
                     display: { type: String, required: false, default: 'none' },
                     height: { type: String, required: false, default: 'auto' },
                     width: { type: String, required: false, default: 'auto' },
@@ -86,7 +110,8 @@ const controlsSchema = new mongoose.Schema({
                     backgroundColor: { type: String, required: false, default: 'inherit' },
                     paddingAround: { type: String, required: false, default: '0' },
                     paddingBetween: { type: String, required: false, default: '0' },
-                    overflowY: { type: String, required: false, default: 'hidden' },
+                    overflow: { type: String, required: false, default: 'hidden' },
+                    borderRadius: { type: String, required: false, default: '0.5rem' },
                     // slide
                     slideBorderRadius: { type: String, required: false, default: '0' },
                     slideBorder: { type: String, required: false, default: '0' },
@@ -99,6 +124,10 @@ const controlsSchema = new mongoose.Schema({
                     imgWidth: { type: String, required: false, default: 'auto' },
                     imgForceWidth: { type: Boolean, required: false, default: false },
                     imgAnimation: { type: Boolean, required: false, default: true },
+                    // skeleton
+                    skeleton: {
+                        fontSize: { type: String, required: false, default: '1.2rem' },
+                    },
                     // slide title
                     slideTitle: {
                         display: { type: String, required: false, default: 'none' },
@@ -116,10 +145,25 @@ const controlsSchema = new mongoose.Schema({
                         moreText: { type: String, required: false, default: 'show more' },
                         lessText: { type: String, required: false, default: 'show less' },
                     },
+                    // badges
+                    badges: {
+                        display: { type: String, required: false, default: 'none' },
+                        top: { type: String, required: false, default: '0.4rem' },
+                        left: { type: String, required: false, default: '0.4rem' },
+                        borderRadius: { type: String, required: false, default: '0.5rem' },
+                        backgroundColors: { type: Array, required: false, default: ['red', 'orangered', 'orange'] },
+                        color: { type: String, required: false, default: '#fff' },
+                        fontSize: { type: String, required: false, default: '2rem' },
+                        badgeWidth: { type: String, required: false, default: '5rem' },
+                        badgeHeight: { type: String, required: false, default: '3.5rem' },
+                        badges: { type: Array, required: false, default: [] },
+                        paddingBetween: { type: String, required: false, default: '0.5rem' },
+                    },
                     // swiper
                     swiper: {
                         swipable: { type: Boolean, required: false, default: false },
                         direction: { type: String, required: false, default: 'X' },
+                        skip: { type: Number, required: false, default: 1 },
                         chevrons: {
                             display: { type: String, required: false, default: 'none' },
                             color: { type: String, required: false, default: '#fff' },
@@ -128,7 +172,7 @@ const controlsSchema = new mongoose.Schema({
                             backgroundColor: { type: String, required: false, default: '#00000040' },
                             hoverBackgroundColor: { type: String, required: false, default: '#00000060' },
                             autoToggle: { type: Boolean, required: false, default: true },
-                            skip: { type: Number, required: false, default: 1 },
+                            boxShadow: { type: Boolean, required: false, default: true },
                         },
                         autoPlay: {
                             duration: { type: String, required: false, default: '2000' },
@@ -138,6 +182,12 @@ const controlsSchema = new mongoose.Schema({
                             behavior: { type: String, required: false, default: 'auto' },
                             autoToggle: { type: Boolean, required: false, default: true },
                         },
+                        bullets: {
+                            display: { type: String, required: false, default: 'flex' },
+                            bottom: { type: String, required: false, default: '1rem' },
+                            paddingBetween: { type: String, required: false, default: '0.8rem' },
+                            fontSize: { type: String, required: false, default: '1rem' },
+                        }
                     },
                     mobile: {
                         display: { type: String, required: false, default: 'none' },
@@ -148,6 +198,7 @@ const controlsSchema = new mongoose.Schema({
                         paddingAround: { type: String, required: false, default: '0' },
                         paddingBetween: { type: String, required: false, default: '0' },
                         overflowY: { type: String, required: false, default: 'hidden' },
+                        borderRadius: { type: String, required: false, default: '0.5rem' },
                         // slide
                         slideBorderRadius: { type: String, required: false, default: '0' },
                         slideBorder: { type: String, required: false, default: '0' },
@@ -160,6 +211,10 @@ const controlsSchema = new mongoose.Schema({
                         imgWidth: { type: String, required: false, default: 'auto' },
                         imgForceWidth: { type: Boolean, required: false, default: false },
                         imgAnimation: { type: Boolean, required: false, default: true },
+                        // skeleton
+                        skeleton: {
+                            fontSize: { type: String, required: false, default: '1rem' },
+                        },
                         // show more
                         showMore: {
                             display: { type: String, required: false, default: 'none' },
@@ -169,10 +224,25 @@ const controlsSchema = new mongoose.Schema({
                             moreText: { type: String, required: false, default: 'show more' },
                             lessText: { type: String, required: false, default: 'show less' },
                         },
+                        // badges
+                        badges: {
+                            display: { type: String, required: false, default: 'none' },
+                            top: { type: String, required: false, default: '0.2rem' },
+                            left: { type: String, required: false, default: '0.2rem' },
+                            borderRadius: { type: String, required: false, default: '0.5rem' },
+                            backgroundColors: { type: Array, required: false, default: ['red', 'orangered', 'orange'] },
+                            color: { type: String, required: false, default: '#fff' },
+                            fontSize: { type: String, required: false, default: '1.4rem' },
+                            paddingBetween: { type: String, required: false, default: '0.5rem' },
+                            badgeWidth: { type: String, required: false, default: '3rem' },
+                            badgeHeight: { type: String, required: false, default: '2rem' },
+                            badges: { type: Array, required: false, default: [] },
+                        },
                         // swiper
                         swiper: {
                             swipable: { type: Boolean, required: false, default: false },
                             direction: { type: String, required: false, default: 'X' },
+                            skip: { type: Number, required: false, default: 1 },
                             chevrons: {
                                 display: { type: String, required: false, default: 'none' },
                                 color: { type: String, required: false, default: '#fff' },
@@ -181,7 +251,7 @@ const controlsSchema = new mongoose.Schema({
                                 backgroundColor: { type: String, required: false, default: '#00000000' },
                                 hoverBackgroundColor: { type: String, required: false, default: '#00000000' },
                                 autoToggle: { type: Boolean, required: false, default: true },
-                                skip: { type: Number, required: false, default: 1 },
+                                boxShadow: { type: Boolean, required: false, default: true },
                             },
                             autoPlay: {
                                 duration: { type: Number, required: false, default: 2000 },
@@ -191,6 +261,12 @@ const controlsSchema = new mongoose.Schema({
                                 behavior: { type: String, required: false, default: 'smooth' },
                                 autoToggle: { type: Boolean, required: false, default: true },
                             },
+                            bullets: {
+                                display: { type: String, required: false, default: 'flex' },
+                                bottom: { type: String, required: false, default: '0.5rem' },
+                                paddingBetween: { type: String, required: false, default: '0.5rem' },
+                                fontSize: { type: String, required: false, default: '0.5rem' },
+                            }
                         },
                         // slide title
                         slideTitle: {
@@ -213,58 +289,6 @@ const controlsSchema = new mongoose.Schema({
 
         }], required: false, default: []
     },
-    // slide Ribbons
-    slideRibbon: {
-        type: [{
-            active: { type: Boolean, required: false },
-            name: { type: String, required: false },
-            title: {
-                title: { type: String, required: false },
-                design: { type: String, required: false },
-                backgroundColor: { type: String, required: false },
-            },
-            ribbon: {
-                width: { type: String, required: false },
-            },
-            slide: {
-                width: { type: String, required: false },
-                border: { type: String, required: false },
-                backgroundColor: { type: String, required: false },
-                flexDirection: { type: String, required: false },
-                title: {
-                    display: { type: String, required: false },
-                    justifyContent: { type: String, required: false },
-                }
-            },
-            image: {
-                maxHeight: { type: String, required: false },
-                maxWidth: { type: String, required: false },
-                containerHeight: { type: String, required: false },
-                containerWidth: { type: String, required: false },
-            },
-            mobile: {
-                ribbon: {
-                    width: { type: String, required: false },
-                },
-                slide: {
-                    width: { type: String, required: false },
-                },
-                image: {
-                    maxHeight: { type: String, required: false },
-                    maxWidth: { type: String, required: false },
-                    containerHeight: { type: String, required: false },
-                    containerWidth: { type: String, required: false },
-                },
-            },
-            slides: {
-                type: [{
-                    _id: { type: String, required: false },
-                    title: { type: String, required: false },
-                    image: { type: String, required: false }
-                }], required: false
-            }
-        }], required: false
-    }
 })
 
 const Controls = mongoose.model("Controls", controlsSchema);

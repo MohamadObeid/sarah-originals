@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useLayoutEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { listHomePageViews } from "../actions/viewsActions";
-import { SlideRibbon } from './Components/SlideRibbon'
 import FontAwesome from 'react-fontawesome'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronRight, faStar } from "@fortawesome/free-solid-svg-icons"
@@ -51,13 +50,14 @@ const HomeScreen = React.memo(props => {
       setProducts(productList)
 
       cartItems.map(item => {
-        const similarProducts = productList.filter(product => product._id == item._id)
-        similarProducts.map(product => {
-          if (item.qty > product.countInStock) item.qty = product.countInStock
-          product.qty = item.qty
-          product.animate = true
-          toggleCartBtns(product)
-        })
+        productList
+          .filter(product => product._id == item._id)
+          .map(product => {
+            if (item.qty > product.countInStock) item.qty = product.countInStock
+            product.qty = item.qty
+            product.animate = true
+            toggleCartBtns(product)
+          })
       })
     }
   }, [views])
@@ -315,6 +315,7 @@ const HomeScreen = React.memo(props => {
             <div className="product-name">
               <Link to={"/product/" + product._id}>{product.nameEn}</Link>
             </div>
+            {/*Done*/}
             <div className="product-brand">{product.brand}</div>
             <div className="product-price">
               <div className={product.discount > 0 ? 'before-discount' : ''}>${product.priceUsd}</div>
@@ -332,37 +333,15 @@ const HomeScreen = React.memo(props => {
         </div>)))
   }
 
-  ////////////////////////////////////////////////
   //////////////// Navigation Bar ////////////////
 
   const [actionNoteTop, setActionNoteTop] = useState('0.5rem')
 
-  const ProductSwiper = () => {
-    return (views.map(view => view.type === 'Product Box'
-      ? <div className="products-slider-container">
-        <div className='slider-container-title-line'>
-          <div className='slider-container-title'>{view.name} Products</div>
-          <div className='slider-container-show-all'>show all
-                  <FontAwesomeIcon icon={faChevronRight} className='faChevronRight' /></div>
-        </div>
-        <div className="products">
-          {view.products && view.products.length > 0 &&
-            (window.innerWidth > 700 ?
-              <Swiper {...swiper}>
-                {ProductSlide(view)}
-              </Swiper>
-              : <div className='mobile-swiper-container'>
-                {ProductSlide(view)}
-              </div>
-              /*<ScrollBox>
-                {ProductSlide(view)}
-              </ScrollBox>*/
-            )}
-        </div>
-      </div>
-      : view.type === 'Image Box'
+  const Views = () => {
+    return (views.map(view =>
+      (view.type === 'Image Box' || view.type === 'Product Box')
         ? controls.imageBox.find(box => box.name === view.name) &&
-        <ImageBox imageBox={controls.imageBox.find(box => box.name === view.name)} mobileScreen={mobileScreen} />
+        <ImageBox imageBox={controls.imageBox.find(box => box.name === view.name)} mobileScreen={mobileScreen} products={view.products || false} />
         : <></>
     ))
   }
@@ -435,7 +414,7 @@ const HomeScreen = React.memo(props => {
 
   }, [controls, mobileScreen])
 
-  return (
+  return (controls && !loadingControls &&
     <>
       {actionNoteVisible &&
         <div style={{ top: actionNoteTop }} className="action-note">
@@ -451,13 +430,9 @@ const HomeScreen = React.memo(props => {
         </div>
       }
 
-      {controls && !loadingControls &&
-        <>
-          {navigationBar && <NavigationBar navigationBar={navigationBar} />}
-          {imageBoxCategories && <SlideRibbon imageBox={imageBoxCategories} />}
-        </>
-      }
-      {views.length > 0 && !loading && ProductSwiper()}
+      {navigationBar && <NavigationBar navigationBar={navigationBar} />}
+
+      {views.length > 0 && !loading && Views()}
     </>
   );
 })
