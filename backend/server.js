@@ -89,7 +89,6 @@ app.use(bodyParser.json());
 app.use(methodOverride('_method'))
 app.use(morgan('dev'))
 app.use(cors())
-//app.use(express.static(path.join(__dirname, 'public')))
 
 io.on('connection', (socket) => {
   console.log('new client connected');
@@ -139,7 +138,8 @@ app.set('view engine', 'jade');
 app.use(cors({ origin: '*' }));
 app.use(logger('dev'));*/
 
-app.use(express.static(path.join(__dirname, '/../frontend/build')));
+//app.use(express.static(path.join(__dirname, 'public')))
+//app.use(express.static(path.join(__dirname, '/../frontend/build')));
 /*app.get('*', (req, res) => {
   res.sendFile(path.join(`${__dirname}/../frontend/build/index.html`));
 });*/
