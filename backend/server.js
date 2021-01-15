@@ -1,6 +1,6 @@
 import express from "express";
 import config from "./config";
-//import path from 'path';
+import path from 'path';
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import morgan from 'morgan'
@@ -78,11 +78,10 @@ mongoose.connect(mongodbUrl, {
   useCreateIndex: true,
   useFindAndModify: false,
 })
-  .catch((error) => console.log(error.reason))
+  .catch((err) => console.log(err.reason))
   .then(() => console.log('Connected to database: GridApp'))
 
-const app = express();
-
+const app = express()
 const server = http.createServer(app)
 const io = socketIo(server)
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -140,8 +139,7 @@ app.set('view engine', 'jade');
 app.use(cors({ origin: '*' }));
 app.use(logger('dev'));*/
 
-//app.use(express.static(path.join(__dirname, '/../frontend/build')));
-
+app.use(express.static(path.join(__dirname, '/../frontend/build')));
 /*app.get('*', (req, res) => {
   res.sendFile(path.join(`${__dirname}/../frontend/build/index.html`));
 });*/
