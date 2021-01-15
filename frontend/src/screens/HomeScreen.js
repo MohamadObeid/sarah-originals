@@ -1,16 +1,13 @@
-import React, { useEffect, useState, useLayoutEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { listHomePageViews } from "../actions/viewsActions";
 import FontAwesome from 'react-fontawesome'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faChevronRight, faStar } from "@fortawesome/free-solid-svg-icons"
+import { faStar } from "@fortawesome/free-solid-svg-icons"
 import { Link } from "react-router-dom"
 import { addToCart, removeFromCart, updateCart } from "../actions/cartActions";
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import Swiper from 'react-id-swiper';
 import { ImageBox } from "./Components/ImageBox";
 import { NavigationBar } from "./Components/NavigationBar";
-//import ScrollBox from './Components/ScrollBox';
 
 const HomeScreen = React.memo(props => {
   const imageUrl = window.location.origin + '/api/uploads/image/'
@@ -21,48 +18,13 @@ const HomeScreen = React.memo(props => {
   const [products, setProducts] = useState([])
   const [navigationBar, setNavigationBar] = useState()
 
-  const { views, loading } = useSelector(state => state.views)
-  const { cartItems, message } = useSelector(state => state.cart);
-  const { controls, loading: loadingControls } = useSelector(state => state.controls)
+  const { cartItems, message } = useSelector(state => state.cart)
+  const { controls, loading } = useSelector(state => state.controls)
   const actions = useSelector(state => state.actions)
 
   const dispatch = useDispatch()
-  useEffect(() => {
-    if (Object.keys(controls).length > 0) {
-      setNavigationBar(controls.navigationBar)
 
-      if (controls.homePageViews)
-        dispatch(listHomePageViews({ views: controls.homePageViews }))
-      document.getElementsByTagName('HTML')[0].style.backgroundColor = controls.backgroundColor
-    }
-  }, [controls])
-
-  useEffect(() => {
-    if (views.length > 0) {
-
-      const productList = views
-        .filter(view => view.type === 'Product Box')
-        .map(view => {
-          view.products.map(product => delete product['qty'])
-          return view.products
-        }).flat()
-
-      setProducts(productList)
-
-      cartItems.map(item => {
-        productList
-          .filter(product => product._id == item._id)
-          .map(product => {
-            if (item.qty > product.countInStock) item.qty = product.countInStock
-            product.qty = item.qty
-            product.animate = true
-            toggleCartBtns(product)
-          })
-      })
-    }
-  }, [views])
-
-  useEffect(() => {
+  /*useEffect(() => {
     if (message) {
       setActionNote(message)
       setActionNoteVisible(true)
@@ -72,7 +34,7 @@ const HomeScreen = React.memo(props => {
       }, 5000))
       dispatch({ type: 'CLEAR_MESSAGE', payload: cartItems }) // clear message
     }
-  }, [cartItems])
+  }, [cartItems])*/
 
   const [mobileScreen, setMobileScreen] = useState(window.innerWidth <= 700 ? true : false)
 
@@ -83,55 +45,52 @@ const HomeScreen = React.memo(props => {
     })
   }, [])
 
-  //const mobileScreen = window.innerWidth <= 700 ? true : false
-
   // Add to Cart Handler
   const handleAddToCart = (product) => {
 
-    const productList = products.filter(pro => product._id == pro._id)
-    productList.map(pro => {
-      pro.qty = 1
-      toggleCartBtns(pro)
-    })
+    products
+      .filter(pro => product._id == pro._id)
+      .map(pro => pro.qty = 1)
 
     const inCart = cartItems.find(item => item._id === product._id)
     if (inCart) dispatch(updateCart({ _id: product._id, qty: product.qty, message: 'Product Added Successfully!' }))
     else dispatch(addToCart({ _id: product._id, qty: product.qty, message: 'Product Added Successfully!' }))
   }
 
-  //Minus Handler
+  // Minus Handler
   const handleMinus = (product, e) => {
-    const productList = products.filter(pro => product._id == pro._id)
-    productList.map(pro => {
-      pro.qty--
-      toggleCartBtns(pro)
-    })
+
+    products
+      .filter(pro => product._id == pro._id)
+      .map(pro => pro.qty--)
 
     if (product.qty === 0) dispatch(removeFromCart({ _id: product._id, message: 'Product Removed Successfully!' }))
-    else dispatch(updateCart({ _id: product._id, qty: product.qty }))
+    else dispatch(updateCart({ _id: product._id, qty: product.qty, message: 'Quantity Reduced Successfully!' }))
   }
 
   // Plus Handler
   const handlePlus = (product, e) => {
-    if ((!product.qty || product.qty === 0) && product.countInStock > 0) {
-      const productList = products.filter(pro => product._id == pro._id)
-      productList.map(pro => {
-        pro.qty = 1
-        toggleCartBtns(pro)
-      })
+    if ((!product.qty || product.qty === 0) && product.countInStock > 0) {// product doesnot exist in cart
+
+      products
+        .filter(pro => product._id == pro._id)
+        .map(pro => pro.qty = 1)
 
       dispatch(addToCart({ _id: product._id, qty: product.qty, message: 'Product Added Successfully!' }))
 
-    } else if (product.countInStock > product.qty) {
-      const productList = products.filter(pro => product._id == pro._id)
-      productList.map(product0 => product0.qty++)
-      dispatch(updateCart({ _id: product._id, qty: product.qty, message: 'Product Added Successfully!' }))
+    } else if (product.countInStock > product.qty) { // product exists in cart
+
+      products
+        .filter(pro => product._id == pro._id)
+        .map(pro => pro.qty++)
+
+      dispatch(updateCart({ _id: product._id, qty: product.qty, message: 'Quantity Added Successfully!' }))
 
     } else dispatch(updateCart({ _id: product._id, message: 'Only ' + product.qty + product.unit + ' ' + product.nameEn + ' are available in stock!' }))
   }
 
-  // Toogle Handler
-  const toggleCartBtns = (product) => {
+  // Toggle Handler
+  /*const toggleCartBtns = (product) => {
     if (product.qty === 0) {
       product.AddToCartClass = 'show';
       product.PlusMinusClass = 'hide';
@@ -139,7 +98,7 @@ const HomeScreen = React.memo(props => {
       product.AddToCartClass = 'hide';
       product.PlusMinusClass = 'show';
     }
-  }
+  }*/
 
   // Product Quick View
   const QuickView = (product) => {
@@ -188,12 +147,12 @@ const HomeScreen = React.memo(props => {
             <div className="product-add-to-cart">
               <button
                 type="button"
-                className={`add-to-cart-btn ${product.AddToCartClass}`}
+                className={'add-to-cart-btn ' + product.qty <= 0 ? 'show' : 'hide'}
                 value={product._id}
                 onClick={() => handleAddToCart(product)}>
                 Add To Cart
               </button>
-              <div className={`add-to-cart-btns hide ${product.PlusMinusClass}`}>
+              <div className={'add-to-cart-btns hide ' + product.qty <= 0 ? 'hide' : 'show'}>
                 <button
                   type="button"
                   className="minus"
@@ -338,12 +297,16 @@ const HomeScreen = React.memo(props => {
   const [actionNoteTop, setActionNoteTop] = useState('0.5rem')
 
   const Views = () => {
-    return (views.map(view =>
-      (view.type === 'Image Box' || view.type === 'Product Box')
-        ? controls.imageBox.find(box => box.name === view.name) &&
-        <ImageBox imageBox={controls.imageBox.find(box => box.name === view.name)} mobileScreen={mobileScreen} products={view.products || false} />
-        : <></>
-    ))
+    const slideLists = useSelector(state => state.slideLists)
+
+    if (slideLists.length > 0)
+      return controls.homePageViews.map(view => {
+        const imageBox = controls.imageBox.find(box => box.name === view.name)
+        return imageBox
+          ? <ImageBox imageBox={imageBox} mobileScreen={mobileScreen} />
+          : <></>
+      })
+    else return <></>
   }
 
   //////////////////////////////////// Slide Ribbon Props ///////////////////////////////////
@@ -414,7 +377,7 @@ const HomeScreen = React.memo(props => {
 
   }, [controls, mobileScreen])
 
-  return (controls && !loadingControls &&
+  return (controls && !loading &&
     <>
       {actionNoteVisible &&
         <div style={{ top: actionNoteTop }} className="action-note">
@@ -424,15 +387,14 @@ const HomeScreen = React.memo(props => {
           </div>
         </div>}
 
-      {actions.quickView &&
+      {/*actions.quickView &&
         <div className="quick-view-overlay">
           {QuickView(actions.quickView.product)}
         </div>
-      }
+      */}
 
-      {navigationBar && <NavigationBar navigationBar={navigationBar} />}
-
-      {views.length > 0 && !loading && Views()}
+      {controls.navigationBar && <NavigationBar navigationBar={controls.navigationBar} />}
+      <Views />
     </>
   );
 })

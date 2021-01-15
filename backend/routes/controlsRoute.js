@@ -5,29 +5,14 @@ import { isAuth, isAdmin } from '../util';
 const router = express.Router();
 
 router.get("", async (req, res) => {
-    const controls = await Controls.find({})
-    /*controls.map(async control => {
-        const controlsDeleted = await Controls.findByIdAndRemove(control._id);
-    })*/
-    //console.log('get', controls)
-    res.send(controls)
-});
-
-/*router.post("", isAuth, isAdmin, async (req, res) => {
-    const controls = new Controls(req.body)
-    const newcontrols = await controls.save();
-    //console.log(newcontrols)
-    if (newcontrols) {
-        return res.status(201).send({ message: "New controls created!", data: newcontrols })
-    }
-    return res.status(500).send({
-        message: "Error in creating controls!"
-    })
-});*/
+    const controls = await Controls.findOne({ active: { $eq: true } })
+    if (controls) return res.send(controls)
+    return res.send({ message: 'No Controls Available!' })
+})
 
 router.put("/put", isAuth, isAdmin, async (req, res) => {
     const controls = await Controls.findOne({ _id: { $eq: /*'5fd0806998049b03400861a7'*/'5fc2ff0bdd745917d40ae217' } })
-    //console.log(controls)
+
     if (controls) {
         controls.active = req.body.active
         controls.backgroundColor = req.body.backgroundColor

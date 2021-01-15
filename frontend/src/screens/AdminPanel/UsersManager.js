@@ -4,7 +4,7 @@ import { listUsers, deleteUser, saveUser } from "../../actions/userActions";
 import FontAwesome from 'react-fontawesome';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle, faEdit, faPlus, faPlusCircle, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
-import { dayConverter } from '../../methods/methods'
+import { timer } from '../../methods/methods'
 
 function UsersManager(props) {
 
@@ -425,7 +425,7 @@ function UsersManager(props) {
                             <td className='td-active'>
                                 <FontAwesomeIcon className={`${user.active ? 'faCircle' : 'farCircle'}`} icon={faCircle} />
                             </td>
-                            <td>{dayConverter(user.lastActivity, user.active)}</td>
+                            <td>{timer(user.lastActivity, user.active)}</td>
                             <td>{user.name}</td>
                             <td>{user.email}</td>
                             <td>{user.phone}</td>

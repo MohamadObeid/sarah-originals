@@ -16,6 +16,7 @@ const brandSchema = new mongoose.Schema({
     supplier: { type: String, required: false, default: '' },
     phone: { type: Number, required: false },
     image: { type: String, required: false },
+    collections: { type: Array, required: false, default: [] },
     description: { type: String, required: true, default: '' },
 })
 

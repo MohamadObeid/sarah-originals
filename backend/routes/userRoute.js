@@ -2,12 +2,12 @@ import express from "express";
 import User from "../modals/userModel";
 import { getToken } from "../util";
 import { isAuth, isAdmin } from '../util';
-import process from 'process'
-import TeleSignSDK from 'telesignsdk'
+//import process from 'process'
+//import TeleSignSDK from 'telesignsdk'
 
 ///////////////////////// SMS Authentication //////////////////////////////
 //const readline = require('readline');
-const customerId = "196201E6-7136-4425-8F17-B57D65BD3AAD";
+/*const customerId = "196201E6-7136-4425-8F17-B57D65BD3AAD";
 const apiKey = "jIxb4tih9CI0aCg7mP4YFUGoKTGCe3eRBkvcD2aWJsUv4iU1+dm/VQLEqaumScfWatGcgU6hzueF0oyBdxW4ZA==";
 const rest_endpoint = "https://rest-api.telesign.com";
 const timeout = 60 * 1000; // 60 secs
@@ -17,7 +17,7 @@ const client = new TeleSignSDK(
   apiKey,
   rest_endpoint,
   timeout // optional
-)
+)*/
 
 const router = express.Router();
 
@@ -113,7 +113,7 @@ router.post("/signin", async (req, res) => {
   }
 })
 
-router.post('/verifySMS', async (req, res) => {
+/*router.post('/verifySMS', async (req, res) => {
 
   console.log("## MessagingClient.message ##");
 
@@ -159,39 +159,39 @@ router.post('/verifySMS', async (req, res) => {
     })
   }*/
 
-  /*
-  // springedge send sms
+/*
+// springedge send sms
 
 var springedge = require('springedge');
 
 var params = {
-  'apikey': '', // API Key
-  'sender': 'SEDEMO', // Sender Name
-  'to': [
-    '919019xxxxxxxx'  //Moblie Number
-  ],
-  'message': 'test+message',
-  'format': 'json'
+'apikey': '', // API Key
+'sender': 'SEDEMO', // Sender Name
+'to': [
+  '919019xxxxxxxx'  //Moblie Number
+],
+'message': 'test+message',
+'format': 'json'
 };
 
 springedge.messages.send(params, 5000, function (err, response) {
-  if (err) {
-    return console.log(err);
-  }
-  console.log(response);
+if (err) {
+  return console.log(err);
+}
+console.log(response);
 });
 // Result:
 {
-  "groupID":xxxx,
-  "MessageIDs":"xxxxx-x",
-  "status":"AWAITED-DLR"
+"groupID":xxxx,
+"MessageIDs":"xxxxx-x",
+"status":"AWAITED-DLR"
 }
 Or in case of an error:
 
 {
-  "error":"Invalid Mobile Numbers"
-}*/
-})
+"error":"Invalid Mobile Numbers"
+}
+})*/
 
 router.post("/register", async (req, res) => {
 

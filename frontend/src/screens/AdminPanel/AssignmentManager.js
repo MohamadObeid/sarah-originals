@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { cartAmountCalc, creationDatePrettier, date, dayConverter, deliveryCalc, discountCalc, paymentCalc, qtyCalc, timeDiffCalc, totalAmountCalc } from "../../methods/methods";
+import { cartAmountCalc, creationDatePrettier, date, timer, deliveryCalc, discountCalc, paymentCalc, qtyCalc, timeDiffCalc, totalAmountCalc } from "../../methods/methods";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheckCircle, faCircle, faEye, faEyeSlash, faPlus } from "@fortawesome/free-solid-svg-icons";
 import ReactTooltip from "react-tooltip";
@@ -742,7 +742,7 @@ function AssignmentManager(props) {
                                             icon={faCircle} />
                                     </td>
                                     <td data-tip data-for={ass._id + 'due-date'}>
-                                        {dayConverter(dueDate(ass, request))}
+                                        {timer(dueDate(ass, request))}
                                         <ReactTooltip id={ass._id + 'due-date'} place="top" effect="float">
                                             {creationDatePrettier(dueDate(ass, request))}
                                         </ReactTooltip>

@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import timeZone from "mongoose-timezone";
 
 const orderSchema = new mongoose.Schema({
 
@@ -99,7 +98,7 @@ const orderSchema = new mongoose.Schema({
     closedDate: { type: Date, required: false },
 });
 
-orderSchema.plugin(timeZone, { paths: {} })
+//orderSchema.plugin(timeZone, { paths: {} })
 const Order = mongoose.model("Order", orderSchema)
 
 export default Order;

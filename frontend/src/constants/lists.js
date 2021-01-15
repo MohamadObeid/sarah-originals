@@ -127,7 +127,8 @@ export const rateUnitList = ['usd', 'lbp', '%', 'euro']
 export const orderStatusList = ['Open', 'Closed', 'Rejected', 'Canceled']
 export const assignmentStatusList = ['Pending', 'Accepted', 'Canceled', 'Rejected']
 
-export const collectionList = ['Featured', 'Popular', 'New Arrival', 'Special Offer', 'Promoted', 'Favorite', 'Most Viewed', 'Best Seller']
+export const productCollectionList = ['Featured', 'Popular', 'New Arrival', 'Special Offer', 'Promoted', 'Favorite', 'Most Viewed', 'Best Seller', 'Moment Suggestions']
+export const brandCollectionList = ['Top Brands']
 
 // Cancel requestType is accepted => if paymentStatus === 'Pending && deliveryStatus === 'Pending' 
 // => in this case delivery and payment status will be set 'On Hold'

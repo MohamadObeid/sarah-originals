@@ -7,6 +7,7 @@ import {
   productDetailsReducer,
   productSaveReducer,
   productDeleteReducer,
+  slideListsReducer
 } from "./reducers/productReducers";
 
 import {
@@ -104,9 +105,12 @@ import {
   controlReducer,
   controlSaveReducer,
   actions,
-} from "./reducers/controlReducer"
+  controllerReducer,
+  controllerSaveReducer
+} from "./reducers/controlsReducer"
 
 import { viewsReducer } from './reducers/viewsReducer'
+import { screenBoxReducer, screenBoxSaveReducer } from "./reducers/screenBoxReducer";
 
 const cartItems = cookie.getJSON("cartItems") || [];
 const userInfo = cookie.getJSON("userInfo") || {};
@@ -129,11 +133,16 @@ const reducer = combineReducers({
   clock: clockReducer,
   controls: controlReducer,
   controlSave: controlSaveReducer,
+  controllerSave: controllerSaveReducer,
+  controller: controllerReducer,
+  screenBox: screenBoxReducer,
+  screenBoxSave: screenBoxSaveReducer,
 
   productList: productListReducer,
   productDetails: productDetailsReducer,
   productSave: productSaveReducer,
   productDelete: productDeleteReducer,
+  slideLists: slideListsReducer,
 
   cart: cartReducer,
   packed: packedReducer,

@@ -194,7 +194,8 @@ function CartScreen(props) {
                 <div className='cart-total-label font-size'>Total</div>
                 <strike className='total-num font-size slashed'>
                   <div className='slash-over'></div>
-                  {totalAmountCalc(products) + ' $'}</strike>
+                  {totalAmountCalc(products) + ' $'}
+                </strike>
               </div>
               <div className='cart-total-qty'>
                 <div className='cart-total-label font-size'>Discount</div>

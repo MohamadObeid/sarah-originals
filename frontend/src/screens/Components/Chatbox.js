@@ -76,7 +76,7 @@ function Chatbox(props) {
     }
 
     useEffect(() => {
-        userInfo && dispatch(refreshLiveUsers())
+        //userInfo && dispatch(refreshLiveUsers())
         return () => {
             //
         }

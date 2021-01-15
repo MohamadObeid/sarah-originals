@@ -42,6 +42,11 @@ import img19 from '../images/banner-sample-8.jpg';
 import img20 from '../images/banner-sample-9.jpg';
 import img21 from '../images/banner-sample-10.jpg';
 import img22 from '../images/banner-sample-11.jpg';
+import img23 from '../images/stunning.png'
+import img24 from '../images/sub-banner-1.jpg';
+import img25 from '../images/sub-banner-2.jpg';
+import img26 from '../images/sub-banner-3.jpg';
+import img27 from '../images/sub-banner-4.jpg';
 const imageUrl = window.location.origin + '/api/uploads/image/'
 
 export const url = (src) => {
@@ -96,6 +101,16 @@ export const url = (src) => {
                                                                                                     : src === '../../images/banner-sample-10.jpg'
                                                                                                         ? img21
                                                                                                         : src === '../../images/banner-sample-11.jpg'
-                                                                                                        && img22
+                                                                                                            ? img22
+                                                                                                            : src === '../../images/stunning.png'
+                                                                                                                ? img23
+                                                                                                                : src === '../../images/sub-banner-1.jpg'
+                                                                                                                    ? img24
+                                                                                                                    : src === '../../images/sub-banner-2.jpg'
+                                                                                                                        ? img25
+                                                                                                                        : src === '../../images/sub-banner-3.jpg'
+                                                                                                                            ? img26
+                                                                                                                            : src === '../../images/sub-banner-4.jpg'
+                                                                                                                            && img27
     )
 }

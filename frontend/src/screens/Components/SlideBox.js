@@ -1,237 +1,282 @@
 import React, { useEffect, useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronCircleRight, faChevronLeft, faChevronRight, faCircle, faStar } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faChevronCircleRight, faChevronLeft, faChevronRight, faCircle, faStar } from '@fortawesome/free-solid-svg-icons'
 import { url } from '../../constants/defaultImages'
-import { useDispatch } from 'react-redux'
-import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux'
+import { Link } from 'react-router-dom'
+import { TitleContainer } from './TitleContainer'
+import { showTimer } from '../../methods/methods'
+import { Timer } from './SlideBoxComponents'
 
-export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen, products }) => {
+const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
     const dispatch = useDispatch()
-    const mobile = slideBox.mobile
-    const slides = products ? [...slideBox.slides, ...products] : slideBox.slides || []
-    const skeleton = !mobileScreen ? slideBox.skeleton : mobile.skeleton
+    var timeOut
+    var swiperWrapper
+    var leftChevron
+    var rightChevron
+    var slideWidth
+    var slideHeight
+    var boxOpenned
+    var element
+    var slideIndex
+    var lastClientX
 
-    const scrollBehavior = (!mobileScreen
-        ? slideBox.swiper.scroll.behavior
-        : mobile.swiper.scroll.behavior) || 'auto'
+    useEffect(() => {
+        element = document.getElementsByClassName('slide-box-' + slideBox._id)[0]
+        swiperWrapper = element.getElementsByClassName('slideBox-wrapper')[0]
+        leftChevron = element.getElementsByClassName('left-chevron-wrap')[0]
+        rightChevron = element.getElementsByClassName('right-chevron-wrap')[0]
 
-    const slidesOverlayStyle = !mobileScreen
-        ? {
-            display: slideBox.display,
-            width: slideBox.width,
-            height: slideBox.height,
-            position: 'relative',
-            overflow: 'hidden',
-        } : {
-            display: mobile.display,
-            width: mobile.width,
-            height: mobile.height,
-            position: 'relative',
-            overflow: 'hidden',
+        const titleElements = [...element.getElementsByClassName('slide-wrapper')]
+        var maxHeight = 0
+
+        titleElements.map(e => {
+            if (e.offsetHeight > maxHeight)
+                maxHeight = e.offsetHeight
+
+            // if slide have a product timer => align the timer to the end
+            if (e.getElementsByClassName('product-timer-wrap') && e.getElementsByClassName('product-timer-wrap').length > 0)
+                e.getElementsByClassName('product-details-wrap')[0].style.justifyContent = 'space-between'
+        })
+        for (var i = 0, len = titleElements.length; i < len; i++) {
+            titleElements[i].style["height"] = maxHeight + 'px';
         }
 
-    const slidesWrapperStyle = {
-        width: '100%',
-        height: '100%',
-        padding: !mobileScreen ? slideBox.paddingAround : mobile.paddingAround,
-        borderRadius: !mobileScreen ? slideBox.borderRadius : mobile.borderRadius
+        slideHeight = maxHeight
+        slideWidth = element.getElementsByClassName('slide-wrapper')[0] && element.getElementsByClassName('slide-wrapper')[0].offsetWidth
+
+        widthSlideSkipper = (slideWidth + gapWidth) * skip
+        heightSlideSkipper = (slideHeight + gapWidth) * skip
+
+        const currSwiperWidth = swiperWrapper.offsetWidth
+        const lineCapacity = parseInt((currSwiperWidth + gapWidth) / (slideWidth + gapWidth))
+        const lineNum = slides.length / lineCapacity
+        if (lineNum % 1 === 0)
+            swiperHeight = ((slideHeight + gapWidth) * lineNum - gapWidth) + 'px'
+        else if (lineNum % 1 > 0)
+            swiperHeight = ((slideHeight + gapWidth) * (parseInt(lineNum + 1)) - gapWidth) + 'px'
+
+        if (autoPlay && !timeOut)
+            timeOut = [setInterval(() => chevronRight(), duration)]
+
+        if (styles.swiper.swipable) ToggleChevrons(true)
+
+    }, [])
+
+    const mobile = slideBox.mobile
+    const styles = !mobileScreen ? slideBox : mobile
+    const slides = slideList ? [...slideBox.slides, ...slideList] : slideBox.slides || []
+    const skeleton = styles.skeleton
+    const skipMore = styles.swiper.skipMore
+    const index = slideBox.slide.length > 1 ? 1 : 0
+
+    const scrollBehavior = styles.swiper.scroll.behavior || 'auto'
+    const verticalSwiper = styles.swiper.direction === 'Y' ? true : false
+
+    const slidesOverlayStyle = {
+        display: styles.display,
+        width: styles.width,
+        backgroundColor: styles.backgroundColor,
+        border: styles.border,
+        borderRadius: styles.borderRadius
     }
 
-    const [swiperBox, setSwiperBox] = useState(!mobileScreen
+    const slidesWrapperStyle = {
+        padding: styles.paddingAround,
+        borderRadius: styles.borderRadius
+    }
+
+    const swiperBox = {
+        display: styles.display,
+        gridColumnGap: styles.paddingBetween,
+        gridRowGap: styles.paddingBetween,
+        gridTemplateColumns: `repeat(auto-fit, minmax(${styles.slide[index].width}, 1fr))`,
+        borderRadius: styles.slide[index].borderRadius,
+        overflow: styles.overflow,
+        height: styles.height
+    }
+
+    // calc swiper box height according to slide height => to open whole swiper box
+    var swiperHeight
+
+    const slideContainer = {
+        height: styles.slide[index].height,
+        minWidth: styles.slide[index].width,
+        borderRadius: styles.slide[index].borderRadius,
+        border: styles.slide[index].border,
+    }
+
+    const slideContainerZero = {
+        height: styles.slide[0].height,
+        minWidth: styles.slide[0].width,
+        borderRadius: styles.slide[0].borderRadius,
+        border: styles.slide[0].border,
+    }
+
+    const slideWrapperStyle = {
+        height: '100%',
+        width: '100%',
+        borderRadius: styles.slide[index].borderRadius,
+        border: styles.slide[index].border,
+        backgroundColor: styles.slide[index].backgroundColor,
+        justifyContent: styles.slide[index].justifyContent
+    }
+
+    const slideWrapperStyleZero = {
+        height: '100%',
+        width: '100%',
+        borderRadius: styles.slide[0].borderRadius,
+        border: styles.slide[0].border,
+        backgroundColor: styles.slide[0].backgroundColor,
+        justifyContent: styles.slide[0].justifyContent
+    }
+
+    const imageWrapStyle = {
+        minHeight: styles.slide[index].image.height,
+        borderRadius: styles.slide[index].image.borderRadius,
+        width: styles.slide[index].image.forceWidth && styles.slide[index].image.width,
+        maxWidth: !styles.slide[index].image.forceWidth && styles.slide[index].image.width
+    }
+
+    const imageStyle = {
+        height: styles.slide[index].image.forceWidth && styles.slide[index].image.height,
+        maxHeight: styles.slide[index].image.height,
+        borderRadius: styles.slide[index].image.borderRadius,
+        transform: !styles.slide[index].image.animation && 'unset',
+        width: styles.slide[index].image.forceWidth && styles.slide[index].image.width,
+        maxWidth: styles.slide[index].image.width
+    }
+
+    const imageWrapStyleZero = {
+        minHeight: styles.slide[0].image.height,
+        borderRadius: styles.slide[0].image.borderRadius,
+        width: styles.slide[0].image.forceWidth && styles.slide[0].image.width,
+        maxWidth: !styles.slide[0].image.forceWidth && styles.slide[0].image.width
+    }
+
+    const imageStyleZero = {
+        height: styles.slide[0].image.forceWidth && styles.slide[0].image.height,
+        maxHeight: styles.slide[0].image.height,
+        borderRadius: styles.slide[0].image.borderRadius,
+        transform: !styles.slide[0].image.animation && 'unset',
+        width: styles.slide[0].image.forceWidth && styles.slide[0].image.width,
+        maxWidth: styles.slide[0].image.width
+    }
+
+    const slideTitleStyle = {
+        display: styles.slide[index].title.display,
+        backgroundColor: styles.slide[index].title.backgroundColor,
+        color: styles.slide[index].title.color,
+        fontSize: styles.slide[index].title.fontSize,
+        height: styles.slide[index].title.height,
+        margin: styles.slide[index].title.margin,
+        border: styles.slide[index].title.border,
+        borderRadius: styles.slide[index].title.borderRadius,
+        padding: styles.slide[index].title.padding,
+    }
+
+    const slideTitleStyleZero = {
+        display: styles.slide[0].title.display,
+        backgroundColor: styles.slide[0].title.backgroundColor,
+        color: styles.slide[0].title.color,
+        fontSize: styles.slide[0].title.fontSize,
+        height: styles.slide[0].title.height,
+        margin: styles.slide[0].title.margin,
+        border: styles.slide[0].title.border,
+        borderRadius: styles.slide[0].title.borderRadius,
+        padding: styles.slide[0].title.padding,
+    }
+
+    const chevronWrapperStyle = {
+        display: styles.swiper.chevrons.display,
+        height: styles.swiper.chevrons.height,
+        width: styles.swiper.chevrons.width,
+        backgroundColor: styles.swiper.chevrons.backgroundColor,
+        hoverBackgroundColor: styles.swiper.chevrons.hoverBackgroundColor,
+        initialBackgroundColor: styles.swiper.chevrons.backgroundColor,
+        boxShadow: !styles.swiper.chevrons.boxShadow && 'none'
+    }
+
+    const leftChevronWrapper = !verticalSwiper
         ? {
-            height: slideBox.height,
-            display: slideBox.display,
-            flexWrap: slideBox.flexWrap,
-            backgroundColor: slideBox.backgroundColor,
-            gridColumnGap: slideBox.paddingBetween,
-            gridRowGap: slideBox.paddingBetween,
-            gridTemplateColumns: `repeat(auto-fit, minmax(${slideBox.slideWidth}, 1fr))`,
-            borderRadius: slideBox.slideBorderRadius,
-            maxHeight: slideBox.showMore.display === 'none' ? '2000px' : slideBox.slideHeight,
-            overflow: scrollBehavior === 'auto' ? 'auto' : 'hidden'
+            top: `calc(50% - ${parseFloat(styles.swiper.chevrons.height) / 2 + 'rem'})`,
+            left: '0',
+            transform: 'rotate(0)',
         } : {
-            height: mobile.height,
-            display: mobile.display,
-            flexWrap: mobile.flexWrap,
-            backgroundColor: mobile.backgroundColor,
-            gridColumnGap: mobile.paddingBetween,
-            gridRowGap: mobile.paddingBetween,
-            gridTemplateColumns: `repeat(auto-fit, minmax(${mobile.slideWidth}, 1fr))`,
-            borderRadius: mobile.slideBorderRadius,
-            maxHeight: mobile.showMore.display === 'none' ? '2000px' : mobile.slideHeight,
-            overflow: scrollBehavior === 'auto' ? 'auto' : 'hidden'
-        })
-
-    const [rightChevronWrapperBackgound, setRightChevronWrapperBackgound] = useState(!mobileScreen
-        ? { backgroundColor: slideBox.swiper.chevrons.backgroundColor }
-        : { backgroundColor: mobile.swiper.chevrons.backgroundColor })
-
-    const [leftChevronWrapperBackgound, setleftChevronWrapperBackgound] = useState(!mobileScreen
-        ? { backgroundColor: slideBox.swiper.chevrons.backgroundColor }
-        : { backgroundColor: mobile.swiper.chevrons.backgroundColor })
-
-    const slideWrapperStyle = !mobileScreen
-        ? {
-            height: slideBox.slideHeight,
-            minWidth: slideBox.slideWidth,
-            borderRadius: slideBox.slideBorderRadius,
-            border: slideBox.slideBorder,
-            backgroundColor: slideBox.slideBackgroundColor,
-        } : {
-            height: mobile.slideHeight,
-            minWidth: mobile.slideWidth,
-            borderRadius: mobile.slideBorderRadius,
-            border: mobile.slideBorder,
-            backgroundColor: mobile.slideBackgroundColor,
+            top: `calc(-${parseFloat(styles.swiper.chevrons.width) / 2 + 'rem'})`,
+            left: `calc(50% - ${parseFloat(styles.swiper.chevrons.width) / 2 + 'rem'})`,
+            transform: 'rotate(90deg)',
         }
 
-    const imageWrapStyle = !mobileScreen
+    const rightChevronWrapper = !verticalSwiper
         ? {
-            height: slideBox.slideTitle.display !== 'none'
-                ? `calc(${slideBox.imgHeight} - ${slideBox.slideTitle.height})`
-                : slideBox.imgHeight,
-            borderRadius: slideBox.imgBorderRadius,
-            width: slideBox.imgForceWidth && slideBox.imgWidth,
-            maxWidth: slideBox.imgWidth
+            top: `calc(50% - ${parseFloat(styles.swiper.chevrons.height) / 2 + 'rem'})`,
+            right: '0',
+            transform: 'rotate(0)',
         } : {
-            height: mobile.slideTitle.display !== 'none'
-                ? `calc(${mobile.imgHeight} - ${mobile.slideTitle.height})`
-                : mobile.imgHeight,
-            borderRadius: mobile.imgBorderRadius,
-            width: mobile.imgForceWidth && mobile.imgWidth,
-            maxWidth: mobile.imgWidth
+            bottom: `calc(-${parseFloat(styles.swiper.chevrons.width) / 2 + 'rem'})`,
+            right: `calc(50% - ${parseFloat(styles.swiper.chevrons.width) / 2 + 'rem'})`,
+            transform: 'rotate(90deg)',
         }
 
-    const imageStyle = !mobileScreen
-        ? {
-            height: slideBox.imgForceWidth && slideBox.imgHeight,
-            maxHeight: slideBox.imgHeight,
-            borderRadius: slideBox.imgBorderRadius,
-            transform: !slideBox.imgAnimation && 'unset',
-            width: slideBox.imgForceWidth && slideBox.imgWidth,
-            maxWidth: slideBox.imgWidth
-        } : {
-            height: mobile.imgForceWidth && mobile.imgHeight,
-            maxHeight: mobile.imgHeight,
-            borderRadius: mobile.imgBorderRadius,
-            transform: !mobile.imgAnimation && 'unset',
-            width: mobile.imgForceWidth && mobile.imgWidth,
-            maxWidth: mobile.imgWidth
-        }
+    const swiperChevronsStyle = { color: styles.swiper.chevrons.color }
 
-    const slideTitleStyle = !mobileScreen
-        ? {
-            display: slideBox.slideTitle.display,
-            backgroundColor: slideBox.slideTitle.backgroundColor,
-            color: slideBox.slideTitle.color,
-            fontSize: slideBox.slideTitle.fontSize,
-            height: slideBox.slideTitle.height,
-        } : {
-            display: mobile.slideTitle.display,
-            backgroundColor: mobile.slideTitle.backgroundColor,
-            color: mobile.slideTitle.color,
-            fontSize: mobile.slideTitle.fontSize,
-            height: mobile.slideTitle.height,
-        }
+    const timerBar = {
+        display: styles.swiper.timerBar.display,
+        margin: styles.swiper.timerBar.margin,
+    }
 
-    const chevronWrapperStyle = !mobileScreen
-        ? {
-            display: slideBox.swiper.chevrons.display,
-            height: slideBox.swiper.chevrons.height,
-            width: slideBox.swiper.chevrons.width,
-            hoverBackgroundColor: slideBox.swiper.chevrons.hoverBackgroundColor,
-            initialBackgroundColor: slideBox.swiper.chevrons.backgroundColor,
-            boxShadow: !slideBox.swiper.chevrons.boxShadow && 'none'
-        } : {
-            display: mobile.swiper.chevrons.display,
-            height: mobile.swiper.chevrons.height,
-            width: mobile.swiper.chevrons.width,
-            hoverBackgroundColor: mobile.swiper.chevrons.hoverBackgroundColor,
-            initialBackgroundColor: mobile.swiper.chevrons.backgroundColor,
-            boxShadow: !mobile.swiper.chevrons.boxShadow && 'none'
-        }
+    const stopOnHover = styles.swiper.autoPlay.stopOnHover
 
-    const leftChevronWrapper = !mobileScreen
-        ? (
-            slideBox.swiper.direction === 'X'
-                ? {
-                    top: `calc(50% - ${parseFloat(slideBox.swiper.chevrons.height) / 2 + 'rem'})`,
-                    left: '0',
-                    transform: 'rotate(0)',
-                } : {
-                    top: `calc(-${parseFloat(slideBox.swiper.chevrons.width) / 2 + 'rem'})`,
-                    left: `calc(50% - ${parseFloat(slideBox.swiper.chevrons.width) / 2 + 'rem'})`,
-                    transform: 'rotate(90deg)',
-                }
-        ) : (
-            slideBox.swiper.direction === 'X'
-                ? {
-                    top: `calc(50% - ${parseFloat(mobile.swiper.chevrons.height) / 2 + 'rem'})`,
-                    left: '0',
-                    transform: 'rotate(0)',
-                } : {
-                    top: `calc(-${parseFloat(mobile.swiper.chevrons.width) / 2 + 'rem'})`,
-                    left: `calc(50% - ${parseFloat(mobile.swiper.chevrons.width) / 2 + 'rem'})`,
-                    transform: 'rotate(90deg)',
-                }
-        )
+    const productWrap = {
+        display: styles.product.display,
+        justifyContent: styles.product.justifyContent,
+        padding: styles.product.padding,
+    }
 
-    const rightChevronWrapper = !mobileScreen
-        ? (
-            slideBox.swiper.direction === 'X'
-                ? {
-                    top: `calc(50% - ${parseFloat(slideBox.swiper.chevrons.height) / 2 + 'rem'})`,
-                    right: '0',
-                    transform: 'rotate(0)',
-                } : {
-                    bottom: `calc(-${parseFloat(slideBox.swiper.chevrons.width) / 2 + 'rem'})`,
-                    right: `calc(50% - ${parseFloat(slideBox.swiper.chevrons.width) / 2 + 'rem'})`,
-                    transform: 'rotate(90deg)',
-                }
-        ) : (
-            slideBox.swiper.direction === 'X'
-                ? {
-                    top: `calc(50% - ${parseFloat(mobile.swiper.chevrons.height) / 2 + 'rem'})`,
-                    right: '0',
-                    transform: 'rotate(0)',
-                } : {
-                    bottom: `calc(-${parseFloat(mobile.swiper.chevrons.width) / 2 + 'rem'})`,
-                    right: `calc(50% - ${parseFloat(mobile.swiper.chevrons.width) / 2 + 'rem'})`,
-                    transform: 'rotate(90deg)',
-                }
-        )
+    const productName = {
+        fontSize: styles.product.name.fontSize,
+        color: styles.product.name.color,
+        //hoverColor: styles.product.name.hoverColor ,
+        textAlign: styles.product.name.textAlign,
+    }
 
-    const swiperChevronsStyle = !mobileScreen
-        ? { color: slideBox.swiper.chevrons.color }
-        : { color: mobile.swiper.chevrons.color }
+    const productBrand = {
+        display: styles.product.brand.display,
+        fontSize: styles.product.brand.fontSize,
+        color: styles.product.brand.color,
+        //hoverColor: styles.product.name.hoverColor ,
+    }
 
+    const productPrice = {
+        fontSize: styles.product.price.fontSize,
+        color: styles.product.price.color,
+        //hoverColor: styles.product.price.hoverColor ,
+        textAlign: styles.product.price.textAlign,
+    }
 
-    const circleRightChevronStyle = { color: slideBox.showMore.color }
+    const productPriceBeforeDiscount = {
+        fontSize: styles.product.price.beforeDiscount.fontSize,
+        color: styles.product.price.beforeDiscount.color,
+    }
+
+    const productPriceUnit = {
+        fontSize: styles.product.price.unit.fontSize,
+        color: styles.product.price.unit.color,
+    }
+
+    const productReviews = {
+        fontSize: styles.product.reviews.fontSize,
+        color: styles.product.reviews.color,
+    }
+
+    const productRating = {
+        fontSize: styles.product.rating.fontSize,
+        color: styles.product.rating.color,
+    }
 
     const linkSlide = (e, src) => {
         //handleQuickView({})
-    }
-
-    const [showMoreText, setShowMoreText] = useState(slideBox.showMore.moreText)
-    const [pageYOffset, setPageYOffset] = useState()
-    const [chevronsStyle, setChevronStyle] = useState({ color: slideBox.showMore.color })
-
-    const showMore = e => {
-        e.preventDefault()
-        if (!swiperBox.visible) {
-            setSwiperBox({ ...swiperBox, maxHeight: '2000px', visible: true })
-            setShowMoreText(slideBox.showMore.lessText)
-            setChevronStyle({ ...chevronsStyle, transform: 'rotate(180deg)' })
-            setPageYOffset(document.documentElement.scrollTop)
-
-        } else {
-            setSwiperBox(!mobileScreen ?
-                { ...swiperBox, maxHeight: slideBox.slideHeight, visible: false }
-                : { ...swiperBox, maxHeight: mobile.slideHeight, visible: false })
-            setShowMoreText(slideBox.showMore.moreText)
-            setChevronStyle({ ...chevronsStyle, transform: 'unset' })
-            document.documentElement.scrollTop = pageYOffset
-        }
     }
 
     ///////////////////// Swiper Functions //////////////////////
@@ -249,10 +294,6 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen, produ
     var gapWidth = !mobileScreen
         ? slideBox.paddingBetween
         : mobile.paddingBetween
-
-    const [slideWidth, setSlideWidth] = useState()
-    const [slideHeight, setSlideHeight] = useState()
-    const [bulletWidth, setBulletWidth] = useState()
 
     if (gapWidth.includes('rem')) gapWidth = parseFloat(gapWidth) * 10
     else gapWidth = parseFloat(gapWidth)
@@ -279,30 +320,17 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen, produ
         ? slideBox.swiper.scroll.autoToggle
         : mobile.swiper.scroll.autoToggle
 
-    const verticalSwiper = !mobileScreen
-        ? (slideBox.swiper.direction === 'Y' ? true : false)
-        : (mobile.swiper.direction === 'Y' ? true : false)
-
-    const [swiperWrapper, setSwiperWrapper] = useState()
-    const [bulletsWrapper, setBulletsWrapper] = useState()
-    const [leftChevron, setLeftChevron] = useState()
-    const [rightChevron, setRightChevron] = useState()
-    const [timeOut, setTimeOut] = useState()
-    const [slideIndex, setSlideIndex] = useState()
-
-    const getSlideSize = (e) => {
-        setSlideWidth(e.currentTarget.offsetWidth)
-        setSlideHeight(e.currentTarget.offsetHeight)
+    const mouseEnterHandler = e => {
+        e.preventDefault()
+        timeOut && timeOut.map(run => clearTimeout(run))
+        showTimerBar(false)
     }
 
-    useEffect(() => {
-        if (slideWidth) widthSlideSkipper = (slideWidth + gapWidth) * skip
-        if (slideHeight) heightSlideSkipper = (slideHeight + gapWidth) * skip
-
-        if (slideWidth && !timeOut && autoPlay) // run autoPlay
-            setTimeOut(setInterval(() => chevronRight(), duration))
-
-    }, [slideWidth, slideHeight])
+    const mouseLeaveHandler = e => {
+        e.preventDefault()
+        if (autoPlay) timeOut = [setInterval(() => chevronRight(), duration)]
+        showTimerBar(true)
+    }
 
     const mouseDownHandler = (e) => {
         !touchScreen && e.preventDefault()
@@ -327,7 +355,10 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen, produ
             window.addEventListener('touchmove', touchMoveHandler)
         }
 
-        clearTimeout(timeOut)
+        if (autoPlay) {
+            timeOut && timeOut.map(run => clearTimeout(run))
+            timeOut = []
+        }
     }
 
     const mouseUpHandler = (e) => {
@@ -338,11 +369,10 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen, produ
         window.removeEventListener('mouseup', mouseUpHandler)
         window.removeEventListener('touchend', mouseUpHandler)
         window.removeEventListener('touchmove', touchMoveHandler)
+        if (autoPlay && !stopOnHover) timeOut = [setInterval(() => chevronRight(), duration)]
 
-        autoPlay && setTimeOut(setInterval(() => chevronRight(), duration))
     }
-    var lastClientX
-    var mouseTravel
+
     const mouseMoveHandler = (e) => {
         if (drag) {
             if (verticalSwiper) {
@@ -357,7 +387,6 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen, produ
                     clientY = e.clientY
                 }
             } else {
-                mouseTravel = Math.abs(lastClientX - e.clientX)
                 lastClientX = e.clientX
                 if (e.clientX > clientX && swiperWrapper.scrollLeft === 0) {// case scroll is 0
                     scrollLeft = 0
@@ -373,7 +402,12 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen, produ
     }
 
     const touchStartHandler = e => {
-        mouseDownHandler(e)
+        !stopOnHover && mouseDownHandler(e)
+        if (stopOnHover) {
+            e.preventDefault()
+            timeOut && timeOut.map(run => clearTimeout(run))
+            showTimerBar(false)
+        }
     }
 
     const touchMoveHandler = e => {
@@ -414,13 +448,11 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen, produ
             }
             swiperWrapper.style.scrollBehavior = 'smooth'
             var visibleWidthofSlide = (swiperWrapper.clientWidth + swiperWrapper.scrollLeft) % (slideWidth + gapWidth)
-            scrollLeft = swiperWrapper.scrollLeft
-            if (swiperWrapper.scrollWidth === (swiperWrapper.clientWidth + swiperWrapper.scrollLeft))
-                swiperWrapper.scrollLeft = 0
-            else if (swiperWrapper.scrollWidth === (swiperWrapper.clientWidth + swiperWrapper.scrollLeft) + 1)
+            scrollLeft = swiperWrapper.scrollLeft + skipMore
+            if (swiperWrapper.scrollWidth - (swiperWrapper.clientWidth + swiperWrapper.scrollLeft) <= 2)
                 swiperWrapper.scrollLeft = 0
             else if (visibleWidthofSlide === slideWidth) scrollLeft += widthSlideSkipper
-            else if (visibleWidthofSlide === slideWidth - 1) scrollLeft += widthSlideSkipper
+            else if (slideWidth - visibleWidthofSlide <= 2) scrollLeft += widthSlideSkipper
             else scrollLeft += slideWidth - visibleWidthofSlide + (widthSlideSkipper - (slideWidth + gapWidth))
             swiperWrapper.scrollLeft = scrollLeft
         }
@@ -448,8 +480,7 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen, produ
             swiperWrapper.style.scrollBehavior = 'smooth'
             var visibleHeightofSlide = (swiperWrapper.clientHeight + swiperWrapper.scrollTop) % (slideHeight + gapWidth)
             scrollTop = swiperWrapper.scrollTop
-            if (swiperWrapper.scrollHeight === (swiperWrapper.clientHeight + swiperWrapper.scrollTop)
-                || swiperWrapper.scrollHeight === (swiperWrapper.clientHeight + swiperWrapper.scrollTop) + 1)
+            if (swiperWrapper.scrollHeight - (swiperWrapper.clientHeight + swiperWrapper.scrollTop) <= 2)
                 swiperWrapper.scrollTop = 0
             else if (visibleHeightofSlide === slideHeight) scrollTop += heightSlideSkipper
             else scrollTop += slideHeight - visibleHeightofSlide + (heightSlideSkipper - (slideHeight + gapWidth))
@@ -470,14 +501,9 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen, produ
         }
     }
 
-    const ToggleChevrons = () => {
-        const autoToggle = !mobileScreen
-            ? slideBox.swiper.chevrons.autoToggle
-            : mobile.swiper.chevrons.autoToggle
-
-        const chevronsVisible = !mobileScreen
-            ? slideBox.swiper.chevrons.display
-            : mobile.swiper.chevrons.display
+    const ToggleChevrons = e => {
+        const autoToggle = styles.swiper.chevrons.autoToggle
+        const chevronsVisible = styles.swiper.chevrons.display
 
         if (!isNaN(scrollLeft) && autoToggle && chevronsVisible !== 'none') {
             if (verticalSwiper
@@ -492,21 +518,8 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen, produ
                 leftChevron.style.display = 'none'
             else leftChevron.style.display = 'flex'
         }
-        if (!verticalSwiper) {
-            var index = parseInt((swiperWrapper.scrollLeft + swiperWrapper.clientWidth + gapWidth) / (slideWidth + gapWidth) + 0.01) - 1
-            if (slideIndex !== index) {
-                //const bulletsWrapper = document.getElementsByClassName(slideBox._id)[0]
-                setSlideIndex(index)
-                //if ((slides.length - 1 - index) > 1 && index !== 0 && index !== 1)
-                //bulletsWrapper.scrollLeft += 15
-            }
-        } else {
-            var index = parseInt((swiperWrapper.scrollTop + swiperWrapper.clientHeight + gapWidth) / (slideHeight + gapWidth) + 0.01) - 1
-            if (slideIndex !== index) {
-                setSlideIndex(index)
-                //bulletsWrapper.scrollLeft -= bulletWidth
-            }
-        }
+
+        toggleBullets_TimeBar()
     }
 
     const ToggleScroll = e => {
@@ -536,95 +549,121 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen, produ
             }
     }
 
-    /////////////////////////// Show more ////////////////////////////
+    ////////////////////// Open Box ///////////////////////////
 
-    const ShowMore = React.memo(() => {
-        const showMoreStyle = !mobileScreen
-            ? {
-                display: slideBox.showMore.display,
-                fontSize: slideBox.showMore.fontSize,
-            } : {
-                display: mobile.showMore.display,
-                fontSize: mobile.showMore.fontSize,
+    useSelector(state => {
+        if (swiperWrapper) {
+            const _idExist = state.actions.openBox &&
+                state.actions.openBox.find(box_id => box_id == slideBox._id)
+
+            if (_idExist && !boxOpenned) {
+                boxOpenned = true
+                timeOut && timeOut.map(run => clearTimeout(run))
+                timeOut = []
+                swiperWrapper.style.height = swiperHeight
+
+            } else if (!_idExist && boxOpenned) {
+                if (autoPlay) timeOut = [...timeOut, setInterval(() => chevronRight(), duration)]
+                boxOpenned = false
+                swiperWrapper.style.height = styles.height
             }
-
-        const [showMoreTextColor, setShowMoreTextColor] = useState('#707070')
-
-        if (slideBox.showMore.design === 'Classic' && !mobileScreen || mobile.showMore.design === 'Classic' && mobileScreen) {
-            return (
-                <div className='show-more-submain' style={showMoreStyle}
-                    onClick={e => showMore(e)}>
-                    <div style={{ color: showMoreTextColor }}
-                        onMouseEnter={() => setShowMoreTextColor(slideBox.showMore.color)}
-                        onMouseLeave={() => setShowMoreTextColor('#707070')}>{showMoreText}
-                    </div>
-                    <div className='chevron-wrapper'>
-                        <FontAwesomeIcon icon={faChevronRight}
-                            className='DoubleRightOutlined' style={chevronsStyle} />
-                    </div>
-                </div>
-            )
-        } else if (slideBox.showMore.design === 'Bullet' && !mobileScreen || mobile.showMore.design === 'Bullet' && mobileScreen) {
-            return (
-                <div className='showMore-wrapper' onClick={e => showMore(e)}
-                    style={showMoreStyle}>
-                    <img src='' style={{ display: 'none' }} />
-                    <FontAwesomeIcon icon={faChevronRight} style={chevronsStyle} />
-                </div>
-            )
         }
     })
 
     ////////////////////// Bullets ///////////////////////
+    const bullets = styles.swiper.bullets
+
+    const bulletsCont = {
+        display: bullets.display,
+        bottom: bullets.bottom,
+    }
+
+    const bulletsWrap = {
+        gridColumnGap: bullets.paddingBetween,
+        gridRowGap: bullets.paddingBetween,
+    }
+
+    const bulletCont = {}
+    const bulletWrap = {}
+
+    const bullet = {
+        fontSize: bullets.fontSize,
+    }
 
     const Bullets = React.memo(() => {
-        const bullets = !mobileScreen
-            ? slideBox.swiper.bullets
-            : mobile.swiper.bullets
-
-        const bulletsCont = {
-            display: bullets.display,
-            bottom: bullets.bottom,
-        }
-
-        const bulletsWrap = {
-            gridColumnGap: bullets.paddingBetween,
-            gridRowGap: bullets.paddingBetween,
-        }
-
-        const bulletCont = {}
-        const bulletWrap = {}
-
-        const bullet = {
-            fontSize: bullets.fontSize,
-        }
-
-        const setWrapWidth = e => {
-            var gapWidth = bullets.paddingBetween
-            if (gapWidth.includes('rem')) gapWidth = parseFloat(bullets.paddingBetween) * 10
-            else gapWidth = parseFloat(bullets.paddingBetween)
-            setBulletWidth(e.currentTarget.offsetWidth + gapWidth)
-        }
-
-        return (
-            <div style={bulletsCont} className='bullets-cont'>
-                <div style={bulletsWrap} className='bullets-wrap'>
-                    {slides.map(slide =>
-                        <div style={bulletCont} key={slides.indexOf(slide)} className='slide-wrapper'>
-                            <div style={bulletWrap} onError={e => !bulletWidth && setWrapWidth(e)}>
-                                <img src='' style={{ display: 'none' }} />
-                                <FontAwesomeIcon style={{ ...bullet, color: slides.indexOf(slide) === slideIndex ? '#00bdd9' : '#eeeeee' }}
-                                    icon={faCircle} />
-                            </div>
-                        </div>)}
+        if (styles.swiper.swipable)
+            return (
+                <div style={bulletsCont} className='bullets-cont'>
+                    <div style={bulletsWrap} className='bullets-wrap'>
+                        {slides.map(slide =>
+                            <div style={bulletCont} key={slides.indexOf(slide)}>
+                                <div style={bulletWrap}>
+                                    <FontAwesomeIcon className='bullet' style={bullet}
+                                        icon={faCircle} />
+                                </div>
+                            </div>)}
+                    </div>
                 </div>
-            </div>
-        )
+            )
     })
+
+
+    ///////////////////////////// Timer Bar /////////////////////////////
+
+    const showTimerBar = (state) => {
+        if (timerBar.display !== 'none') {
+            slideIndex = slideIndex || 0
+            var i = slides.length - 1
+            const timerBarElement = element.getElementsByClassName('timerBar')
+            while (i >= 0) {
+                timerBarElement[i].classList.remove('width-100')
+                i--
+            }
+            if (state) timerBarElement[slideIndex].classList.add('width-100')
+        }
+    }
+
+    const toggleBullets_TimeBar = () => {
+        if (bullets.display !== 'none' || timerBar.display !== 'none') {// toggle bullets
+            if (!verticalSwiper) {
+                var index = parseInt((swiperWrapper.scrollLeft + swiperWrapper.clientWidth + gapWidth) / (slideWidth + gapWidth) + 0.01) - 1
+                if (index < 0 || isNaN(index) || !index) index = 0
+
+                if (slideIndex !== index && element) {
+                    slideIndex = index
+                    showTimerBar(true)
+                    if (element.getElementsByClassName('bullet') &&
+                        element.getElementsByClassName('bullet')[slideIndex].style.color !== '#00bdd9') {
+                        var i = slides.length - 1
+                        while (i >= 0) {
+                            element.getElementsByClassName('bullet')[i].style.color = '#eeeeee'
+                            i--
+                        }
+                        element.getElementsByClassName('bullet')[slideIndex].style.color = '#00bdd9'
+                    }
+                }
+            } else {
+                var index = parseInt((swiperWrapper.scrollTop + swiperWrapper.clientHeight + gapWidth) / (slideHeight + gapWidth) + 0.01) - 1
+                if (index < 0 || isNaN(index) || !index) index = 0
+                if (slideIndex !== index && element) {
+                    slideIndex = index
+                    showTimerBar(true)
+                    if (element.getElementsByClassName('bullet') &&
+                        element.getElementsByClassName('bullet')[slideIndex].style.color !== '#00bdd9') {
+                        var i = slides.length - 1
+                        while (i >= 0) {
+                            element.getElementsByClassName('bullet')[i].style.color = '#eeeeee'
+                            i--
+                        }
+                        element.getElementsByClassName('bullet')[slideIndex].style.color = '#00bdd9'
+                    }
+                }
+            }
+        }
+    }
 
     /////////////////////// Badges ///////////////////////
 
-    //const badgesList = ['4%', '5%', '10%']
     const badges = (!mobileScreen ? slideBox.badges : mobile.badges) || {}
 
     const badgesWrap = {
@@ -642,24 +681,33 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen, produ
     }
     const badgeStyle = {
         color: badges.color,
-        fontSize: badges.fontSize
+        fontSize: badges.fontSize,
+        fontWeight: '600'
     }
 
-    /*const [badgeList, setBadgeList] = useState()
-    useEffect(() => {
-        if (badges && badgesList && !badgeList)
-            setBadgeList([...badges.badges, ...badgesList])
-    }, [badges, badgesList])*/
+    const Badges = React.memo(({ slide }) => {
+        var slash = false
+        var upcoming = false
+        var backgroundColor
+        var disc = (slide.discount && slide.discount !== 0 && [{ type: 'discount', discount: slide.discount + '%' }]) || []
+        if (slide.onSale && !showTimer(slide.onSale).ended) {
+            disc.push({ type: 'onSale', discount: slide.onSale.amount + '%' })
+            if (showTimer(slide.onSale).active) slash = true
+            else {
+                upcoming = true
+                backgroundColor = '#cccccc'
+            }
+        }
 
-    const Badges = React.memo((discount) => {
-        const disc = (discount.discount && discount.discount !== 0 && [discount.discount + '%']) || []
         const badgeList = [...badges.badges, ...disc]
         return (
             <div className='badges-wrap' style={badgesWrap}>
                 {badgeList && badgeList.map(badge =>
                     <div className='badge-wrap'
-                        style={{ ...badgeWrap, backgroundColor: badges.backgroundColors[badgeList.indexOf(badge)] }}>
-                        <div style={badgeStyle}>{badge}</div>
+                        style={{ ...badgeWrap, backgroundColor: badge.type === 'onSale' && backgroundColor ? backgroundColor : badges.backgroundColors[badgeList.indexOf(badge)] }}>
+                        {badge.type === 'discount' && slash && <div className='slash-over slash' />}
+                        {badge.type === 'onSale' && upcoming && <div className='upcoming-badget'>coming soon</div>}
+                        <div style={badgeStyle}>{badge.discount || badge}</div>
                     </div>)}
             </div>
         )
@@ -676,106 +724,111 @@ export const SlideBox = React.memo(({ slideBox, mobileScreen, touchScreen, produ
         })
     }
 
-    useEffect(() => {
-        const element = document.getElementsByClassName(slideBox._id)[0]
-        if (element) {
-            const titleElements = [...element.getElementsByClassName('product-name')]
-            var maxHeight = 0
-            titleElements.map(e => {
-                if (e.offsetHeight > maxHeight) maxHeight = e.offsetHeight
-            })
-            for (var i = 0, len = titleElements.length; i < len; i++) {
-                titleElements[i].style["height"] = maxHeight + 'px';
-            }
-        }
-    }, [])
+    ////////////////////////// Timer ////////////////////////////
 
     return (
-        <div className={'slides-overlay ' + slideBox._id} style={slidesOverlayStyle}>
+        <div className={'slides-overlay slide-box-' + slideBox._id} style={slidesOverlayStyle}>
+            {styles.title.display !== 'none' &&
+                <TitleContainer slideBox={slideBox} mobileScreen={mobileScreen} />}
             <div className='flex-slides-wrapper'>
                 <div className='fixed-slides-wrapper' style={slidesWrapperStyle}>
 
                     {/*/////////////////// Chevrons //////////////////*/}
 
                     <div className='left-chevron-wrap' onClick={e => {
-                        clearTimeout(timeOut)
+                        timeOut && timeOut.map(run => clearTimeout(run))
                         chevronLeft(e)
-                        autoPlay && setTimeOut(setInterval(() => chevronRight(), duration))
+                        var newTimeOut = []
+                        if (autoPlay) timeOut = [...newTimeOut, setInterval(() => chevronRight(), duration)]
                     }}
-                        style={{ ...chevronWrapperStyle, ...leftChevronWrapperBackgound, ...leftChevronWrapper }}
-                        onError={e => setLeftChevron(e.currentTarget)}
-                        onMouseEnter={e => setleftChevronWrapperBackgound({ backgroundColor: chevronWrapperStyle.hoverBackgroundColor })}
-                        onMouseLeave={e => setleftChevronWrapperBackgound({ backgroundColor: chevronWrapperStyle.initialBackgroundColor })}>
-                        <img src='' style={{ display: 'none' }} />
+                        style={{ ...chevronWrapperStyle, ...leftChevronWrapper }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = chevronWrapperStyle.hoverBackgroundColor }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = chevronWrapperStyle.initialBackgroundColor }}>
                         <FontAwesomeIcon icon={faChevronLeft} style={swiperChevronsStyle} />
                     </div>
                     <div className='right-chevron-wrap' onClick={e => {
-                        clearTimeout(timeOut)
+                        timeOut && timeOut.map(run => clearTimeout(run))
                         chevronRight(e)
-                        autoPlay && setTimeOut(setInterval(() => chevronRight(), duration))
+                        var newTimeOut = []
+                        if (autoPlay) timeOut = [...newTimeOut, setInterval(() => chevronRight(), duration)]
                     }}
-                        style={{ ...chevronWrapperStyle, ...rightChevronWrapperBackgound, ...rightChevronWrapper }}
-                        onError={e => setRightChevron(e.currentTarget)}
-                        onMouseEnter={e => setRightChevronWrapperBackgound({ backgroundColor: chevronWrapperStyle.hoverBackgroundColor })}
-                        onMouseLeave={e => setRightChevronWrapperBackgound({ backgroundColor: chevronWrapperStyle.initialBackgroundColor })}>
-                        <img src='' style={{ display: 'none' }} />
+                        style={{ ...chevronWrapperStyle, ...rightChevronWrapper }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = chevronWrapperStyle.hoverBackgroundColor }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = chevronWrapperStyle.initialBackgroundColor }}>
                         <FontAwesomeIcon icon={faChevronRight} style={swiperChevronsStyle} />
                     </div>
 
                     {/*////////////////////// Swiper ///////////////////////*/}
                     <div className="slideBox-wrapper" style={swiperBox}
-                        onMouseDown={e => swiperWrapper && mouseDownHandler(e)}
-                        onTouchStart={e => swiperWrapper && touchStartHandler(e)}
-                        onError={e => setSwiperWrapper(e.currentTarget)}
-                        onScroll={ToggleChevrons}>
-                        <img src='' style={{ display: 'none' }} />
+                        onMouseDown={e => { swiperWrapper && !stopOnHover && mouseDownHandler(e); e.preventDefault() }}
+                        onMouseEnter={e => { swiperWrapper && stopOnHover && mouseEnterHandler(e); e.preventDefault() }}
+                        onMouseLeave={e => { swiperWrapper && stopOnHover && mouseLeaveHandler(e) }}
+                        onTouchStart={e => { swiperWrapper && touchStartHandler(e) }}
+                        onTouchEnd={e => { swiperWrapper && stopOnHover && mouseLeaveHandler(e) }}
+                        onScroll={e => styles.swiper.swipable && ToggleChevrons()}>
                         {slides.length > 0 && slides.map(slide =>
-                            <div className='slide-wrapper' style={slideWrapperStyle} key={slides.indexOf(slide)}
-                                onLoadCapture={getSlideSize}>
-                                <Badges discount={slide.discount} />
-                                <div className='image-wrap' style={imageWrapStyle}>
-                                    {/*<div className='image-skeleton' style={skeleton}>Sarah Originals</div>*/}
-                                    <img src={/*imageUrl + slide.src*/url(slide.src || slide.image)}
-                                        className="hero-submain-img"
-                                        style={imageStyle}
-                                        onClick={e => linkSlide(e, slide.link)}
-                                    //onLoad={e => { e.currentTarget.previousSibling.classList.add('hide') }}
-                                    />
-                                </div>
-                                {!products
-                                    ? <div className='data-container-0'>
-                                        <div className='slide-title' style={slideTitleStyle}>
-                                            {slide.title}
-                                            {!mobileScreen && <FontAwesomeIcon icon={faChevronCircleRight} style={circleRightChevronStyle} />}
-                                        </div>
+                            <div className='slide-container' style={slides.indexOf(slide) === 0 ? slideContainerZero : slideContainer}
+                                key={slides.indexOf(slide)}>
+                                <div className='timerBar' style={timerBar} />
+                                <div className='slide-wrapper' style={slides.indexOf(slide) === 0 ? slideWrapperStyleZero : slideWrapperStyle}>
+                                    <Badges slide={slide} />
+                                    <div className='image-wrap' style={slides.indexOf(slide) === 0 ? imageWrapStyleZero : imageWrapStyle}>
+                                        {/*<div className='image-skeleton' style={skeleton}>Sarah Originals</div>*/}
+                                        <img src={/*imageUrl + slide.src*/url(slide.src || slide.image)}
+                                            className="slide-img"
+                                            style={slides.indexOf(slide) === 0 ? imageStyleZero : imageStyle}
+                                            onClick={e => linkSlide(e, slide.link)}
+                                        //onLoad={e => { e.currentTarget.previousSibling.classList.add('hide') }}
+                                        />
                                     </div>
-                                    : <div className='data-container'>
-                                        <div className="product-name">
-                                            <Link to={"/product/" + slide._id}>
-                                                <div className='product-nameEn'>{slide.nameEn}</div>
-                                            </Link>
-                                        </div>
-                                        {/*Done*/}
-                                        <div className="product-brand">{slide.brand}</div>
-                                        <div className="product-price">
-                                            <div className={slide.discount > 0 ? 'before-discount' : ''}>${slide.priceUsd}</div>
-                                            {slide.discount > 0 &&
-                                                <div className='after-discount'>${Math.round(100 * (slide.priceUsd - slide.priceUsd * slide.discount / 100)) / 100}</div>
-                                            }
-                                            <div className='product-review-container'>
-                                                <FontAwesomeIcon icon={faStar} className='faStar' />
-                                                <div className='product-review'>4.5</div>
-                                                <div className='product-review-qty'>(21)</div>
+                                    {slide.priceUsd
+                                        ? <div className='product-details-wrap' style={productWrap}>
+                                            <div className='product-details-wrap-1'>
+                                                <div className="product-name" style={productName}>
+                                                    <Link to={"/product/" + slide._id}>
+                                                        <div className='product-nameEn'>{slide.nameEn || slide.title}</div>
+                                                    </Link>
+                                                </div>
+                                                <div className="product-brand" style={productBrand}>{slide.brand}</div>
+                                                <div className='product-det-price-reviews-cont'>
+                                                    <div className="product-det-price-reviews-wrap">
+                                                        <div className="product-price">
+                                                            <div className={slide.discount > 0 ? 'before-discount' : ''}
+                                                                style={slide.discount > 0 ? productPriceBeforeDiscount : productPrice}>
+                                                                {slide.priceUsd}<div className='price-unit' style={productPriceUnit}>$</div>
+                                                            </div>
+                                                            {slide.discount > 0 &&
+                                                                <div className='after-discount' style={productPrice}>
+                                                                    {slide.priceUsd - (slide.priceUsd * ((slide.onSale && showTimer(slide.onSale).active)
+                                                                        ? slide.onSale.amount : slide.discount) / 100).toFixed(2)}
+                                                                    <div className='price-unit' style={productPriceUnit}>$</div>
+                                                                </div>}
+                                                        </div>
+                                                        <div className='product-review-container'>
+                                                            <FontAwesomeIcon icon={faStar} className='faStar' />
+                                                            <div className='product-review' style={productRating}>4.5</div>
+                                                            <div className='product-review-qty' style={productReviews}>(21)</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
+                                            {!showTimer(slide.onSale).ended && <Timer slide={slide} slideBox_id={slideBox._id} />}
                                         </div>
-                                    </div>}
+                                        : <div className='product-title-wrap'>
+                                            <div className='slide-title' style={slides.indexOf(slide) === 0 ? slideTitleStyleZero : slideTitleStyle}>
+                                                {slide.title || slide.nameEn}
+                                                {!mobileScreen && <FontAwesomeIcon icon={faChevronCircleRight} />}
+                                            </div>
+                                        </div>}
+                                </div>
                             </div>
                         )}
                     </div>
                 </div>
                 <Bullets />
-                <ShowMore />
             </div>
-        </div>
+        </div >
     )
-})
+}
+
+export default React.memo(SlideBox)

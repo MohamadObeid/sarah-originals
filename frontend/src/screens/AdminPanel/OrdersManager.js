@@ -14,7 +14,7 @@ import {
 } from '../../constants/lists'
 import ReactTooltip from "react-tooltip";
 import {
-    creationDatePrettier, dayConverter, updateRequestStatus, statusModifier, date,
+    creationDatePrettier, timer, updateRequestStatus, statusModifier, date,
     qtyCalc, paymentCalc, cartAmountCalc, discountCalc, totalAmountCalc, deliveryCalc
 } from "../../methods/methods";
 import { Popconfirm } from 'antd'
@@ -1812,7 +1812,7 @@ function OrdersManager(props) {
                                     icon={faCircle} />
                             </td>
                             <td data-tip data-for={order._id + 'date'}>
-                                {dayConverter(order.creation_date, order.status === 'Open' ? true : false)}
+                                {timer(order.creation_date, order.status === 'Open' ? true : false)}
                                 <ReactTooltip id={order._id + 'date'} place="top" effect="float">
                                     {creationDatePrettier(order.creation_date)}
                                 </ReactTooltip>

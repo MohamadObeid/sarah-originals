@@ -19,7 +19,7 @@ import {
     faFacebookSquare, faYoutube, faInstagram
 } from '@fortawesome/free-brands-svg-icons'
 import { detailsUser, listUsers } from "../../actions/userActions";
-import { dayConverter } from "../../methods/methods";
+import { timer } from "../../methods/methods";
 
 function EmployeeManager(props) {
     const imageUrl = window.location.origin + '/api/uploads/image/'
@@ -659,9 +659,9 @@ function EmployeeManager(props) {
             (modified.modified_by && modified.modified_by + ' ')
             + (modified.modified_note[0] && (modified.modified_note[0].includes("'", 0) ? ' commented ' : ' edited '))
             + modified.modified_note.map(note =>
-                (modified.modified_note.indexOf(note) < (modified.modified_note).length - 1
-                    ? ' ' + note
-                    : (modified.modified_note).length === 1 ? note : ' and ' + note))
+            (modified.modified_note.indexOf(note) < (modified.modified_note).length - 1
+                ? ' ' + note
+                : (modified.modified_note).length === 1 ? note : ' and ' + note))
         )
     }
 
@@ -1060,7 +1060,7 @@ function EmployeeManager(props) {
                         </li>
                         <li className='dropdown'>
                             <div className='dropdown-label'>Interests</div>
-                            <div className='dropdown-overlay overlay-2'></div>
+                            <div className='dropdown-overlay overlay-2' />
                             <div className='dropdown-container'>
                                 <div className='dropdown-input' onClick={() => {
                                     if (dropdownListVisible) {
@@ -1673,7 +1673,7 @@ function EmployeeManager(props) {
                                     ></input>
                                 </td>
                                 <td>{userList && userList.map(user => user.employeeId === employee._id
-                                    && dayConverter(user.lastActivity, user.active))}</td>
+                                    && timer(user.lastActivity, user.active))}</td>
                                 <td className='td-img'>
                                     <img
                                         className='employee-image'

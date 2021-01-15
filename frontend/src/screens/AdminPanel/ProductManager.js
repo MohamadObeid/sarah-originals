@@ -4,7 +4,7 @@ import { saveProduct, listProducts, deleteProduct } from "../../actions/productA
 import FontAwesome from 'react-fontawesome';
 import axios from 'axios';
 import { productFilters } from '../../constants/filters'
-import { unitList, collectionList, rateUnitList } from '../../constants/lists'
+import { unitList, productCollectionList, rateUnitList } from '../../constants/lists'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { date } from "../../methods/methods";
@@ -28,7 +28,7 @@ function ProductManager() {
     const [uploadedImageUrl, setUploadedImageUrl] = useState()
     const [timeOut, setTimeOut] = useState()
     const [onSale, setOnSale] = useState()
-    const [saleAmount, setSaleAmount] = useState('')
+    const [onSaleAmount, setOnSaleAmount] = useState()
     //const [brandList, setBrandList] = useState()
 
     const [_id, setId] = useState();
@@ -52,6 +52,9 @@ function ProductManager() {
     const [productProps, setProductProps] = useState();
     const [propertiesVisible, setPropertiesVisible] = useState(false);
     const [collections, setCollections] = useState([])
+    const [onSaleStartDate, setOnSaleStartDate] = useState()
+    const [onSaleEndDate, setOnSaleEndDate] = useState()
+    const [onSaleUnit, setOnSaleUnit] = useState()
 
     // for category inputs in form
     const { success: successSave } = useSelector(state => state.productSave);
@@ -238,14 +241,9 @@ function ProductManager() {
             ? setModified(product.modified)
             : setModified([])*/
         setPropertiesVisible(true)
-        if (product.onSale) {
-            setOnSale(product.onSale.onSale || false)
-            setSaleAmount(product.onSale.saleAmount || undefined)
+        if (product.onSale) setOnSale(product.onSale)
+        else setOnSale(false)
 
-        } else {
-            setOnSale(false)
-            setSaleAmount(undefined)
-        }
     }
 
     //properties Handlers
@@ -367,25 +365,17 @@ function ProductManager() {
     const addCollection = (e, collection) => {
         e.preventDefault()
         productProps.collections[productProps.collections.length] = collection
-        //dispatch(saveProduct(productProps))
+        dispatch(saveProduct(productProps))
     }
 
     const removeCollection = (e, collection) => {
         e.preventDefault()
         productProps.collections = productProps.collections.filter(coll => coll !== collection)
-        //dispatch(saveProduct(productProps))
+        dispatch(saveProduct(productProps))
     }
 
     const propsSaveHandler = (e, product) => {
         e.preventDefault()
-        if (product.onSale)
-            if (product.onSale.saleAmount == 0 || !product.onSale.saleAmount) {
-                product.onSale = undefined
-            } else {
-                product.onSale.saleAmount = saleAmount
-                product.onSale.onSale = onSale
-            }
-
         dispatch(saveProduct(product))
         setPropertiesVisible(false)
     }
@@ -705,7 +695,7 @@ function ProductManager() {
                                     <th className='collection-product-form'>Name</th>
                                     <td>{productProps.nameEn}</td>
                                 </tr>
-                                {collectionList.map(collection => {
+                                {productCollectionList.map(collection => {
                                     const collectionExist = productProps.collections.find(coll => coll === collection) ? true : false
                                     return (
                                         <tr key={collection}>
@@ -736,12 +726,12 @@ function ProductManager() {
                                             checked={onSale || false}
                                             onChange={(e) => {
                                                 if (e.target.checked) {
-                                                    setOnSale(true)
                                                     productProps.onSale = {}
-                                                    productProps.onSale.onSale = true
+                                                    productProps.onSale.amount = 0
                                                     productProps.onSale.startDate = date()
                                                     productProps.onSale.endDate = date()
                                                     productProps.onSale.unit = '%'
+                                                    setOnSale(productProps.onSale)
                                                 } else {
                                                     setOnSale(false)
                                                     productProps.onSale = undefined
@@ -753,7 +743,7 @@ function ProductManager() {
                             </tbody>
                         </table>
 
-                        {productProps.onSale && productProps.onSale.onSale &&
+                        {onSale &&
                             <div className='onSale-cont'>
                                 <label className='label' htmlFor='saleAmount'>Sale<p className="required">*</p></label>
                                 <div>
@@ -762,15 +752,18 @@ function ProductManager() {
                                         name="saleAmount"
                                         id="saleAmount"
                                         className='orders-user-phone'
-                                        value={saleAmount || ''}
+                                        value={onSaleAmount || productProps.onSale.amount}
                                         onChange={(e) => {
-                                            setSaleAmount(e.target.value)
-                                            productProps.onSale.saleAmount = e.target.value
+                                            setOnSaleAmount(e.target.value)
+                                            productProps.onSale.amount = e.target.value
                                         }}
                                     ></input>
                                     <select
-                                        value={productProps.onSale.unit || '%'}
+                                        value={onSaleUnit || productProps.onSale.unit}
                                         onChange={e => {
+                                            setOnSaleUnit(e.target.selectedIndex ?
+                                                e.target.options[e.target.selectedIndex].value :
+                                                e.target.value)
                                             productProps.onSale.unit = e.target.selectedIndex ?
                                                 e.target.options[e.target.selectedIndex].value :
                                                 e.target.value
@@ -786,12 +779,12 @@ function ProductManager() {
                                 <input
                                     type="datetime-local"
                                     name="start-date"
-                                    id="start-date"
                                     className='orders-user-phone'
-                                    value={productProps.onSale.startDate || date()}
+                                    value={onSaleStartDate || productProps.onSale.startDate}
                                     onChange={(e) => {
+                                        setOnSaleStartDate(e.target.value)
                                         productProps.onSale.startDate = e.target.value
-                                        document.querySelector(`#end-date ${productProps._id}`).min = e.target.value
+                                        document.querySelector(`.end-date-${productProps._id}`).min = e.target.value
                                     }}
                                     min={date()}
                                 ></input>
@@ -800,10 +793,12 @@ function ProductManager() {
                                 <input
                                     type="datetime-local"
                                     name="end-date"
-                                    id={"end-date " + productProps._id}
-                                    className='orders-user-phone'
-                                    value={productProps.onSale.endDate || date()}
-                                    onChange={(e) => productProps.onSale.endDate = e.target.value}
+                                    className={'orders-user-phone end-date-' + productProps._id}
+                                    value={onSaleEndDate || productProps.onSale.endDate}
+                                    onChange={(e) => {
+                                        setOnSaleEndDate(e.target.value)
+                                        productProps.onSale.endDate = e.target.value
+                                    }}
                                     min={date()}
                                 ></input>
                             </div>}
@@ -811,7 +806,7 @@ function ProductManager() {
                         <button type="submit" className="button primary" onClick={(e) => propsSaveHandler(e, productProps)}>Save</button>
                         <button type="button" className="button secondary" onClick={() => {
                             setPropertiesVisible(false); if (productProps.onSale) {
-                                if (productProps.onSale.saleAmount === 0 || !productProps.onSale.saleAmount) productProps.onSale = undefined
+                                if (productProps.onSale.amount === 0 || !productProps.onSale.amount) productProps.onSale = undefined
                             }
                         }}>
                             Back

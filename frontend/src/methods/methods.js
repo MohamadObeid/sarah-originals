@@ -1,30 +1,94 @@
 import axios from 'axios'
-import { months, weekDays } from '../constants/lists'
 import cookie from "js-cookie";
 import { listLiveUser, saveLiveUser } from '../actions/chatActions';
 import audio from '../screens/Components/swiftly.mp3'
 import UIfx from 'uifx';
 import { LIVE_USER_LIST_SUCCESS } from '../constants/constants';
+import React from 'react'
+import { useSelector } from 'react-redux';
 const tick = new UIfx(audio)
 
-const dayConverter = (date, active) => {
+const timer = (endDate, active/*, startDate*/) => { //gets date and retruns time difference between current date, active is active user
+
     var d = new Date()
     var currentYear = d.getFullYear()
     var currentMonthNum = d.getMonth() + 1
-    //var currentMonth = months[d.getMonth()]
     var currentDay = d.getDate()
-    //var currentWeekDay = weekDays[d.getDay()]
     var currentHour = d.getHours()
     var currentMinutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes()
     var currentSeconds = d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds()
     //console.log(date)
 
-    if (date) {
-        var dateNum = date.split("T", 1)[0]
-        var time = date.slice(11, 16)
+    /*if (startDate) {
+ 
+        var dateNum = startDate.split("T", 1)[0]
+        var time = startDate.slice(11, 16)
         var dateDay = parseInt(dateNum.slice(8, 10))
         var dateMonth = parseInt(dateNum.slice(5, 7))
         var dateYear = parseInt(dateNum.slice(0, 4))
+        var timeHour = parseInt(time.slice(0, 2))
+        var timeMin = parseInt(time.slice(3, 5))
+        var timeSec = parseInt(time.slice(6, 8)) ? parseInt(time.slice(6, 8)) : 0
+ 
+        var secDiff = currentSeconds - timeSec
+        var minDiff = currentMinutes - timeMin
+        var hourDiff = currentHour - timeHour
+        var dayDiff = currentDay - dateDay
+        var monthDiff = currentMonthNum - dateMonth
+        var yearDiff = currentYear - dateYear
+ 
+        var secStatus = secDiff <= 1 ? 'Online' : secDiff + ' sec ago'
+ 
+        var minStatus = secDiff === 0
+            ? Math.abs(minDiff) + ' min left'
+            : (secDiff > 0 ? (minDiff !== -1 ? Math.abs(minDiff) - 1 + ' min  ' : '') : Math.abs(minDiff) + ' min  ')
+            + (60 - Math.abs(secDiff)) + ' sec left'
+ 
+        var hourStatus = minDiff === 0
+            ? Math.abs(hourDiff) + ' hour left'
+            : (minDiff > 0 ? (hourDiff !== -1 ? Math.abs(hourDiff) - 1 + ' hour  ' : '') : Math.abs(hourDiff) + ' hour  ')
+            + (60 - Math.abs(minDiff)) + ' min ' + (60 - Math.abs(secDiff)) + ' sec left'
+ 
+        var dayStatus = hourDiff === 0
+            ? (minDiff === 0
+                ? Math.abs(dayDiff) + ' day left'
+                : (minDiff < 0 ? Math.abs(dayDiff) + ' day ' + Math.abs(minDiff) + ' min left' : '23 hours ' + (60 - minDiff) + ' min left'))
+            : (hourDiff > 0 ? (dayDiff !== -1 ? Math.abs(dayDiff) - 1 + ' day  ' : '') : Math.abs(dayDiff) + ' day  ')
+            + (24 - Math.abs(minDiff >= 0 ? hourDiff + 1 : hourDiff)) + ' hour  ' + (minDiff === 0 ? 'left' : (minDiff > 0 ? 60 - minDiff + ' min left' : Math.abs(minDiff) + ' min left'))
+ 
+        var monthStatus = dayDiff === 0
+            ? Math.abs(monthDiff) + ' month left'
+            : (dayDiff > 0 ? (monthDiff !== -1 ? Math.abs(monthDiff) - 1 + ' month  ' : '') : Math.abs(monthDiff) + ' month  ')
+            + (30 - Math.abs(dayDiff)) + ' day left'
+ 
+        var yearStatus = monthDiff === 0
+            ? Math.abs(yearDiff) + ' year left'
+            : (monthDiff > 0 ? (yearDiff !== -1 ? Math.abs(yearDiff) - 1 + ' year  ' : '') : Math.abs(yearDiff) + ' year  ')
+            + (12 - Math.abs(monthDiff)) + ' month left'
+ 
+        var status
+ 
+        if (yearDiff === 0) {
+            if (monthDiff === 0) {
+                if (dayDiff === 0) {
+                    if (hourDiff === 0) {
+                        if (minDiff === 0) {
+                            if (secDiff >= 0) { } else status = secStatus
+                        } else if (minDiff > 0) { } else status = minStatus
+                    } else if (hourDiff > 0) { } else status = hourStatus
+                } else if (dayDiff > 0) { } else status = dayStatus
+            } else if (monthDiff > 0) { } else status = monthStatus
+        } else if (yearDiff > 0) { } else status = yearStatus
+ 
+        if (status) return status
+    }*/
+
+    if (endDate) {
+        var dateNum = endDate.split("T")[0]
+        var time = endDate.split("T")[1]
+        var dateDay = parseInt(dateNum.split("-")[2])
+        var dateMonth = parseInt(dateNum.split("-")[1])
+        var dateYear = parseInt(dateNum.split("-")[0])
         var timeHour = parseInt(time.slice(0, 2))
         var timeMin = parseInt(time.slice(3, 5))
         var timeSec = parseInt(time.slice(6, 8)) ? parseInt(time.slice(6, 8)) : 0
@@ -56,7 +120,8 @@ const dayConverter = (date, active) => {
             && (minDiff === 0
                 ? Math.abs(hourDiff) + ' hour left'
                 : (minDiff > 0 ? (hourDiff !== -1 ? Math.abs(hourDiff) - 1 + ' hour  ' : '') : Math.abs(hourDiff) + ' hour  ')
-                + (60 - Math.abs(minDiff)) + ' min ' + (60 - Math.abs(secDiff)) + ' sec left')
+                + (minDiff > 0 ? 60 - minDiff : Math.abs(minDiff)) + ' min '
+                + (secDiff === 0 ? 'left' : ((secDiff > 0 ? 60 - secDiff : Math.abs(secDiff)) + ' sec left')))
 
         var dayStatus = dayDiff > 0
             ? (dayDiff === 1
@@ -64,9 +129,15 @@ const dayConverter = (date, active) => {
                 : Math.abs(dayDiff) + ' day ago')
             : dayDiff < 0
             && (hourDiff === 0
-                ? Math.abs(dayDiff) + ' day left'
+                ? (minDiff === 0
+                    ? Math.abs(dayDiff) + ' day left'
+                    : (minDiff < 0 ? Math.abs(dayDiff) + ' day ' + Math.abs(minDiff) + ' min left' : '23 hours ' + (60 - minDiff) + ' min left'))
                 : (hourDiff > 0 ? (dayDiff !== -1 ? Math.abs(dayDiff) - 1 + ' day  ' : '') : Math.abs(dayDiff) + ' day  ')
-                + (24 - Math.abs(hourDiff)) + ' hour left')
+                + (Math.abs(minDiff >= 0 ? hourDiff + 1 : hourDiff) < 24
+                    ? (24 - Math.abs(minDiff >= 0 ? hourDiff + 1 : hourDiff)) + ' hour  '
+                    : '')
+                + ((minDiff > 0 ? 60 - minDiff : Math.abs(minDiff)) + ' min ')
+                + (secDiff === 0 ? 'left' : ((secDiff > 0 ? 60 - secDiff : Math.abs(secDiff)) + ' sec left')))
 
         var monthStatus = monthDiff > 0
             ? (monthDiff === 1
@@ -106,6 +177,7 @@ const dayConverter = (date, active) => {
 
         return status
     }
+
 }
 
 const timeDiffCalc = (from, to, nextDay) => { //time format ex.: 01:20
@@ -116,16 +188,18 @@ const timeDiffCalc = (from, to, nextDay) => { //time format ex.: 01:20
     //console.log(from, to)
 
     if (fromHour === toHour) {
+
         if (toMin > fromMin) { return '00:' + ((toMin - fromMin) < 10 ? '0' + (toMin - fromMin) : (toMin - fromMin)) }
         else if (toMin < fromMin) { return { sign: 'late', diff: '00:' + ((fromMin - toMin) < 10 ? '0' + (fromMin - toMin) : (fromMin - toMin)) } }
         else if (toMin === fromMin) return '00:00'
+
     } else if (toHour > fromHour) {
+
         if (toMin < fromMin) {
             var min = (60 - fromMin + parseInt(toMin))
             if (!nextDay) return (((toHour - fromHour - 1) < 10 ? '0' + (toHour - fromHour - 1) : (toHour - fromHour - 1)) + ':' + (min < 10 ? '0' + min : min))
             if (nextDay) return ((24 + (toHour - fromHour - 1)) + ':' + (min < 10 ? '0' + min : min))
-        }
-        else if (toMin === fromMin) {
+        } else if (toMin === fromMin) {
             if (!nextDay) return (((toHour - fromHour) < 10 ? '0' + (toHour - fromHour) : (toHour - fromHour)) + ':00')
             var hour = 24 + (toHour - fromHour)
             if (nextDay) return ((hour < 10 ? '0' + hour : hour) + ':00')
@@ -134,20 +208,19 @@ const timeDiffCalc = (from, to, nextDay) => { //time format ex.: 01:20
             var hour = (24 + (toHour - fromHour))
             if (nextDay) return ((hour < 10 ? '0' + hour : hour) + ':' + ((toMin - fromMin) < 10 ? '0' + (toMin - fromMin) : (toMin - fromMin)))
         }
+
     } else if (toHour < fromHour) { // second day
+
         var hourDiff = (fromMin > 0) ? 24 - fromHour - 1 : 24 - fromHour
         var minDiff = 60 - fromMin
         hourDiff = hourDiff + toHour
         minDiff = minDiff + toMin
         hourDiff = minDiff >= 60 ? hourDiff + 1 : hourDiff
         minDiff = minDiff >= 60 ? minDiff - 60 : minDiff
-        //console.log(hourDiff + ':' + minDiff)
+
         if (minDiff < 10) minDiff = '0' + minDiff
         if (hourDiff < 10) hourDiff = '0' + hourDiff
         return hourDiff + ':' + minDiff
-        /*if (toMin > fromMin) { return ({ sign: 'late', diff: ((fromHour - toHour - 1) < 10 ? '0' + (fromHour - toHour - 1) : (fromHour - toHour - 1)) + ':' + (60 - toMin + parseInt(fromMin)) }) }
-        else if (toMin === fromMin) { return ({ sign: 'late', diff: ((fromHour - toHour) < 10 ? '0' + (fromHour - toHour) : '0' + (fromHour - toHour)) + ':00' }) }
-        else if (toMin < fromMin) { return ({ sign: 'late', diff: ((fromHour - toHour) < 10 ? '0' + (fromHour - toHour) : (fromHour - toHour)) + ':' + ((fromMin - toMin) < 10 ? '0' + (fromMin - toMin) : (fromMin - toMin)) }) }*/
     }
 }
 
@@ -202,8 +275,7 @@ const creationDatePrettier = (date) => {
     return date
 }
 
-
-const date = (delivery) => {
+const date = (delivery) => { // returns a date in right date format
     var d = new Date()
     var currentYear = d.getFullYear()
     var currentMonth = d.getMonth() + 1 < 10 ? '0' + d.getMonth() + 1 : d.getMonth() + 1
@@ -482,9 +554,87 @@ const deliveryCalc = (deliveryValues, cartItems, requestType, itemsQty, request,
     return rateMin
 }
 
+const showTimer = (onSale) => {
+    if (!onSale) return { ended: true, active: false }
+
+    var d = new Date()
+    var currentYear = d.getFullYear()
+    var currentMonthNum = d.getMonth() + 1
+    var currentDay = d.getDate()
+    var currentHour = d.getHours()
+    var currentMinutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes()
+    var currentSeconds = d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds()
+
+    var active = true
+    var ended = false
+
+    var endDate = onSale.endDate
+    var dateNum = endDate.split("T")[0]
+    var time = endDate.split("T")[1]
+    var dateDay = parseInt(dateNum.split("-")[2])
+    var dateMonth = parseInt(dateNum.split("-")[1])
+    var dateYear = parseInt(dateNum.split("-")[0])
+    var timeHour = parseInt(time.slice(0, 2))
+    var timeMin = parseInt(time.slice(3, 5))
+    var timeSec = parseInt(time.slice(6, 8)) ? parseInt(time.slice(6, 8)) : 0
+
+    var secDiff = currentSeconds - timeSec
+    var minDiff = currentMinutes - timeMin
+    var hourDiff = currentHour - timeHour
+    var dayDiff = currentDay - dateDay
+    var monthDiff = currentMonthNum - dateMonth
+    var yearDiff = currentYear - dateYear
+
+    if (yearDiff === 0) {
+        if (monthDiff === 0) {
+            if (dayDiff === 0) {
+                if (hourDiff === 0) {
+                    if (minDiff === 0) {
+                        if (secDiff >= 0) ended = true
+                    } else if (minDiff > 0) ended = true
+                } else if (hourDiff > 0) ended = true
+            } else if (dayDiff > 0) ended = true
+        } else if (monthDiff > 0) ended = true
+    } else if (yearDiff > 0) ended = true
+
+    if (ended) return { ended, active: false }
+
+    var startDate = onSale.startDate
+    var dateNum = startDate.split("T")[0]
+    var time = startDate.split("T")[1]
+    var dateDay = parseInt(dateNum.split("-")[2])
+    var dateMonth = parseInt(dateNum.split("-")[1])
+    var dateYear = parseInt(dateNum.split("-")[0])
+    var timeHour = parseInt(time.slice(0, 2))
+    var timeMin = parseInt(time.slice(3, 5))
+    var timeSec = parseInt(time.slice(6, 8)) ? parseInt(time.slice(6, 8)) : 0
+
+    var secDiff = currentSeconds - timeSec
+    var minDiff = currentMinutes - timeMin
+    var hourDiff = currentHour - timeHour
+    var dayDiff = currentDay - dateDay
+    var monthDiff = currentMonthNum - dateMonth
+    var yearDiff = currentYear - dateYear
+
+    if (yearDiff === 0) {
+        if (monthDiff === 0) {
+            if (dayDiff === 0) {
+                if (hourDiff === 0) {
+                    if (minDiff === 0) {
+                        if (secDiff === 0) { }
+                        else if (secDiff < 0) active = false
+                    } else if (minDiff < 0) active = false
+                } else if (hourDiff < 0) active = false
+            } else if (dayDiff < 0) active = false
+        } else if (monthDiff < 0) active = false
+    } else if (yearDiff < 0) active = false
+
+    return { active, ended }
+}
+
 
 export {
-    dayConverter, timeDiffCalc, refreshLiveUsers, creationDatePrettier,
+    timer, timeDiffCalc, refreshLiveUsers, creationDatePrettier,
     updateRequestStatus, statusModifier, date, qtyCalc, paymentCalc, cartAmountCalc,
-    discountCalc, totalAmountCalc, deliveryCalc
+    discountCalc, totalAmountCalc, deliveryCalc, showTimer
 }

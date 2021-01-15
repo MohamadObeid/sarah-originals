@@ -1,82 +1,133 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import img1 from '../../images/stunning.png'
+import { useDispatch, useSelector } from 'react-redux';
+import { url } from '../../constants/defaultImages';
 
-export const TitleContainer = React.memo(({ imageBox, mobileScreen }) => {
-    const mobile = imageBox.mobile
-    const title = !mobileScreen ? imageBox.title : mobile.title
+export const TitleContainer = React.memo(({ slideBox, mobileScreen, imageBox }) => {
+    const dispatch = useDispatch()
+
+    const mobile = slideBox ? slideBox.mobile : imageBox.mobile
+    const styles = !mobileScreen
+        ? (slideBox ? slideBox.title : imageBox.title)
+        : mobile.title
+
+    const verticalScroll = styles.showAll.direction === 'Y' ? true : false
 
     const fishTitleStyle = {
-        fontSize: title.fontSize,
-        backgroundColor: title.backgroundColor,
+        fontSize: styles.title.fontSize,
+        backgroundColor: styles.title.color,
     }
 
-    const fishTitleBorderStyle = { backgroundColor: title.backgroundColor }
+    const fishTitleBorderStyle = { backgroundColor: styles.title.color }
 
-    const color = { color: title.backgroundColor }
+    const color = { color: styles.title.color }
 
-    const wrapperStyle = {
-        display: title.display,
-        padding: title.padding,
+    const classicTitleWrap = {
+        display: styles.display,
+        padding: styles.paddingAround,
+        borderBottom: styles.border,
+        backgroundColor: styles.backgroundColor,
+        alignItems: styles.alignItems,
+        justifyContent: styles.justifyContent
     }
 
     const titleStyle = {
-        borderBottom: title.border,
-        fontSize: title.fontSize,
+        fontSize: styles.title.fontSize,
+        color: styles.title.color,
+        borderBottom: styles.title.border,
+        padding: styles.title.padding,
+        margin: styles.title.margin,
+        position: styles.title.position,
+    }
+
+    const strokeStyle = {
+        display: styles.strokeLine.display,
+        backgroundColor: styles.strokeLine.color,
+        height: styles.strokeLine.height,
+        width: styles.strokeLine.width,
+    }
+
+    const showAllWrapStyle = {
+        display: styles.showAll.display,
+        position: styles.showAll.position,
+        padding: styles.showAll.padding,
     }
 
     const showAllStyle = {
-        fontSize: title.showAll.fontSize,
-        color: title.showAll.color,
-        borderBottom: title.showAll.border,
-        paddingTop: title.showAll.top
+        fontSize: styles.showAll.fontSize,
+        color: styles.showAll.color,
+        border: styles.showAll.border,
     }
 
-    const iconStyle = {
-        color: title.iconColor,
+    const chevronStyle = {
+        display: styles.chevron.display,
+        color: styles.chevron.color,
+        fontSize: styles.chevron.fontSize,
+        transform: verticalScroll && 'rotate(90deg)'
     }
 
-    const buttonStyle = {
-        border: title.showAll.button && '1px solid #00000020',
-        padding: title.showAll.button && '0.5rem 4rem',
+    /////////////////////////// Show more ////////////////////////////
+
+    const _id = verticalScroll && (slideBox
+        ? slideBox._id
+        : imageBox.slideBox.find(box => box.swiper.direction === 'Y')._id)
+        || false
+
+    var openBox
+    useSelector(state => {
+        if (state.actions.openBox) {
+            openBox = state.actions.openBox
+        }
+    })
+
+    const showMore = e => {
+        e.preventDefault()
+        if (verticalScroll) {
+            const boxOpenned = openBox && openBox.find(box_id => box_id == _id)
+            if (!boxOpenned) {
+                var newOpenBox = []
+                if (openBox) newOpenBox = openBox
+                dispatch({ type: 'UPDATE_ACTIONS', payload: { openBox: [...newOpenBox, _id] } })
+                e.currentTarget.getElementsByClassName('faChevronRight')[0].style["transform"] = 'rotate(-90deg)'
+            } else {
+                dispatch({ type: 'UPDATE_ACTIONS', payload: { openBox: openBox.filter(box_id => box_id !== _id)/*, update: 'openBox' */ } })
+                e.currentTarget.getElementsByClassName('faChevronRight')[0].style["transform"] = 'rotate(90deg)'
+            }
+            return
+        }
     }
 
-    if (title.display !== 'none') {
-        if (title.design === 'Fish') {
+    if (styles.display !== 'none') {
+        if (styles.design === 'Fish') {
             return (
                 <div className='fish-title-design'>
                     <div className='fish-title-border' style={fishTitleBorderStyle} />
                     <div className='fish-title-cont'>
                         <div className='fish-title-left-border' style={color} />
-                        <div className='fish-title' style={fishTitleStyle}>{title.title}</div>
+                        <div className='fish-title' style={fishTitleStyle}>{styles.title.text}</div>
                         <div className='fish-title-right-border' style={color} />
                     </div>
                 </div>
             )
-        } else if (title.design === 'Classic') {
+        } else if (styles.design === 'Classic') {
             return (
-                <div className='classic-title-cont'>
-                    <div className='classic-title-border' />
-                    <div className='classic-title'>{title.title}</div>
-                </div>
-            )
-        } else if (title.design === 'Classic-1') {
-            return (
-                <div className='classic-2-title-wrap' style={wrapperStyle}>
-                    <div className='classic-2-title' style={titleStyle}>{title.title}</div>
-                    <div className='classic-2-title-border' style={showAllStyle}>
-                        <div style={buttonStyle} className='classic-title-button'>show all
-                        <FontAwesomeIcon icon={faChevronRight} style={iconStyle} className='faChevronRight' />
+                <div className='classic-title-wrap' style={classicTitleWrap}>
+                    <div className='classic-title' style={titleStyle}>{styles.title.text}</div>
+                    <div className='classic-title-stroke' style={strokeStyle} />
+                    <div className='classic-showall-wrap' style={showAllWrapStyle}>
+                        <div style={showAllStyle} className='classic-showall' onClick={e => showMore(e)}>
+                            {styles.showAll.text}
+                            <FontAwesomeIcon icon={faChevronRight} style={chevronStyle} className='faChevronRight' />
                         </div>
                     </div>
                 </div>
             )
-        } else if (title.design === 'Stunning') {
+        } else if (styles.design === 'Stunning') {
             return (
                 <div className='stunning-wrap'>
                     <div className='stunning-img-wrap'>
-                        <img src={img1} className='stunning-img'></img>
+                        <img src={url('../../images/stunning.png')} className='stunning-img' />
                     </div>
                     {/*<div className='stunning-show-all-wrap'>
                         <div className='stunning-show-all'>show all

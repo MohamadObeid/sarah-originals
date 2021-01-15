@@ -1,10 +1,10 @@
 import express from "express";
 import config from "./config";
-import path from 'path';
+//import path from 'path';
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
-/*import logger from 'morgan'
-import cors from 'cors';*/
+import morgan from 'morgan'
+import cors from 'cors';
 import methodOverride from 'method-override'
 import userRoute from "./routes/userRoute";
 import productRoute from "./routes/productRoute";
@@ -21,7 +21,11 @@ import chatRoute from './routes/chatRoute';
 import liveChatRoute from './routes/liveUserRoute';
 import imageRoute from './routes/imageRoute';
 import controlsRoute from './routes/controlsRoute';
-import viewsRoute from './routes/viewsRoute';
+import slideListsRoute from './routes/slideListsRoute';
+import controllerRoute from './routes/controllerRoute';
+import screenBoxRoute from './routes/screenBoxRoute';
+import http from 'http'
+import socketIo from 'socket.io'
 
 /*import wifi from 'node-wifi'
 
@@ -79,10 +83,18 @@ mongoose.connect(mongodbUrl, {
 
 const app = express();
 
+const server = http.createServer(app)
+const io = socketIo(server)
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
-app.use(methodOverride('_method'));
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(methodOverride('_method'))
+app.use(morgan('dev'))
+app.use(cors())
+//app.use(express.static(path.join(__dirname, 'public')))
+
+io.on('connection', (socket) => {
+  console.log('new client connected');
+});
 
 app.use("/api/products", productRoute);
 
@@ -114,9 +126,13 @@ app.use("/api/chat", chatRoute);
 
 app.use("/api/live", liveChatRoute);
 
-app.use("/api/views", viewsRoute)
+app.use("/api/slideLists", slideListsRoute)
 
-app.use('/api/uploads/image', express.static(path.join(__dirname, '/../frontend/uploads')));
+app.use("/api/controller", controllerRoute)
+
+app.use("/api/screenBox", screenBoxRoute)
+
+//app.use('/api/uploads/image', express.static(path.join(__dirname, '/../frontend/uploads')));
 
 // view engine setup
 /*app.set('views', path.join(__dirname, 'views'));
@@ -124,12 +140,12 @@ app.set('view engine', 'jade');
 app.use(cors({ origin: '*' }));
 app.use(logger('dev'));*/
 
-app.use(express.static(path.join(__dirname, '/../frontend/build')));
+//app.use(express.static(path.join(__dirname, '/../frontend/build')));
 
-app.get('*', (req, res) => {
+/*app.get('*', (req, res) => {
   res.sendFile(path.join(`${__dirname}/../frontend/build/index.html`));
-});
+});*/
 
-app.listen(config.PORT ? config.PORT : 5000, () => {
+app.listen(config.PORT, () => {
   console.log("Server started at http://localhost:5000");
 });

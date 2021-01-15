@@ -34,6 +34,7 @@ router.put("/:id", isAuth, isAdmin, async (req, res) => {
         brand.phone = req.body.phone;
         brand.image = req.body.image;
         brand.description = req.body.description;
+        brand.collections = req.body.collections
     };
     const brandUpdated = await brand.save()
     if (brandUpdated) {

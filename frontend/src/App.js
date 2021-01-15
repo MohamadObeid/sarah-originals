@@ -11,81 +11,32 @@ import DashBoard from "./screens/AdminPanel/DashBoard";
 import NavBar from "./screens/Components/NavBar";
 import ProfileScreen from './screens/ProfileScreen';
 import Chatbox from './screens/Components/Chatbox';
-import { useDispatch, useSelector } from "react-redux";
-import { signin } from "./actions/userActions";
-import axios from "axios";
-import { USER_SIGNIN_SUCCESS } from "./constants/constants";
-import { clock } from './actions/timeActions'
-import cookie from "js-cookie";
-import { listControls, saveControls } from "./actions/controlActions";
+import { useDispatch } from "react-redux";
+import { listControls, saveControls, getController, saveController, deleteController } from "./actions/controlActions";
 import { Ribbon } from './screens/Components/Ribbon'
-import { defaultControls } from './constants/defaultControls'
+import { defaultController, defaultControls, defaultScreenBoxes } from './constants/defaultControls'
+import { saveScreenBox, deleteScreenBox, getScreenBox } from "./actions/screenBoxActions";
 
-const App = React.memo(props => {
-  const { controls } = useSelector(state => state.controls)
+const App = React.memo(() => {
 
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(listControls())
-    dispatch(saveControls(defaultControls))
-    dispatch(signin({ email: userInfo.email, password: userInfo.password, request: 'signin' }))
+    dispatch(getController({ _id: '5fff71598a20391b7c24e26c' }))
+    dispatch(getScreenBox({ _id: '5fff6ec48a20391b7c24e207' }))
+    //dispatch(saveScreenBox(defaultScreenBoxes))
+    //dispatch(saveController(defaultController))
+    //dispatch(saveControls(defaultControls))
+    //dispatch(deleteScreenBox({ deleteAll: true }))
+    //dispatch(deleteController({ _id: '' }))
   }, [])
-
-  var IPaddress
-  var refresh
-
-  const { userInfo } = useSelector(state => state.userSignin)
-  //const { time } = useSelector(state => state.clock)
-
-  const getIPAddress = async () => {
-    try {
-      await fetch('https://geolocation-db.com/json/7733a990-ebd4-11ea-b9a6-2955706ddbf3')
-        .then(res => res.json())
-        .then(IP => {
-          IPaddress = IP.country_name + ', ' + IP.city
-        })
-    } catch (error) { }
-    /*if (userInfo) {
-      await dispatch(signin({ email: userInfo.email, password: userInfo.password, IPaddress, request: 'signin' }))
-      setTimeout(refreshActiveUser, 25000)
-    }*/
-  }
-
-  const refreshActiveUser = async () => {
-    const userInfo = cookie.getJSON("userInfo") || undefined
-    if (userInfo) {
-      let { data } = await axios.post("/api/users/signin",
-        { email: userInfo.email, password: userInfo.password, IPaddress })
-      dispatch({ type: USER_SIGNIN_SUCCESS, payload: data })
-      if (data.active)
-        refresh = setTimeout(refreshActiveUser, 25000)
-    }
-  }
-
-  const refreshClock = () => {
-    dispatch(clock())
-    setTimeout(refreshClock, 1000)
-  }
-
-  useEffect(() => {
-    //!time && refreshClock()
-    getIPAddress()
-  }, [])
-
-  // hide address bar in mobile
-  /*window.addEventListener("load", function () {
-    setTimeout(function () {
-      // This hides the address bar:
-      window.scrollTo(0, 1);
-    }, 0);
-  });*/
 
   return (
     <BrowserRouter>
       <div className="grid-container">
         <NavBar />
         <div className="main">
-          <Ribbon />
+          {/*<Ribbon />*/}
           <Route path="/dashboard" component={DashBoard} />
           <Route path="/signin" component={SigninScreen} />
           <Route path="/register" component={RegisterScreen} />

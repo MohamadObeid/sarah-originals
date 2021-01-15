@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { saveBrand, listBrand, deleteBrand } from "../../actions/brandActions";
 import FontAwesome from 'react-fontawesome';
 import axios from "axios";
+import { brandCollectionList } from "../../constants/lists";
 
 function BrandManager(props) {
     const imageUrl = window.location.origin + '/api/uploads/image/'
@@ -14,6 +15,9 @@ function BrandManager(props) {
     const [modelVisible, setModelVisible] = useState(false)
     const [historyVisible, setHistoryVisible] = useState(false)
     const [uploading, setUploading] = useState()
+    const [dropdownList, setDropdownList] = useState();
+    const [dropdownListVisible, setDropdownListVisible] = useState(false)
+    const [collections, setCollections] = useState()
 
     const [_id, setId] = useState()
     const [modified, setModified] = useState()
@@ -31,7 +35,7 @@ function BrandManager(props) {
     const { userInfo } = useSelector(state => state.userSignin)
     const { brand } = useSelector(state => state.brandList)
     const [timeOut, setTimeOut] = useState()
-
+    console.log(brand)
     const dispatch = useDispatch();
     useEffect(() => {
         if (successSave || successDelete) {
@@ -74,6 +78,13 @@ function BrandManager(props) {
         setPhone(brand.phone ? brand.phone : undefined)
         setImage(brand.image ? brand.image : undefined)
         setDescription(brand.description ? brand.description : '')
+        setCollections(brand.collections ? brand.collections : [])
+
+        let collectionList = brandCollectionList
+        brand.collections.map(collection => {
+            collectionList = collectionList.filter(coll => coll !== collection)
+        })
+        setDropdownList(collectionList.sort())
     };
 
     const submitHandler = (e) => {
@@ -83,10 +94,10 @@ function BrandManager(props) {
 
         if (!brandExist || brandExist && formAction == 'Edit') {
             if (formAction == 'Copy' || formAction == 'Create')
-                dispatch(saveBrand({ modified: [], created_by: userInfo.name, creation_date: Date.now() + 10800000, active, name, origin, supplier, phone, image, description }))
+                dispatch(saveBrand({ modified: [], created_by: userInfo.name, creation_date: Date.now() + 10800000, active, name, origin, supplier, phone, image, description, collections }))
             else {
                 // set modified
-                dispatch(saveBrand({ modified: modifiedArray(brandExist), created_by: brandExist.created_by, creation_date: userInfo.creation_date, _id, active, name, origin, supplier, phone, image, description }))
+                dispatch(saveBrand({ modified: modifiedArray(brandExist), created_by: brandExist.created_by, creation_date: userInfo.creation_date, _id, active, name, origin, supplier, phone, image, description, collections }))
             }
         } else if (nameExist) {
             setFormAlert('The brand name already exists.')
@@ -179,11 +190,31 @@ function BrandManager(props) {
             (modified.modified_by && modified.modified_by + ' ')
             + (modified.modified_note[0] && (modified.modified_note[0].includes("'", 0) ? ' commented ' : ' edited '))
             + modified.modified_note.map(note =>
-                (modified.modified_note.indexOf(note) < (modified.modified_note).length - 1
-                    ? ' ' + note
-                    : (modified.modified_note).length === 1 ? note : ' and ' + note))
+            (modified.modified_note.indexOf(note) < (modified.modified_note).length - 1
+                ? ' ' + note
+                : (modified.modified_note).length === 1 ? note : ' and ' + note))
         )
     }
+
+    // collection dropdown
+
+    const addCollection = (collectionAdded) => {
+        setCollections([...collections, collectionAdded])
+        setDropdownList(dropdownList.filter(drop => drop !== collectionAdded && drop))
+    }
+
+    const removeCollection = (collectionRemoved) => {
+        setDropdownList([...dropdownList, collectionRemoved].sort())
+        setCollections(collections.filter(collection => collection !== collectionRemoved && collection))
+    }
+
+    window.addEventListener('click', (e) => {
+        const dropdownOverlay = document.querySelector('.overlay-2');
+        if (e.target === dropdownOverlay) {
+            setDropdownListVisible(false)
+            dropdownOverlay.style.display = 'none'
+        }
+    });
 
     return (
         <div>
@@ -265,6 +296,47 @@ function BrandManager(props) {
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
                             ></input>
+                        </li>
+                        <li className='dropdown'>
+                            <div className='dropdown-label'>Collections</div>
+                            <div className='dropdown-overlay overlay-2' />
+                            <div className='dropdown-container'>
+                                <div className='dropdown-input' onClick={() => {
+                                    if (dropdownListVisible) {
+                                        setDropdownListVisible(false)
+                                        document.querySelector('.overlay-2').style.display = 'none';
+                                    } else {
+                                        setDropdownListVisible(true)
+                                        document.querySelector('.overlay-2').style.display = 'block';
+                                    }
+                                }}>
+                                    {collections &&
+                                        collections.map(collection => (
+                                            <div
+                                                key={collection}
+                                                className='dropdown-checked'>
+                                                {collection}
+                                                <FontAwesome className='fas fa-close dropdown-checked-close'
+                                                    onClick={() => removeCollection(collection)} />
+                                            </div>
+                                        ))}
+                                    <FontAwesome className='fas fa-chevron-down' />
+                                </div>
+                                {dropdownListVisible &&
+                                    <div className='dropdown-list'>
+                                        {dropdownList.map(drop => (
+                                            //!(category.find(c => c === drop)) &&
+                                            <div
+                                                key={drop}
+                                                className='dropdown-choice'
+                                                onClick={() => addCollection(drop)}
+                                            >
+                                                {drop}
+                                            </div>
+                                        ))}
+                                    </div>
+                                }
+                            </div>
                         </li>
                         <li>
                             <label className="label" htmlFor="description">Description<p className="required">*</p></label>

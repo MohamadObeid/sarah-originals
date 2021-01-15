@@ -34,12 +34,11 @@ const productSchema = new mongoose.Schema({
   cancellable: { type: Boolean, required: false, default: false },
   refundable: { type: Boolean, required: false, default: false },
   onSale: {
-    onSale: { type: Boolean, required: false },
-    unit: { type: String, required: false },
     amount: { type: Number, required: false },
+    unit: { type: String, required: false },
     startDate: { type: String, required: false },
     endDate: { type: String, required: false },
-  }
+  },
 })
 
 const Product = mongoose.model("Product", productSchema);
