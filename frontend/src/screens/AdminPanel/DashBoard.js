@@ -24,7 +24,7 @@ import OrdersManager from './OrdersManager'
 import AssignmentManager from './AssignmentManager'
 import AttendanceManager from './AttendanceManager'
 import ChatManager from "./ChatManager"
-import Controller from "./Controller"
+import Controls from "./Controls"
 
 import { listProducts } from "../../actions/productActions"
 import { listCategory } from "../../actions/categoryActions"
@@ -37,7 +37,7 @@ import { detailsEmployee, listEmployees } from "../../actions/employeeActions"
 import { listReviews } from "../../actions/reviewActions"
 import { listOrders, listActiveOrders } from "../../actions/orderActions"
 import { listAttendance } from "../../actions/attendanceActions"
-import { listControls } from "../../actions/controlActions"
+import { getControls } from "../../actions/controlsActions"
 import { listChat, listLiveUser, saveLiveUser, deleteChat } from "../../actions/chatActions"
 
 function DashBoard(props) {
@@ -61,7 +61,7 @@ function DashBoard(props) {
   const [ordersVisible, setOrdersVisible] = useState(false)
   const [attendanceVisible, setAttendanceVisible] = useState(false)
   const [chatVisible, setChatVisible] = useState(false)
-  const [controllerVisible, setControllerVisible] = useState(false)
+  const [controlsVisible, setControlsVisible] = useState(false)
 
   const dispatch = useDispatch();
 
@@ -80,10 +80,10 @@ function DashBoard(props) {
       setUsersVisible(true)
     } else setUsersVisible(false)
 
-    if (manager === 'Controller') {
-      dispatch(listControls())
-      setControllerVisible(true)
-    } else setControllerVisible(false)
+    if (manager === 'Controls') {
+      dispatch(getControls())
+      setControlsVisible(true)
+    } else setControlsVisible(false)
 
     if (manager === 'employee') {
       dispatch(listEmployees())
@@ -327,7 +327,7 @@ function DashBoard(props) {
       {chatVisible && <ChatManager />}
 
       {/* Controller */}
-      {controllerVisible && <Controller />}
+      {controlsVisible && <Controls />}
 
     </div>
   );

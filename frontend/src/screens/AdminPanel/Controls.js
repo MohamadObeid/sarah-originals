@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { listControls, saveControls } from '../../actions/controlActions'
+import { getControls, saveControls } from '../../actions/controlsActions'
 
-function Controller() {
+function Controls() {
     const [productControl, setProductControl] = useState()
 
     const { controls } = useSelector(state => state.controls)
@@ -15,4 +15,4 @@ function Controller() {
     </div>)
 }
 
-export default Controller
+export default Controls

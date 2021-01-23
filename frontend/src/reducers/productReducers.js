@@ -117,23 +117,9 @@ function productDeleteReducer(state = { data: {} }, action) {
   }
 }
 
-function slideListsReducer(state = [], action) {
-  switch (action.type) {
-    case 'GET_SLIDE_LISTS_REQUEST':
-      return []
-    case 'GET_SLIDE_LISTS_SUCCESS':
-      return action.payload
-    case 'GET_SLIDE_LISTS_FAIL':
-      return action.payload
-    default:
-      return state
-  }
-}
-
 export {
   productListReducer,
   productDetailsReducer,
   productSaveReducer,
-  productDeleteReducer,
-  slideListsReducer
+  productDeleteReducer
 };

@@ -6,10 +6,10 @@ import { faStar } from "@fortawesome/free-solid-svg-icons"
 import { Link } from "react-router-dom"
 import { addToCart, removeFromCart, updateCart } from "../actions/cartActions";
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import { ImageBox } from "./Components/ImageBox";
+import { View } from "./Components/View";
 import { NavigationBar } from "./Components/NavigationBar";
 
-const HomeScreen = React.memo(props => {
+const HomeScreen = props => {
   const imageUrl = window.location.origin + '/api/uploads/image/'
 
   const [actionNote, setActionNote] = useState('Product Added Succefully')
@@ -19,8 +19,7 @@ const HomeScreen = React.memo(props => {
   const [navigationBar, setNavigationBar] = useState()
 
   const { cartItems, message } = useSelector(state => state.cart)
-  const { controls, loading } = useSelector(state => state.controls)
-  const actions = useSelector(state => state.actions)
+  const { controls } = useSelector(state => state.controls)
 
   const dispatch = useDispatch()
 
@@ -36,58 +35,20 @@ const HomeScreen = React.memo(props => {
     }
   }, [cartItems])*/
 
-  const [mobileScreen, setMobileScreen] = useState(window.innerWidth <= 700 ? true : false)
+  const [viewPort, setViewPort] = useState(window.innerWidth <= 700 ? 'mobile' : 'desktop')
+  var touchscreen
 
   useEffect(() => {
     window.addEventListener("resize", function () {
-      if (window.innerWidth <= 700) setMobileScreen(true)
-      else setMobileScreen(false)
+      if (window.innerWidth <= 700) setViewPort('mobile')
+      else setViewPort('desktop')
     })
+    if (window.matchMedia("(pointer: coarse)").matches) {
+      console.log('touchscreen')
+      touchscreen = true
+    } else touchscreen = false
   }, [])
 
-  // Add to Cart Handler
-  const handleAddToCart = (product) => {
-
-    products
-      .filter(pro => product._id == pro._id)
-      .map(pro => pro.qty = 1)
-
-    const inCart = cartItems.find(item => item._id === product._id)
-    if (inCart) dispatch(updateCart({ _id: product._id, qty: product.qty, message: 'Product Added Successfully!' }))
-    else dispatch(addToCart({ _id: product._id, qty: product.qty, message: 'Product Added Successfully!' }))
-  }
-
-  // Minus Handler
-  const handleMinus = (product, e) => {
-
-    products
-      .filter(pro => product._id == pro._id)
-      .map(pro => pro.qty--)
-
-    if (product.qty === 0) dispatch(removeFromCart({ _id: product._id, message: 'Product Removed Successfully!' }))
-    else dispatch(updateCart({ _id: product._id, qty: product.qty, message: 'Quantity Reduced Successfully!' }))
-  }
-
-  // Plus Handler
-  const handlePlus = (product, e) => {
-    if ((!product.qty || product.qty === 0) && product.countInStock > 0) {// product doesnot exist in cart
-
-      products
-        .filter(pro => product._id == pro._id)
-        .map(pro => pro.qty = 1)
-
-      dispatch(addToCart({ _id: product._id, qty: product.qty, message: 'Product Added Successfully!' }))
-
-    } else if (product.countInStock > product.qty) { // product exists in cart
-
-      products
-        .filter(pro => product._id == pro._id)
-        .map(pro => pro.qty++)
-
-      dispatch(updateCart({ _id: product._id, qty: product.qty, message: 'Quantity Added Successfully!' }))
-
-    } else dispatch(updateCart({ _id: product._id, message: 'Only ' + product.qty + product.unit + ' ' + product.nameEn + ' are available in stock!' }))
-  }
 
   // Toggle Handler
   /*const toggleCartBtns = (product) => {
@@ -100,84 +61,6 @@ const HomeScreen = React.memo(props => {
     }
   }*/
 
-  // Product Quick View
-  const QuickView = (product) => {
-
-    return (
-      <div className="quick-view-container">
-        <div className="quick-view-product">
-          {product.discount > 0 &&
-            <div className='product-discount pdqv'>
-              <div>{product.discount}%</div>
-            </div>}
-          <div className="quick-view-image">
-            <img src={imageUrl + product.image} alt="product" />
-          </div>
-          <div className='quick-view-details'>
-            <table className='quick-view-table'>
-              <tbody>
-                <tr>
-                  <th>Name</th>
-                  <td className='quick-view-header'>{product.nameEn}</td>
-                </tr>
-                <tr>
-                  <th>Brand</th>
-                  <td className='quick-view-brand'>{product.brand}</td>
-                </tr>
-                <tr>
-                  <th>Price</th>
-                  <td className='quick-view-price'>${product.priceUsd}
-                    <div className='quick-view-unit'>/{product.unit}</div>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Rate</th>
-                  <td>{product.rating} Stars</td>
-                </tr>
-                <tr>
-                  <th>Reviews</th>
-                  <td>{product.numReviews}</td>
-                </tr>
-                <tr>
-                  <th>Description</th>
-                  <td>{product.description}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div className="product-add-to-cart">
-              <button
-                type="button"
-                className={'add-to-cart-btn ' + product.qty <= 0 ? 'show' : 'hide'}
-                value={product._id}
-                onClick={() => handleAddToCart(product)}>
-                Add To Cart
-              </button>
-              <div className={'add-to-cart-btns hide ' + product.qty <= 0 ? 'hide' : 'show'}>
-                <button
-                  type="button"
-                  className="minus"
-                  onClick={(e) => handleMinus(product, e)}>
-                  <FontAwesome name='fa-minus' className="fas fa-minus" />
-                </button>
-                <p className="add-to-cart-qty">{product.qty}</p>
-                <button
-                  type="button"
-                  className="plus"
-                  onClick={() => handlePlus(product)}>
-                  <FontAwesome name='fa-plus' className="fas fa-plus" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="quick-view-bar">
-          <div>Add to WishList</div>
-          <div>More Details</div>
-        </div>
-      </div>
-    )
-  }
-
   // Product Quick View Handler
   const handleQuickView = (product) => {
     dispatch({ type: 'UPDATE_ACTIONS', payload: { quickView: { product } } })
@@ -189,129 +72,20 @@ const HomeScreen = React.memo(props => {
     })
   }
 
-  // Add to Cart Btns design 1
-  const BottomCenterBtnsDesign = (product) => {
-    return (
-      <div className="product-add-to-cart">
-        <button
-          type="button"
-          className={`add-to-cart-btn ${product.AddToCartBtnsClass}`}
-          value={product._id}
-          onClick={() => dispatch(handleAddToCart(product))}>
-          Add To Cart
-        </button>
-        <div className={`add-to-cart-btns hide ${product.PlusMinusClass}`}>
-          <button
-            type="button"
-            className="minus"
-            onClick={(e) => handleMinus(product, e)}>
-            <FontAwesome name='fa-minus' className="fas fa-minus" />
-          </button>
-          <p className="add-to-cart-qty show-qty">{product.qty}</p>
-          <button
-            type="button"
-            className="plus show-plus"
-            onClick={() => handlePlus(product)}>
-            <FontAwesome name='fa-plus' className="fas fa-plus" />
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // Add to Cart Btns design 2
-  const RightTopBtnsDesign = (product) => {
-    return (
-      <>
-        <div className='product-plus' onClick={(e) => handlePlus(product, e)}>
-          <FontAwesome name='fa-plus' className="fas fa-plus" />
-        </div>
-        <div>
-          <div className={'product-new-qty right-qty-btn-transform ' +
-            (product.qty >= 1 ? 'animate' : '')}>
-            {product.qty}
-          </div>
-          <div className={'product-minus right-minus-btn-transform ' +
-            (product.qty >= 1 ? 'animate' : '')}
-            onClick={(e) => handleMinus(product, e)}>
-            <FontAwesome name='fa-minus' className="fas fa-minus" />
-          </div>
-        </div>
-      </>
-    )
-  }
-
-  // Add to Cart Btns Designs Handler
-  const AddToCartBtns = (product) => {
-    return (
-      controls.addToCartBtnsStyle === 'Bottom-Center'
-        ? BottomCenterBtnsDesign(product)
-        : controls.addToCartBtnsStyle === 'Right-Top'
-          ? RightTopBtnsDesign(product)
-          : <></>
-    )
-  }
-
-  // Product Slide View
-  const ProductSlide = (view) => {
-    return (
-      view.products.map((product) => (
-        <div className="product" key={product._id} style={{ backgroundColor: '#fff' }}>
-          {product.countInStock === 0 && <div className="product-out-of-stock"></div>}
-          {product.discount > 0 &&
-            <div className='product-discount'>
-              <div>{product.discount}</div>
-              <div>%</div>
-            </div>
-          }
-          <div className="product-image">
-            <div className='title-skeleton'>Sarah Originals</div>
-            <img src={imageUrl + product.image} alt="product"
-              onLoad={e => { e.currentTarget.previousSibling.classList.add('hide') }}
-              onClick={() => handleQuickView(product)} />
-          </div>
-          <div className='product-details-container'>
-            <div className="product-name">
-              <Link to={"/product/" + product._id}>{product.nameEn}</Link>
-            </div>
-            {/*Done*/}
-            <div className="product-brand">{product.brand}</div>
-            <div className="product-price">
-              <div className={product.discount > 0 ? 'before-discount' : ''}>${product.priceUsd}</div>
-              {product.discount > 0 &&
-                <div className='after-discount'>${Math.round(100 * (product.priceUsd - product.priceUsd * product.discount / 100)) / 100}</div>
-              }
-              <div className='product-review-container'>
-                <FontAwesomeIcon icon={faStar} className='faStar' />
-                <div className='product-review'>4.5</div>
-                <div className='product-review-qty'>(21)</div>
-              </div>
-            </div>
-          </div>
-          {AddToCartBtns(product)}
-        </div>)))
-  }
-
   //////////////// Navigation Bar ////////////////
 
   const [actionNoteTop, setActionNoteTop] = useState('0.5rem')
 
-  const Views = () => {
-    const slideLists = useSelector(state => state.slideLists)
-
-    if (slideLists.length > 0)
-      return controls.homePageViews.map(view => {
-        const imageBox = controls.imageBox.find(box => box.name === view.name)
-        return imageBox
-          ? <ImageBox imageBox={imageBox} mobileScreen={mobileScreen} />
-          : <></>
-      })
-    else return <></>
-  }
+  const Views = () =>
+    controls.HomeScreen
+      ? controls.HomeScreen.map((view, index) =>
+        view.styles[viewPort] &&
+        view.active && <View view={view} viewPort={viewPort} key={index} touchscreen={touchscreen} />
+      ) : <></>
 
   //////////////////////////////////// Slide Ribbon Props ///////////////////////////////////
 
-  const swiper = {
+  /*const swiper = {
     slidesOffsetAfter: 0,
     freeMode: true,
     grabCursor: true,
@@ -331,27 +105,27 @@ const HomeScreen = React.memo(props => {
       const titleBackgroundColor = slideRibbon.title.backgroundColor
       const slideTitleDisplay = slideRibbon.slide.title.display
 
-      const ribbonWidth = !mobileScreen
+      const ribbonWidth = !viewPort
         ? slideRibbon.ribbon.width
         : slideRibbon.mobile.ribbon.width
 
-      const slideWidth = !mobileScreen
+      const slideWidth = !viewPort
         ? slideRibbon.slide.width
         : slideRibbon.mobile.slide.width
 
-      const imgHeight = !mobileScreen
+      const imgHeight = !viewPort
         ? slideRibbon.image.maxHeight
         : slideRibbon.mobile.image.maxHeight
 
-      const imgWidth = !mobileScreen
+      const imgWidth = !viewPort
         ? slideRibbon.image.maxWidth
         : slideRibbon.mobile.image.maxWidth
 
-      const imgContWidth = !mobileScreen
+      const imgContWidth = !viewPort
         ? slideRibbon.image.containerWidth
         : slideRibbon.mobile.image.containerWidth
 
-      const imgContHeight = !mobileScreen
+      const imgContHeight = !viewPort
         ? slideRibbon.image.containerHeight
         : slideRibbon.mobile.image.containerHeight
 
@@ -371,13 +145,13 @@ const HomeScreen = React.memo(props => {
 
       setimageBoxCategories({
         slideRibbon, imageUrl, RibbonContStyle, slideSwiperContStyle, slideContStyle,
-        imgContStyle, imgStyle, slideTitleContStyle, swiper, titleStyle, mobileScreen
+        imgContStyle, imgStyle, slideTitleContStyle, swiper, titleStyle, viewPort
       })
     }
 
-  }, [controls, mobileScreen])
+  }, [controls, viewPort])*/
 
-  return (controls && !loading &&
+  return (
     <>
       {actionNoteVisible &&
         <div style={{ top: actionNoteTop }} className="action-note">
@@ -393,10 +167,10 @@ const HomeScreen = React.memo(props => {
         </div>
       */}
 
-      {controls.navigationBar && <NavigationBar navigationBar={controls.navigationBar} />}
+      {/*controls && controls.navigationBar && <NavigationBar navigationBar={controls.navigationBar} />*/}
       <Views />
     </>
   );
-})
+}
 
 export default HomeScreen;

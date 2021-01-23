@@ -7,8 +7,11 @@ import {
   productDetailsReducer,
   productSaveReducer,
   productDeleteReducer,
-  slideListsReducer
 } from "./reducers/productReducers";
+
+import {
+  slidesReducer
+} from "./reducers/slidesReducer";
 
 import {
   assignmentListReducer,
@@ -102,20 +105,25 @@ import {
 } from "./reducers/reviewReducer";
 
 import {
-  controlReducer,
-  controlSaveReducer,
+  controlsReducer,
+  controlsSaveReducer,
   actions,
-  controllerReducer,
-  controllerSaveReducer
 } from "./reducers/controlsReducer"
 
 import { viewsReducer } from './reducers/viewsReducer'
-import { screenBoxReducer, screenBoxSaveReducer } from "./reducers/screenBoxReducer";
+import {
+  stylesReducer,
+  stylesSaveReducer,
+  defaultStylesReducer,
+  titleStylesReducer,
+  titleStylesSaveReducer,
+  defaultTitleStylesReducer
+} from "./reducers/stylesReducer";
 
-const cartItems = cookie.getJSON("cartItems") || [];
-const userInfo = cookie.getJSON("userInfo") || {};
-const address = cookie.getJSON("address") || undefined;
-const paymentMethod = cookie.getJSON("paymentMethod") || undefined;
+const cartItems = cookie.getJSON("cartItems") || []
+const userInfo = cookie.getJSON("userInfo") || {}
+const address = cookie.getJSON("address") || undefined
+const paymentMethod = cookie.getJSON("paymentMethod") || undefined
 const packedItems = JSON.parse(localStorage.getItem('packedItems')) || []
 
 const initialState = {
@@ -131,18 +139,23 @@ const reducer = combineReducers({
   views: viewsReducer,
   time: timeReducer,
   clock: clockReducer,
-  controls: controlReducer,
-  controlSave: controlSaveReducer,
-  controllerSave: controllerSaveReducer,
-  controller: controllerReducer,
-  screenBox: screenBoxReducer,
-  screenBoxSave: screenBoxSaveReducer,
+
+  controls: controlsReducer,
+  controlSave: controlsSaveReducer,
+  styles: stylesReducer,
+  stylesSave: stylesSaveReducer,
+  defaultStyles: defaultStylesReducer,
+
+  titleStyles: titleStylesReducer,
+  titleStylesSave: titleStylesSaveReducer,
+  defaultTitleStyles: defaultTitleStylesReducer,
 
   productList: productListReducer,
   productDetails: productDetailsReducer,
   productSave: productSaveReducer,
   productDelete: productDeleteReducer,
-  slideLists: slideListsReducer,
+
+  slides: slidesReducer,
 
   cart: cartReducer,
   packed: packedReducer,

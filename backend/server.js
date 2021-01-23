@@ -21,9 +21,8 @@ import chatRoute from './routes/chatRoute';
 import liveChatRoute from './routes/liveUserRoute';
 import imageRoute from './routes/imageRoute';
 import controlsRoute from './routes/controlsRoute';
-import slideListsRoute from './routes/slideListsRoute';
-import controllerRoute from './routes/controllerRoute';
-import screenBoxRoute from './routes/screenBoxRoute';
+import slidesRoute from './routes/slidesRoute';
+import stylesRoute from './routes/stylesRoute';
 import http from 'http'
 import socketIo from 'socket.io'
 
@@ -72,6 +71,18 @@ wifi.connect({ ssid: "Hadi Obeid", password: "Hassan@obied@44" }, function (err)
 
 const mongodbUrl = config.MONGODB_URL;
 
+/*var db = mongoose.connection;
+db.on('error', console.error);
+db.once('open', function () {
+  console.log("db connect");
+  db.dropCollection("styles", function (err, result) {
+    if (err) {
+      console.log("error delete collection");
+    } else {
+      console.log("delete collection success");
+    }
+  });
+});*/
 mongoose.connect(mongodbUrl, {
   useUnifiedTopology: true,
   useNewUrlParser: true,
@@ -79,7 +90,7 @@ mongoose.connect(mongodbUrl, {
   useFindAndModify: false,
 })
   .catch((err) => console.log(err.reason))
-  .then(() => console.log('Connected to database: GridApp'))
+  .then((db) => console.log('Connected to database: GridApp'))
 
 const app = express()
 const server = http.createServer(app)
@@ -124,11 +135,9 @@ app.use("/api/chat", chatRoute);
 
 app.use("/api/live", liveChatRoute);
 
-app.use("/api/slideLists", slideListsRoute)
+app.use("/api/slides", slidesRoute)
 
-app.use("/api/controller", controllerRoute)
-
-app.use("/api/screenBox", screenBoxRoute)
+app.use("/api/styles", stylesRoute)
 
 //app.use('/api/uploads/image', express.static(path.join(__dirname, '/../frontend/uploads')));
 
@@ -145,5 +154,5 @@ app.use(logger('dev'));*/
 });*/
 
 app.listen(config.PORT, () => {
-  console.log("Server started at http://localhost:5000");
-});
+  console.log("Server started at http://localhost:5000")
+})

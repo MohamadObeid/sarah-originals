@@ -8,7 +8,7 @@ import React from 'react'
 import { useSelector } from 'react-redux';
 const tick = new UIfx(audio)
 
-const timer = (endDate, active/*, startDate*/) => { //gets date and retruns time difference between current date, active is active user
+const timer = (endDate, active) => { //gets date and retruns time difference between current date, active is active user
 
     var d = new Date()
     var currentYear = d.getFullYear()
@@ -18,70 +18,6 @@ const timer = (endDate, active/*, startDate*/) => { //gets date and retruns time
     var currentMinutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes()
     var currentSeconds = d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds()
     //console.log(date)
-
-    /*if (startDate) {
- 
-        var dateNum = startDate.split("T", 1)[0]
-        var time = startDate.slice(11, 16)
-        var dateDay = parseInt(dateNum.slice(8, 10))
-        var dateMonth = parseInt(dateNum.slice(5, 7))
-        var dateYear = parseInt(dateNum.slice(0, 4))
-        var timeHour = parseInt(time.slice(0, 2))
-        var timeMin = parseInt(time.slice(3, 5))
-        var timeSec = parseInt(time.slice(6, 8)) ? parseInt(time.slice(6, 8)) : 0
- 
-        var secDiff = currentSeconds - timeSec
-        var minDiff = currentMinutes - timeMin
-        var hourDiff = currentHour - timeHour
-        var dayDiff = currentDay - dateDay
-        var monthDiff = currentMonthNum - dateMonth
-        var yearDiff = currentYear - dateYear
- 
-        var secStatus = secDiff <= 1 ? 'Online' : secDiff + ' sec ago'
- 
-        var minStatus = secDiff === 0
-            ? Math.abs(minDiff) + ' min left'
-            : (secDiff > 0 ? (minDiff !== -1 ? Math.abs(minDiff) - 1 + ' min  ' : '') : Math.abs(minDiff) + ' min  ')
-            + (60 - Math.abs(secDiff)) + ' sec left'
- 
-        var hourStatus = minDiff === 0
-            ? Math.abs(hourDiff) + ' hour left'
-            : (minDiff > 0 ? (hourDiff !== -1 ? Math.abs(hourDiff) - 1 + ' hour  ' : '') : Math.abs(hourDiff) + ' hour  ')
-            + (60 - Math.abs(minDiff)) + ' min ' + (60 - Math.abs(secDiff)) + ' sec left'
- 
-        var dayStatus = hourDiff === 0
-            ? (minDiff === 0
-                ? Math.abs(dayDiff) + ' day left'
-                : (minDiff < 0 ? Math.abs(dayDiff) + ' day ' + Math.abs(minDiff) + ' min left' : '23 hours ' + (60 - minDiff) + ' min left'))
-            : (hourDiff > 0 ? (dayDiff !== -1 ? Math.abs(dayDiff) - 1 + ' day  ' : '') : Math.abs(dayDiff) + ' day  ')
-            + (24 - Math.abs(minDiff >= 0 ? hourDiff + 1 : hourDiff)) + ' hour  ' + (minDiff === 0 ? 'left' : (minDiff > 0 ? 60 - minDiff + ' min left' : Math.abs(minDiff) + ' min left'))
- 
-        var monthStatus = dayDiff === 0
-            ? Math.abs(monthDiff) + ' month left'
-            : (dayDiff > 0 ? (monthDiff !== -1 ? Math.abs(monthDiff) - 1 + ' month  ' : '') : Math.abs(monthDiff) + ' month  ')
-            + (30 - Math.abs(dayDiff)) + ' day left'
- 
-        var yearStatus = monthDiff === 0
-            ? Math.abs(yearDiff) + ' year left'
-            : (monthDiff > 0 ? (yearDiff !== -1 ? Math.abs(yearDiff) - 1 + ' year  ' : '') : Math.abs(yearDiff) + ' year  ')
-            + (12 - Math.abs(monthDiff)) + ' month left'
- 
-        var status
- 
-        if (yearDiff === 0) {
-            if (monthDiff === 0) {
-                if (dayDiff === 0) {
-                    if (hourDiff === 0) {
-                        if (minDiff === 0) {
-                            if (secDiff >= 0) { } else status = secStatus
-                        } else if (minDiff > 0) { } else status = minStatus
-                    } else if (hourDiff > 0) { } else status = hourStatus
-                } else if (dayDiff > 0) { } else status = dayStatus
-            } else if (monthDiff > 0) { } else status = monthStatus
-        } else if (yearDiff > 0) { } else status = yearStatus
- 
-        if (status) return status
-    }*/
 
     if (endDate) {
         var dateNum = endDate.split("T")[0]
@@ -119,7 +55,9 @@ const timer = (endDate, active/*, startDate*/) => { //gets date and retruns time
             : hourDiff < 0
             && (minDiff === 0
                 ? Math.abs(hourDiff) + ' hour left'
-                : (minDiff > 0 ? (hourDiff !== -1 ? Math.abs(hourDiff) - 1 + ' hour  ' : '') : Math.abs(hourDiff) + ' hour  ')
+                : ((minDiff >= 0 ? hourDiff + 1 : hourDiff) > 0
+                    ? (24 - Math.abs(minDiff >= 0 ? hourDiff + 1 : hourDiff)) + ' hour  '
+                    : (Math.abs(minDiff >= 0 ? hourDiff + 1 : hourDiff)) + ' hour  ')
                 + (minDiff > 0 ? 60 - minDiff : Math.abs(minDiff)) + ' min '
                 + (secDiff === 0 ? 'left' : ((secDiff > 0 ? 60 - secDiff : Math.abs(secDiff)) + ' sec left')))
 
@@ -133,9 +71,9 @@ const timer = (endDate, active/*, startDate*/) => { //gets date and retruns time
                     ? Math.abs(dayDiff) + ' day left'
                     : (minDiff < 0 ? Math.abs(dayDiff) + ' day ' + Math.abs(minDiff) + ' min left' : '23 hours ' + (60 - minDiff) + ' min left'))
                 : (hourDiff > 0 ? (dayDiff !== -1 ? Math.abs(dayDiff) - 1 + ' day  ' : '') : Math.abs(dayDiff) + ' day  ')
-                + (Math.abs(minDiff >= 0 ? hourDiff + 1 : hourDiff) < 24
+                + ((minDiff >= 0 ? hourDiff + 1 : hourDiff) > 0
                     ? (24 - Math.abs(minDiff >= 0 ? hourDiff + 1 : hourDiff)) + ' hour  '
-                    : '')
+                    : (Math.abs(minDiff >= 0 ? hourDiff + 1 : hourDiff)) + ' hour  ')
                 + ((minDiff > 0 ? 60 - minDiff : Math.abs(minDiff)) + ' min ')
                 + (secDiff === 0 ? 'left' : ((secDiff > 0 ? 60 - secDiff : Math.abs(secDiff)) + ' sec left')))
 

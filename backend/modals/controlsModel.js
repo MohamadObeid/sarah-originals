@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+/*import mongoose from "mongoose";
 
 const controlsSchema = new mongoose.Schema({
     active: { type: Boolean, required: false },
@@ -541,4 +541,51 @@ const controlsSchema = new mongoose.Schema({
 
 const Controls = mongoose.model("Controls", controlsSchema);
 
-export default Controls;
+export default Controls;*/
+const titleSchema = {
+    title: String,
+    description: String
+}
+
+import mongoose from "mongoose"
+const controlsSchema = new mongoose.Schema({
+    active: Boolean,
+    name: { type: String, unique: true },
+    HomeScreen: [{
+        active: Boolean,
+        name: String,
+        title: titleSchema,
+        styles: {
+            desktop: {
+                _id: String,
+                name: String,
+            }
+        },
+
+        slideBox: [{
+            title: titleSchema,
+
+            collections: {
+                type: { type: String },
+                collections: [String],
+                limit: { type: Number, default: 10 },
+                sort: { type: String, default: 'Recent' },
+            },
+
+            /*slide: [{
+                index: Number,
+                isDefault: Boolean,
+                title: titleSchema,
+            }],*/
+
+            slides: [{
+                title: String,
+                src: String,
+                link: String
+            }]
+
+        }]
+    }]
+})
+
+export default mongoose.model("Controls", controlsSchema)

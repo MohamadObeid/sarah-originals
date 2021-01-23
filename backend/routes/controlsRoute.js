@@ -1,56 +1,148 @@
-import express from "express";
-import Controls from "../modals/controlsModel";
-import { isAuth, isAdmin } from '../util';
+import express from "express"
+import Controls from "../modals/controlsModel"
+import { isAuth, isAdmin } from '../util'
 
-const router = express.Router();
+const router = express.Router()
 
-router.get("", async (req, res) => {
-    const controls = await Controls.findOne({ active: { $eq: true } })
-    if (controls) return res.send(controls)
-    return res.send({ message: 'No Controls Available!' })
-})
+router.post("/get", async (req, res) => {
+    const { _id, name } = req.body
+    const limit = req.body.limit || 100
+    const skip = 0
 
-router.put("/put", isAuth, isAdmin, async (req, res) => {
-    const controls = await Controls.findOne({ _id: { $eq: /*'5fd0806998049b03400861a7'*/'5fc2ff0bdd745917d40ae217' } })
+    if (_id || name) {
 
-    if (controls) {
-        controls.active = req.body.active
-        controls.backgroundColor = req.body.backgroundColor
-        controls.addToCartBtnsStyle = req.body.addToCartBtnsStyle
-        controls.homePageCollections = req.body.homePageCollections
-        controls.topRibbonVisible = req.body.topRibbonVisible
-        controls.topRibbon = req.body.topRibbon
-        controls.navigationBar = req.body.navigationBar
-        controls.slideRibbonVisible = req.body.slideRibbonVisible
-        controls.slideRibbon = req.body.slideRibbon
-        controls.homePageViews = req.body.homePageViews
-        controls.imageBox = req.body.imageBox
+        const conditions = { $or: [{ _id }, { name }] }
+        const controls = await Controls.findOne(conditions)
+        if (controls) return res.send(controls)
+        else return res.send({ message: 'Controls are not Available!' })
 
     } else {
-        const controls = new Controls(req.body)
-        const controlsUpdated = await controls.save();
-        if (controlsUpdated) {
-            return res.status(200).send({ message: "Controls has been updated!", data: controlsUpdated })
+
+        const conditions = { active: true }
+        const controls = await Controls.findOne(conditions, { HomeScreen: { $slice: [skip, limit] } })
+        if (controls) return res.send(controls)
+        else return res.send({ message: 'Controls are not Available!' })
+    }
+})
+
+router.post("/save", isAuth, isAdmin, async (req, res) => {
+    try {
+        var controlsSaved
+        var message
+
+        if (Array.isArray(req.body)) { // save multiple Controls
+            const controlsList = []
+
+            req.body.map(async (controls, index) => {
+                controlsSaved = false
+
+                if (controls._id || controls.name) { // update a controls
+                    const { _id, name, ...updatedcontrols } = controls
+                    const conditions = { $or: [{ _id }, { name }] }
+                    const options = { new: true }
+
+                    controlsSaved = await Controls.findOneAndUpdate(conditions, updatedcontrols, options)
+                    if (controlsSaved) {
+                        controlsList[index] = controlsSaved
+                        message = 'Controls has been updated!'
+
+                    } else {
+                        // if screen box doesnot exist create a new screen Box
+                        const newcontrols = new Controls({ ...updatedcontrols, name })
+                        controlsSaved = await newcontrols.save()
+                        controlsList[index] = controlsSaved
+                        message = "Controls has been created!"
+                    }
+
+                    if (!controlsList.includes(undefined) && controlsList.length === req.body.length) {
+                        if (controlsSaved) return res.send({ message, data: controlsList })
+                        return res.send({ message: "Error in creating Controls!" })
+                    }
+
+                } else {// create a new screen Box
+                    const newcontrols = new Controls(controls)
+                    controlsSaved = await newcontrols.save()
+                    controlsList[index] = controlsSaved
+                    message = 'Controls has been created'
+
+                    if (!controlsList.includes(undefined) && controlsList.length === req.body.length) {
+                        return res.send({ message, data: controlsList })
+                        // return res.send({ message: "Error in creating controls!" })
+                    }
+                }
+            })
+
+        } else {
+            if (req.body._id || req.body.name) { // there exist _id or name
+
+                const { _id, name, ...updatedcontrols } = req.body
+                const conditions = { $or: [{ _id }, { name }] }
+                const options = { new: true }
+
+                controlsSaved = await Controls.findOneAndUpdate(conditions, updatedcontrols, options)
+                if (controlsSaved) message = 'Controls has been updated!'
+                else {
+                    // if controls doesnot exist create a new controls
+                    const newcontrols = new Controls({ ...updatedcontrols, name })
+                    controlsSaved = await newcontrols.save()
+                    message = 'Controls has been created!'
+                }
+
+            } else { // no _id
+                const newcontrols = new Controls(req.body)
+                controlsSaved = await newcontrols.save()
+                message = 'Controls has been created!'
+            }
+
+            if (controlsSaved) return res.send({ message, data: controlsSaved })
+            return res.send({ message: "Error in creating Controls!" })
+        }
+    } catch (err) { console.log(err) }
+})
+
+router.post("/delete", isAuth, isAdmin, async (req, res) => {
+    var controlsDeleted
+
+    if (Array.isArray(req.body)) {
+        const controlsList = []
+
+        req.body.map(async (_id, index) => {
+
+            const conditions = { _id }
+            controlsDeleted = await Controls.findOneAndRemove(conditions)
+            controlsList[index] = controlsDeleted
+
+            if (!controlsList.includes(undefined) && controlsList.length === req.body.length) {
+                return res.send({ message: "controls has been deleted!", data: controlsList })
+                //return res.send({ message: "Error in deleting controls!" })
+            }
+        })
+
+    } else {
+        if (req.body.deleteAll) {
+            const deletedControls = await Controls.find({})
+            const controlsList = []
+
+            deletedControls.map(async (controls, index) => {
+                const _id = controls._id
+                const conditions = { _id }
+
+                controlsDeleted = await Controls.findOneAndRemove(conditions)
+                controlsList[index] = controlsDeleted
+
+                if (!controlsList.includes(undefined) && controlsList.length === deletedControls.length) {
+                    return res.send({ message: "controls has been deleted!", data: controlsList })
+                }
+            })
+
+        } else {
+            const conditions = { _id: req.body._id }
+            controlsDeleted = await Controls.findOneAndRemove(conditions)
+            if (controlsDeleted)
+                return res.send({ message: "Controls has been deleted!", data: controlsDeleted })
+            return res.send({ message: "Error in deleting Controls!" })
         }
     }
+})
 
-    const controlsUpdated = await controls.save();
-    if (controlsUpdated) {
-        return res.status(200).send({ message: "Controls has been updated!", data: controlsUpdated })
-    }
-    return res.status(500).send({
-        message: "Error in updating controls!"
-    })
-});
-
-router.delete("/:id", isAuth, isAdmin, async (req, res) => {
-    const controlsDeleted = await Controls.findByIdAndRemove(req.params.id);
-    if (controlsDeleted) {
-        return res.status(200).send({ message: "Controls has been deleted!", data: controlsDeleted });
-    }
-    return res.status(500).send({
-        message: "Error in deleting controls!"
-    })
-});
-
-export default router;
+export default router

@@ -8,8 +8,9 @@ import { TitleContainer } from './TitleContainer'
 import { showTimer } from '../../methods/methods'
 import { Timer } from './SlideBoxComponents'
 
-const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
+const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
     const dispatch = useDispatch()
+
     var timeOut
     var swiperWrapper
     var leftChevron
@@ -22,7 +23,7 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
     var lastClientX
 
     useEffect(() => {
-        element = document.getElementsByClassName('slide-box-' + slideBox._id)[0]
+        element = document.getElementsByClassName('slide-box-' + _id)[0]
         swiperWrapper = element.getElementsByClassName('slideBox-wrapper')[0]
         leftChevron = element.getElementsByClassName('left-chevron-wrap')[0]
         rightChevron = element.getElementsByClassName('right-chevron-wrap')[0]
@@ -38,12 +39,16 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
             if (e.getElementsByClassName('product-timer-wrap') && e.getElementsByClassName('product-timer-wrap').length > 0)
                 e.getElementsByClassName('product-details-wrap')[0].style.justifyContent = 'space-between'
         })
+
         for (var i = 0, len = titleElements.length; i < len; i++) {
             titleElements[i].style["height"] = maxHeight + 'px';
         }
 
         slideHeight = maxHeight
         slideWidth = element.getElementsByClassName('slide-wrapper')[0] && element.getElementsByClassName('slide-wrapper')[0].offsetWidth
+
+        if (swiperBox.height === 'slideHeight')
+            swiperWrapper.style["height"] = slideHeight + 'px'
 
         widthSlideSkipper = (slideWidth + gapWidth) * skip
         heightSlideSkipper = (slideHeight + gapWidth) * skip
@@ -59,220 +64,212 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
         if (autoPlay && !timeOut)
             timeOut = [setInterval(() => chevronRight(), duration)]
 
-        if (styles.swiper.swipable) ToggleChevrons(true)
+        if (swiper.swipable) ToggleChevrons(true)
 
     }, [])
 
-    const mobile = slideBox.mobile
-    const styles = !mobileScreen ? slideBox : mobile
-    const slides = slideList ? [...slideBox.slides, ...slideList] : slideBox.slides || []
-    const skeleton = styles.skeleton
-    const skipMore = styles.swiper.skipMore
-    const index = slideBox.slide.length > 1 ? 1 : 0
+    const _id = slideBox._id
+    const Title = slideBox.title
+    const TitleStyles = styles.title
+    const slide = styles.slide || defaultStyles.slide
+    const product = styles.product || defaultStyles.product
+    const skeleton = styles.skeleton || defaultStyles.skeleton
+    const badges = styles.badges || defaultStyles.badges
+    const swiper = styles.swiper || defaultStyles.swiper
 
-    const scrollBehavior = styles.swiper.scroll.behavior || 'auto'
-    const verticalSwiper = styles.swiper.direction === 'Y' ? true : false
+    const defaultSlide = defaultStyles.slide[0]
+    const defaultProduct = defaultStyles.product
+    const defaultSkeleton = defaultStyles.skeleton
+    const defaultBadges = defaultStyles.badges
+    const defaultSwiper = defaultStyles.swiper
+
+    var defaultSlideIndex = slide.findIndex(slide => slide.isDefault)
+    if (defaultSlideIndex === -1) defaultSlideIndex = undefined
+
+    const skipMore = swiper.skipMore || defaultSwiper.skipMore
+
+    const scrollBehavior = swiper.scroll && swiper.scroll.behavior || defaultSwiper.scroll.behavior
+    const verticalSwiper = (swiper.direction === 'Y' || defaultSwiper.direction === 'Y') ? true : false
 
     const slidesOverlayStyle = {
-        display: styles.display,
-        width: styles.width,
-        backgroundColor: styles.backgroundColor,
-        border: styles.border,
-        borderRadius: styles.borderRadius
+        display: styles.display || defaultStyles.display,
+        width: styles.width || defaultStyles.width,
+        backgroundColor: styles.backgroundColor || defaultStyles.backgroundColor,
+        border: styles.border || defaultStyles.border,
+        borderRadius: styles.borderRadius || defaultStyles.borderRadius
     }
 
     const slidesWrapperStyle = {
-        padding: styles.paddingAround,
-        borderRadius: styles.borderRadius
+        padding: styles.paddingAround || defaultStyles.paddingAround,
+        borderRadius: styles.borderRadius || defaultStyles.borderRadius
     }
 
     const swiperBox = {
-        display: styles.display,
-        gridColumnGap: styles.paddingBetween,
-        gridRowGap: styles.paddingBetween,
-        gridTemplateColumns: `repeat(auto-fit, minmax(${styles.slide[index].width}, 1fr))`,
-        borderRadius: styles.slide[index].borderRadius,
-        overflow: styles.overflow,
-        height: styles.height
+        display: styles.display || defaultStyles.display,
+        gridColumnGap: styles.paddingBetween || defaultStyles.paddingBetween,
+        gridRowGap: styles.paddingBetween || defaultStyles.paddingBetween,
+        gridTemplateColumns: `repeat(auto-fit, minmax(${slide[defaultSlideIndex].width}, 1fr))`,
+        borderRadius: slide[defaultSlideIndex].borderRadius,
+        overflow: styles.overflow || defaultStyles.overflow,
+        height: styles.height || defaultStyles.height
     }
 
-    // calc swiper box height according to slide height => to open whole swiper box
     var swiperHeight
+    /*const specialSlides = []
+    slide.map((slide, index) => {
+        if (slide.hasOwnProperty('index')) {
+            specialSlides.push({ styleIndex: index, slideIndex: slide.index })
+        }
+    })*/
 
-    const slideContainer = {
-        height: styles.slide[index].height,
-        minWidth: styles.slide[index].width,
-        borderRadius: styles.slide[index].borderRadius,
-        border: styles.slide[index].border,
-    }
+    const slideContainer = (index) =>
+    ({
+        height: slide[index].height || defaultSlide.height,
+        minWidth: slide[index].width || defaultSlide.width,
+        borderRadius: slide[index].borderRadius || defaultSlide.borderRadius,
+        border: slide[index].border || defaultSlide.border,
+    })
 
-    const slideContainerZero = {
-        height: styles.slide[0].height,
-        minWidth: styles.slide[0].width,
-        borderRadius: styles.slide[0].borderRadius,
-        border: styles.slide[0].border,
-    }
 
-    const slideWrapperStyle = {
+    const slideWrapperStyle = (index) =>
+    ({
         height: '100%',
         width: '100%',
-        borderRadius: styles.slide[index].borderRadius,
-        border: styles.slide[index].border,
-        backgroundColor: styles.slide[index].backgroundColor,
-        justifyContent: styles.slide[index].justifyContent
-    }
+        borderRadius: slide[index].borderRadius || defaultSlide.borderRadius,
+        border: slide[index].border || defaultSlide.border,
+        backgroundColor: slide[index].backgroundColor || defaultSlide.backgroundColor,
+        justifyContent: slide[index].justifyContent || defaultSlide.justifyContent
+    })
 
-    const slideWrapperStyleZero = {
-        height: '100%',
-        width: '100%',
-        borderRadius: styles.slide[0].borderRadius,
-        border: styles.slide[0].border,
-        backgroundColor: styles.slide[0].backgroundColor,
-        justifyContent: styles.slide[0].justifyContent
-    }
+    const imageWrapStyle = (index) =>
+    ({
+        minHeight: slide[index].image.height || defaultSlide.image.height,
+        borderRadius: slide[index].image.borderRadius || defaultSlide.image.borderRadius,
 
-    const imageWrapStyle = {
-        minHeight: styles.slide[index].image.height,
-        borderRadius: styles.slide[index].image.borderRadius,
-        width: styles.slide[index].image.forceWidth && styles.slide[index].image.width,
-        maxWidth: !styles.slide[index].image.forceWidth && styles.slide[index].image.width
-    }
+        width: (slide[index].image.forceWidth || defaultSlide.image.forceWidth)
+            && slide[index].image.width
+            || defaultSlide.image.width,
 
-    const imageStyle = {
-        height: styles.slide[index].image.forceWidth && styles.slide[index].image.height,
-        maxHeight: styles.slide[index].image.height,
-        borderRadius: styles.slide[index].image.borderRadius,
-        transform: !styles.slide[index].image.animation && 'unset',
-        width: styles.slide[index].image.forceWidth && styles.slide[index].image.width,
-        maxWidth: styles.slide[index].image.width
-    }
+        maxWidth: (!slide[index].image.forceWidth || !defaultSlide.image.forceWidth)
+            && slide[index].image.width
+            || defaultSlide.image.width
+    })
 
-    const imageWrapStyleZero = {
-        minHeight: styles.slide[0].image.height,
-        borderRadius: styles.slide[0].image.borderRadius,
-        width: styles.slide[0].image.forceWidth && styles.slide[0].image.width,
-        maxWidth: !styles.slide[0].image.forceWidth && styles.slide[0].image.width
-    }
+    const imageStyle = (index) =>
+    ({
+        borderRadius: slide[index].image.borderRadius || defaultSlide.image.borderRadius,
+        transform: (!slide[index].image.animation || !defaultSlide.image.animation)
+            && 'unset',
+        width: (slide[index].image.forceWidth || defaultSlide.image.forceWidth)
+            && slide[index].image.width
+            || defaultSlide.image.width,
 
-    const imageStyleZero = {
-        height: styles.slide[0].image.forceWidth && styles.slide[0].image.height,
-        maxHeight: styles.slide[0].image.height,
-        borderRadius: styles.slide[0].image.borderRadius,
-        transform: !styles.slide[0].image.animation && 'unset',
-        width: styles.slide[0].image.forceWidth && styles.slide[0].image.width,
-        maxWidth: styles.slide[0].image.width
-    }
+        height: (slide[index].image.forceHeight || defaultSlide.image.forceHeight)
+            && slide[index].image.height
+            || defaultSlide.image.height,
 
-    const slideTitleStyle = {
-        display: styles.slide[index].title.display,
-        backgroundColor: styles.slide[index].title.backgroundColor,
-        color: styles.slide[index].title.color,
-        fontSize: styles.slide[index].title.fontSize,
-        height: styles.slide[index].title.height,
-        margin: styles.slide[index].title.margin,
-        border: styles.slide[index].title.border,
-        borderRadius: styles.slide[index].title.borderRadius,
-        padding: styles.slide[index].title.padding,
-    }
+        maxWidth: slide[index].image.width || defaultSlide.image.width,
+        maxHeight: slide[index].image.height || defaultSlide.image.height,
+    })
 
-    const slideTitleStyleZero = {
-        display: styles.slide[0].title.display,
-        backgroundColor: styles.slide[0].title.backgroundColor,
-        color: styles.slide[0].title.color,
-        fontSize: styles.slide[0].title.fontSize,
-        height: styles.slide[0].title.height,
-        margin: styles.slide[0].title.margin,
-        border: styles.slide[0].title.border,
-        borderRadius: styles.slide[0].title.borderRadius,
-        padding: styles.slide[0].title.padding,
-    }
+    var leftChevronWrapper, rightChevronWrapper, swiperChevronsStyle, autoToggle
 
-    const chevronWrapperStyle = {
-        display: styles.swiper.chevrons.display,
-        height: styles.swiper.chevrons.height,
-        width: styles.swiper.chevrons.width,
-        backgroundColor: styles.swiper.chevrons.backgroundColor,
-        hoverBackgroundColor: styles.swiper.chevrons.hoverBackgroundColor,
-        initialBackgroundColor: styles.swiper.chevrons.backgroundColor,
-        boxShadow: !styles.swiper.chevrons.boxShadow && 'none'
-    }
+    var chevrons = { display: 'none' }
 
-    const leftChevronWrapper = !verticalSwiper
-        ? {
-            top: `calc(50% - ${parseFloat(styles.swiper.chevrons.height) / 2 + 'rem'})`,
-            left: '0',
-            transform: 'rotate(0)',
-        } : {
-            top: `calc(-${parseFloat(styles.swiper.chevrons.width) / 2 + 'rem'})`,
-            left: `calc(50% - ${parseFloat(styles.swiper.chevrons.width) / 2 + 'rem'})`,
-            transform: 'rotate(90deg)',
+    if (swiper.chevrons) {
+        chevrons = {
+            display: swiper.chevrons.display || defaultSwiper.chevrons.display,
+            height: swiper.chevrons.height || defaultSwiper.chevrons.height,
+            width: swiper.chevrons.width || defaultSwiper.chevrons.width,
+            backgroundColor: swiper.chevrons.backgroundColor || defaultSwiper.chevrons.backgroundColor,
+            hoverBackgroundColor: swiper.chevrons.hoverBackgroundColor || defaultSwiper.chevrons.hoverBackgroundColor,
+            initialBackgroundColor: swiper.chevrons.backgroundColor || defaultSwiper.chevrons.backgroundColor,
+            boxShadow: (!swiper.chevrons.boxShadow || !defaultSwiper.chevrons.boxShadow) && 'none'
         }
 
-    const rightChevronWrapper = !verticalSwiper
-        ? {
-            top: `calc(50% - ${parseFloat(styles.swiper.chevrons.height) / 2 + 'rem'})`,
-            right: '0',
-            transform: 'rotate(0)',
-        } : {
-            bottom: `calc(-${parseFloat(styles.swiper.chevrons.width) / 2 + 'rem'})`,
-            right: `calc(50% - ${parseFloat(styles.swiper.chevrons.width) / 2 + 'rem'})`,
-            transform: 'rotate(90deg)',
-        }
+        leftChevronWrapper = !verticalSwiper
+            ? {
+                top: `calc(50% - ${parseFloat(swiper.chevrons.height || defaultSwiper.chevrons.height) / 2 + 'rem'})`,
+                left: '0',
+                transform: 'rotate(0)',
+            } : {
+                top: `calc(-${parseFloat(swiper.chevrons.width || defaultSwiper.chevrons.width) / 2 + 'rem'})`,
+                left: `calc(50% - ${parseFloat(swiper.chevrons.width || defaultSwiper.chevrons.width) / 2 + 'rem'})`,
+                transform: 'rotate(90deg)',
+            }
 
-    const swiperChevronsStyle = { color: styles.swiper.chevrons.color }
+        rightChevronWrapper = !verticalSwiper
+            ? {
+                top: `calc(50% - ${parseFloat(swiper.chevrons.height || defaultSwiper.chevrons.height) / 2 + 'rem'})`,
+                right: '0',
+                transform: 'rotate(0)',
+            } : {
+                bottom: `calc(-${parseFloat(swiper.chevrons.width || defaultSwiper.chevrons.width) / 2 + 'rem'})`,
+                right: `calc(50% - ${parseFloat(swiper.chevrons.width || defaultSwiper.chevrons.width) / 2 + 'rem'})`,
+                transform: 'rotate(90deg)',
+            }
 
-    const timerBar = {
-        display: styles.swiper.timerBar.display,
-        margin: styles.swiper.timerBar.margin,
+        swiperChevronsStyle = { color: swiper.chevrons.color || defaultSwiper.chevrons.color }
+
+        autoToggle = swiper.chevrons.autoToggle !== undefined
+            ? swiper.chevrons.autoToggle
+            : defaultSwiper.chevrons.autoToggle
     }
 
-    const stopOnHover = styles.swiper.autoPlay.stopOnHover
+    const timerBar = swiper.timerBar || defaultSwiper.timerBar
+
+    const timerBarStyles = {
+        display: timerBar.display || timerBar.display,
+        margin: timerBar.margin || timerBar.margin,
+    }
+
+    /// product styles 
 
     const productWrap = {
-        display: styles.product.display,
-        justifyContent: styles.product.justifyContent,
-        padding: styles.product.padding,
+        display: product.display || defaultProduct.display,
+        justifyContent: product.justifyContent || defaultProduct.justifyContent,
+        padding: product.padding || defaultProduct.padding,
     }
 
     const productName = {
-        fontSize: styles.product.name.fontSize,
-        color: styles.product.name.color,
-        //hoverColor: styles.product.name.hoverColor ,
-        textAlign: styles.product.name.textAlign,
+        fontSize: product.name.fontSize || defaultProduct.name.fontSize,
+        color: product.name.color || defaultProduct.name.color,
+        //hoverColor: product.name.hoverColor ,
+        textAlign: product.name.textAlign || defaultProduct.name.textAlign,
     }
 
     const productBrand = {
-        display: styles.product.brand.display,
-        fontSize: styles.product.brand.fontSize,
-        color: styles.product.brand.color,
-        //hoverColor: styles.product.name.hoverColor ,
+        display: product.brand.display || defaultProduct.brand.display,
+        fontSize: product.brand.fontSize || defaultProduct.brand.fontSize,
+        color: product.brand.color || defaultProduct.brand.color,
+        //hoverColor: product.name.hoverColor ,
     }
 
     const productPrice = {
-        fontSize: styles.product.price.fontSize,
-        color: styles.product.price.color,
-        //hoverColor: styles.product.price.hoverColor ,
-        textAlign: styles.product.price.textAlign,
+        fontSize: product.price.fontSize || defaultProduct.price.fontSize,
+        color: product.price.color || defaultProduct.price.color,
+        //hoverColor: product.price.hoverColor ,
+        textAlign: product.price.textAlign || defaultProduct.price.textAlign,
     }
 
     const productPriceBeforeDiscount = {
-        fontSize: styles.product.price.beforeDiscount.fontSize,
-        color: styles.product.price.beforeDiscount.color,
+        fontSize: product.price.beforeDiscount.fontSize || defaultProduct.price.beforeDiscount.fontSize,
+        color: product.price.beforeDiscount.color || defaultProduct.price.beforeDiscount.color,
     }
 
     const productPriceUnit = {
-        fontSize: styles.product.price.unit.fontSize,
-        color: styles.product.price.unit.color,
+        fontSize: product.price.unit.fontSize || defaultProduct.price.unit.fontSize,
+        color: product.price.unit.color || defaultProduct.price.unit.color,
     }
 
     const productReviews = {
-        fontSize: styles.product.reviews.fontSize,
-        color: styles.product.reviews.color,
+        fontSize: product.reviews.fontSize || defaultProduct.reviews.fontSize,
+        color: product.reviews.color || defaultProduct.reviews.color,
     }
 
     const productRating = {
-        fontSize: styles.product.rating.fontSize,
-        color: styles.product.rating.color,
+        fontSize: product.rating.fontSize || defaultProduct.rating.fontSize,
+        color: product.rating.color || defaultProduct.rating.color,
     }
 
     const linkSlide = (e, src) => {
@@ -291,34 +288,37 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
     var scrollWidth = 0
     var scrollHeight = 0
 
-    var gapWidth = !mobileScreen
-        ? slideBox.paddingBetween
-        : mobile.paddingBetween
+    var gapWidth = styles.paddingBetween || defaultStyles.paddingBetween
 
     if (gapWidth.includes('rem')) gapWidth = parseFloat(gapWidth) * 10
     else gapWidth = parseFloat(gapWidth)
 
-    var skip = (!mobileScreen
-        ? slideBox.swiper.skip
-        : mobile.swiper.skip) || 1
+    var skip = swiper.skip || defaultSwiper.skip || 1
 
     var widthSlideSkipper = slideWidth
         ? (slideWidth + gapWidth) * skip
         : slideWidth * skip
 
     var heightSlideSkipper = (slideHeight + gapWidth) * skip
+    var duration, autoPlay, stopOnHover
 
-    const duration = !mobileScreen
-        ? slideBox.swiper.autoPlay.duration
-        : mobile.swiper.autoPlay.duration
+    if (swiper.autoPlay) {
+        stopOnHover = swiper.autoPlay.stopOnHover !== undefined
+            ? swiper.autoPlay.stopOnHover
+            : defaultSwiper.autoPlay.stopOnHover
+        duration = swiper.autoPlay.duration || defaultSwiper.autoPlay.duration
+        autoPlay = swiper.autoPlay.run !== undefined
+            ? swiper.autoPlay.run
+            : defaultSwiper.autoPlay.run
+    } else {
+        stopOnHover = defaultSwiper.autoPlay.stopOnHover
+        duration = defaultSwiper.autoPlay.duration
+        autoPlay = defaultSwiper.autoPlay.run
+    }
 
-    const autoPlay = !mobileScreen
-        ? slideBox.swiper.autoPlay.run
-        : mobile.swiper.autoPlay.run
-
-    const scrollAutoToggle = !mobileScreen
-        ? slideBox.swiper.scroll.autoToggle
-        : mobile.swiper.scroll.autoToggle
+    const scrollAutoToggle = swiper.scroll && swiper.scroll.autoToggle !== undefined
+        ? swiper.scroll.autoToggle
+        : defaultSwiper.scroll.autoToggle
 
     const mouseEnterHandler = e => {
         e.preventDefault()
@@ -333,7 +333,7 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
     }
 
     const mouseDownHandler = (e) => {
-        !touchScreen && e.preventDefault()
+        e.preventDefault()
         swiperWrapper.style.scrollBehavior = 'auto'
         drag = true
 
@@ -347,14 +347,12 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
         scrollWidth = e.currentTarget.scrollWidth - e.currentTarget.clientWidth
         scrollHeight = e.currentTarget.scrollHeight - e.currentTarget.clientHeight
 
-        if (!touchScreen) {
-            window.addEventListener('mousemove', mouseMoveHandler)
-            window.addEventListener('mouseup', mouseUpHandler)
-        } else {
+        window.addEventListener('mousemove', mouseMoveHandler)
+        window.addEventListener('mouseup', mouseUpHandler)
+        if (touchScreen) {
             window.addEventListener('touchend', mouseUpHandler)
             window.addEventListener('touchmove', touchMoveHandler)
         }
-
         if (autoPlay) {
             timeOut && timeOut.map(run => clearTimeout(run))
             timeOut = []
@@ -367,10 +365,11 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
         ToggleScroll(e)
         window.removeEventListener('mousemove', mouseMoveHandler)
         window.removeEventListener('mouseup', mouseUpHandler)
-        window.removeEventListener('touchend', mouseUpHandler)
-        window.removeEventListener('touchmove', touchMoveHandler)
+        if (touchScreen) {
+            window.removeEventListener('touchend', mouseUpHandler)
+            window.removeEventListener('touchmove', touchMoveHandler)
+        }
         if (autoPlay && !stopOnHover) timeOut = [setInterval(() => chevronRight(), duration)]
-
     }
 
     const mouseMoveHandler = (e) => {
@@ -502,10 +501,8 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
     }
 
     const ToggleChevrons = e => {
-        const autoToggle = styles.swiper.chevrons.autoToggle
-        const chevronsVisible = styles.swiper.chevrons.display
 
-        if (!isNaN(scrollLeft) && autoToggle && chevronsVisible !== 'none') {
+        if (!isNaN(scrollLeft) && autoToggle && chevrons.display !== 'none') {
             if (verticalSwiper
                 ? swiperWrapper.scrollTop + swiperWrapper.clientHeight === swiperWrapper.scrollHeight
                 : swiperWrapper.scrollLeft + swiperWrapper.clientWidth === swiperWrapper.scrollWidth) // maximum right
@@ -523,8 +520,8 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
     }
 
     const ToggleScroll = e => {
-        const currClientX = !touchScreen ? e.clientX : e.changedTouches[0].clientX
-        const currClientY = !touchScreen ? e.clientY : e.changedTouches[0].clientY
+        const currClientX = e.clientX || e.changedTouches[0].clientX
+        const currClientY = e.clientY || e.changedTouches[0].clientY
         const minScroll = !verticalSwiper ? swiperWrapper.scrollLeft === 0 : swiperWrapper.scrollTop === 0
         const maxScroll = !verticalSwiper ? scrollWidth === swiperWrapper.scrollLeft : scrollHeight === swiperWrapper.scrollTop
 
@@ -554,7 +551,7 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
     useSelector(state => {
         if (swiperWrapper) {
             const _idExist = state.actions.openBox &&
-                state.actions.openBox.find(box_id => box_id == slideBox._id)
+                state.actions.openBox.find(box_id => box_id == _id)
 
             if (_idExist && !boxOpenned) {
                 boxOpenned = true
@@ -565,38 +562,42 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
             } else if (!_idExist && boxOpenned) {
                 if (autoPlay) timeOut = [...timeOut, setInterval(() => chevronRight(), duration)]
                 boxOpenned = false
-                swiperWrapper.style.height = styles.height
+                if (swiperBox.height === 'slideHeight')
+                    swiperWrapper.style.height = slideHeight + 'px'
+                else swiperWrapper.style.height = styles.height || defaultStyles.height
             }
         }
     })
 
     ////////////////////// Bullets ///////////////////////
-    const bullets = styles.swiper.bullets
 
-    const bulletsCont = {
-        display: bullets.display,
-        bottom: bullets.bottom,
-    }
-
-    const bulletsWrap = {
-        gridColumnGap: bullets.paddingBetween,
-        gridRowGap: bullets.paddingBetween,
-    }
-
-    const bulletCont = {}
-    const bulletWrap = {}
-
-    const bullet = {
-        fontSize: bullets.fontSize,
-    }
+    const bullets = swiper.bullets || defaultSwiper.bullets
 
     const Bullets = React.memo(() => {
-        if (styles.swiper.swipable)
+
+        const bulletsCont = {
+            display: bullets.display || defaultSwiper.bullets.display,
+            bottom: bullets.bottom || defaultSwiper.bullets.bottom,
+        }
+
+        const bulletsWrap = {
+            gridColumnGap: bullets.paddingBetween || defaultSwiper.bullets.paddingBetween,
+            gridRowGap: bullets.paddingBetween || defaultSwiper.bullets.paddingBetween,
+        }
+
+        const bulletCont = {}
+        const bulletWrap = {}
+
+        const bullet = {
+            fontSize: bullets.fontSize || defaultSwiper.bullets.fontSize,
+        }
+
+        if (swiper.swipable)
             return (
                 <div style={bulletsCont} className='bullets-cont'>
                     <div style={bulletsWrap} className='bullets-wrap'>
-                        {slides.map(slide =>
-                            <div style={bulletCont} key={slides.indexOf(slide)}>
+                        {slides.map((slide, index) =>
+                            <div style={bulletCont} key={index}>
                                 <div style={bulletWrap}>
                                     <FontAwesomeIcon className='bullet' style={bullet}
                                         icon={faCircle} />
@@ -611,10 +612,10 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
     ///////////////////////////// Timer Bar /////////////////////////////
 
     const showTimerBar = (state) => {
-        if (timerBar.display !== 'none') {
+        if (timerBarStyles.display !== 'none') {
             slideIndex = slideIndex || 0
             var i = slides.length - 1
-            const timerBarElement = element.getElementsByClassName('timerBar')
+            const timerBarElement = [...element.getElementsByClassName('timerBar')]
             while (i >= 0) {
                 timerBarElement[i].classList.remove('width-100')
                 i--
@@ -624,7 +625,7 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
     }
 
     const toggleBullets_TimeBar = () => {
-        if (bullets.display !== 'none' || timerBar.display !== 'none') {// toggle bullets
+        if (bullets.display !== 'none' || timerBarStyles.display !== 'none') {// toggle bullets
             if (!verticalSwiper) {
                 var index = parseInt((swiperWrapper.scrollLeft + swiperWrapper.clientWidth + gapWidth) / (slideWidth + gapWidth) + 0.01) - 1
                 if (index < 0 || isNaN(index) || !index) index = 0
@@ -632,14 +633,14 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
                 if (slideIndex !== index && element) {
                     slideIndex = index
                     showTimerBar(true)
-                    if (element.getElementsByClassName('bullet') &&
-                        element.getElementsByClassName('bullet')[slideIndex].style.color !== '#00bdd9') {
+                    const bulletElement = element.getElementsByClassName('bullet')
+                    if (bulletElement[slideIndex] && bulletElement[slideIndex].style.color !== '#00bdd9') {
                         var i = slides.length - 1
                         while (i >= 0) {
-                            element.getElementsByClassName('bullet')[i].style.color = '#eeeeee'
+                            bulletElement[i].style.color = '#eeeeee'
                             i--
                         }
-                        element.getElementsByClassName('bullet')[slideIndex].style.color = '#00bdd9'
+                        bulletElement[slideIndex].style.color = '#00bdd9'
                     }
                 }
             } else {
@@ -648,14 +649,14 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
                 if (slideIndex !== index && element) {
                     slideIndex = index
                     showTimerBar(true)
-                    if (element.getElementsByClassName('bullet') &&
-                        element.getElementsByClassName('bullet')[slideIndex].style.color !== '#00bdd9') {
+                    const bulletElement = element.getElementsByClassName('bullet')
+                    if (bulletElement[slideIndex] && bulletElement[slideIndex].style.color !== '#00bdd9') {
                         var i = slides.length - 1
                         while (i >= 0) {
-                            element.getElementsByClassName('bullet')[i].style.color = '#eeeeee'
+                            bulletElement[i].style.color = '#eeeeee'
                             i--
                         }
-                        element.getElementsByClassName('bullet')[slideIndex].style.color = '#00bdd9'
+                        bulletElement[slideIndex].style.color = '#00bdd9'
                     }
                 }
             }
@@ -664,35 +665,37 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
 
     /////////////////////// Badges ///////////////////////
 
-    const badges = (!mobileScreen ? slideBox.badges : mobile.badges) || {}
+    const Badges = React.memo(({ slide, timer }) => {
 
-    const badgesWrap = {
-        display: badges.display,
-        top: badges.top,
-        left: badges.left,
-        gridRowGap: badges.paddingBetween,
-        gridColumnGap: badges.paddingBetween,
-        gridTemplateColumns: `repeat(auto-fit, minmax(${badges.badgeWidth}, 1fr))`,
-    }
-    const badgeWrap = {
-        height: badges.badgeHeight,
-        width: badges.badgeWidth,
-        borderRadius: badges.borderRadius,
-    }
-    const badgeStyle = {
-        color: badges.color,
-        fontSize: badges.fontSize,
-        fontWeight: '600'
-    }
+        const badgesWrap = {
+            display: badges.display || defaultBadges.display,
+            top: badges.top || defaultBadges.top,
+            left: badges.left || defaultBadges.left,
+            gridRowGap: badges.paddingBetween || defaultBadges.paddingBetween,
+            gridColumnGap: badges.paddingBetween || defaultBadges.paddingBetween,
+            gridTemplateColumns: `repeat(auto-fit, minmax(${badges.badgeWidth || defaultBadges.badgeWidth}, 1fr))`,
+        }
 
-    const Badges = React.memo(({ slide }) => {
+        const badgeWrap = {
+            height: badges.badgeHeight || defaultBadges.badgeHeight,
+            width: badges.badgeWidth || defaultBadges.badgeWidth,
+            borderRadius: badges.borderRadius || defaultBadges.borderRadius,
+        }
+
+        const badgeStyle = {
+            color: badges.color || defaultBadges.color,
+            fontSize: badges.fontSize || defaultBadges.fontSize,
+            fontWeight: '600'
+        }
+
         var slash = false
         var upcoming = false
         var backgroundColor
         var disc = (slide.discount && slide.discount !== 0 && [{ type: 'discount', discount: slide.discount + '%' }]) || []
-        if (slide.onSale && !showTimer(slide.onSale).ended) {
+
+        if (!timer.ended && slide.onSale.amount >= slide.discount) {
             disc.push({ type: 'onSale', discount: slide.onSale.amount + '%' })
-            if (showTimer(slide.onSale).active) slash = true
+            if (timer.active) slash = true
             else {
                 upcoming = true
                 backgroundColor = '#cccccc'
@@ -700,15 +703,23 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
         }
 
         const badgeList = [...badges.badges, ...disc]
+
         return (
             <div className='badges-wrap' style={badgesWrap}>
-                {badgeList && badgeList.map(badge =>
-                    <div className='badge-wrap'
-                        style={{ ...badgeWrap, backgroundColor: badge.type === 'onSale' && backgroundColor ? backgroundColor : badges.backgroundColors[badgeList.indexOf(badge)] }}>
+                {badgeList && badgeList.map((badge, index) =>
+                    <div className='badge-wrap' key={index}
+                        style={{
+                            ...badgeWrap,
+                            backgroundColor: badge.type === 'onSale' && backgroundColor
+                                ? backgroundColor
+                                : (badges.backgroundColors[index]
+                                    || defaultBadges.backgroundColors[index])
+                        }}>
                         {badge.type === 'discount' && slash && <div className='slash-over slash' />}
                         {badge.type === 'onSale' && upcoming && <div className='upcoming-badget'>coming soon</div>}
                         <div style={badgeStyle}>{badge.discount || badge}</div>
-                    </div>)}
+                    </div>
+                )}
             </div>
         )
     })
@@ -724,37 +735,109 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
         })
     }
 
-    ////////////////////////// Timer ////////////////////////////
+    ////////////////////////// Product ////////////////////////////
+
+    const productVisible = (index) =>
+        slide[index].productVisible === undefined
+            ? defaultSlide.productVisible
+            : slide[index].productVisible
+
+    const Product = React.memo(({ timer, slide }) => {
+        const priceBeforeDiscount = slide.priceUsd
+
+        const discount = timer.active && slide.onSale.amount >= slide.discount
+            ? slide.onSale.amount : (slide.discount || 0)
+
+        const priceAfterDiscount = discount > 0
+            ? (slide.priceUsd - (slide.priceUsd * discount / 100).toFixed(2))
+            : false
+
+        const price = { priceBeforeDiscount, priceAfterDiscount, discount }
+
+        return <div className='product-details-wrap' style={productWrap}>
+            <div className='product-details-wrap-1'>
+                <div className="product-name" style={productName}>
+                    <Link to={"/product/" + slide._id}>
+                        <div className='product-nameEn'>{slide.nameEn || slide.title}</div>
+                    </Link>
+                </div>
+                <div className="product-brand" style={productBrand}>{slide.brand}</div>
+                <div className='product-det-price-reviews-cont'>
+                    <div className="product-det-price-reviews-wrap">
+                        <div className="product-price">
+                            <div className={discount ? 'before-discount' : ''}
+                                style={discount ? productPriceBeforeDiscount : productPrice}>{priceBeforeDiscount}
+                                <div className='price-unit' style={productPriceUnit}>${!priceAfterDiscount ? '/' + slide.unit : ''}</div>
+                            </div>
+                            {priceAfterDiscount &&
+                                <div className='after-discount' style={productPrice}>{priceAfterDiscount}
+                                    <div className='price-unit' style={productPriceUnit}>$/{slide.unit}</div>
+                                </div>}
+                        </div>
+                        <div className='product-review-container'>
+                            <FontAwesomeIcon icon={faStar} className='faStar' />
+                            <div className='product-review' style={productRating}>4.5</div>
+                            <div className='product-review-qty' style={productReviews}>(21)</div>
+                        </div>
+                    </div>
+                    {/*<AddToCart slide={slide} price={price}/> */}
+                </div>
+            </div>
+
+            {/* Timer */}
+            {!timer.ended && slide.onSale.amount >= slide.discount &&
+                <Timer slide={slide} slideBox_id={_id} />}
+
+        </div>
+    })
+
+    /////////////////////
+    const getSlideIndex = (index) => {
+        var i = slide.findIndex(slide => slide.index === index)
+        if (i === -1) i = defaultSlideIndex
+        return i
+    }
+
+    const slideStyles = (index) => slide[index].title
 
     return (
-        <div className={'slides-overlay slide-box-' + slideBox._id} style={slidesOverlayStyle}>
-            {styles.title.display !== 'none' &&
-                <TitleContainer slideBox={slideBox} mobileScreen={mobileScreen} />}
+        <div className={'slides-overlay slide-box-' + _id}
+            style={slidesOverlayStyle}>
+
+            {/* Title */}
+            {TitleStyles && TitleStyles.display !== 'none' &&
+                <TitleContainer _id={_id} Title={Title} styles={TitleStyles} />}
+
             <div className='flex-slides-wrapper'>
                 <div className='fixed-slides-wrapper' style={slidesWrapperStyle}>
 
-                    {/*/////////////////// Chevrons //////////////////*/}
-
-                    <div className='left-chevron-wrap' onClick={e => {
-                        timeOut && timeOut.map(run => clearTimeout(run))
-                        chevronLeft(e)
-                        var newTimeOut = []
-                        if (autoPlay) timeOut = [...newTimeOut, setInterval(() => chevronRight(), duration)]
-                    }}
-                        style={{ ...chevronWrapperStyle, ...leftChevronWrapper }}
-                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = chevronWrapperStyle.hoverBackgroundColor }}
-                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = chevronWrapperStyle.initialBackgroundColor }}>
+                    {/* Chevrons */}
+                    {/*chevrons.display !== 'none' && <Chevrons />*/}
+                    {/* Left Chevron */}
+                    <div className='left-chevron-wrap'
+                        onClick={e => {
+                            timeOut && timeOut.map(run => clearTimeout(run))
+                            chevronLeft(e)
+                            var newTimeOut = []
+                            if (autoPlay) timeOut = [...newTimeOut, setInterval(() => chevronRight(), duration)]
+                        }}
+                        style={{ ...chevrons, ...leftChevronWrapper }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = chevrons.hoverBackgroundColor }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = chevrons.initialBackgroundColor }}>
                         <FontAwesomeIcon icon={faChevronLeft} style={swiperChevronsStyle} />
                     </div>
-                    <div className='right-chevron-wrap' onClick={e => {
-                        timeOut && timeOut.map(run => clearTimeout(run))
-                        chevronRight(e)
-                        var newTimeOut = []
-                        if (autoPlay) timeOut = [...newTimeOut, setInterval(() => chevronRight(), duration)]
-                    }}
-                        style={{ ...chevronWrapperStyle, ...rightChevronWrapper }}
-                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = chevronWrapperStyle.hoverBackgroundColor }}
-                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = chevronWrapperStyle.initialBackgroundColor }}>
+
+                    {/* Right Chevron */}
+                    <div className='right-chevron-wrap'
+                        onClick={e => {
+                            timeOut && timeOut.map(run => clearTimeout(run))
+                            chevronRight(e)
+                            var newTimeOut = []
+                            if (autoPlay) timeOut = [...newTimeOut, setInterval(() => chevronRight(), duration)]
+                        }}
+                        style={{ ...chevrons, ...rightChevronWrapper }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = chevrons.hoverBackgroundColor }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = chevrons.initialBackgroundColor }}>
                         <FontAwesomeIcon icon={faChevronRight} style={swiperChevronsStyle} />
                     </div>
 
@@ -763,72 +846,49 @@ const SlideBox = ({ slideBox, mobileScreen, touchScreen, slideList }) => {
                         onMouseDown={e => { swiperWrapper && !stopOnHover && mouseDownHandler(e); e.preventDefault() }}
                         onMouseEnter={e => { swiperWrapper && stopOnHover && mouseEnterHandler(e); e.preventDefault() }}
                         onMouseLeave={e => { swiperWrapper && stopOnHover && mouseLeaveHandler(e) }}
-                        onTouchStart={e => { swiperWrapper && touchStartHandler(e) }}
-                        onTouchEnd={e => { swiperWrapper && stopOnHover && mouseLeaveHandler(e) }}
-                        onScroll={e => styles.swiper.swipable && ToggleChevrons()}>
-                        {slides.length > 0 && slides.map(slide =>
-                            <div className='slide-container' style={slides.indexOf(slide) === 0 ? slideContainerZero : slideContainer}
-                                key={slides.indexOf(slide)}>
-                                <div className='timerBar' style={timerBar} />
-                                <div className='slide-wrapper' style={slides.indexOf(slide) === 0 ? slideWrapperStyleZero : slideWrapperStyle}>
-                                    <Badges slide={slide} />
-                                    <div className='image-wrap' style={slides.indexOf(slide) === 0 ? imageWrapStyleZero : imageWrapStyle}>
-                                        {/*<div className='image-skeleton' style={skeleton}>Sarah Originals</div>*/}
-                                        <img src={/*imageUrl + slide.src*/url(slide.src || slide.image)}
-                                            className="slide-img"
-                                            style={slides.indexOf(slide) === 0 ? imageStyleZero : imageStyle}
-                                            onClick={e => linkSlide(e, slide.link)}
-                                        //onLoad={e => { e.currentTarget.previousSibling.classList.add('hide') }}
-                                        />
-                                    </div>
-                                    {slide.priceUsd
-                                        ? <div className='product-details-wrap' style={productWrap}>
-                                            <div className='product-details-wrap-1'>
-                                                <div className="product-name" style={productName}>
-                                                    <Link to={"/product/" + slide._id}>
-                                                        <div className='product-nameEn'>{slide.nameEn || slide.title}</div>
-                                                    </Link>
-                                                </div>
-                                                <div className="product-brand" style={productBrand}>{slide.brand}</div>
-                                                <div className='product-det-price-reviews-cont'>
-                                                    <div className="product-det-price-reviews-wrap">
-                                                        <div className="product-price">
-                                                            <div className={slide.discount > 0 ? 'before-discount' : ''}
-                                                                style={slide.discount > 0 ? productPriceBeforeDiscount : productPrice}>
-                                                                {slide.priceUsd}<div className='price-unit' style={productPriceUnit}>$</div>
-                                                            </div>
-                                                            {slide.discount > 0 &&
-                                                                <div className='after-discount' style={productPrice}>
-                                                                    {slide.priceUsd - (slide.priceUsd * ((slide.onSale && showTimer(slide.onSale).active)
-                                                                        ? slide.onSale.amount : slide.discount) / 100).toFixed(2)}
-                                                                    <div className='price-unit' style={productPriceUnit}>$</div>
-                                                                </div>}
-                                                        </div>
-                                                        <div className='product-review-container'>
-                                                            <FontAwesomeIcon icon={faStar} className='faStar' />
-                                                            <div className='product-review' style={productRating}>4.5</div>
-                                                            <div className='product-review-qty' style={productReviews}>(21)</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {!showTimer(slide.onSale).ended && <Timer slide={slide} slideBox_id={slideBox._id} />}
+                        onTouchStart={e => { swiperWrapper && touchScreen && touchStartHandler(e) }}
+                        onTouchEnd={e => { swiperWrapper && stopOnHover && touchScreen && mouseLeaveHandler(e) }}
+                        onScroll={e => swiper.swipable && ToggleChevrons()}>
+
+                        {slides.map((slide, index) => {
+                            const i = getSlideIndex(index)
+                            const timer = showTimer(slide.onSale)
+                            return (
+                                <div className='slide-container' style={slideContainer(i)} key={index}>
+                                    <div className='timerBar' style={timerBarStyles} />
+                                    <div className='slide-wrapper' style={slideWrapperStyle(i)}>
+
+                                        {/* Badges */}
+                                        {badges.display !== 'none' && <Badges slide={slide} timer={timer} />}
+
+                                        <div className='image-wrap' style={imageWrapStyle(i)}>
+                                            {/*<div className='image-skeleton' style={skeleton}>Sarah Originals</div>*/}
+                                            <img src={/*imageUrl + slide.src*/url(slide.src || slide.image)}
+                                                className="slide-img"
+                                                style={imageStyle(i)}
+                                                onClick={e => linkSlide(e, slide.link)}
+                                            //onLoad={e => { e.currentTarget.previousSibling.classList.add('hide') }}
+                                            />
                                         </div>
-                                        : <div className='product-title-wrap'>
-                                            <div className='slide-title' style={slides.indexOf(slide) === 0 ? slideTitleStyleZero : slideTitleStyle}>
-                                                {slide.title || slide.nameEn}
-                                                {!mobileScreen && <FontAwesomeIcon icon={faChevronCircleRight} />}
-                                            </div>
-                                        </div>}
+                                        {slideStyles(i) && slideStyles(i).display !== 'none' &&
+                                            <TitleContainer _id={slide._id} styles={slideStyles(i)}
+                                                Title={{ title: slide.title, description: slide.description }} />}
+
+                                        {productVisible(i) && <Product slide={slide} timer={timer} />}
+
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )
+                        })}
                     </div>
                 </div>
-                <Bullets />
+
+                {/* Bullets */}
+                {bullets.display !== 'none' && <Bullets />}
             </div>
         </div >
     )
+
 }
 
 export default React.memo(SlideBox)

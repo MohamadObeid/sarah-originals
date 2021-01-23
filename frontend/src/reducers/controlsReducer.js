@@ -1,4 +1,4 @@
-import {
+/*import {
     CONTROL_LIST_REQUEST,
     CONTROL_LIST_SUCCESS,
     CONTROL_LIST_FAIL,
@@ -48,34 +48,31 @@ function controlSaveReducer(state = { controls: {}, loading: true }, action) {
         default:
             return state
     }
-}
+}*/
 
-function controllerReducer(state = {}, action) {
+function controlsReducer(state = { controls: {} }, action) {
     switch (action.type) {
-        case 'GET_CONTROLLER_REQUEST':
+        case 'GET_CONTROLS_REQUEST':
             return state
-        case 'GET_CONTROLLER_SUCCESS':
-            return {
-                loading: false,
-                controls: action.payload
-            }
-        case 'GET_CONTROLLER_FAIL':
+        case 'GET_CONTROLS_SUCCESS':
+            return { controls: action.payload }
+        case 'GET_CONTROLS_FAIL':
             return state
         default:
             return state
     }
 }
 
-function controllerSaveReducer(state = {}, action) {
+function controlsSaveReducer(state = {}, action) {
     switch (action.type) {
-        case 'CONTROLLER_SAVE_REQUEST':
+        case 'CONTROLS_SAVE_REQUEST':
             return state
-        case 'CONTROLLER_SAVE_SUCCESS':
+        case 'CONTROLS_SAVE_SUCCESS':
             return {
                 loading: false,
                 controls: action.payload
             }
-        case 'CONTROLLER_SAVE_FAIL':
+        case 'CONTROLS_SAVE_FAIL':
             return {
                 loading: false,
                 error: action.payload
@@ -88,7 +85,7 @@ function controllerSaveReducer(state = {}, action) {
 function actions(state = {}, action) {
     switch (action.type) {
         case 'UPDATE_ACTIONS':
-            return ({ ...state, ...action.payload }) // ex. dispatch({type, payload: {visible: true}})
+            return ({ ...state, ...action.payload })
 
         case 'REMOVE_FROM_ACTIONS':
             { const { [action.payload]: _, ...updatedState } = state; return (updatedState) }
@@ -97,4 +94,4 @@ function actions(state = {}, action) {
     }
 }
 
-export { controlReducer, controlSaveReducer, actions, controllerReducer, controllerSaveReducer }
+export { actions, controlsReducer, controlsSaveReducer }
