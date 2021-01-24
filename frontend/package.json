@@ -1,7 +1,6 @@
 {
-  "homepage": "http://MohamadObeid.github.io/sarah-originals",
   "name": "frontend",
-  "proxy": "http://192.168.0.101:5000",
+  "proxy": "https://192.168.0.101:5000",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -42,10 +41,8 @@
     "uifx": "^2.0.7"
   },
   "scripts": {
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "rm -rf node_modules && react-scripts build", 
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
