@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle, faEdit, faPaperPlane, faPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { getUser, saveUser } from "../../actions/userActions";
 import { detailsProduct } from "../../actions/productActions";
-import Swiper from 'react-id-swiper';
+//import Swiper from 'react-id-swiper';
 import { addToCart, removeFromCart, updateCart } from "../../actions/cartActions";
 import {
     typeList, cartStatusList, paymentStatusList, deliveryStatusList,
@@ -1728,7 +1728,7 @@ function OrdersManager(props) {
                 productsListVisible &&
                 <div className='full-background'>
                     <div className='custom-background'>
-                        <Swiper {...swiper}>
+                        <div {...swiper}>
                             {products && products.map((product) => (
                                 <div className="product" key={product._id}>
                                     {inCartHandler()}
@@ -1783,7 +1783,7 @@ function OrdersManager(props) {
                                     </div>
                                 </div>
                             ))}
-                        </Swiper>
+                        </div>
                     </div>
                 </div>
             }
