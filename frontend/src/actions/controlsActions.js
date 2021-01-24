@@ -7,6 +7,7 @@ import {
     CONTROL_SAVE_SUCCESS,
     CONTROL_SAVE_FAIL
 } from "../constants/constants"
+import { domain } from "../methods/methods"
 import { getSlides } from "./slidesActions"
 
 /*const listControls = () => async (dispatch) => {
@@ -41,7 +42,7 @@ const getControls = (_id) => async (dispatch) => {
     try {
         dispatch({ type: 'GET_CONTROLS_REQUEST' })
 
-        const { data } = await axios.post('https://sarah-originals.herokuapp.com/api/controls/get', _id)
+        const { data } = await axios.post(domain + '/api/controls/get', _id)
         dispatch({ type: 'GET_CONTROLS_SUCCESS', payload: data })
         console.log('controls', data)
 

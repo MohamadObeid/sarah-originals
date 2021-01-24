@@ -1,9 +1,10 @@
 import axios from "axios"
+import { domain } from "../methods/methods"
 
 const getStyles = (conditions) => async (dispatch) => {
     try {
         dispatch({ type: 'STYLES_GET_REQUEST' })
-        const { data } = await axios.post('/api/styles/get', conditions)
+        const { data } = await axios.post(domain + '/api/styles/get', conditions)
 
         dispatch({ type: 'STYLES_GET_SUCCESS', payload: data })
         //console.log('styles', data)
@@ -61,7 +62,7 @@ const deleteStyles = (_id) => async (dispatch, getState) => {
 const getTitleStyles = (conditions) => async (dispatch) => {
     try {
         dispatch({ type: 'TITLE_STYLES_GET_REQUEST' })
-        const { data } = await axios.post('/api/styles/getTitle', conditions)
+        const { data } = await axios.post(domain + '/api/styles/getTitle', conditions)
 
         dispatch({ type: 'TITLE_STYLES_GET_SUCCESS', payload: data })
         //console.log('title styles', data)

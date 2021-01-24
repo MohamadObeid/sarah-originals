@@ -570,9 +570,12 @@ const showTimer = (onSale) => {
     return { active, ended }
 }
 
+const domain = window.location.href.includes('netlify')
+    ? 'https://sarah-originals.herokuapp.com/'
+    : ''
 
 export {
     timer, timeDiffCalc, refreshLiveUsers, creationDatePrettier,
     updateRequestStatus, statusModifier, date, qtyCalc, paymentCalc, cartAmountCalc,
-    discountCalc, totalAmountCalc, deliveryCalc, showTimer
+    discountCalc, totalAmountCalc, deliveryCalc, showTimer, domain
 }

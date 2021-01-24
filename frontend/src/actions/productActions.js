@@ -15,11 +15,12 @@ import {
   PRODUCT_ACTIVATION_SUCCESS,
   PRODUCTS_DETAILS_SUCCESS
 } from "../constants/constants";
+import { domain } from "../methods/methods";
 
 const listProducts = (list) => async (dispatch) => {
   try {
     dispatch({ type: PRODUCT_LIST_REQUEST/*, payload: idList */ })
-    const { data } = await axios.get("/api/products")
+    const { data } = await axios.get(domain + "/api/products")
     dispatch({ type: PRODUCT_LIST_SUCCESS, payload: data })
   } catch (error) {
     dispatch({ type: PRODUCT_LIST_FAIL, payload: error.message })
@@ -31,12 +32,12 @@ const saveProduct = (product) => async (dispatch, getState) => {
     dispatch({ type: PRODUCT_SAVE_REQUEST, payload: product })
     const { userSignin: { userInfo } } = getState()
     if (product.activation) {
-      const { data } = await axios.put('/api/products/' + product._id, { ...product, edited_by: userInfo.name, last_edition: Date.now }, {
+      const { data } = await axios.put(domain + '/api/products/' + product._id, { ...product, edited_by: userInfo.name, last_edition: Date.now }, {
         headers: { 'Authorization': 'Bearer ' + userInfo.token }
       });
       dispatch({ type: PRODUCT_ACTIVATION_SUCCESS, payload: data })
     } else if (product._id) {
-      const { data } = await axios.put('/api/products/' + product._id, { ...product, edited_by: userInfo.name, last_edition: Date.now }, {
+      const { data } = await axios.put(domain + '/api/products/' + product._id, { ...product, edited_by: userInfo.name, last_edition: Date.now }, {
         headers: { 'Authorization': 'Bearer ' + userInfo.token }
       });
       dispatch({ type: PRODUCT_SAVE_SUCCESS, payload: data })
@@ -66,15 +67,15 @@ const deleteProduct = (_id) => async (dispatch, getState) => {
 
 const detailsProduct = (searchDetails) => async (dispatch) => {
   if (Array.isArray(searchDetails)) {// searchDetails = [productId's]
-    const { data } = await axios.post("/api/products/getproducts", searchDetails)
+    const { data } = await axios.post(domain + "/api/products/getproducts", searchDetails)
     dispatch({ type: PRODUCTS_DETAILS_SUCCESS, payload: data })
   }
   else if (searchDetails.searchKeyword) {
-    const { data } = await axios.post("/api/products/searchKeyword", searchDetails)
+    const { data } = await axios.post(domain + "/api/products/searchKeyword", searchDetails)
     dispatch({ type: PRODUCTS_DETAILS_SUCCESS, payload: data })
   } else try {
     dispatch({ type: PRODUCT_DETAILS_REQUEST, payload: searchDetails })
-    const { data } = await axios.get("/api/products/" + searchDetails)
+    const { data } = await axios.get(domain + "/api/products/" + searchDetails)
     dispatch({ type: PRODUCT_DETAILS_SUCCESS, payload: data })
   } catch (error) {
     dispatch({ type: PRODUCT_DETAILS_FAIL, payload: error.message })
