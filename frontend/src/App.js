@@ -31,9 +31,9 @@ const App = React.memo(() => {
     dispatch(getControls({ limit: 10 }))
 
     // save requests
-    dispatch(saveControls(Controls))
+    //dispatch(saveControls(Controls))
     //dispatch(saveStyles(defaultStyles))
-    dispatch(saveStyles(Styles))
+    //dispatch(saveStyles(Styles))
     //dispatch(saveTitleStyles(defaultTitleStyles))
 
     // delete requests

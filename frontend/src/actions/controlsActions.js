@@ -41,7 +41,7 @@ const getControls = (_id) => async (dispatch) => {
     try {
         dispatch({ type: 'GET_CONTROLS_REQUEST' })
 
-        const { data } = await axios.post('/api/controls/get', _id)
+        const { data } = await axios.post('https://sarah-originals.herokuapp.com/api/controls/get', _id)
         dispatch({ type: 'GET_CONTROLS_SUCCESS', payload: data })
         console.log('controls', data)
 
@@ -55,7 +55,7 @@ const saveControls = (controls) => async (dispatch, getState) => {
         const { userSignin: { userInfo } } = getState()
         dispatch({ type: 'CONTROLS_SAVE_REQUEST' })
 
-        const { data } = await axios.post('/api/controls/save', controls, {
+        const { data } = await axios.post('api/controls/save', controls, {
             headers: { Authorization: 'Bearer ' + userInfo.token }
         })
         console.log('save controls', data)
