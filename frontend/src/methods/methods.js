@@ -571,7 +571,7 @@ const showTimer = (onSale) => {
 }
 
 const domain = window.location.href.includes('netlify')
-    ? 'https://sarah-originals.herokuapp.com/'
+    ? 'https://sarah-originals.herokuapp.com'
     : ''
 
 export {
