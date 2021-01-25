@@ -56,7 +56,7 @@ const saveControls = (controls) => async (dispatch, getState) => {
         const { userSignin: { userInfo } } = getState()
         dispatch({ type: 'CONTROLS_SAVE_REQUEST' })
 
-        const { data } = await axios.post('/api/controls/save', controls, {
+        const { data } = await axios.post(domain + '/api/controls/save', controls, {
             headers: { Authorization: 'Bearer ' + userInfo.token }
         })
         console.log('save controls', data)
@@ -70,7 +70,7 @@ const saveControls = (controls) => async (dispatch, getState) => {
 
 const deleteControls = (_id) => async (dispatch, getState) => {
     const { userSignin: { userInfo } } = getState()
-    const { data } = await axios.post('/api/controls/delete', _id, {
+    const { data } = await axios.post(domain + '/api/controls/delete', _id, {
         headers: { Authorization: 'Bearer ' + userInfo.token }
     })
     console.log('delete controls', data)

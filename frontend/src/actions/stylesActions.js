@@ -24,7 +24,7 @@ const saveStyles = (styles) => async (dispatch, getState) => {
         dispatch({ type: 'STYLES_SAVE_REQUEST' })
         const { userSignin: { userInfo } } = getState()
 
-        const { data } = await axios.post('/api/styles/save', styles, {
+        const { data } = await axios.post(domain + '/api/styles/save', styles, {
             headers: { Authorization: 'Bearer ' + userInfo.token }
         })
         console.log('save styles', data)
@@ -37,7 +37,7 @@ const saveStyles = (styles) => async (dispatch, getState) => {
 
 const deleteStyles = (_id) => async (dispatch, getState) => {
     const { userSignin: { userInfo } } = getState()
-    const { data } = await axios.post('/api/styles/delete', _id, {
+    const { data } = await axios.post(domain + '/api/styles/delete', _id, {
         headers: { Authorization: 'Bearer ' + userInfo.token }
     })
     console.log('styles', data)

@@ -11,11 +11,12 @@ import {
     CATEGORY_DELETE_SUCCESS,
     CATEGORY_DELETE_FAIL,
 } from "../constants/constants";
+import { domain } from "../methods/methods";
 
 const listCategory = () => async (dispatch) => {
     try {
         dispatch({ type: CATEGORY_LIST_REQUEST })
-        const { data } = await axios.get("/api/category");
+        const { data } = await axios.get(domain + "/api/category");
         dispatch({ type: CATEGORY_LIST_SUCCESS, payload: data })
     } catch (error) {
         dispatch({ type: CATEGORY_LIST_FAIL, payload: error.message })
@@ -28,14 +29,14 @@ const saveCategory = (category) => async (dispatch, getState) => {
         const { userSignin: { userInfo } } = getState();
 
         if (category.activation) {
-            const { data } = await axios.put('/api/category/' + category._id, { ...category, edited_by: userInfo.name, last_edition: Date.now }, {
+            const { data } = await axios.put(domain + '/api/category/' + category._id, { ...category, edited_by: userInfo.name, last_edition: Date.now }, {
                 headers: { 'Authorization': 'Bearer ' + userInfo.token }
             });
             dispatch({ type: CATEGORY_ACTIVATION_SUCCESS, payload: data })
         } else {
 
             if (category._id) {
-                const { data } = await axios.put('/api/category/' + category._id, { ...category, edited_by: userInfo.name, last_edition: Date.now }, {
+                const { data } = await axios.put(domain + '/api/category/' + category._id, { ...category, edited_by: userInfo.name, last_edition: Date.now }, {
                     headers: { 'Authorization': 'Bearer ' + userInfo.token }
                 });
                 dispatch({ type: CATEGORY_SAVE_SUCCESS, payload: data })
@@ -43,7 +44,7 @@ const saveCategory = (category) => async (dispatch, getState) => {
 
             // new
             else {
-                const { data } = await axios.post('/api/category', { ...category, created_by: userInfo.name, last_edition: Date.now }, {
+                const { data } = await axios.post(domain + '/api/category', { ...category, created_by: userInfo.name, last_edition: Date.now }, {
                     headers: { 'Authorization': 'Bearer ' + userInfo.token }
                 });
                 dispatch({ type: CATEGORY_SAVE_SUCCESS, payload: data })
@@ -59,7 +60,7 @@ const deleteCategory = (_id) => async (dispatch, getState) => {
     try {
         dispatch({ type: CATEGORY_DELETE_REQUEST, payload: _id });
         const { userSignin: { userInfo } } = getState();
-        const { data } = await axios.delete("/api/category/" + _id, {
+        const { data } = await axios.delete(domain + "/api/category/" + _id, {
             headers: { Authorization: 'Bearer ' + userInfo.token }
         });
         dispatch({ type: CATEGORY_DELETE_SUCCESS, payload: data });

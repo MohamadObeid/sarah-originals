@@ -19,6 +19,7 @@ import {
     ORDER_SAVE_CLEAR,
     STORED_ORDER_LIST
 } from "../constants/constants";
+import { domain } from "../methods/methods";
 
 const saveAddress = (addressItem) => (dispatch, getState) => {
     dispatch({ type: SAVE_DELIVERY_ADDRESS, payload: addressItem })
@@ -39,7 +40,7 @@ const toggleOrderScreen = (orderScreen) => (dispatch) => {
 const listOrders = () => async (dispatch) => {
     try {
         dispatch({ type: ORDER_LIST_REQUEST })
-        const { data } = await axios.get("/api/order");
+        const { data } = await axios.get(domain + "/api/order");
         dispatch({ type: ORDER_LIST_SUCCESS, payload: data })
     } catch (error) {
         dispatch({ type: ORDER_LIST_FAIL, payload: error.message })
@@ -49,7 +50,7 @@ const listOrders = () => async (dispatch) => {
 const listActiveOrders = () => async (dispatch) => {
     try {
         dispatch({ type: ORDER_LIST_REQUEST })
-        const { data } = await axios.get("/api/order/active");
+        const { data } = await axios.get(domain + "/api/order/active");
         dispatch({ type: ORDER_LIST_SUCCESS, payload: data })
     } catch (error) {
         dispatch({ type: ORDER_LIST_FAIL, payload: error.message })
