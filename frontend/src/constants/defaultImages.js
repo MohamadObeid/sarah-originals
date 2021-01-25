@@ -48,7 +48,7 @@ import img25 from '../images/sub-banner-2.jpg';
 import img26 from '../images/sub-banner-3.jpg';
 import img27 from '../images/sub-banner-4.jpg';
 import { domain } from '../methods/methods';
-const imageUrl = domain ? domain : window.location.origin + '/api/uploads/image/'
+const imageUrl = domain + '/api/uploads/image/'
 
 export const url = (src) => {
     if (!src.includes('images')) return imageUrl + src
