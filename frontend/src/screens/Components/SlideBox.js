@@ -812,7 +812,7 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
                 <div className='fixed-slides-wrapper' style={slidesWrapperStyle}>
 
                     {/* Chevrons */}
-                    {/*chevrons.display !== 'none' && <Chevrons />*/}
+                    {/* chevrons.display !== 'none' && <Chevrons /> */}
                     {/* Left Chevron */}
                     <div className='left-chevron-wrap'
                         onClick={e => {
