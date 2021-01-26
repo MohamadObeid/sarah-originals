@@ -33,7 +33,7 @@
   },
   "scripts": {
     "frontend": "cd frontend && npm start",
-    "start": "nodemon --watch backend --exec babel-node backend/server.js",
+    "start": "npx kill-port 5000 && nodemon --watch backend --exec babel-node backend/server.js",
     "clean": "rm -rf ./dist && cd frontend && rm -rf ./build && rm -rf ./.netlify",
     "build": "npm run clean && cd frontend && npm run build && netlify deploy --dir=build --prod",
     "heroku-postbuild": "cd frontend && npm run build"
