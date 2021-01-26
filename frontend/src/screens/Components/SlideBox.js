@@ -226,67 +226,81 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
     }
 
     /// product styles 
+    var productWrap, productName, productBrand, productPrice, productPriceBeforeDiscount,
+        productPriceUnit, productReviews, productRating
 
-    const productWrap = {
+    productWrap = {
         display: product.display || defaultProduct.display,
         justifyContent: product.justifyContent || defaultProduct.justifyContent,
         padding: product.padding || defaultProduct.padding,
         height: '100%',
     }
 
-    const productName = {
-        fontSize: product.name.fontSize || defaultProduct.name.fontSize,
-        color: product.name.color || defaultProduct.name.color,
+    productName = product.name || defaultProduct.name
+    productName = {
+        fontSize: productName.fontSize || defaultProduct.name.fontSize,
+        color: productName.color || defaultProduct.name.color,
         //hoverColor: product.name.hoverColor ,
-        textAlign: product.name.textAlign || defaultProduct.name.textAlign,
+        textAlign: productName.textAlign || defaultProduct.name.textAlign,
     }
 
-    const productBrand = {
-        display: product.brand.display || defaultProduct.brand.display,
-        fontSize: product.brand.fontSize || defaultProduct.brand.fontSize,
-        color: product.brand.color || defaultProduct.brand.color,
+    productBrand = product.brand || defaultProduct.brand
+    productBrand = {
+        display: productBrand.display || defaultProduct.brand.display,
+        fontSize: productBrand.fontSize || defaultProduct.brand.fontSize,
+        color: productBrand.color || defaultProduct.brand.color,
         //hoverColor: product.name.hoverColor ,
     }
 
-    const productPrice = {
-        fontSize: product.price.fontSize || defaultProduct.price.fontSize,
-        color: product.price.color || defaultProduct.price.color,
+    productPrice = product.price || defaultProduct.price
+    productPrice = {
+        fontSize: productPrice.fontSize || defaultProduct.price.fontSize,
+        color: productPrice.color || defaultProduct.price.color,
         //hoverColor: product.price.hoverColor ,
-        textAlign: product.price.textAlign || defaultProduct.price.textAlign,
+        textAlign: productPrice.textAlign || defaultProduct.price.textAlign,
     }
 
-    const productPriceBeforeDiscount = {
-        fontSize: product.price.beforeDiscount.fontSize || defaultProduct.price.beforeDiscount.fontSize,
-        color: product.price.beforeDiscount.color || defaultProduct.price.beforeDiscount.color,
+    productPriceBeforeDiscount = productPrice.fontSize || defaultProduct.price.beforeDiscount
+    productPriceBeforeDiscount = {
+        fontSize: productPriceBeforeDiscount.fontSize || defaultProduct.price.beforeDiscount.fontSize,
+        color: productPriceBeforeDiscount.color || defaultProduct.price.beforeDiscount.color,
     }
 
-    const productPriceUnit = {
-        fontSize: product.price.unit.fontSize || defaultProduct.price.unit.fontSize,
-        color: product.price.unit.color || defaultProduct.price.unit.color,
+    productPriceUnit = productPrice.unit || defaultProduct.price.unit
+    productPriceUnit = {
+        fontSize: productPriceUnit.fontSize || defaultProduct.price.unit.fontSize,
+        color: productPriceUnit.color || defaultProduct.price.unit.color,
     }
 
-    const productReviews = {
-        fontSize: product.reviews.fontSize || defaultProduct.reviews.fontSize,
-        color: product.reviews.color || defaultProduct.reviews.color,
+    productReviews = product.reviews || defaultProduct.reviews
+    productReviews = {
+        fontSize: productReviews.fontSize || defaultProduct.reviews.fontSize,
+        color: productReviews.color || defaultProduct.reviews.color,
     }
 
-    const productRating = {
-        fontSize: product.rating.fontSize || defaultProduct.rating.fontSize,
-        color: product.rating.color || defaultProduct.rating.color,
+    productRating = product.rating || defaultProduct.rating
+    productRating = {
+        fontSize: productRating.fontSize || defaultProduct.rating.fontSize,
+        color: productRating.color || defaultProduct.rating.color,
     }
 
     ///////////////////// Add To Cart Styles ////////////////////
 
-    var addToCart, addToCartVisible, addToCartWrap, addToCartBtn, plusBtn, minusBtn, removeBtn, qtyBtn, addToCartStyles
+    var addToCart, addToCartVisible, addToCartWrap, addToCartBtn, plusBtn,
+        minusBtn, removeBtn, qtyBtn, addToCartStyles, btnsWrap
+
     addToCart = product.addToCart
     addToCartVisible = addToCart && addToCart.display === 'none'
 
     if (!addToCartVisible) {
         addToCartWrap = {
+            display: addToCart.display || defaultAddToCart.display,
             design: addToCart.design || defaultAddToCart.design,
             padding: addToCart.padding || defaultAddToCart.padding,
-            flexDirection: addToCart.flexDirection || defaultAddToCart.flexDirection,
             margin: addToCart.margin || defaultAddToCart.margin,
+            position: addToCart.position || defaultAddToCart.position,
+            top: addToCart.top || defaultAddToCart.top,
+            right: addToCart.right || defaultAddToCart.right,
         }
 
         addToCartBtn = addToCart.add || defaultAddToCart.add
@@ -301,6 +315,10 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
             color: addToCartBtn.color || defaultAddToCart.add.color,
             backgroundColor: addToCartBtn.backgroundColor || defaultAddToCart.add.backgroundColor,
             hoverBackgroundColor: addToCartBtn.hoverBackgroundColor || defaultAddToCart.add.hoverBackgroundColor,
+        }
+
+        btnsWrap = {
+            flexDirection: addToCart.flexDirection || defaultAddToCart.flexDirection,
         }
 
         plusBtn = addToCart.plus || defaultAddToCart.plus
@@ -359,7 +377,7 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
             hoverBackgroundColor: qtyBtn.hoverBackgroundColor || defaultAddToCart.num.hoverBackgroundColor,
         }
 
-        addToCartStyles = { addToCartWrap, addToCartBtn, plusBtn, minusBtn, removeBtn, qtyBtn }
+        addToCartStyles = { addToCartWrap, addToCartBtn, btnsWrap, plusBtn, minusBtn, removeBtn, qtyBtn }
     }
 
     const linkSlide = (e, src) => {

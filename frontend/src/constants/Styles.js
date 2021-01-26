@@ -2378,6 +2378,25 @@ export const Styles = [{
                 forceWidth: false,
             },
         }],
+        product: {
+            // add to cart
+            addToCart: {
+                position: 'absolute',
+                name: 'Top Right Animated',
+                design: 'Top Right',
+                padding: '0.5rem',
+                flexDirection: 'column-reverse',
+                add: {
+                    btn: 'plus',
+                    fontSize: '1.4rem',
+                    width: '4.7rem',
+                },
+                num: {
+                    margin: '0.3rem 0',
+                    border: '1px solid #dddddd',
+                }
+            },
+        },
         // swiper
         swiper: {
             swipable: true,

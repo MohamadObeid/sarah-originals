@@ -66,15 +66,15 @@ const timer = (endDate, active) => { //gets date and retruns time difference bet
                 ? (hourDiff >= 0 ? 'Yesterday' : 24 + hourDiff + ' hour ago')
                 : Math.abs(dayDiff) + ' day ago')
             : dayDiff < 0
-            && (hourDiff === 0
+            && ((hourDiff === 0
                 ? (minDiff === 0
                     ? Math.abs(dayDiff) + ' day left'
-                    : (minDiff < 0 ? Math.abs(dayDiff) + ' day ' + Math.abs(minDiff) + ' min left' : '23 hours ' + (60 - minDiff) + ' min left'))
+                    : (minDiff < 0 ? Math.abs(dayDiff) + ' day ' + Math.abs(minDiff) + ' min ' : '23 hours ' + (60 - minDiff) + ' min '))
                 : (hourDiff > 0 ? (dayDiff !== -1 ? Math.abs(dayDiff) - 1 + ' day  ' : '') : Math.abs(dayDiff) + ' day  ')
                 + ((minDiff >= 0 ? hourDiff + 1 : hourDiff) > 0
                     ? (24 - Math.abs(minDiff >= 0 ? hourDiff + 1 : hourDiff)) + ' hour  '
                     : (Math.abs(minDiff >= 0 ? hourDiff + 1 : hourDiff)) + ' hour  ')
-                + ((minDiff > 0 ? 60 - minDiff : Math.abs(minDiff)) + ' min ')
+                + ((minDiff > 0 ? 60 - minDiff : Math.abs(minDiff)) + ' min '))
                 + (secDiff === 0 ? 'left' : ((secDiff > 0 ? 60 - secDiff : Math.abs(secDiff)) + ' sec left')))
 
         var monthStatus = monthDiff > 0

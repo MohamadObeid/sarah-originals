@@ -54,6 +54,9 @@ export const defaultAddToCartStyles = {
     border: '0',
     borderRadius: '0.5rem',
     flexDirection: 'row',
+    position: 'unset',
+    top: '0',
+    right: '0',
     add: {
         btn: 'Add To Cart',
         fontSize: '1.5rem',
@@ -99,6 +102,7 @@ export const defaultAddToCartStyles = {
         border: '0',
         borderRadius: '0.5rem',
         color: '#fff',
+        backgroundColor: '#f0c040',
         hoverBackgroundColor: '#c8960b'
     },
     num: {
@@ -110,7 +114,7 @@ export const defaultAddToCartStyles = {
         border: '0',
         borderRadius: '0.5rem',
         color: '#444444',
-        backgroundColor: '#fff',
+        backgroundColor: '#00000000',
         hoverBackgroundColor: '#fff'
     },
 }

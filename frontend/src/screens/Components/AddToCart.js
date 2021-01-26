@@ -38,32 +38,8 @@ export const AddToCart = React.memo(({ product, styles }) => {
         }
     }
 
-    // Add to Cart Btns design 1
-    const BottomCenter = () =>
-        <div className="add-to-cart-btns-wrap" style={styles.addToCartWrap}>
-            <button style={styles.addToCartBtn}
-                type="button"
-                className={'add-to-cart-btn ' + (item ? 'hide' : '')}
-                value={product._id}
-                onClick={(e) => handlePlus(product, e)}>
-                Add To Cart
-            </button>
-            <div className={'add-to-cart-btns ' + (item ? '' : 'hide')}>
-                <button style={styles.minusBtn}
-                    type="button"
-                    className="minus"
-                    onClick={(e) => handleMinus(product, e)}>
-                    <FontAwesomeIcon icon={faMinus} />
-                </button>
-                <p className="add-to-cart-qty show-qty" style={styles.qtyBtn}>{item && item.qty}</p>
-                <button style={styles.plusBtn}
-                    type="button"
-                    className="plus show-plus"
-                    onClick={(e) => handlePlus(product, e)}>
-                    <FontAwesomeIcon icon={faPlus} />
-                </button>
-            </div>
-        </div>
+    const hide = item ? { display: 'none' } : {}
+    const show = item ? {} : { display: 'none' }
 
     // Add to Cart Btns design 2
     const RightTopBtnsDesign = (product) => {
@@ -88,12 +64,36 @@ export const AddToCart = React.memo(({ product, styles }) => {
     }
 
     // Add to Cart Btns Designs Handler
-    return <BottomCenter />
-    /*return (
-        styles.design === 'Bottom-Center'
-            ? BottomCenterBtnsDesign(product)
-            : styles.design === 'Right-Top'
-                ? RightTopBtnsDesign(product)
-                : <></>
-    )*/
+    return (<div className="add-to-cart-btns-wrap" style={styles.addToCartWrap}>
+        <button style={{ ...styles.addToCartBtn, ...hide }}
+            type="button"
+            className='add-to-cart-btn'
+            value={product._id}
+            onClick={(e) => handlePlus(product, e)}
+            onMouseOver={e => { e.currentTarget.style.backgroundColor = styles.addToCartBtn.hoverBackgroundColor }}
+            onMouseOut={e => { e.currentTarget.style.backgroundColor = styles.addToCartBtn.backgroundColor }}>
+            {styles.addToCartBtn.btn === 'plus'
+                ? <FontAwesomeIcon icon={faPlus} />
+                : 'Add To Cart'}
+        </button>
+        <div className='add-to-cart-btns' style={{ ...styles.btnsWrap, ...show }}>
+            <button style={styles.minusBtn}
+                type="button"
+                className="minus"
+                onClick={(e) => handleMinus(product, e)}
+                onMouseOver={e => { e.currentTarget.style.backgroundColor = styles.minusBtn.hoverBackgroundColor }}
+                onMouseOut={e => { e.currentTarget.style.backgroundColor = styles.minusBtn.backgroundColor }}>
+                <FontAwesomeIcon icon={faMinus} />
+            </button>
+            <p className="add-to-cart-qty" style={styles.qtyBtn}>{item && item.qty}</p>
+            <button style={styles.plusBtn}
+                type="button"
+                className="plus"
+                onClick={(e) => handlePlus(product, e)}
+                onMouseOver={e => { e.currentTarget.style.backgroundColor = styles.plusBtn.hoverBackgroundColor }}
+                onMouseOut={e => { e.currentTarget.style.backgroundColor = styles.plusBtn.backgroundColor }} >
+                <FontAwesomeIcon icon={faPlus} />
+            </button>
+        </div>
+    </div>)
 })

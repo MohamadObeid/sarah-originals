@@ -4746,7 +4746,9 @@ button[disabled]:hover {
 .add-to-cart-btns-wrap {
   position: relative;
   padding: 1rem 0;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .add-to-cart-btn {
@@ -4759,13 +4761,14 @@ button[disabled]:hover {
   color: white;
   font-size: 1.5rem;
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition: all 0.5s ease;
 }
 
 .add-to-cart-btns {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.5s ease;
 }
 
 .minus,
@@ -4777,12 +4780,14 @@ button[disabled]:hover {
   border-radius: 0.5rem;
   color: #fff;
   border: 0;
+  transition: all 0.5s ease;
 }
 
 .add-to-cart-qty {
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
   font-size: 1.7rem;
   height: 4.2rem;
   width: 4.7rem;
@@ -4794,10 +4799,6 @@ button[disabled]:hover {
 .add-to-cart-btn:hover {
   background-color: #c8960b;
   /*box-shadow: 0px 0px 10px 1px #92929252;*/
-}
-
-.hide {
-  display: none;
 }
 
 /*.qty-cart {
