@@ -115,9 +115,14 @@ import {
   stylesReducer,
   stylesSaveReducer,
   defaultStylesReducer,
+
   titleStylesReducer,
   titleStylesSaveReducer,
-  defaultTitleStylesReducer
+  defaultTitleStylesReducer,
+
+  addToCartStylesReducer,
+  addToCartStylesSaveReducer,
+  defaultAddToCartStylesReducer,
 } from "./reducers/stylesReducer";
 
 const cartItems = cookie.getJSON("cartItems") || []
@@ -149,6 +154,10 @@ const reducer = combineReducers({
   titleStyles: titleStylesReducer,
   titleStylesSave: titleStylesSaveReducer,
   defaultTitleStyles: defaultTitleStylesReducer,
+
+  addToCartStyles: addToCartStylesReducer,
+  addToCartStylesSave: addToCartStylesSaveReducer,
+  defaultAddToCartStyles: defaultAddToCartStylesReducer,
 
   productList: productListReducer,
   productDetails: productDetailsReducer,

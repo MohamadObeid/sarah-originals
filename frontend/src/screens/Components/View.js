@@ -11,8 +11,10 @@ export const View = ({ view, viewPort, touchscreen }) => {
     const data = view.styles[viewPort]
 
     var getStylesRequested, stylesExist, slidesExist, getSlidesRequested
-
     const { defaultStyles } = useSelector(state => state.defaultStyles)
+    const { defaultStyles: defaultAddToCartStyles } = useSelector(state =>
+        state.defaultAddToCartStyles)
+
     useSelector(state => {
         if (!params) {
 
@@ -46,8 +48,11 @@ export const View = ({ view, viewPort, touchscreen }) => {
         }
     })
 
-    if (params && defaultStyles) {
+    if (params && defaultStyles && defaultAddToCartStyles) {
         console.log(view.name, params)
+        const slideBoxDefaultStyles = defaultStyles.slideBox[0]
+        slideBoxDefaultStyles.product.addToCart = defaultAddToCartStyles
+
         const _id = view._id
         const styles = params.styles
         const slides = params.slides

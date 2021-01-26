@@ -1,5 +1,5 @@
 import express from "express"
-import { Styles, Title } from "../modals/stylesModel"
+import { Styles, Title, AddToCart } from "../modals/stylesModel"
 import { isAuth, isAdmin } from '../util'
 
 const router = express.Router()
@@ -295,5 +295,160 @@ router.post("/deleteTitle", isAuth, isAdmin, async (req, res) => {
     }
 })
 
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+router.post("/getAddToCart", async (req, res) => {
+    const { _id, name } = req.body
+    if (_id || name) {
+
+        const conditions = { $or: [{ _id }, { name }] }
+        const styles = await AddToCart.findOne(conditions)
+        if (styles) return res.send(styles)
+        else return res.send({ message: 'AddToCart Styles are not Available!' })
+
+    } else {
+        const stylesList = await AddToCart.find({})
+        if (stylesList) return res.send(stylesList)
+        else return res.send({ message: 'AddToCart Styles are not Available!' })
+    }
+})
+
+router.post("/saveAddToCart", isAuth, isAdmin, async (req, res) => {
+    try {
+        var stylesSaved
+        var message
+
+        if (Array.isArray(req.body)) {
+            const stylesList = []
+
+            req.body.map(async (styles, index) => {
+                stylesSaved = false
+
+                if (styles._id || styles.name) { // update a Styles
+                    const { _id, name, ...updatedstyles } = styles
+                    const conditions = { $or: [{ _id }, { name }] }
+                    const options = { new: true }
+
+                    stylesSaved = await AddToCart.findOneAndUpdate(conditions, { name, ...updatedstyles }, options)
+
+                    if (stylesSaved) {
+                        stylesList[index] = stylesSaved
+                        message = 'AddToCart Styles has been updated!'
+                    } else {
+                        // if Styles doesnot exist create a new Styles
+                        const newstyles = new AddToCart({ ...updatedstyles, name })
+                        stylesSaved = await newstyles.save()
+                        stylesList[index] = stylesSaved
+                        message = 'AddToCart Styles has been created!'
+                    }
+
+                } else { // create a new Styles
+                    const styles = new AddToCart(styles)
+                    stylesSaved = await styles.save()
+                    stylesList[index] = stylesSaved
+                    message = 'AddToCart Styles has been created!'
+                }
+
+                if (!stylesList.includes(undefined) && stylesList.length === req.body.length)
+                    return res.send({ message, data: stylesList })
+
+            })
+
+        } else {
+            if (req.body._id || req.body.name) {
+
+                const { _id, name, ...updatedstyles } = req.body
+                const conditions = name ? { $or: [{ _id }, { name }] } : { _id }
+                const options = { new: true }
+
+                stylesSaved = await AddToCart.findOneAndUpdate(conditions, { name, ...updatedstyles }, options)
+                if (stylesSaved) {
+                    message = 'AddToCart Styles has been updated!'
+                } else {
+                    // if Styles doesnot exist create a new Styles
+                    const newstyles = new AddToCart({ ...updatedstyles, name })
+                    stylesSaved = await newstyles.save()
+                    message = 'AddToCart Styles has been created!'
+                }
+
+            } else {
+                const styles = new AddToCart(req.body)
+                stylesSaved = await styles.save()
+                message = 'AddToCart Styles has been created!'
+            }
+
+            if (stylesSaved) return res.send({ message, data: stylesSaved })
+            return res.send({ message: "Error in creating AddToCart Styles!" })
+        }
+    } catch (err) { console.log(err) }
+})
+
+router.post("/deleteAddToCart", isAuth, isAdmin, async (req, res) => {
+
+    var stylesDeleted
+
+    if (Array.isArray(req.body)) {
+        const stylesList = []
+
+        req.body.map(async (_id, index) => {
+            stylesSaved = false
+            const conditions = { _id }
+
+            stylesDeleted = await AddToCart.findOneAndRemove(conditions)
+            stylesList[index] = stylesDeleted
+
+            if (!stylesList.includes(undefined) && stylesList.length === req.body.length)
+                return res.send({ message: "AddToCart Styles has been deleted!", data: stylesList })
+
+        })
+
+    } else {
+
+        if (req.body.deleteAll) {
+            const stylesArray = await AddToCart.find({})
+            const stylesList = []
+
+            stylesArray && stylesArray.map(async (styles, index) => {
+                const _id = styles._id
+                const conditions = { _id }
+
+                stylesDeleted = await AddToCart.findOneAndRemove(conditions)
+                stylesList[index] = stylesDeleted
+
+                if (!stylesList.includes(undefined) && stylesList.length === stylesArray.length)
+                    return res.send({ message: "AddToCart Styles has been deleted!", data: stylesList })
+            })
+
+        } else {
+            const { _id, name } = req.body
+            const conditions = name ? { name } : _id ? { _id } : {}
+
+            stylesDeleted = await AddToCart.findOneAndRemove(conditions)
+
+            if (stylesDeleted)
+                return res.send({ message: "AddToCart Styles has been deleted!", data: stylesDeleted })
+            return res.send({ message: "Error in deleting AddToCart Styles!" })
+        }
+    }
+})
 
 export default router

@@ -18,7 +18,7 @@ const HomeScreen = props => {
   const [products, setProducts] = useState([])
   const [navigationBar, setNavigationBar] = useState()
 
-  const { cartItems, message } = useSelector(state => state.cart)
+  //const { cartItems, message } = useSelector(state => state.cart)
   const { controls } = useSelector(state => state.controls)
 
   const dispatch = useDispatch()

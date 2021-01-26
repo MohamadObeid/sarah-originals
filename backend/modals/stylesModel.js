@@ -47,6 +47,34 @@ const TitleSchema = new mongoose.Schema({
     }
 })
 
+const btnStyles = {
+    btn: String,
+    fontSize: String,
+    height: String,
+    width: String,
+    margin: String,
+    border: String,
+    borderRadius: String,
+    color: String,
+    backgroundColor: String,
+    hoverBackgroundColor: String,
+}
+
+const addToCartSchema = new mongoose.Schema({
+    viewPort: String,
+    name: String,
+    display: String,
+    design: String,
+    margin: String,
+    padding: String,
+    flexDirection: String,
+    add: btnStyles,
+    delete: btnStyles,
+    plus: btnStyles,
+    minus: btnStyles,
+    num: btnStyles,
+})
+
 const stylesSchema = new mongoose.Schema({
     viewPort: String,
     name: { type: String, unique: true },
@@ -104,6 +132,7 @@ const stylesSchema = new mongoose.Schema({
         // product
         product: {
             display: String,// 'flex' },
+            addToCart: addToCartSchema,
             justifyContent: String,// 'flex-start' },
             padding: String,// '1rem' },
             name: {
@@ -200,9 +229,9 @@ const stylesSchema = new mongoose.Schema({
     }]
 })
 
-
+const AddToCart = mongoose.model("AddToCart", addToCartSchema)
 const Title = mongoose.model("Title", TitleSchema)
 const Styles = mongoose.model("Styles", stylesSchema)
 
-export { Title, Styles }
+export { Title, Styles, AddToCart }
 

@@ -91,7 +91,63 @@ function titleStylesSaveReducer(state = {}, action) {
     }
 }
 
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+function addToCartStylesReducer(state = [], action) {
+    switch (action.type) {
+        case 'ADDTOCART_TITLE_STYLES_GET_REQUEST':
+            return state
+        case 'ADDTOCART_TITLE_STYLES_GET_SUCCESS':
+            Array.isArray(action.payload)
+                ? state.push(...action.payload)
+                : state.push(action.payload)
+            return state
+        case 'ADDTOCART_TITLE_STYLES_GET_FAIL':
+            return state
+        default:
+            return state
+    }
+}
+
+function defaultAddToCartStylesReducer(state = { defaultStyles: {} }, action) {
+    switch (action.type) {
+        case 'DEFAULT_ADDTOCART_TITLE_STYLES_GET_SUCCESS':
+            return { defaultStyles: action.payload }
+        default:
+            return state
+    }
+}
+
+function addToCartStylesSaveReducer(state = {}, action) {
+    switch (action.type) {
+        case 'ADDTOCART_TITLE_STYLES_SAVE_REQUEST':
+            return state
+        case 'ADDTOCART_TITLE_STYLES_SAVE_SUCCESS':
+            return action.payload
+        case 'ADDTOCART_TITLE_STYLES_SAVE_FAIL':
+            return state
+        default:
+            return state
+    }
+}
+
 export {
     stylesReducer, stylesSaveReducer, defaultStylesReducer,
-    titleStylesReducer, defaultTitleStylesReducer, titleStylesSaveReducer
+    titleStylesReducer, defaultTitleStylesReducer, titleStylesSaveReducer,
+    addToCartStylesReducer, defaultAddToCartStylesReducer, addToCartStylesSaveReducer
 }

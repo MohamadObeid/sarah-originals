@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom'
 import { TitleContainer } from './TitleContainer'
 import { showTimer } from '../../methods/methods'
 import { Timer } from './SlideBoxComponents'
+import { AddToCart } from './AddToCart'
 
 const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
     const dispatch = useDispatch()
@@ -82,6 +83,7 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
     const defaultSkeleton = defaultStyles.skeleton
     const defaultBadges = defaultStyles.badges
     const defaultSwiper = defaultStyles.swiper
+    const defaultAddToCart = defaultProduct.addToCart
 
     var defaultSlideIndex = slide.findIndex(slide => slide.isDefault)
     if (defaultSlideIndex === -1) defaultSlideIndex = undefined
@@ -229,6 +231,7 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
         display: product.display || defaultProduct.display,
         justifyContent: product.justifyContent || defaultProduct.justifyContent,
         padding: product.padding || defaultProduct.padding,
+        height: '100%',
     }
 
     const productName = {
@@ -270,6 +273,93 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
     const productRating = {
         fontSize: product.rating.fontSize || defaultProduct.rating.fontSize,
         color: product.rating.color || defaultProduct.rating.color,
+    }
+
+    ///////////////////// Add To Cart Styles ////////////////////
+
+    var addToCart, addToCartVisible, addToCartWrap, addToCartBtn, plusBtn, minusBtn, removeBtn, qtyBtn, addToCartStyles
+    addToCart = product.addToCart
+    addToCartVisible = addToCart && addToCart.display === 'none'
+
+    if (!addToCartVisible) {
+        addToCartWrap = {
+            design: addToCart.design || defaultAddToCart.design,
+            padding: addToCart.padding || defaultAddToCart.padding,
+            flexDirection: addToCart.flexDirection || defaultAddToCart.flexDirection,
+            margin: addToCart.margin || defaultAddToCart.margin,
+        }
+
+        addToCartBtn = addToCart.add || defaultAddToCart.add
+        addToCartBtn = {
+            btn: addToCartBtn.btn || defaultAddToCart.add.btn,
+            fontSize: addToCartBtn.fontSize || defaultAddToCart.add.fontSize,
+            height: addToCartBtn.height || defaultAddToCart.add.height,
+            width: addToCartBtn.width || defaultAddToCart.add.width,
+            margin: addToCartBtn.margin || defaultAddToCart.add.margin,
+            border: addToCartBtn.border || defaultAddToCart.add.border,
+            borderRadius: addToCartBtn.borderRadius || defaultAddToCart.add.borderRadius,
+            color: addToCartBtn.color || defaultAddToCart.add.color,
+            backgroundColor: addToCartBtn.backgroundColor || defaultAddToCart.add.backgroundColor,
+            hoverBackgroundColor: addToCartBtn.hoverBackgroundColor || defaultAddToCart.add.hoverBackgroundColor,
+        }
+
+        plusBtn = addToCart.plus || defaultAddToCart.plus
+        plusBtn = {
+            btn: plusBtn.btn || defaultAddToCart.plus.btn,
+            fontSize: plusBtn.fontSize || defaultAddToCart.plus.fontSize,
+            height: plusBtn.height || defaultAddToCart.plus.height,
+            width: plusBtn.width || defaultAddToCart.plus.width,
+            margin: plusBtn.margin || defaultAddToCart.plus.margin,
+            border: plusBtn.border || defaultAddToCart.plus.border,
+            borderRadius: plusBtn.borderRadius || defaultAddToCart.plus.borderRadius,
+            color: plusBtn.color || defaultAddToCart.plus.color,
+            backgroundColor: plusBtn.backgroundColor || defaultAddToCart.plus.backgroundColor,
+            hoverBackgroundColor: plusBtn.hoverBackgroundColor || defaultAddToCart.plus.hoverBackgroundColor,
+        }
+
+        minusBtn = addToCart.minus || defaultAddToCart.minus
+        minusBtn = {
+            btn: minusBtn.btn || defaultAddToCart.minus.btn,
+            fontSize: minusBtn.fontSize || defaultAddToCart.minus.fontSize,
+            height: minusBtn.height || defaultAddToCart.minus.height,
+            width: minusBtn.width || defaultAddToCart.minus.width,
+            margin: minusBtn.margin || defaultAddToCart.minus.margin,
+            border: minusBtn.border || defaultAddToCart.minus.border,
+            borderRadius: minusBtn.borderRadius || defaultAddToCart.minus.borderRadius,
+            color: minusBtn.color || defaultAddToCart.minus.color,
+            backgroundColor: minusBtn.backgroundColor || defaultAddToCart.minus.backgroundColor,
+            hoverBackgroundColor: minusBtn.hoverBackgroundColor || defaultAddToCart.minus.hoverBackgroundColor,
+        }
+
+        removeBtn = addToCart.delete || defaultAddToCart.delete
+        removeBtn = {
+            btn: removeBtn.btn || defaultAddToCart.delete.btn,
+            fontSize: removeBtn.fontSize || defaultAddToCart.delete.fontSize,
+            height: removeBtn.height || defaultAddToCart.delete.height,
+            width: removeBtn.width || defaultAddToCart.delete.width,
+            margin: removeBtn.margin || defaultAddToCart.delete.margin,
+            border: removeBtn.border || defaultAddToCart.delete.border,
+            borderRadius: removeBtn.borderRadius || defaultAddToCart.delete.borderRadius,
+            color: removeBtn.color || defaultAddToCart.delete.color,
+            backgroundColor: removeBtn.backgroundColor || defaultAddToCart.delete.backgroundColor,
+            hoverBackgroundColor: removeBtn.hoverBackgroundColor || defaultAddToCart.delete.hoverBackgroundColor,
+        }
+
+        qtyBtn = addToCart.num || defaultAddToCart.num
+        qtyBtn = {
+            btn: qtyBtn.btn || defaultAddToCart.num.btn,
+            fontSize: qtyBtn.fontSize || defaultAddToCart.num.fontSize,
+            height: qtyBtn.height || defaultAddToCart.num.height,
+            width: qtyBtn.width || defaultAddToCart.num.width,
+            margin: qtyBtn.margin || defaultAddToCart.num.margin,
+            border: qtyBtn.border || defaultAddToCart.num.border,
+            borderRadius: qtyBtn.borderRadius || defaultAddToCart.num.borderRadius,
+            color: qtyBtn.color || defaultAddToCart.num.color,
+            backgroundColor: qtyBtn.backgroundColor || defaultAddToCart.num.backgroundColor,
+            hoverBackgroundColor: qtyBtn.hoverBackgroundColor || defaultAddToCart.num.hoverBackgroundColor,
+        }
+
+        addToCartStyles = { addToCartWrap, addToCartBtn, plusBtn, minusBtn, removeBtn, qtyBtn }
     }
 
     const linkSlide = (e, src) => {
@@ -520,8 +610,8 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
     }
 
     const ToggleScroll = e => {
-        const currClientX = e.clientX || e.changedTouches[0].clientX
-        const currClientY = e.clientY || e.changedTouches[0].clientY
+        const currClientX = !touchScreen ? e.clientX : e.changedTouches[0].clientX
+        const currClientY = !touchScreen ? e.clientY : e.changedTouches[0].clientY
         const minScroll = !verticalSwiper ? swiperWrapper.scrollLeft === 0 : swiperWrapper.scrollTop === 0
         const maxScroll = !verticalSwiper ? scrollWidth === swiperWrapper.scrollLeft : scrollHeight === swiperWrapper.scrollTop
 
@@ -742,36 +832,34 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
             ? defaultSlide.productVisible
             : slide[index].productVisible
 
-    const Product = React.memo(({ timer, slide }) => {
-        const priceBeforeDiscount = slide.priceUsd
+    const Product = React.memo(({ timer, product }) => {
 
-        const discount = timer.active && slide.onSale.amount >= slide.discount
-            ? slide.onSale.amount : (slide.discount || 0)
+        product.discounted = timer.active && product.onSale.amount >= product.discount
+            ? product.onSale.amount : (product.discount || 0)
 
-        const priceAfterDiscount = discount > 0
-            ? (slide.priceUsd - (slide.priceUsd * discount / 100).toFixed(2))
+        product.priceAfterDiscount = product.discounted > 0
+            ? (product.priceUsd - (product.priceUsd * product.discount / 100).toFixed(2))
             : false
-
-        const price = { priceBeforeDiscount, priceAfterDiscount, discount }
 
         return <div className='product-details-wrap' style={productWrap}>
             <div className='product-details-wrap-1'>
                 <div className="product-name" style={productName}>
-                    <Link to={"/product/" + slide._id}>
-                        <div className='product-nameEn'>{slide.nameEn || slide.title}</div>
+                    <Link to={"/product/" + product._id}>
+                        <div className='product-nameEn'>{product.nameEn || product.title}</div>
                     </Link>
                 </div>
-                <div className="product-brand" style={productBrand}>{slide.brand}</div>
+                <div className="product-brand" style={productBrand}>{product.brand}</div>
                 <div className='product-det-price-reviews-cont'>
                     <div className="product-det-price-reviews-wrap">
                         <div className="product-price">
-                            <div className={discount ? 'before-discount' : ''}
-                                style={discount ? productPriceBeforeDiscount : productPrice}>{priceBeforeDiscount}
-                                <div className='price-unit' style={productPriceUnit}>${!priceAfterDiscount ? '/' + slide.unit : ''}</div>
+                            <div className={product.discounted ? 'before-discount' : ''}
+                                style={product.discounted ? productPriceBeforeDiscount : productPrice}>{product.priceUsd}
+                                <div className='price-unit' style={productPriceUnit}>${!product.priceAfterDiscount ? '/' + product.unit : ''}</div>
                             </div>
-                            {priceAfterDiscount &&
-                                <div className='after-discount' style={productPrice}>{priceAfterDiscount}
-                                    <div className='price-unit' style={productPriceUnit}>$/{slide.unit}</div>
+                            {product.priceAfterDiscount &&
+                                <div className='after-discount' style={productPrice}>
+                                    {product.priceAfterDiscount}
+                                    <div className='price-unit' style={productPriceUnit}>$/{product.unit}</div>
                                 </div>}
                         </div>
                         <div className='product-review-container'>
@@ -780,13 +868,14 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
                             <div className='product-review-qty' style={productReviews}>(21)</div>
                         </div>
                     </div>
-                    {/*<AddToCart slide={slide} price={price}/> */}
+                    {/* Add To Cart */}
+                    {addToCartStyles && <AddToCart product={product} styles={addToCartStyles} />}
                 </div>
             </div>
 
             {/* Timer */}
-            {!timer.ended && slide.onSale.amount >= slide.discount &&
-                <Timer slide={slide} slideBox_id={_id} />}
+            {!timer.ended && product.onSale.amount >= product.discount &&
+                <Timer slide={product} slideBox_id={_id} />}
 
         </div>
     })
@@ -843,8 +932,8 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
 
                     {/*////////////////////// Swiper ///////////////////////*/}
                     <div className="slideBox-wrapper" style={swiperBox}
-                        onMouseDown={e => { swiperWrapper && !stopOnHover && mouseDownHandler(e); e.preventDefault() }}
-                        onMouseEnter={e => { swiperWrapper && stopOnHover && mouseEnterHandler(e); e.preventDefault() }}
+                        onMouseDown={e => { e.preventDefault(); swiperWrapper && !stopOnHover && mouseDownHandler(e); }}
+                        onMouseEnter={e => { e.preventDefault(); swiperWrapper && stopOnHover && mouseEnterHandler(e); }}
                         onMouseLeave={e => { swiperWrapper && stopOnHover && mouseLeaveHandler(e) }}
                         onTouchStart={e => { swiperWrapper && touchScreen && touchStartHandler(e) }}
                         onTouchEnd={e => { swiperWrapper && stopOnHover && touchScreen && mouseLeaveHandler(e) }}
@@ -874,7 +963,7 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
                                             <TitleContainer _id={slide._id} styles={slideStyles(i)}
                                                 Title={{ title: slide.title, description: slide.description }} />}
 
-                                        {productVisible(i) && <Product slide={slide} timer={timer} />}
+                                        {productVisible(i) && <Product product={slide} timer={timer} />}
 
                                     </div>
                                 </div>

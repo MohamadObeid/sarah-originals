@@ -44,6 +44,77 @@ export const defaultTitleStyles = {
     }
 }
 
+export const defaultAddToCartStyles = {
+    viewPort: 'desktop',
+    name: 'Default Desktop AddToCart',
+    display: 'flex',
+    design: 'Bottom Center',
+    margin: '0',
+    padding: '1rem 0',
+    border: '0',
+    borderRadius: '0.5rem',
+    flexDirection: 'row',
+    add: {
+        btn: 'Add To Cart',
+        fontSize: '1.5rem',
+        height: '4.2rem',
+        width: '14rem',
+        margin: '0',
+        border: '0',
+        borderRadius: '0.5rem',
+        color: '#fff',
+        backgroundColor: '#f0c040',
+        hoverBackgroundColor: '#c8960b'
+    },
+    delete: {
+        btn: 'none',
+        fontSize: '1.5rem',
+        height: '4.2rem',
+        width: '14rem',
+        margin: '0',
+        border: '0',
+        borderRadius: '0.5rem',
+        color: '#fff',
+        backgroundColor: '#f0c040',
+        hoverBackgroundColor: '#c8960b'
+    },
+    plus: {
+        btn: 'plus',
+        fontSize: '1.4rem',
+        height: '4.2rem',
+        width: '4.7rem',
+        margin: '0',
+        border: '0',
+        borderRadius: '0.5rem',
+        color: '#fff',
+        backgroundColor: '#f0c040',
+        hoverBackgroundColor: '#c8960b'
+    },
+    minus: {
+        btn: 'minus',
+        fontSize: '1.4rem',
+        height: '4.2rem',
+        width: '4.7rem',
+        margin: '0',
+        border: '0',
+        borderRadius: '0.5rem',
+        color: '#fff',
+        hoverBackgroundColor: '#c8960b'
+    },
+    num: {
+        btn: '',
+        fontSize: '1.7rem',
+        height: '4.2rem',
+        width: '4.7rem',
+        margin: '0 0.2rem',
+        border: '0',
+        borderRadius: '0.5rem',
+        color: '#444444',
+        backgroundColor: '#fff',
+        hoverBackgroundColor: '#fff'
+    },
+}
+
 export const defaultStyles = {
     // default desktop styles
     viewPort: 'desktop',
@@ -99,6 +170,7 @@ export const defaultStyles = {
         product: {
             display: 'flex',
             justifyContent: 'center',
+            addToCart: { display: 'flex' },
             padding: '1rem',
             name: {
                 fontSize: '1.4rem',

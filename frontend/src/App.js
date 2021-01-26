@@ -15,26 +15,28 @@ import { useDispatch, useSelector } from "react-redux";
 import { saveControls, getControls, deleteControls } from "./actions/controlsActions";
 import {
   saveStyles, deleteStyles, getStyles,
-  saveTitleStyles, getTitleStyles, deleteTitleStyles
+  saveTitleStyles, getTitleStyles, deleteTitleStyles, saveAddToCartStyles, getAddToCartStyles
 } from "./actions/stylesActions";
 import { Styles } from './constants/Styles'
 import { Controls } from './constants/defaultControls'
-import { defaultStyles, defaultTitleStyles } from "./constants/defaults";
+import { defaultStyles, defaultTitleStyles, defaultAddToCartStyles } from "./constants/defaults";
 
 const App = React.memo(() => {
 
   const dispatch = useDispatch()
   useEffect(() => {
     // get initials requests
+    dispatch(getAddToCartStyles({ name: 'Default Desktop AddToCart' }))
     dispatch(getTitleStyles({ name: 'Default Title Desktop Styles' }))
     dispatch(getStyles({ name: 'Default Desktop Styles' }))
     dispatch(getControls({ limit: 10 }))
 
     // save requests
     //dispatch(saveControls(Controls))
-    //dispatch(saveStyles(defaultStyles))
     //dispatch(saveStyles(Styles))
+    //dispatch(saveStyles(defaultStyles))
     //dispatch(saveTitleStyles(defaultTitleStyles))
+    //dispatch(saveAddToCartStyles(defaultAddToCartStyles))
 
     // delete requests
     //dispatch(deleteControls({ deleteAll: true }))
