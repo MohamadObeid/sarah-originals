@@ -8,6 +8,7 @@ import { TitleContainer } from './TitleContainer'
 import { showTimer } from '../../methods/methods'
 import { Timer } from './SlideBoxComponents'
 import { AddToCart } from './AddToCart'
+import { Badges } from './Badges'
 
 const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
     const dispatch = useDispatch()
@@ -225,9 +226,11 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
         margin: timerBar.margin || timerBar.margin,
     }
 
-    /// product styles 
+    /////////////////// product styles //////////////////////
+
     var productWrap, productName, productBrand, productPrice, productPriceBeforeDiscount,
-        productPriceUnit, productReviews, productRating
+        productPriceUnit, productReviews, productRating, priceAndAddToCartWrapper,
+        productPriceWrap, productStyles
 
     productWrap = {
         display: product.display || defaultProduct.display,
@@ -252,39 +255,56 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
         //hoverColor: product.name.hoverColor ,
     }
 
+    priceAndAddToCartWrapper = product.priceAndAddToCartWrapper || defaultProduct.priceAndAddToCartWrapper
+    priceAndAddToCartWrapper = {
+        padding: priceAndAddToCartWrapper.padding || defaultProduct.padding,
+        flexDirection: priceAndAddToCartWrapper.flexDirection || defaultProduct.flexDirection,
+        justifyContent: priceAndAddToCartWrapper.justifyContent || defaultProduct.justifyContent
+    }
+
     productPrice = product.price || defaultProduct.price
+
+    productPriceWrap = {
+        flexDirection: productPrice.flexDirection || defaultProduct.price.flexDirection,
+        padding: productPrice.padding || defaultProduct.price.padding,
+        textAlign: productPrice.textAlign || defaultProduct.price.textAlign,
+    }
+
     productPrice = {
         fontSize: productPrice.fontSize || defaultProduct.price.fontSize,
         color: productPrice.color || defaultProduct.price.color,
         //hoverColor: product.price.hoverColor ,
-        textAlign: productPrice.textAlign || defaultProduct.price.textAlign,
     }
 
     productPriceBeforeDiscount = productPrice.fontSize || defaultProduct.price.beforeDiscount
     productPriceBeforeDiscount = {
+        display: productPriceBeforeDiscount.display || defaultProduct.price.beforeDiscount.display,
         fontSize: productPriceBeforeDiscount.fontSize || defaultProduct.price.beforeDiscount.fontSize,
         color: productPriceBeforeDiscount.color || defaultProduct.price.beforeDiscount.color,
     }
 
     productPriceUnit = productPrice.unit || defaultProduct.price.unit
     productPriceUnit = {
+        display: productPriceUnit.display || defaultProduct.price.unit.display,
         fontSize: productPriceUnit.fontSize || defaultProduct.price.unit.fontSize,
         color: productPriceUnit.color || defaultProduct.price.unit.color,
     }
 
     productReviews = product.reviews || defaultProduct.reviews
     productReviews = {
+        display: productReviews.display || defaultProduct.reviews.display,
         fontSize: productReviews.fontSize || defaultProduct.reviews.fontSize,
         color: productReviews.color || defaultProduct.reviews.color,
     }
 
     productRating = product.rating || defaultProduct.rating
     productRating = {
+        display: productRating.display || defaultProduct.rating.display,
         fontSize: productRating.fontSize || defaultProduct.rating.fontSize,
         color: productRating.color || defaultProduct.rating.color,
     }
 
-    ///////////////////// Add To Cart Styles ////////////////////
+    ///////////////////// Add To Cart Styles ///////////////////////
 
     var addToCart, addToCartVisible, addToCartWrap, addToCartBtn, plusBtn,
         minusBtn, removeBtn, qtyBtn, addToCartStyles, btnsWrap
@@ -301,11 +321,18 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
             position: addToCart.position || defaultAddToCart.position,
             top: addToCart.top || defaultAddToCart.top,
             right: addToCart.right || defaultAddToCart.right,
+            left: addToCart.top || defaultAddToCart.left,
+            bottom: addToCart.right || defaultAddToCart.bottom,
         }
 
         addToCartBtn = addToCart.add || defaultAddToCart.add
         addToCartBtn = {
             btn: addToCartBtn.btn || defaultAddToCart.add.btn,
+            position: addToCartBtn.position || defaultAddToCart.add.position,
+            top: addToCartBtn.top || defaultAddToCart.add.top,
+            right: addToCartBtn.right || defaultAddToCart.add.right,
+            left: addToCartBtn.left || defaultAddToCart.add.left,
+            bottom: addToCartBtn.bottom || defaultAddToCart.add.bottom,
             fontSize: addToCartBtn.fontSize || defaultAddToCart.add.fontSize,
             height: addToCartBtn.height || defaultAddToCart.add.height,
             width: addToCartBtn.width || defaultAddToCart.add.width,
@@ -324,6 +351,11 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
         plusBtn = addToCart.plus || defaultAddToCart.plus
         plusBtn = {
             btn: plusBtn.btn || defaultAddToCart.plus.btn,
+            position: plusBtn.position || defaultAddToCart.plus.position,
+            top: plusBtn.top || defaultAddToCart.plus.top,
+            right: plusBtn.right || defaultAddToCart.plus.right,
+            left: plusBtn.left || defaultAddToCart.plus.left,
+            bottom: plusBtn.bottom || defaultAddToCart.plus.bottom,
             fontSize: plusBtn.fontSize || defaultAddToCart.plus.fontSize,
             height: plusBtn.height || defaultAddToCart.plus.height,
             width: plusBtn.width || defaultAddToCart.plus.width,
@@ -334,10 +366,16 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
             backgroundColor: plusBtn.backgroundColor || defaultAddToCart.plus.backgroundColor,
             hoverBackgroundColor: plusBtn.hoverBackgroundColor || defaultAddToCart.plus.hoverBackgroundColor,
         }
+        console.log(plusBtn)
 
         minusBtn = addToCart.minus || defaultAddToCart.minus
         minusBtn = {
             btn: minusBtn.btn || defaultAddToCart.minus.btn,
+            position: minusBtn.position || defaultAddToCart.minus.position,
+            top: minusBtn.top || defaultAddToCart.minus.top,
+            right: minusBtn.right || defaultAddToCart.minus.right,
+            left: minusBtn.left || defaultAddToCart.minus.left,
+            bottom: minusBtn.bottom || defaultAddToCart.minus.bottom,
             fontSize: minusBtn.fontSize || defaultAddToCart.minus.fontSize,
             height: minusBtn.height || defaultAddToCart.minus.height,
             width: minusBtn.width || defaultAddToCart.minus.width,
@@ -352,6 +390,11 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
         removeBtn = addToCart.delete || defaultAddToCart.delete
         removeBtn = {
             btn: removeBtn.btn || defaultAddToCart.delete.btn,
+            position: removeBtn.position || defaultAddToCart.delete.position,
+            top: removeBtn.top || defaultAddToCart.delete.top,
+            right: removeBtn.right || defaultAddToCart.right,
+            left: removeBtn.left || defaultAddToCart.delete.left,
+            bottom: removeBtn.bottom || defaultAddToCart.bottom,
             fontSize: removeBtn.fontSize || defaultAddToCart.delete.fontSize,
             height: removeBtn.height || defaultAddToCart.delete.height,
             width: removeBtn.width || defaultAddToCart.delete.width,
@@ -366,6 +409,11 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
         qtyBtn = addToCart.num || defaultAddToCart.num
         qtyBtn = {
             btn: qtyBtn.btn || defaultAddToCart.num.btn,
+            position: qtyBtn.position || defaultAddToCart.num.position,
+            top: qtyBtn.top || defaultAddToCart.num.top,
+            right: qtyBtn.right || defaultAddToCart.num.right,
+            left: qtyBtn.left || defaultAddToCart.num.left,
+            bottom: qtyBtn.bottom || defaultAddToCart.num.bottom,
             fontSize: qtyBtn.fontSize || defaultAddToCart.num.fontSize,
             height: qtyBtn.height || defaultAddToCart.num.height,
             width: qtyBtn.width || defaultAddToCart.num.width,
@@ -377,8 +425,48 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
             hoverBackgroundColor: qtyBtn.hoverBackgroundColor || defaultAddToCart.num.hoverBackgroundColor,
         }
 
-        addToCartStyles = { addToCartWrap, addToCartBtn, btnsWrap, plusBtn, minusBtn, removeBtn, qtyBtn }
+        addToCartStyles = {
+            addToCartWrap, addToCartBtn, btnsWrap, plusBtn, minusBtn, removeBtn, qtyBtn
+        }
     }
+
+    productStyles = {
+        productWrap, productName, productBrand, productPrice, productPriceBeforeDiscount,
+        productPriceUnit, productReviews, productRating, priceAndAddToCartWrapper,
+        productPriceWrap, addToCartStyles
+    }
+
+    ///////////////////// Badges Styles /////////////////////////
+
+    var badgesWrap, badgeWrap, badgeStyle, badgeStyles, badgeList, backgroundColors
+
+    badgesWrap = {
+        display: badges.display || defaultBadges.display,
+        top: badges.top || defaultBadges.top,
+        left: badges.left || defaultBadges.left,
+        gridRowGap: badges.paddingBetween || defaultBadges.paddingBetween,
+        gridColumnGap: badges.paddingBetween || defaultBadges.paddingBetween,
+        gridTemplateColumns: `repeat(auto-fit, minmax(${badges.badgeWidth || defaultBadges.badgeWidth}, 1fr))`,
+    }
+
+    badgeWrap = {
+        height: badges.badgeHeight || defaultBadges.badgeHeight,
+        width: badges.badgeWidth || defaultBadges.badgeWidth,
+        borderRadius: badges.borderRadius || defaultBadges.borderRadius,
+    }
+
+    badgeStyle = {
+        color: badges.color || defaultBadges.color,
+        fontSize: badges.fontSize || defaultBadges.fontSize,
+        fontWeight: '600'
+    }
+
+    badgeList = badges.badges || defaultBadges.badges || []
+    backgroundColors = badges.backgroundColors.length > 0
+        ? badges.backgroundColors
+        : defaultBadges.backgroundColors
+
+    badgeStyles = { badges: badgeList, backgroundColors, badgesWrap, badgeWrap, badgeStyle }
 
     const linkSlide = (e, src) => {
         //handleQuickView({})
@@ -771,67 +859,6 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
         }
     }
 
-    /////////////////////// Badges ///////////////////////
-
-    const Badges = React.memo(({ slide, timer }) => {
-
-        const badgesWrap = {
-            display: badges.display || defaultBadges.display,
-            top: badges.top || defaultBadges.top,
-            left: badges.left || defaultBadges.left,
-            gridRowGap: badges.paddingBetween || defaultBadges.paddingBetween,
-            gridColumnGap: badges.paddingBetween || defaultBadges.paddingBetween,
-            gridTemplateColumns: `repeat(auto-fit, minmax(${badges.badgeWidth || defaultBadges.badgeWidth}, 1fr))`,
-        }
-
-        const badgeWrap = {
-            height: badges.badgeHeight || defaultBadges.badgeHeight,
-            width: badges.badgeWidth || defaultBadges.badgeWidth,
-            borderRadius: badges.borderRadius || defaultBadges.borderRadius,
-        }
-
-        const badgeStyle = {
-            color: badges.color || defaultBadges.color,
-            fontSize: badges.fontSize || defaultBadges.fontSize,
-            fontWeight: '600'
-        }
-
-        var slash = false
-        var upcoming = false
-        var backgroundColor
-        var disc = (slide.discount && slide.discount !== 0 && [{ type: 'discount', discount: slide.discount + '%' }]) || []
-
-        if (!timer.ended && slide.onSale.amount >= slide.discount) {
-            disc.push({ type: 'onSale', discount: slide.onSale.amount + '%' })
-            if (timer.active) slash = true
-            else {
-                upcoming = true
-                backgroundColor = '#cccccc'
-            }
-        }
-
-        const badgeList = [...badges.badges, ...disc]
-
-        return (
-            <div className='badges-wrap' style={badgesWrap}>
-                {badgeList && badgeList.map((badge, index) =>
-                    <div className='badge-wrap' key={index}
-                        style={{
-                            ...badgeWrap,
-                            backgroundColor: badge.type === 'onSale' && backgroundColor
-                                ? backgroundColor
-                                : (badges.backgroundColors[index]
-                                    || defaultBadges.backgroundColors[index])
-                        }}>
-                        {badge.type === 'discount' && slash && <div className='slash-over slash' />}
-                        {badge.type === 'onSale' && upcoming && <div className='upcoming-badget'>coming soon</div>}
-                        <div style={badgeStyle}>{badge.discount || badge}</div>
-                    </div>
-                )}
-            </div>
-        )
-    })
-
     // Product Quick View Handler
     const handleQuickView = (product) => {
         dispatch({ type: 'UPDATE_ACTIONS', payload: { quickView: { product } } })
@@ -850,7 +877,13 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
             ? defaultSlide.productVisible
             : slide[index].productVisible
 
-    const Product = React.memo(({ timer, product }) => {
+    const Product = React.memo(({ timer, product, styles }) => {
+
+        const {
+            productWrap, productName, productBrand, productPrice, productPriceBeforeDiscount,
+            productPriceUnit, productReviews, productRating, priceAndAddToCartWrapper,
+            productPriceWrap, addToCartStyles
+        } = styles
 
         product.discounted = timer.active && product.onSale.amount >= product.discount
             ? product.onSale.amount : (product.discount || 0)
@@ -867,9 +900,9 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
                     </Link>
                 </div>
                 <div className="product-brand" style={productBrand}>{product.brand}</div>
-                <div className='product-det-price-reviews-cont'>
+                <div className='product-det-price-reviews-cont' style={priceAndAddToCartWrapper}>
                     <div className="product-det-price-reviews-wrap">
-                        <div className="product-price">
+                        <div className="product-price" style={productPriceWrap}>
                             <div className={product.discounted ? 'before-discount' : ''}
                                 style={product.discounted ? productPriceBeforeDiscount : productPrice}>{product.priceUsd}
                                 <div className='price-unit' style={productPriceUnit}>${!product.priceAfterDiscount ? '/' + product.unit : ''}</div>
@@ -881,8 +914,9 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
                                 </div>}
                         </div>
                         <div className='product-review-container'>
-                            <FontAwesomeIcon icon={faStar} className='faStar' />
-                            <div className='product-review' style={productRating}>4.5</div>
+                            <div className='product-review' style={productRating}>
+                                <FontAwesomeIcon icon={faStar} className='faStar' />
+                                4.5</div>
                             <div className='product-review-qty' style={productReviews}>(21)</div>
                         </div>
                     </div>
@@ -966,7 +1000,8 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
                                     <div className='slide-wrapper' style={slideWrapperStyle(i)}>
 
                                         {/* Badges */}
-                                        {badges.display !== 'none' && <Badges slide={slide} timer={timer} />}
+                                        {badges.display !== 'none' &&
+                                            <Badges slide={slide} timer={timer} styles={badgeStyles} />}
 
                                         <div className='image-wrap' style={imageWrapStyle(i)}>
                                             {/*<div className='image-skeleton' style={skeleton}>Sarah Originals</div>*/}
@@ -977,11 +1012,13 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
                                             //onLoad={e => { e.currentTarget.previousSibling.classList.add('hide') }}
                                             />
                                         </div>
+
                                         {slideStyles(i) && slideStyles(i).display !== 'none' &&
                                             <TitleContainer _id={slide._id} styles={slideStyles(i)}
                                                 Title={{ title: slide.title, description: slide.description }} />}
 
-                                        {productVisible(i) && <Product product={slide} timer={timer} />}
+                                        {productVisible(i) &&
+                                            <Product product={slide} timer={timer} styles={productStyles} />}
 
                                     </div>
                                 </div>

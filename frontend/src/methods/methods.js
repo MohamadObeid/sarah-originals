@@ -74,7 +74,7 @@ const timer = (endDate, active) => { //gets date and retruns time difference bet
                 + ((minDiff >= 0 ? hourDiff + 1 : hourDiff) > 0
                     ? (24 - Math.abs(minDiff >= 0 ? hourDiff + 1 : hourDiff)) + ' hour  '
                     : (Math.abs(minDiff >= 0 ? hourDiff + 1 : hourDiff)) + ' hour  ')
-                + ((minDiff > 0 ? 60 - minDiff : Math.abs(minDiff)) + ' min '))
+                + ((minDiff > 0 ? 60 - minDiff + ' min ' : minDiff === 0 ? '' : Math.abs(minDiff) + ' min ')))
                 + (secDiff === 0 ? 'left' : ((secDiff > 0 ? 60 - secDiff : Math.abs(secDiff)) + ' sec left')))
 
         var monthStatus = monthDiff > 0

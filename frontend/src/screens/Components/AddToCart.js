@@ -1,4 +1,4 @@
-import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faMinus, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useEffect } from 'react'
 import FontAwesome from 'react-fontawesome'
@@ -41,28 +41,6 @@ export const AddToCart = React.memo(({ product, styles }) => {
     const hide = item ? { display: 'none' } : {}
     const show = item ? {} : { display: 'none' }
 
-    // Add to Cart Btns design 2
-    const RightTopBtnsDesign = (product) => {
-        return (
-            <>
-                <div className='product-plus' onClick={(e) => handlePlus(product, e)}>
-                    <FontAwesome name='fa-plus' className="fas fa-plus" />
-                </div>
-                <div>
-                    <div className={'product-new-qty right-qty-btn-transform ' +
-                        (product.qty >= 1 ? 'animate' : '')}>
-                        {product.qty}
-                    </div>
-                    <div className={'product-minus right-minus-btn-transform ' +
-                        (product.qty >= 1 ? 'animate' : '')}
-                        onClick={(e) => handleMinus(product, e)}>
-                        <FontAwesome name='fa-minus' className="fas fa-minus" />
-                    </div>
-                </div>
-            </>
-        )
-    }
-
     // Add to Cart Btns Designs Handler
     return (<div className="add-to-cart-btns-wrap" style={styles.addToCartWrap}>
         <button style={{ ...styles.addToCartBtn, ...hide }}
@@ -72,9 +50,10 @@ export const AddToCart = React.memo(({ product, styles }) => {
             onClick={(e) => handlePlus(product, e)}
             onMouseOver={e => { e.currentTarget.style.backgroundColor = styles.addToCartBtn.hoverBackgroundColor }}
             onMouseOut={e => { e.currentTarget.style.backgroundColor = styles.addToCartBtn.backgroundColor }}>
-            {styles.addToCartBtn.btn === 'plus'
+            {styles.addToCartBtn.btn !== 'none' ? (styles.addToCartBtn.btn === 'plus'
                 ? <FontAwesomeIcon icon={faPlus} />
-                : 'Add To Cart'}
+                : 'Add To Cart')
+                : ''}
         </button>
         <div className='add-to-cart-btns' style={{ ...styles.btnsWrap, ...show }}>
             <button style={styles.minusBtn}
@@ -83,16 +62,20 @@ export const AddToCart = React.memo(({ product, styles }) => {
                 onClick={(e) => handleMinus(product, e)}
                 onMouseOver={e => { e.currentTarget.style.backgroundColor = styles.minusBtn.hoverBackgroundColor }}
                 onMouseOut={e => { e.currentTarget.style.backgroundColor = styles.minusBtn.backgroundColor }}>
-                <FontAwesomeIcon icon={faMinus} />
+                {styles.minusBtn.btn !== 'none' && <FontAwesomeIcon icon={faMinus} />}
             </button>
-            <p className="add-to-cart-qty" style={styles.qtyBtn}>{item && item.qty}</p>
+            <p className="add-to-cart-qty" style={styles.qtyBtn}>
+                {styles.qtyBtn.btn == 'times' && <FontAwesomeIcon icon={faTimes}
+                    style={{ fontSize: '1.2rem', color: styles.qtyBtn.color }} />}
+                {item && item.qty}
+            </p>
             <button style={styles.plusBtn}
                 type="button"
                 className="plus"
                 onClick={(e) => handlePlus(product, e)}
                 onMouseOver={e => { e.currentTarget.style.backgroundColor = styles.plusBtn.hoverBackgroundColor }}
                 onMouseOut={e => { e.currentTarget.style.backgroundColor = styles.plusBtn.backgroundColor }} >
-                <FontAwesomeIcon icon={faPlus} />
+                {styles.plusBtn.btn !== 'none' && <FontAwesomeIcon icon={faPlus} />}
             </button>
         </div>
     </div>)

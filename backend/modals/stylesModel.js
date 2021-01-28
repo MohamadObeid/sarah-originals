@@ -49,6 +49,11 @@ const TitleSchema = new mongoose.Schema({
 
 const btnStyles = {
     btn: String,
+    position: String,
+    top: String,
+    right: String,
+    left: String,
+    bottom: String,
     fontSize: String,
     height: String,
     width: String,
@@ -64,7 +69,6 @@ const addToCartSchema = new mongoose.Schema({
     viewPort: String,
     name: String,
     display: String,
-    design: String,
     margin: String,
     padding: String,
     flexDirection: String,
@@ -150,16 +154,25 @@ const stylesSchema = new mongoose.Schema({
                 color: String,// '#444444' },
                 hoverColor: String,// 'blue' },
             },
+            priceAndAddToCartWrapper: {
+                padding: String,
+                flexDirection: String,
+                justifyContent: String,
+            },
             price: {
                 fontSize: String,// '2rem' },
                 color: String,// '#444444' },
                 hoverColor: String,// 'blue' },
                 textAlign: String,// 'center' },
+                flexDirection: String,
+                padding: String,
                 beforeDiscount: {
+                    display: String,// 'flex' },
                     fontSize: String,// '1.7rem' },
                     color: String,// '#999999' },
                 },
                 unit: {
+                    display: String,// 'flex' },
                     fontSize: String,// '1.2rem' },
                     color: String,// '#999999' },
                 }

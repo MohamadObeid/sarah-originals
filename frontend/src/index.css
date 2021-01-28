@@ -443,6 +443,7 @@ textarea {
   align-items: center;
   justify-content: center;
   height: 100%;
+  width: 100%;
 }
 
 .product-nameEn {
@@ -469,6 +470,8 @@ textarea {
 
 .product-price {
   display: flex;
+  flex-direction: row;
+  line-height: 1.8rem;
   text-align: center;
   font-size: 1.9rem;
   font-weight: 500;
@@ -479,9 +482,10 @@ textarea {
 .product-det-price-reviews-cont {
   display: flex;
   justify-content: space-between;
-  align-content: center;
+  align-items: center;
   flex-direction: column;
   height: 100%;
+  width: 100%;
 }
 
 .product-det-price-reviews-wrap {
@@ -518,11 +522,13 @@ textarea {
 
 .faStar {
   color: #f0c040;
-  font-size: 1.3rem;
-  margin-right: 0.2rem;
+  font-size: 1.4rem;
+  margin-right: 0.3rem;
 }
 
 .product-review {
+  display: flex;
+  align-items: center;
   font-size: 1.4rem;
 }
 
@@ -4799,6 +4805,11 @@ button[disabled]:hover {
 .add-to-cart-btn:hover {
   background-color: #c8960b;
   /*box-shadow: 0px 0px 10px 1px #92929252;*/
+}
+
+.minus,
+.add-to-cart-qty {
+  z-index: 1;
 }
 
 /*.qty-cart {

@@ -372,7 +372,7 @@
                 image: {
                     borderRadius: '0.5rem',
                     height: '20rem',
-                    width: 'unset',
+                    width: 'initial',
                     animation: true,
                     forceWidth: false,
                 },
@@ -414,7 +414,7 @@
                     image: {
                         borderRadius: '0.5rem',
                         height: '100%',
-                        width: 'unset',
+                        width: 'initial',
                         animation: false,
                         forceWidth: false,
                     },
@@ -509,7 +509,7 @@
             height: 'fit-content',
             width: '100%',
             flexWrap: 'nowrap',
-            justifyContent: 'unset',
+            justifyContent: 'initial',
             backgroundColor: 'inherit',
             paddingAround: '0',
             paddingBetween: '1rem',
@@ -561,7 +561,7 @@
                 height: '17rem',
                 width: '100%',
                 flexWrap: 'wrap',
-                justifyContent: 'unset',
+                justifyContent: 'initial',
                 backgroundColor: 'inherit',
                 paddingAround: '0',
                 paddingBetween: '0.5rem',
@@ -712,7 +712,7 @@
                 height: 'fit-content',
                 width: '100%',
                 flexWrap: 'wrap',
-                justifyContent: 'unset',
+                justifyContent: 'initial',
                 backgroundColor: 'inherit',
                 paddingAround: '0.5rem',
                 paddingBetween: '0.5rem',
@@ -864,7 +864,7 @@
             height: 'fit-content',
             width: '100%',
             flexWrap: 'nowrap',
-            justifyContent: 'unset',
+            justifyContent: 'initial',
             backgroundColor: 'inherit',
             paddingAround: '2rem 0.5rem',
             paddingBetween: '1rem',
@@ -943,7 +943,7 @@
                 height: 'fit-content',
                 width: '100%',
                 flexWrap: 'wrap',
-                justifyContent: 'unset',
+                justifyContent: 'initial',
                 backgroundColor: 'inherit',
                 paddingAround: '0.5rem',
                 paddingBetween: '0.5rem',
@@ -1014,7 +1014,7 @@
             height: 'fit-content',
             width: '100%',
             flexWrap: 'nowrap',
-            justifyContent: 'unset',
+            justifyContent: 'initial',
             backgroundColor: 'inherit',
             paddingAround: '0.5rem',
             paddingBetween: '1rem',
@@ -1082,7 +1082,7 @@
                 height: 'fit-content',
                 width: '100%',
                 flexWrap: 'wrap',
-                justifyContent: 'unset',
+                justifyContent: 'initial',
                 backgroundColor: 'inherit',
                 paddingAround: '0.5rem',
                 paddingBetween: '0.5rem',
@@ -1175,7 +1175,7 @@
             height: 'fit-content',
             width: '100%',
             flexWrap: 'nowrap',
-            justifyContent: 'unset',
+            justifyContent: 'initial',
             backgroundColor: 'inherit',
             paddingAround: '0.5rem',
             paddingBetween: '1rem',
@@ -1223,7 +1223,7 @@
                 height: 'fit-content',
                 width: '100%',
                 flexWrap: 'wrap',
-                justifyContent: 'unset',
+                justifyContent: 'initial',
                 backgroundColor: 'inherit',
                 paddingAround: '0.5rem',
                 paddingBetween: '0.5rem',
@@ -1279,7 +1279,7 @@
             height: 'fit-content',
             width: '78%',
             flexWrap: 'nowrap',
-            justifyContent: 'unset',
+            justifyContent: 'initial',
             backgroundColor: '#f9f9f9',
             border: '0',
             paddingAround: '1rem',
@@ -1380,7 +1380,7 @@
                 height: 'fit-content',
                 width: '100%',
                 flexWrap: 'wrap',
-                justifyContent: 'unset',
+                justifyContent: 'initial',
                 backgroundColor: 'inherit',
                 paddingAround: '0.5rem',
                 paddingBetween: '0.5rem',
@@ -1430,7 +1430,7 @@
             width: '20%',
             border: '1px solid #00000020',
             flexWrap: 'nowrap',
-            justifyContent: 'unset',
+            justifyContent: 'initial',
             backgroundColor: '#fff',
             paddingAround: '1rem',
             paddingBetween: '1rem',
@@ -1506,7 +1506,7 @@
                 height: 'fit-content',
                 width: '100%',
                 flexWrap: 'wrap',
-                justifyContent: 'unset',
+                justifyContent: 'initial',
                 backgroundColor: 'inherit',
                 paddingAround: '0.5rem',
                 paddingBetween: '0.5rem',
@@ -1623,7 +1623,7 @@
                     image: {
                         borderRadius: '0.5rem',
                         height: '100%',
-                        width: 'unset',
+                        width: 'initial',
                         animation: false,
                         forceWidth: false,
                     },
@@ -2004,7 +2004,7 @@ export const Styles = [{
             image: {
                 borderRadius: '0.5rem',
                 height: '20rem',
-                width: 'unset',
+                width: 'initial',
                 animation: true,
                 forceWidth: false,
             },
@@ -2058,7 +2058,7 @@ export const Styles = [{
             image: {
                 borderRadius: '0.5rem',
                 height: '100%',
-                width: 'unset',
+                width: 'initial',
                 animation: false,
                 forceWidth: false,
             },
@@ -2099,7 +2099,7 @@ export const Styles = [{
         height: 'fit-content',
         width: '100%',
         flexWrap: 'nowrap',
-        justifyContent: 'unset',
+        justifyContent: 'initial',
         backgroundColor: 'inherit',
         paddingAround: '0',
         paddingBetween: '1rem',
@@ -2154,7 +2154,7 @@ export const Styles = [{
         height: '17rem',
         width: '100%',
         flexWrap: 'wrap',
-        justifyContent: 'unset',
+        justifyContent: 'initial',
         backgroundColor: 'inherit',
         paddingAround: '0',
         paddingBetween: '0.5rem',
@@ -2284,7 +2284,7 @@ export const Styles = [{
         height: 'fit-content',
         width: '100%',
         flexWrap: 'wrap',
-        justifyContent: 'unset',
+        justifyContent: 'initial',
         backgroundColor: 'inherit',
         paddingAround: '0.5rem',
         paddingBetween: '0.5rem',
@@ -2339,7 +2339,7 @@ export const Styles = [{
         height: 'fit-content',
         width: '100%',
         flexWrap: 'nowrap',
-        justifyContent: 'unset',
+        justifyContent: 'initial',
         backgroundColor: 'inherit',
         paddingAround: '2rem 0.5rem',
         paddingBetween: '1rem',
@@ -2393,7 +2393,6 @@ export const Styles = [{
                 },
                 num: {
                     margin: '0.3rem 0',
-                    border: '1px solid #dddddd',
                 }
             },
         },
@@ -2452,7 +2451,7 @@ export const Styles = [{
         height: 'fit-content',
         width: '100%',
         flexWrap: 'wrap',
-        justifyContent: 'unset',
+        justifyContent: 'initial',
         backgroundColor: 'inherit',
         paddingAround: '0.5rem',
         paddingBetween: '0.5rem',
@@ -2504,7 +2503,7 @@ export const Styles = [{
         height: 'fit-content',
         width: '100%',
         flexWrap: 'nowrap',
-        justifyContent: 'unset',
+        justifyContent: 'initial',
         backgroundColor: 'inherit',
         paddingAround: '0.5rem',
         paddingBetween: '1rem',
@@ -2533,10 +2532,7 @@ export const Styles = [{
                 forceWidth: false,
             },
         }],
-        // show more button
-        showMore: {
-            display: 'none',
-        },
+        product: {},
         // swiper
         swiper: {
             swipable: true,
@@ -2578,7 +2574,7 @@ export const Styles = [{
         height: 'fit-content',
         width: '100%',
         flexWrap: 'wrap',
-        justifyContent: 'unset',
+        justifyContent: 'initial',
         backgroundColor: 'inherit',
         paddingAround: '0.5rem',
         paddingBetween: '0.5rem',
@@ -2629,7 +2625,7 @@ export const Styles = [{
         height: 'fit-content',
         width: '100%',
         flexWrap: 'nowrap',
-        justifyContent: 'unset',
+        justifyContent: 'initial',
         backgroundColor: 'inherit',
         paddingAround: '1rem',
         paddingBetween: '1rem',
@@ -2672,6 +2668,47 @@ export const Styles = [{
                 forceWidth: false,
             },
         }],
+        product: {
+            position: 'initial',
+            addToCart: {
+                position: 'initial',
+                flexDirection: 'column-reverse',
+                padding: '.5rem',
+                add: {
+                    btn: 'none',
+                    position: 'absolute',
+                    left: '0',
+                    bottom: '0',
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: '#00000000',
+                    hoverBackgroundColor: '#00000000'
+                },
+                plus: {
+                    btn: 'none',
+                    position: 'absolute',
+                    left: '0',
+                    bottom: '0',
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: '#00000000',
+                    hoverBackgroundColor: '#00000000'
+                },
+                num: {
+                    btn: 'times',
+                    position: 'absolute',
+                    top: '0.5rem',
+                    right: '0.5rem',
+                    margin: '0'
+                },
+                minus: {
+                    position: 'absolute',
+                    top: '5rem',
+                    right: '0.5rem'
+                }
+            },
+
+        },
         // swiper
         swiper: {
             swipable: true,
@@ -2718,7 +2755,7 @@ export const Styles = [{
         height: 'fit-content',
         width: '100%',
         flexWrap: 'wrap',
-        justifyContent: 'unset',
+        justifyContent: 'initial',
         backgroundColor: 'inherit',
         paddingAround: '0.5rem',
         paddingBetween: '0.5rem',
@@ -2767,9 +2804,9 @@ export const Styles = [{
         type: 'Product',
         display: 'flex',
         height: 'fit-content',
-        width: '78%',
+        width: '77%',
         flexWrap: 'nowrap',
-        justifyContent: 'unset',
+        justifyContent: 'initial',
         backgroundColor: '#f9f9f9',
         border: '0',
         paddingAround: '1rem',
@@ -2857,6 +2894,45 @@ export const Styles = [{
                 forceWidth: false,
             },
         }],
+        product: {
+            priceAndAddToCartWrapper: {
+                padding: '1rem',
+                flexDirection: 'row',
+                justifyContent: 'space-between'
+            },
+            price: {
+                flexDirection: 'column',
+                textAlign: 'left',
+            },
+            reviews: {
+                display: 'none'
+            },
+            rating: {
+                display: 'none'
+            },
+            addToCart: {
+                name: 'AddToCart DigiStyle',
+                add: {
+                    btn: 'plus',
+                    fontSize: '1.4rem',
+                    height: '4.3rem',
+                    width: '5.5rem',
+                    borderRadius: '.8rem'
+                },
+                plus: {
+                    height: '3.5rem',
+                    width: '4rem',
+                },
+                minus: {
+                    height: '3.5rem',
+                    width: '4rem',
+                },
+                num: {
+                    height: '3.5rem',
+                    width: '4rem',
+                }
+            }
+        },
         // swiper
         swiper: {
             swipable: true,
@@ -2885,10 +2961,10 @@ export const Styles = [{
         type: 'Product',
         display: 'flex',
         height: 'fit-content',
-        width: '20%',
+        width: '21%',
         border: '1px solid #00000020',
         flexWrap: 'nowrap',
-        justifyContent: 'unset',
+        justifyContent: 'initial',
         backgroundColor: '#fff',
         paddingAround: '1rem',
         paddingBetween: '1rem',
@@ -2930,12 +3006,51 @@ export const Styles = [{
             },
             image: {
                 borderRadius: '0.5rem',
-                height: '20rem',
-                width: '20rem',
+                height: '22rem',
+                width: '22rem',
                 animation: true,
                 forceWidth: false,
             },
         }],
+        product: {
+            priceAndAddToCartWrapper: {
+                padding: '0',
+                flexDirection: 'row',
+                justifyContent: 'space-between'
+            },
+            price: {
+                flexDirection: 'column',
+                textAlign: 'left',
+            },
+            reviews: {
+                display: 'none'
+            },
+            rating: {
+                display: 'none'
+            },
+            addToCart: {
+                name: 'AddToCart DigiStyle',
+                add: {
+                    btn: 'plus',
+                    fontSize: '1.4rem',
+                    height: '4.3rem',
+                    width: '5.5rem',
+                    borderRadius: '.8rem'
+                },
+                plus: {
+                    height: '3.5rem',
+                    width: '4rem',
+                },
+                minus: {
+                    height: '3.5rem',
+                    width: '4rem',
+                },
+                num: {
+                    height: '3.5rem',
+                    width: '4rem',
+                }
+            }
+        },
         // swiper
         swiper: {
             swipable: true,
@@ -2970,7 +3085,7 @@ export const Styles = [{
         height: 'fit-content',
         width: '100%',
         flexWrap: 'wrap',
-        justifyContent: 'unset',
+        justifyContent: 'initial',
         backgroundColor: 'inherit',
         paddingAround: '0.5rem',
         paddingBetween: '0.5rem',
@@ -3012,7 +3127,7 @@ export const Styles = [{
         height: 'fit-content',
         width: '100%',
         flexWrap: 'wrap',
-        justifyContent: 'unset',
+        justifyContent: 'initial',
         backgroundColor: 'inherit',
         paddingAround: '0.5rem',
         paddingBetween: '0.5rem',
@@ -3126,7 +3241,7 @@ export const Styles = [{
             image: {
                 borderRadius: '0.5rem',
                 height: '100%',
-                width: 'unset',
+                width: 'initial',
                 animation: false,
                 forceWidth: false,
             },

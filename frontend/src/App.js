@@ -33,10 +33,10 @@ const App = React.memo(() => {
 
     // save requests
     //dispatch(saveControls(Controls))
-    //dispatch(saveStyles(Styles))
+    dispatch(saveStyles(Styles))
     //dispatch(saveStyles(defaultStyles))
     //dispatch(saveTitleStyles(defaultTitleStyles))
-    //dispatch(saveAddToCartStyles(defaultAddToCartStyles))
+    dispatch(saveAddToCartStyles(defaultAddToCartStyles))
 
     // delete requests
     //dispatch(deleteControls({ deleteAll: true }))
