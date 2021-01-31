@@ -3,13 +3,13 @@ import React, { useEffect } from 'react'
 import { timer, showTimer } from '../../methods/methods'
 import { faClock as farClock } from '@fortawesome/free-regular-svg-icons'
 
-export const Timer = React.memo(({ slide, slideBox_id }) => {
+export const Timer = React.memo(({ slide, slider_id }) => {
     var element
     var timeLeft
     var timerVisible
 
     useEffect(() => {
-        element = document.getElementsByClassName('slide-box-' + slideBox_id)[0]
+        element = document.getElementsByClassName('slide-box-' + slider_id)[0]
         element = element.getElementsByClassName('timer-' + slide._id)[0]
         timerVisible = showTimer(slide.onSale).active
         timeLeft = timerVisible ? timer(slide.onSale.endDate) : timer(slide.onSale.startDate)

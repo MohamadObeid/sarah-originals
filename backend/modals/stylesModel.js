@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 
 const TitleSchema = new mongoose.Schema({
-    viewPort: String,
+    SlideBoxPort: String,
+    type: { type: String, default: 'Title' },
     display: String,
     name: String,
     design: String,// 'Classic' },
@@ -66,7 +67,8 @@ const btnStyles = {
 }
 
 const addToCartSchema = new mongoose.Schema({
-    viewPort: String,
+    SlideBoxPort: String,
+    type: { type: String, default: 'AddToCart' },
     name: String,
     display: String,
     margin: String,
@@ -82,8 +84,9 @@ const addToCartSchema = new mongoose.Schema({
     num: btnStyles,
 })
 
-const stylesSchema = new mongoose.Schema({
+const MagicBoxSchema = new mongoose.Schema({
     viewPort: String,
+    type: { type: String, default: 'MagicBox' },
     name: { type: String, unique: true },
     display: String,//'flex' },
     flexDirection: String,// default: 'column' },
@@ -100,7 +103,7 @@ const stylesSchema = new mongoose.Schema({
     height: String,//'fit-content' },
     width: String,// 'fit-content' },
     title: TitleSchema,
-    slideBox: [{
+    slider: [{
         type: { type: String },// 'Image' },
         display: String,// 'none' },
         height: String,// 'auto' },
@@ -206,6 +209,11 @@ const stylesSchema = new mongoose.Schema({
             badges: [String],// [] },
             paddingBetween: String,// '0.5rem' },
         },
+        // Timer bar
+        timerBar: {
+            display: String,// 'none' },
+            margin: String,// '0' },
+        },
         // swiper
         swiper: {
             swipable: Boolean,//true },
@@ -236,18 +244,53 @@ const stylesSchema = new mongoose.Schema({
                 bottom: String,// '1rem' },
                 paddingBetween: String,// '0.8rem' },
                 fontSize: String,// '1rem' },
-            },
-            timerBar: {
-                display: String,// 'none' },
-                margin: String,// '0' },
             }
         }
     }]
 })
 
+const LiteBoxSchema = new mongoose.Schema({
+    active: Boolean,
+    type: { type: String, default: 'LiteBox' },
+    name: { type: String, unique: true },
+    position: String,
+    top: String,
+    right: String,
+    bottom: String,
+    left: String,
+    backgroundColor: String,
+    color: String,
+    border: String,
+    borderRadius: String,
+    boxShadow: String,
+    fontSize: String,
+    padding: String,
+    maxWidth: String,
+    minWidth: String,
+    transition: String,
+    timerBar: {
+        backgroundColor: String,
+        height: String,
+        position: String,
+        top: String,
+        right: String,
+        bottom: String,
+        left: String
+    },
+    transform: {
+        before: String,
+        after: String
+    },
+    close: {
+        color: String,
+        fontSize: String
+    }
+})
+
 const AddToCart = mongoose.model("AddToCart", addToCartSchema)
 const Title = mongoose.model("Title", TitleSchema)
-const Styles = mongoose.model("Styles", stylesSchema)
+const MagicBox = mongoose.model("MagicBox", MagicBoxSchema)
+const LiteBox = mongoose.model("LiteBox", LiteBoxSchema)
 
-export { Title, Styles, AddToCart }
+export { Title, MagicBox, AddToCart, LiteBox }
 

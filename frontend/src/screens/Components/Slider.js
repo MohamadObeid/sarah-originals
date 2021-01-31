@@ -1,20 +1,24 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronCircleRight, faChevronLeft, faChevronRight, faCircle, faStar } from '@fortawesome/free-solid-svg-icons'
+import { faChevronLeft, faChevronRight, faCircle, faStar } from '@fortawesome/free-solid-svg-icons'
 import { url } from '../../constants/defaultImages'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { TitleContainer } from './TitleContainer'
 import { showTimer } from '../../methods/methods'
-import { Timer } from './SlideBoxComponents'
+import { Timer } from './SliderComponents'
 import { AddToCart } from './AddToCart'
 import { Badges } from './Badges'
 
-const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
+const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
     const dispatch = useDispatch()
+    const slides = useSelector(state => {
+        var slidesExist = state.slides.find(slidesList => slidesList._id === slider._id)
+        if (slidesExist) return slidesExist.slides
+    })
 
     var timeOut
-    var swiperWrapper
+    var sliderWrapper
     var leftChevron
     var rightChevron
     var slideWidth
@@ -23,70 +27,76 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
     var element
     var slideIndex
     var lastClientX
+    var swiperHeight
+    var defaultSlideIndex
 
     useEffect(() => {
-        element = document.getElementsByClassName('slide-box-' + _id)[0]
-        swiperWrapper = element.getElementsByClassName('slideBox-wrapper')[0]
-        leftChevron = element.getElementsByClassName('left-chevron-wrap')[0]
-        rightChevron = element.getElementsByClassName('right-chevron-wrap')[0]
+        if (slides) {
+            element = document.getElementsByClassName('slider-' + _id)[0]
+            sliderWrapper = element.getElementsByClassName('slider-wrapper')[0]
+            leftChevron = element.getElementsByClassName('left-chevron-wrap')[0]
+            rightChevron = element.getElementsByClassName('right-chevron-wrap')[0]
 
-        const titleElements = [...element.getElementsByClassName('slide-wrapper')]
-        var maxHeight = 0
+            const titleElements = [...element.getElementsByClassName('slide-wrapper')]
+            var maxHeight = 0
 
-        titleElements.map(e => {
-            if (e.offsetHeight > maxHeight)
-                maxHeight = e.offsetHeight
+            titleElements.map(e => {
+                if (e.offsetHeight > maxHeight)
+                    maxHeight = e.offsetHeight
 
-            // if slide have a product timer => align the timer to the end
-            if (e.getElementsByClassName('product-timer-wrap') && e.getElementsByClassName('product-timer-wrap').length > 0)
-                e.getElementsByClassName('product-details-wrap')[0].style.justifyContent = 'space-between'
-        })
+                // if slide have a product timer => align the timer to the end
+                if (e.getElementsByClassName('product-timer-wrap') && e.getElementsByClassName('product-timer-wrap').length > 0)
+                    e.getElementsByClassName('product-details-wrap')[0].style.justifyContent = 'space-between'
+            })
 
-        for (var i = 0, len = titleElements.length; i < len; i++) {
-            titleElements[i].style["height"] = maxHeight + 'px';
+            for (var i = 0, len = titleElements.length; i < len; i++) {
+                titleElements[i].style["height"] = maxHeight + 'px';
+            }
+
+            slideHeight = maxHeight
+            slideWidth = element.getElementsByClassName('slide-wrapper')[0] && element.getElementsByClassName('slide-wrapper')[0].offsetWidth
+
+            if (swiperBox.height === 'slideHeight')
+                sliderWrapper.style["height"] = slideHeight + 'px'
+
+            widthSlideSkipper = (slideWidth + gapWidth) * skip
+            heightSlideSkipper = (slideHeight + gapWidth) * skip
+
+            const currSwiperWidth = sliderWrapper.offsetWidth
+            const lineCapacity = parseInt((currSwiperWidth + gapWidth) / (slideWidth + gapWidth))
+            const lineNum = slides.length / lineCapacity
+            if (lineNum % 1 === 0)
+                swiperHeight = ((slideHeight + gapWidth) * lineNum - gapWidth) + 'px'
+            else if (lineNum % 1 > 0)
+                swiperHeight = ((slideHeight + gapWidth) * (parseInt(lineNum + 1)) - gapWidth) + 'px'
+
+            if (autoPlay && !timeOut)
+                timeOut = [setInterval(() => chevronRight(), duration)]
+
+            if (swiper.swipable) toggleSlides(true)
         }
+    }, [slides])
 
-        slideHeight = maxHeight
-        slideWidth = element.getElementsByClassName('slide-wrapper')[0] && element.getElementsByClassName('slide-wrapper')[0].offsetWidth
 
-        if (swiperBox.height === 'slideHeight')
-            swiperWrapper.style["height"] = slideHeight + 'px'
-
-        widthSlideSkipper = (slideWidth + gapWidth) * skip
-        heightSlideSkipper = (slideHeight + gapWidth) * skip
-
-        const currSwiperWidth = swiperWrapper.offsetWidth
-        const lineCapacity = parseInt((currSwiperWidth + gapWidth) / (slideWidth + gapWidth))
-        const lineNum = slides.length / lineCapacity
-        if (lineNum % 1 === 0)
-            swiperHeight = ((slideHeight + gapWidth) * lineNum - gapWidth) + 'px'
-        else if (lineNum % 1 > 0)
-            swiperHeight = ((slideHeight + gapWidth) * (parseInt(lineNum + 1)) - gapWidth) + 'px'
-
-        if (autoPlay && !timeOut)
-            timeOut = [setInterval(() => chevronRight(), duration)]
-
-        if (swiper.swipable) ToggleChevrons(true)
-
-    }, [])
-
-    const _id = slideBox._id
-    const Title = slideBox.title
+    const _id = slider._id
+    const Title = slider.title
     const TitleStyles = styles.title
     const slide = styles.slide || defaultStyles.slide
     const product = styles.product || defaultStyles.product
     const skeleton = styles.skeleton || defaultStyles.skeleton
     const badges = styles.badges || defaultStyles.badges
     const swiper = styles.swiper || defaultStyles.swiper
+    const timerBar = styles.timerBar || defaultStyles.timerBar
 
     const defaultSlide = defaultStyles.slide[0]
     const defaultProduct = defaultStyles.product
     const defaultSkeleton = defaultStyles.skeleton
     const defaultBadges = defaultStyles.badges
     const defaultSwiper = defaultStyles.swiper
+    const defaultTimerBar = defaultStyles.timerBar
     const defaultAddToCart = defaultProduct.addToCart
-
-    var defaultSlideIndex = slide.findIndex(slide => slide.isDefault)
+    //console.log(defaultProduct, product)
+    defaultSlideIndex = slide.findIndex(slide => slide.isDefault)
     if (defaultSlideIndex === -1) defaultSlideIndex = undefined
 
     const skipMore = swiper.skipMore || defaultSwiper.skipMore
@@ -116,14 +126,6 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
         overflow: styles.overflow || defaultStyles.overflow,
         height: styles.height || defaultStyles.height
     }
-
-    var swiperHeight
-    /*const specialSlides = []
-    slide.map((slide, index) => {
-        if (slide.hasOwnProperty('index')) {
-            specialSlides.push({ styleIndex: index, slideIndex: slide.index })
-        }
-    })*/
 
     const slideContainer = (index) =>
     ({
@@ -219,11 +221,9 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
             : defaultSwiper.chevrons.autoToggle
     }
 
-    const timerBar = swiper.timerBar || defaultSwiper.timerBar
-
     const timerBarStyles = {
-        display: timerBar.display || timerBar.display,
-        margin: timerBar.margin || timerBar.margin,
+        display: timerBar.display || defaultTimerBar.display,
+        margin: timerBar.margin || defaultTimerBar.margin,
     }
 
     /////////////////// product styles //////////////////////
@@ -366,7 +366,6 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
             backgroundColor: plusBtn.backgroundColor || defaultAddToCart.plus.backgroundColor,
             hoverBackgroundColor: plusBtn.hoverBackgroundColor || defaultAddToCart.plus.hoverBackgroundColor,
         }
-        console.log(plusBtn)
 
         minusBtn = addToCart.minus || defaultAddToCart.minus
         minusBtn = {
@@ -519,18 +518,18 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
     const mouseEnterHandler = e => {
         e.preventDefault()
         timeOut && timeOut.map(run => clearTimeout(run))
-        showTimerBar(false)
+        playTimerBar(false)
     }
 
     const mouseLeaveHandler = e => {
         e.preventDefault()
         if (autoPlay) timeOut = [setInterval(() => chevronRight(), duration)]
-        showTimerBar(true)
+        playTimerBar(true)
     }
 
     const mouseDownHandler = (e) => {
         e.preventDefault()
-        swiperWrapper.style.scrollBehavior = 'auto'
+        sliderWrapper.style.scrollBehavior = 'auto'
         drag = true
 
         clientX = e.clientX || e.touches[0].clientX
@@ -557,7 +556,7 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
 
     const mouseUpHandler = (e) => {
         drag = false
-        swiperWrapper.style.scrollBehavior = scrollBehavior
+        sliderWrapper.style.scrollBehavior = scrollBehavior
         ToggleScroll(e)
         window.removeEventListener('mousemove', mouseMoveHandler)
         window.removeEventListener('mouseup', mouseUpHandler)
@@ -572,24 +571,24 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
         if (drag) {
             if (verticalSwiper) {
 
-                if (e.clientY > clientY && swiperWrapper.scrollTop === 0) {// case scroll is 0
+                if (e.clientY > clientY && sliderWrapper.scrollTop === 0) {// case scroll is 0
                     scrollTop = 0
                     clientY = e.clientY
                 }
-                swiperWrapper.scrollTop = scrollTop - (e.clientY - clientY)
-                if (swiperWrapper.scrollTop === scrollHeight) {// case scroll is maximum
-                    scrollTop = swiperWrapper.scrollTop
+                sliderWrapper.scrollTop = scrollTop - (e.clientY - clientY)
+                if (sliderWrapper.scrollTop === scrollHeight) {// case scroll is maximum
+                    scrollTop = sliderWrapper.scrollTop
                     clientY = e.clientY
                 }
             } else {
                 lastClientX = e.clientX
-                if (e.clientX > clientX && swiperWrapper.scrollLeft === 0) {// case scroll is 0
+                if (e.clientX > clientX && sliderWrapper.scrollLeft === 0) {// case scroll is 0
                     scrollLeft = 0
                     clientX = e.clientX
                 }
-                swiperWrapper.scrollLeft = scrollLeft - (e.clientX - clientX)
-                if (swiperWrapper.scrollLeft === scrollWidth) {// case scroll is maximum
-                    scrollLeft = swiperWrapper.scrollLeft
+                sliderWrapper.scrollLeft = scrollLeft - (e.clientX - clientX)
+                if (sliderWrapper.scrollLeft === scrollWidth) {// case scroll is maximum
+                    scrollLeft = sliderWrapper.scrollLeft
                     clientX = e.clientX
                 }
             }
@@ -601,7 +600,7 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
         if (stopOnHover) {
             e.preventDefault()
             timeOut && timeOut.map(run => clearTimeout(run))
-            showTimerBar(false)
+            playTimerBar(false)
         }
     }
 
@@ -609,26 +608,26 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
         if (drag) {
             if (verticalSwiper) {
 
-                if (e.touches[0].clientY > clientY && swiperWrapper.scrollTop === 0) {// case scroll is 0
+                if (e.touches[0].clientY > clientY && sliderWrapper.scrollTop === 0) {// case scroll is 0
                     scrollTop = 0
                     clientY = e.touches[0].clientY
                 }
-                swiperWrapper.scrollTop = scrollTop - (e.touches[0].clientY - clientY)
-                if (swiperWrapper.scrollTop === scrollHeight) {// case scroll is maximum
-                    scrollTop = swiperWrapper.scrollTop
+                sliderWrapper.scrollTop = scrollTop - (e.touches[0].clientY - clientY)
+                if (sliderWrapper.scrollTop === scrollHeight) {// case scroll is maximum
+                    scrollTop = sliderWrapper.scrollTop
                     clientY = e.touches[0].clientY
                 }
 
             } else {
 
-                if (e.touches[0].clientX > clientX && swiperWrapper.scrollLeft === 0) {// case scroll is 0
+                if (e.touches[0].clientX > clientX && sliderWrapper.scrollLeft === 0) {// case scroll is 0
                     scrollLeft = 0
                     clientX = e.touches[0].clientX
                 }
-                swiperWrapper.scrollLeft = scrollLeft - (e.touches[0].clientX - clientX)
+                sliderWrapper.scrollLeft = scrollLeft - (e.touches[0].clientX - clientX)
 
-                if (swiperWrapper.scrollLeft === scrollWidth) {// case scroll is maximum
-                    scrollLeft = swiperWrapper.scrollLeft
+                if (sliderWrapper.scrollLeft === scrollWidth) {// case scroll is maximum
+                    scrollLeft = sliderWrapper.scrollLeft
                     clientX = e.touches[0].clientX
                 }
             }
@@ -636,78 +635,78 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
     }
 
     const chevronRight = e => {
-        if (swiperWrapper) {
+        if (sliderWrapper) {
             if (verticalSwiper) {
                 chevronBottom(e)
                 return
             }
-            swiperWrapper.style.scrollBehavior = 'smooth'
-            var visibleWidthofSlide = (swiperWrapper.clientWidth + swiperWrapper.scrollLeft) % (slideWidth + gapWidth)
-            scrollLeft = swiperWrapper.scrollLeft + skipMore
-            if (swiperWrapper.scrollWidth - (swiperWrapper.clientWidth + swiperWrapper.scrollLeft) <= 2)
-                swiperWrapper.scrollLeft = 0
+            sliderWrapper.style.scrollBehavior = 'smooth'
+            var visibleWidthofSlide = (sliderWrapper.clientWidth + sliderWrapper.scrollLeft) % (slideWidth + gapWidth)
+            scrollLeft = sliderWrapper.scrollLeft + skipMore
+            if (sliderWrapper.scrollWidth - (sliderWrapper.clientWidth + sliderWrapper.scrollLeft) <= 2)
+                sliderWrapper.scrollLeft = 0
             else if (visibleWidthofSlide === slideWidth) scrollLeft += widthSlideSkipper
             else if (slideWidth - visibleWidthofSlide <= 2) scrollLeft += widthSlideSkipper
             else scrollLeft += slideWidth - visibleWidthofSlide + (widthSlideSkipper - (slideWidth + gapWidth))
-            swiperWrapper.scrollLeft = scrollLeft
+            sliderWrapper.scrollLeft = scrollLeft
         }
     }
 
     const chevronLeft = e => {
-        if (swiperWrapper) {
+        if (sliderWrapper) {
             if (verticalSwiper) {
                 chevronTop(e)
                 return
             }
-            swiperWrapper.style.scrollBehavior = 'smooth'
-            var visibleWidthofSlide = swiperWrapper.scrollLeft % (slideWidth + gapWidth)
-            scrollLeft = swiperWrapper.scrollLeft
-            if (swiperWrapper.scrollLeft === 0) scrollLeft = swiperWrapper.scrollWidth
+            sliderWrapper.style.scrollBehavior = 'smooth'
+            var visibleWidthofSlide = sliderWrapper.scrollLeft % (slideWidth + gapWidth)
+            scrollLeft = sliderWrapper.scrollLeft
+            if (sliderWrapper.scrollLeft === 0) scrollLeft = sliderWrapper.scrollWidth
             else if (visibleWidthofSlide === 0) scrollLeft += - widthSlideSkipper
             else if (visibleWidthofSlide === 1) scrollLeft += - widthSlideSkipper - 1
             else scrollLeft += - visibleWidthofSlide - (widthSlideSkipper - (slideWidth + gapWidth))
-            swiperWrapper.scrollLeft = scrollLeft
+            sliderWrapper.scrollLeft = scrollLeft
         }
     }
 
     const chevronBottom = e => {
-        if (swiperWrapper) {
-            swiperWrapper.style.scrollBehavior = 'smooth'
-            var visibleHeightofSlide = (swiperWrapper.clientHeight + swiperWrapper.scrollTop) % (slideHeight + gapWidth)
-            scrollTop = swiperWrapper.scrollTop
-            if (swiperWrapper.scrollHeight - (swiperWrapper.clientHeight + swiperWrapper.scrollTop) <= 2)
-                swiperWrapper.scrollTop = 0
+        if (sliderWrapper) {
+            sliderWrapper.style.scrollBehavior = 'smooth'
+            var visibleHeightofSlide = (sliderWrapper.clientHeight + sliderWrapper.scrollTop) % (slideHeight + gapWidth)
+            scrollTop = sliderWrapper.scrollTop
+            if (sliderWrapper.scrollHeight - (sliderWrapper.clientHeight + sliderWrapper.scrollTop) <= 2)
+                sliderWrapper.scrollTop = 0
             else if (visibleHeightofSlide === slideHeight) scrollTop += heightSlideSkipper
             else scrollTop += slideHeight - visibleHeightofSlide + (heightSlideSkipper - (slideHeight + gapWidth))
-            swiperWrapper.scrollTop = scrollTop
+            sliderWrapper.scrollTop = scrollTop
         }
     }
 
     const chevronTop = e => {
-        if (swiperWrapper) {
-            swiperWrapper.style.scrollBehavior = 'smooth'
-            var visibleHeightofSlide = swiperWrapper.scrollTop % (slideHeight + gapWidth)
-            scrollTop = swiperWrapper.scrollTop
-            if (swiperWrapper.scrollTop === 0) scrollTop = swiperWrapper.scrollHeight
+        if (sliderWrapper) {
+            sliderWrapper.style.scrollBehavior = 'smooth'
+            var visibleHeightofSlide = sliderWrapper.scrollTop % (slideHeight + gapWidth)
+            scrollTop = sliderWrapper.scrollTop
+            if (sliderWrapper.scrollTop === 0) scrollTop = sliderWrapper.scrollHeight
             else if (visibleHeightofSlide === 0) scrollTop += - heightSlideSkipper
             else if (visibleHeightofSlide === 1) scrollTop += - heightSlideSkipper - 1
             else scrollTop += - visibleHeightofSlide - (heightSlideSkipper - (slideHeight + gapWidth))
-            swiperWrapper.scrollTop = scrollTop
+            sliderWrapper.scrollTop = scrollTop
         }
     }
 
-    const ToggleChevrons = e => {
+    const toggleSlides = e => {
 
         if (!isNaN(scrollLeft) && autoToggle && chevrons.display !== 'none') {
             if (verticalSwiper
-                ? swiperWrapper.scrollTop + swiperWrapper.clientHeight === swiperWrapper.scrollHeight
-                : swiperWrapper.scrollLeft + swiperWrapper.clientWidth === swiperWrapper.scrollWidth) // maximum right
+                ? sliderWrapper.scrollTop + sliderWrapper.clientHeight === sliderWrapper.scrollHeight
+                : sliderWrapper.scrollLeft + sliderWrapper.clientWidth === sliderWrapper.scrollWidth) // maximum right
                 rightChevron.style.display = 'none'
             else rightChevron.style.display = 'flex'
 
             if (verticalSwiper
-                ? swiperWrapper.scrollTop === 0
-                : swiperWrapper.scrollLeft === 0) // maximum left
+                ? sliderWrapper.scrollTop === 0
+                : sliderWrapper.scrollLeft === 0) // maximum left
                 leftChevron.style.display = 'none'
             else leftChevron.style.display = 'flex'
         }
@@ -718,16 +717,16 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
     const ToggleScroll = e => {
         const currClientX = !touchScreen ? e.clientX : e.changedTouches[0].clientX
         const currClientY = !touchScreen ? e.clientY : e.changedTouches[0].clientY
-        const minScroll = !verticalSwiper ? swiperWrapper.scrollLeft === 0 : swiperWrapper.scrollTop === 0
-        const maxScroll = !verticalSwiper ? scrollWidth === swiperWrapper.scrollLeft : scrollHeight === swiperWrapper.scrollTop
+        const minScroll = !verticalSwiper ? sliderWrapper.scrollLeft === 0 : sliderWrapper.scrollTop === 0
+        const maxScroll = !verticalSwiper ? scrollWidth === sliderWrapper.scrollLeft : scrollHeight === sliderWrapper.scrollTop
 
         if (scrollBehavior === 'smooth') { // auto scroll
             if (verticalSwiper) {
                 if (currClientY < clientY && !maxScroll) chevronRight(e)
                 else if (currClientY > clientY && !minScroll) chevronLeft(e)
             } else if (!verticalSwiper) {
-                if (currClientX < clientX && !maxScroll) chevronRight(e)//swiperWrapper.scrollLeft += Math.pow(mouseTravel, 2)
-                else if (currClientX > clientX && !minScroll) chevronLeft(e)//swiperWrapper.scrollLeft -= Math.pow(mouseTravel, 2)
+                if (currClientX < clientX && !maxScroll) chevronRight(e)//sliderWrapper.scrollLeft += Math.pow(mouseTravel, 2)
+                else if (currClientX > clientX && !minScroll) chevronLeft(e)//sliderWrapper.scrollLeft -= Math.pow(mouseTravel, 2)
             }
         }
 
@@ -745,7 +744,7 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
     ////////////////////// Open Box ///////////////////////////
 
     useSelector(state => {
-        if (swiperWrapper) {
+        if (sliderWrapper) {
             const _idExist = state.actions.openBox &&
                 state.actions.openBox.find(box_id => box_id == _id)
 
@@ -753,14 +752,14 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
                 boxOpenned = true
                 timeOut && timeOut.map(run => clearTimeout(run))
                 timeOut = []
-                swiperWrapper.style.height = swiperHeight
+                sliderWrapper.style.height = swiperHeight
 
             } else if (!_idExist && boxOpenned) {
                 if (autoPlay) timeOut = [...timeOut, setInterval(() => chevronRight(), duration)]
                 boxOpenned = false
                 if (swiperBox.height === 'slideHeight')
-                    swiperWrapper.style.height = slideHeight + 'px'
-                else swiperWrapper.style.height = styles.height || defaultStyles.height
+                    sliderWrapper.style.height = slideHeight + 'px'
+                else sliderWrapper.style.height = styles.height || defaultStyles.height
             }
         }
     })
@@ -792,7 +791,7 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
             return (
                 <div style={bulletsCont} className='bullets-cont'>
                     <div style={bulletsWrap} className='bullets-wrap'>
-                        {slides.map((slide, index) =>
+                        {slides && slides.map((slide, index) =>
                             <div style={bulletCont} key={index}>
                                 <div style={bulletWrap}>
                                     <FontAwesomeIcon className='bullet' style={bullet}
@@ -807,7 +806,7 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
 
     ///////////////////////////// Timer Bar /////////////////////////////
 
-    const showTimerBar = (state) => {
+    const playTimerBar = (state) => {
         if (timerBarStyles.display !== 'none') {
             slideIndex = slideIndex || 0
             var i = slides.length - 1
@@ -823,12 +822,12 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
     const toggleBullets_TimeBar = () => {
         if (bullets.display !== 'none' || timerBarStyles.display !== 'none') {// toggle bullets
             if (!verticalSwiper) {
-                var index = parseInt((swiperWrapper.scrollLeft + swiperWrapper.clientWidth + gapWidth) / (slideWidth + gapWidth) + 0.01) - 1
+                var index = parseInt((sliderWrapper.scrollLeft + sliderWrapper.clientWidth + gapWidth) / (slideWidth + gapWidth) + 0.01) - 1
                 if (index < 0 || isNaN(index) || !index) index = 0
 
                 if (slideIndex !== index && element) {
                     slideIndex = index
-                    showTimerBar(true)
+                    playTimerBar(true)
                     const bulletElement = element.getElementsByClassName('bullet')
                     if (bulletElement[slideIndex] && bulletElement[slideIndex].style.color !== '#00bdd9') {
                         var i = slides.length - 1
@@ -840,11 +839,11 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
                     }
                 }
             } else {
-                var index = parseInt((swiperWrapper.scrollTop + swiperWrapper.clientHeight + gapWidth) / (slideHeight + gapWidth) + 0.01) - 1
+                var index = parseInt((sliderWrapper.scrollTop + sliderWrapper.clientHeight + gapWidth) / (slideHeight + gapWidth) + 0.01) - 1
                 if (index < 0 || isNaN(index) || !index) index = 0
                 if (slideIndex !== index && element) {
                     slideIndex = index
-                    showTimerBar(true)
+                    playTimerBar(true)
                     const bulletElement = element.getElementsByClassName('bullet')
                     if (bulletElement[slideIndex] && bulletElement[slideIndex].style.color !== '#00bdd9') {
                         var i = slides.length - 1
@@ -927,7 +926,7 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
 
             {/* Timer */}
             {!timer.ended && product.onSale.amount >= product.discount &&
-                <Timer slide={product} slideBox_id={_id} />}
+                <Timer slide={product} slider_id={_id} />}
 
         </div>
     })
@@ -939,10 +938,10 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
         return i
     }
 
-    const slideStyles = (index) => slide[index].title
+    const slideTitleStyles = (index) => slide[index].title
 
     return (
-        <div className={'slides-overlay slide-box-' + _id}
+        <div className={'slides-overlay slider-' + _id}
             style={slidesOverlayStyle}>
 
             {/* Title */}
@@ -983,15 +982,15 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
                     </div>
 
                     {/*////////////////////// Swiper ///////////////////////*/}
-                    <div className="slideBox-wrapper" style={swiperBox}
-                        onMouseDown={e => { e.preventDefault(); swiperWrapper && !stopOnHover && mouseDownHandler(e); }}
-                        onMouseEnter={e => { e.preventDefault(); swiperWrapper && stopOnHover && mouseEnterHandler(e); }}
-                        onMouseLeave={e => { swiperWrapper && stopOnHover && mouseLeaveHandler(e) }}
-                        onTouchStart={e => { swiperWrapper && touchScreen && touchStartHandler(e) }}
-                        onTouchEnd={e => { swiperWrapper && stopOnHover && touchScreen && mouseLeaveHandler(e) }}
-                        onScroll={e => swiper.swipable && ToggleChevrons()}>
+                    <div className="slider-wrapper" style={swiperBox}
+                        onMouseDown={e => { e.preventDefault(); sliderWrapper && !stopOnHover && mouseDownHandler(e); }}
+                        onMouseEnter={e => { e.preventDefault(); sliderWrapper && stopOnHover && mouseEnterHandler(e); }}
+                        onMouseLeave={e => { sliderWrapper && stopOnHover && mouseLeaveHandler(e) }}
+                        onTouchStart={e => { sliderWrapper && touchScreen && touchStartHandler(e) }}
+                        onTouchEnd={e => { sliderWrapper && stopOnHover && touchScreen && mouseLeaveHandler(e) }}
+                        onScroll={e => swiper.swipable && toggleSlides()}>
 
-                        {slides.map((slide, index) => {
+                        {slides && slides.map((slide, index) => {
                             const i = getSlideIndex(index)
                             const timer = showTimer(slide.onSale)
                             return (
@@ -1013,8 +1012,8 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
                                             />
                                         </div>
 
-                                        {slideStyles(i) && slideStyles(i).display !== 'none' &&
-                                            <TitleContainer _id={slide._id} styles={slideStyles(i)}
+                                        {slideTitleStyles(i) && slideTitleStyles(i).display !== 'none' &&
+                                            <TitleContainer _id={slide._id} styles={slideTitleStyles(i)}
                                                 Title={{ title: slide.title, description: slide.description }} />}
 
                                         {productVisible(i) &&
@@ -1035,4 +1034,4 @@ const SlideBox = ({ styles, slides, defaultStyles, slideBox, touchScreen }) => {
 
 }
 
-export default React.memo(SlideBox)
+export default React.memo(Slider)

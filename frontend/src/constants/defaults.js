@@ -1,6 +1,7 @@
 export const defaultTitleStyles = {
     // Default styles
-    name: 'Default Title Desktop Styles',
+    type: 'Title',
+    name: 'Default Desktop Title Styles',
     display: 'flex',
     padding: '1rem',
     design: 'Classic',
@@ -46,7 +47,8 @@ export const defaultTitleStyles = {
 
 export const defaultAddToCartStyles = {
     viewPort: 'desktop',
-    name: 'Default Desktop AddToCart',
+    type: 'AddToCart',
+    name: 'Default Desktop AddToCart Styles',
     display: 'flex',
     design: 'Bottom Center',
     margin: '0',
@@ -146,10 +148,11 @@ export const defaultAddToCartStyles = {
     },
 }
 
-export const defaultStyles = {
+export const defaultMagicBoxStyles = {
     // default desktop styles
     viewPort: 'desktop',
-    name: 'Default Desktop Styles',
+    type: 'MagicBox',
+    name: 'Default Desktop MagicBox Styles',
     display: 'flex',
     flexDirection: 'column',
     overlayPadding: '0',
@@ -164,7 +167,7 @@ export const defaultStyles = {
     borderRadius: '0.2rem',
     height: 'fit-content',
     width: 'fit-content',
-    slideBox: [{
+    slider: [{
         type: 'Image',
         display: 'none',
         height: 'auto',
@@ -265,6 +268,11 @@ export const defaultStyles = {
             badges: [],
             paddingBetween: '0.5rem',
         },
+        // timer bar
+        timerBar: {
+            display: 'none',
+            margin: '0',
+        },
         // swiper
         swiper: {
             swipable: true,
@@ -295,10 +303,6 @@ export const defaultStyles = {
                 bottom: '1rem',
                 paddingBetween: '0.8rem',
                 fontSize: '1rem',
-            },
-            timerBar: {
-                display: 'none',
-                margin: '0',
             }
         },
     }]

@@ -10,17 +10,24 @@ export const AddToCart = React.memo(({ product, styles }) => {
         state.cart.cartItems.find(item => item._id === product._id))
     //console.log(item)
     const dispatch = useDispatch()
+    var message
 
     // Minus Handler
     const handleMinus = (product, e) => {
         e.preventDefault()
         if (item) {
             // remove from cart
-            if (item.qty === 1)
-                dispatch(removeFromCart({ _id: item._id, message: 'Product Removed Successfully!' }))
+            if (item.qty === 1) {
+                dispatch(removeFromCart({ _id: item._id }))
+                message = 'Product Removed Successfully!'
+            }
             // decrease qty by 1
-            else if (item.qty > 1)
-                dispatch(updateCart({ _id: item._id, qty: item.qty - 1, message: 'Quantity Reduced Successfully!' }))
+            else if (item.qty > 1) {
+                dispatch(updateCart({ _id: item._id, qty: item.qty - 1 }))
+                message = 'Quantity Reduced Successfully!'
+            }
+            // display action note
+            dispatch({ type: 'UPDATE_ACTIONS', payload: { actionNote: message } })
         }
     }
 
@@ -29,13 +36,20 @@ export const AddToCart = React.memo(({ product, styles }) => {
         e.preventDefault()
         if (item) {
             // no more qty is available
-            if (item.qty < product.countInStock)
-                dispatch(updateCart({ _id: item._id, qty: item.qty + 1, message: 'Quantity Added Successfully!' }))
-            // add qty
-            else dispatch(updateCart({ _id: item._id, qty: product.countInStock, message: 'Only ' + item.qty + product.unit + ' ' + product.nameEn + ' are available in stock!' }))
+            if (item.qty < product.countInStock) {
+                dispatch(updateCart({ _id: item._id, qty: item.qty + 1 }))
+                message = 'Quantity Added Successfully!'
+            } // add qty
+            else {
+                dispatch(updateCart({ _id: item._id, qty: product.countInStock }))
+                message = 'Only ' + item.qty + product.unit + ' ' + product.nameEn + ' are available in stock!'
+            }
         } else {// add to cart
-            dispatch(addToCart({ _id: product._id, qty: 1, message: 'Product Added Successfully!' }))
+            dispatch(addToCart({ _id: product._id, qty: 1 }))
+            message = 'Product Added Successfully!'
         }
+        // display action note
+        dispatch({ type: 'UPDATE_ACTIONS', payload: { actionNote: message } })
     }
 
     const hide = item ? { display: 'none' } : {}

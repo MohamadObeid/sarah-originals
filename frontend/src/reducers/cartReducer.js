@@ -9,20 +9,14 @@ function cartReducer(state = { cartItems: [] }, action) {
 
     case CART_ADD_ITEM:
       if (action.payload.isArray) return { cartItems: action.payload.items }
-      else {
-        const { message, ...newItem } = action.payload
-        return { cartItems: [...state.cartItems, newItem], message }
-      }
+      else return { cartItems: [...state.cartItems, action.payload] }
 
-    case CART_UPDATE_ITEM: {
-      const { message, ...newItem } = action.payload
-      return { cartItems: state.cartItems.map(item => item._id == newItem._id ? newItem : item), message }
-    }
+    case CART_UPDATE_ITEM:
+      return { cartItems: state.cartItems.map(item => item._id == action.payload._id ? action.payload : item) }
 
-    case CART_REMOVE_ITEM: {
-      const { message, ...newItem } = action.payload
-      return { cartItems: state.cartItems.filter(item => item._id !== newItem._id), message }
-    }
+    case CART_REMOVE_ITEM:
+      return { cartItems: state.cartItems.filter(item => item._id !== action.payload._id) }
+
 
     case 'CLEAR_CART':
       return { cartItems: [] }

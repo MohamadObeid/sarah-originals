@@ -6,7 +6,7 @@ import { url } from '../../constants/defaultImages';
 
 export const TitleContainer = React.memo(({ _id, Title, styles }) => {
     const dispatch = useDispatch()
-    const { defaultStyles } = useSelector(state => state.defaultTitleStyles)
+    const defaultStyles = useSelector(state => state.styles.find(styles => styles.name === 'Default Desktop Title Styles'))
 
     const defaultShowAll = defaultStyles.showAll || {}
     const defaultChevron = defaultStyles.chevron || {}

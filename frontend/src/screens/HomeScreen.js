@@ -11,10 +11,6 @@ import { NavigationBar } from "./Components/NavigationBar";
 
 const HomeScreen = props => {
   const imageUrl = window.location.origin + '/api/uploads/image/'
-
-  const [actionNote, setActionNote] = useState('Product Added Succefully')
-  const [actionNoteVisible, setActionNoteVisible] = useState(false);
-  const [timeOut, setTimeOut] = useState()
   const [products, setProducts] = useState([])
   const [navigationBar, setNavigationBar] = useState()
 
@@ -22,18 +18,6 @@ const HomeScreen = props => {
   const { controls } = useSelector(state => state.controls)
 
   const dispatch = useDispatch()
-
-  /*useEffect(() => {
-    if (message) {
-      setActionNote(message)
-      setActionNoteVisible(true)
-      clearTimeout(timeOut)
-      setTimeOut(setInterval(() => {
-        setActionNoteVisible(false)
-      }, 5000))
-      dispatch({ type: 'CLEAR_MESSAGE', payload: cartItems }) // clear message
-    }
-  }, [cartItems])*/
 
   const [viewPort, setViewPort] = useState(window.innerWidth <= 700 ? 'mobile' : 'desktop')
   var touchscreen
@@ -73,8 +57,6 @@ const HomeScreen = props => {
   }
 
   //////////////// Navigation Bar ////////////////
-
-  const [actionNoteTop, setActionNoteTop] = useState('0.5rem')
 
   const Views = () =>
     controls.HomeScreen
@@ -153,14 +135,6 @@ const HomeScreen = props => {
 
   return (
     <>
-      {actionNoteVisible &&
-        <div style={{ top: actionNoteTop }} className="action-note">
-          <div>{actionNote}</div>
-          <div className='faTimes-action-note'>
-            <FontAwesomeIcon icon={faTimes} onClick={e => setActionNoteVisible(false)} />
-          </div>
-        </div>}
-
       {/*actions.quickView &&
         <div className="quick-view-overlay">
           {QuickView(actions.quickView.product)}

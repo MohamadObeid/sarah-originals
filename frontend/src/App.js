@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Route } from "react-router-dom";
 import "./index.css";
 import HomeScreen from "./screens/HomeScreen";
@@ -11,43 +11,40 @@ import DashBoard from "./screens/AdminPanel/DashBoard";
 import NavBar from "./screens/Components/NavBar";
 import ProfileScreen from './screens/ProfileScreen';
 import Chatbox from './screens/Components/Chatbox';
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { saveControls, getControls, deleteControls } from "./actions/controlsActions";
-import {
-  saveStyles, deleteStyles, getStyles,
-  saveTitleStyles, getTitleStyles, deleteTitleStyles, saveAddToCartStyles, getAddToCartStyles
-} from "./actions/stylesActions";
-import { Styles } from './constants/Styles'
+import { saveStyles, deleteStyles, getStyles, } from "./actions/stylesActions";
+import { magicBoxStyles } from './constants/magicBox'
 import { Controls } from './constants/defaultControls'
-import { defaultStyles, defaultTitleStyles, defaultAddToCartStyles } from "./constants/defaults";
+import { defaultMagicBoxStyles, defaultTitleStyles, defaultAddToCartStyles } from "./constants/defaults";
+import { ActionNote } from "./screens/Components/ActionNote";
 
 const App = React.memo(() => {
 
   const dispatch = useDispatch()
   useEffect(() => {
     // get initials requests
-    dispatch(getAddToCartStyles({ name: 'Default Desktop AddToCart' }))
-    dispatch(getTitleStyles({ name: 'Default Title Desktop Styles' }))
-    dispatch(getStyles({ name: 'Default Desktop Styles' }))
+    dispatch(getStyles({ name: 'Default Desktop AddToCart Styles', type: 'AddToCart' }))
+    dispatch(getStyles({ name: 'Default Desktop Title Styles', type: 'Title' }))
+    dispatch(getStyles({ name: 'Default Desktop MagicBox Styles', type: 'MagicBox' }))
     dispatch(getControls({ limit: 10 }))
 
     // save requests
     //dispatch(saveControls(Controls))
-    dispatch(saveStyles(Styles))
-    //dispatch(saveStyles(defaultStyles))
-    //dispatch(saveTitleStyles(defaultTitleStyles))
-    dispatch(saveAddToCartStyles(defaultAddToCartStyles))
+    //dispatch(saveStyles([...magicBoxStyles, defaultMagicBoxStyles, defaultTitleStyles, defaultAddToCartStyles]))
 
     // delete requests
     //dispatch(deleteControls({ deleteAll: true }))
-    //dispatch(deleteStyles({ deleteAll: true }/*{ name: 'Default Desktop Styles' }*/))
-    //dispatch(deleteTitleStyles({ deleteAll: true }))
+    //dispatch(deleteStyles({ deleteAll: true, type: 'Title' }))
+    //dispatch(deleteStyles({ deleteAll: true, type: 'MagicBox' }))
+    //dispatch(deleteStyles({ deleteAll: true, type: 'AddToCart' }))
   }, [])
 
   return (
     <BrowserRouter>
       <div className="grid-container">
         <NavBar />
+        <ActionNote />
         <div className="main">
           <Route path="/dashboard" component={DashBoard} />
           <Route path="/signin" component={SigninScreen} />

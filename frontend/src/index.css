@@ -1300,7 +1300,7 @@ input.checked[type="radio"] {
   background: #f9f9f9;
 }
 
-.slideBox-wrapper,
+.slider-wrapper,
 .bullets-wrap {
   overflow: auto;
   white-space: nowrap;
@@ -1315,7 +1315,7 @@ input.checked[type="radio"] {
   backface-visibility: hidden !important;
 }
 
-.slideBox-wrapper::-webkit-scrollbar,
+.slider-wrapper::-webkit-scrollbar,
 .bullets-wrap::-webkit-scrollbar {
   display: none;
 }
@@ -1493,36 +1493,9 @@ input.checked[type="radio"] {
 }
 
 /* Form Note */
-.action-note {
-  position: fixed;
-  display: flex;
-  justify-content: center;
-  flex-direction: row;
-  align-items: center;
-  text-align: center;
-  border-radius: 2rem;
-  height: 4rem;
-  background-color: #f0c140ec;
-  color: #000000;
-  z-index: 999;
-  left: calc((100vw - 40rem) / 2);
-  width: 40rem;
-  box-shadow: 0 0 4px rgba(33, 33, 33, 0.431);
-  top: 0.4rem;
-}
-
-.faTimes-action-note {
-  position: absolute;
-  right: 1rem;
-  cursor: pointer;
-}
-
-.action-note div {
-  font-weight: 400;
-}
 
 @media screen and (max-width: 700px) {
-  .action-note {
+  .action-note-wrap {
     width: 28rem;
     height: 3.3rem;
     left: calc((100vw - 28rem) / 2);
@@ -4733,6 +4706,53 @@ button[disabled]:hover {
   opacity: 1;
   width: 100%;
   transition: all 7000ms;
+  transition-timing-function: cubic-bezier(0, -0.28, 0, 1);
+}
+
+/* Action Note + Timer Bar */
+
+.action-note-wrap {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 0 0 2rem 2rem;
+  background-color: #f0c140ec;
+  color: #000000;
+  padding: 1rem 2rem;
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  max-width: 40rem;
+  min-width: 40rem;
+  transform: translateY(-100%);
+  transition: transform 0.5s;
+}
+
+.show-action-note {
+  transform: translateY(0);
+  box-shadow: 0 0 4px rgba(33, 33, 33, 0.431);
+}
+
+.faTimes-action-note {
+  position: absolute;
+  right: 1rem;
+  cursor: pointer;
+}
+
+.action-note-timerBar {
+  height: 2px;
+  width: 0%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: red;
+}
+
+.width-1000 {
+  width: 100%;
+  transition: all 5s;
   transition-timing-function: cubic-bezier(0, -0.28, 0, 1);
 }
 

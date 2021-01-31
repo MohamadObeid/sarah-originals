@@ -10,10 +10,11 @@ export const Controls = {
         },
         styles: {
             desktop: {
+                type: 'MagicBox',
                 name: 'Image Ribbon',
             }
         },
-        slideBox: [{
+        slider: [{
             collections: {
                 type: 'Product',
                 limit: 20,
@@ -26,11 +27,12 @@ export const Controls = {
         name: 'Hero',
         styles: {
             desktop: {
+                type: 'MagicBox',
                 name: 'Hero'
             }
         },
         // slides
-        slideBox: [{
+        slider: [{
             // slides
             slides: [{
                 title: 'Frozen Cocktail',
@@ -74,10 +76,11 @@ export const Controls = {
         name: 'Featured',
         styles: {
             desktop: {
+                type: 'MagicBox',
                 name: 'Featured'
             }
         },
-        slideBox: [{
+        slider: [{
             collections: {
                 type: 'Product',
                 collections: ['Featured'],
@@ -93,10 +96,11 @@ export const Controls = {
         name: 'Moment Suggestions',
         styles: {
             desktop: {
+                type: 'MagicBox',
                 name: 'Moment Suggestions'
             }
         },
-        slideBox: [{
+        slider: [{
             title: {
                 title: 'Special Products',
             },
@@ -124,23 +128,14 @@ export const Controls = {
         name: 'Categories',
         styles: {
             desktop: {
-                name: 'Categories'
+                name: 'Categories',
+                type: 'MagicBox',
             }
         },
-        slideBox: [{
+        slider: [{
             title: {
                 title: 'Product Categories',
             },
-            /*slide: [{
-                isDefault: true,
-                styles: {
-                    desktop: {
-                        title: {
-                            name: 'Simple Slide Title',
-                        }
-                    }
-                },
-            }],*/
             slides: [{
                 title: 'category-sample-1',
                 src: '../../images/category-sample-1.jpg',
@@ -193,10 +188,11 @@ export const Controls = {
         name: 'Sub_Banners',
         styles: {
             desktop: {
-                name: 'Sub_Banners'
+                name: 'Sub_Banners',
+                type: 'MagicBox',
             }
         },
-        slideBox: [{
+        slider: [{
             slides: [{
                 title: 'sub-banner-1',
                 src: '../../images/sub-banner-1.jpg',
@@ -221,10 +217,11 @@ export const Controls = {
         name: 'New Arrival',
         styles: {
             desktop: {
-                name: 'New Arrival'
+                name: 'New Arrival',
+                type: 'MagicBox',
             }
         },
-        slideBox: [{
+        slider: [{
             title: {
                 title: 'New Arrival Products'
             },
@@ -239,10 +236,11 @@ export const Controls = {
         name: 'Banners',
         styles: {
             desktop: {
-                name: 'Banners'
+                name: 'Banners',
+                type: 'MagicBox',
             }
         },
-        slideBox: [{
+        slider: [{
             slides: [{
                 title: 'banner-sample-1',
                 src: '../../images/banner-sample-1.jpg',
@@ -271,10 +269,11 @@ export const Controls = {
         name: 'Popular',
         styles: {
             desktop: {
-                name: 'Popular'
+                name: 'Popular',
+                type: 'MagicBox',
             }
         },
-        slideBox: [{
+        slider: [{
             title: {
                 title: 'Popular Products'
             },

@@ -62,7 +62,6 @@ const saveControls = (controls) => async (dispatch, getState) => {
         console.log('save controls', data)
         dispatch({ type: 'CONTROLS_SAVE_SUCCESS', payload: data })
 
-
     } catch (error) {
         dispatch({ type: 'CONTROLS_SAVE_FAIL' })
     }

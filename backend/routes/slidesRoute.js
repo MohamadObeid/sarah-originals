@@ -1,7 +1,6 @@
 import express from "express";
 import Product from "../modals/productModel";
 import Brand from "../modals/brandModel";
-import { Collection } from "mongoose";
 
 const router = express.Router();
 
@@ -10,7 +9,7 @@ router.post("/get", async (req, res) => {
     const slides = []
     var length = 0
 
-    view.slideBox.map(async (box, index) => {
+    view.slider.map(async (box, index) => {
         try {
             slides[index] = []
 
@@ -32,52 +31,43 @@ router.post("/get", async (req, res) => {
                     })
             } else length++
 
-            if (length === view.slideBox.length)
+            if (length === view.slider.length)
                 return res.send({ _id: view._id, slides })
 
         } catch (err) { console.log(err) }
     })*/
     //////////////////////////////////////
 
-    const _id = req.body._id
-    const view = req.body
-    const slides = []
-    var length = 0
+    const slider = req.body
+    const _id = slider._id
+    var slides = []
 
-    view.slideBox.map(async (slideBox, index) => {
-        slides[index] = []
+    if (slider.slides && slider.slides.length > 0)
+        slides = slider.slides
 
-        if (slideBox.slides && slideBox.slides.length > 0)
-            slides[index].push(...slideBox.slides)
+    if (slider.collections) {
+        const data = slider.collections
 
-        if (slideBox.collections) {
-            const data = slideBox.collections
+        if (data.type === 'Product') {
 
-            if (data.type === 'Product') {
+            var conditions = !data.collections.includes('Any')
+                ? { $or: [{ collections: { $in: data.collections } }, { category: { $in: data.collections } }] }
+                : {}
 
-                var conditions = !data.collections.includes('Any')
-                    ? { $or: [{ collections: { $in: data.collections } }, { category: { $in: data.collections } }] }
-                    : {}
+            await Product
+                .find(conditions)
+                .sort(data.sort)
+                .limit(data.limit)
+                .then(products => {
+                    if (products) {
+                        slides.push(...products)
+                        return res.send({ _id, slides })
+                    }
+                })
+        }
+    }
 
-                await Product
-                    .find(conditions)
-                    .sort(data.sort)
-                    .limit(data.limit)
-                    .then(products => {
-                        if (products) {
-                            slides[index].push(...products)
-                            length++
-                        }
-                    })
-
-            } else length++
-        } else length++
-
-        if (length === view.slideBox.length)
-            return res.send({ _id, slides })
-
-    })
-
+    return res.send({ _id, slides })
 })
 
 export default router

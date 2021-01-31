@@ -51,7 +51,7 @@
                 display: 'none',
             }
         },
-        slideBox: [{
+        slider: [{
             display: 'flex',
             height: '40rem',
             width: '70%',
@@ -331,7 +331,7 @@
                 display: 'none'
             },
         },
-        slideBox: [{
+        slider: [{
             display: 'grid',
             height: '23rem',
             flexWrap: 'wrap',
@@ -504,7 +504,7 @@
             paddingAround: '1rem 0.5rem',
             background: { color: '#f9f9f9' },
         },
-        slideBox: [{
+        slider: [{
             display: 'flex',
             height: 'fit-content',
             width: '100%',
@@ -657,7 +657,7 @@
                 color: '#d3b25d',
             },
         },
-        slideBox: [{
+        slider: [{
             display: 'flex',
             height: 'fit-content',
             width: '100%',
@@ -857,7 +857,7 @@
                 },
             },
         },
-        slideBox: [{
+        slider: [{
             type: 'Product',
             collection_: 'Featured',
             display: 'flex',
@@ -1007,7 +1007,7 @@
                 display: 'none'
             },
         },
-        slideBox: [{
+        slider: [{
             type: 'Product',
             collection_: 'New Arrival',
             display: 'flex',
@@ -1168,7 +1168,7 @@
                 },
             },
         },
-        slideBox: [{
+        slider: [{
             type: 'Product',
             collection_: 'Popular',
             display: 'flex',
@@ -1272,7 +1272,7 @@
         title: {
             display: 'none',
         },
-        slideBox: [{
+        slider: [{
             type: 'Product',
             collection_: 'Special Offer',
             display: 'flex',
@@ -1571,7 +1571,7 @@
                 display: 'none'
             },
         },
-        slideBox: [{
+        slider: [{
             display: 'grid',
             height: 'fit-content',
             flexWrap: 'wrap',
@@ -1700,8 +1700,9 @@
 ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-export const Styles = [{
+export const magicBoxStyles = [{
     viewPort: 'desktop',
+    type: 'MagicBox',
     name: 'Hero',
     display: 'flex',
     flexWrap: 'wrap',
@@ -1710,7 +1711,7 @@ export const Styles = [{
     paddingAround: '1rem',
     paddingBetween: '1rem',
     background: { color: '#f9f9f9' },
-    slideBox: [{
+    slider: [{
         type: 'Image',
         display: 'flex',
         height: '40rem',
@@ -1837,7 +1838,7 @@ export const Styles = [{
     paddingBetween: '0',
     flexDirection: 'column',
     background: { color: '#f9f9f9' },
-    slideBox: [{
+    slider: [{
         type: 'Image',
         display: 'flex',
         height: '18rem',
@@ -1945,6 +1946,7 @@ export const Styles = [{
     }]
 }, */{
     viewPort: 'desktop',
+    type: 'MagicBox',
     name: 'Categories',
     flexDirection: 'column',
     overlayPadding: '2rem 4rem',
@@ -1952,7 +1954,7 @@ export const Styles = [{
     paddingBetween: '0',
     background: { color: '#f9f9f9' },
     title: { display: 'none' },
-    slideBox: [{
+    slider: [{
         type: 'Image',
         display: 'grid',
         height: 'slideHeight',
@@ -2038,7 +2040,7 @@ export const Styles = [{
     title: {
         display: 'none'
     },
-    slideBox: [{
+    slider: [{
         type: 'Image',
         display: 'grid',
         height: 'fit-content',
@@ -2087,13 +2089,14 @@ export const Styles = [{
     }]
 }, */{
     viewPort: 'desktop',
+    type: 'MagicBox',
     name: 'Banners',
     flexDirection: 'column',
     overlayPadding: '2rem 4rem',
     paddingAround: '1rem',
     paddingBetween: '0',
     background: { color: '#f9f9f9' },
-    slideBox: [{
+    slider: [{
         type: 'Image',
         display: 'flex',
         height: 'fit-content',
@@ -2148,7 +2151,7 @@ export const Styles = [{
 }, /*{
     viewPort: 'mobile',
     name: 'Banners mobile',
-    slideBox: [{
+    slider: [{
         type: 'Image',
         display: 'flex',
         height: '17rem',
@@ -2198,6 +2201,7 @@ export const Styles = [{
     }]
 }, */{
     viewPort: 'desktop',
+    type: 'MagicBox',
     name: 'Image Ribbon',
     flexDirection: 'column',
     overlayPadding: '2rem 4rem',
@@ -2213,7 +2217,7 @@ export const Styles = [{
             color: '#d3b25d',
         },
     },
-    slideBox: [{
+    slider: [{
         type: 'Image',
         display: 'flex',
         height: 'fit-content',
@@ -2278,7 +2282,7 @@ export const Styles = [{
         design: 'Fish',
         color: '#d3b25d',
     },
-    slideBox: [{
+    slider: [{
         type: 'Image',
         display: 'flex',
         height: 'fit-content',
@@ -2324,6 +2328,7 @@ export const Styles = [{
     }]
 }, */{
     viewPort: 'desktop',
+    type: 'MagicBox',
     name: 'Featured',
     flexDirection: 'row',
     overlayPadding: '2rem 4rem',
@@ -2333,7 +2338,7 @@ export const Styles = [{
     background: { color: '#6bb927' },
     borderRadius: '0.5rem',
     boxShadow: false,
-    slideBox: [{
+    slider: [{
         type: 'Product',
         display: 'flex',
         height: 'fit-content',
@@ -2445,7 +2450,7 @@ export const Styles = [{
             border: '1px solid #fff'
         },
     },
-    slideBox: [{
+    slider: [{
         type: 'Product',
         display: 'flex',
         height: 'fit-content',
@@ -2491,13 +2496,14 @@ export const Styles = [{
     }]
 }, */{
     viewPort: 'desktop',
+    type: 'MagicBox',
     name: 'New Arrival',
     flexDirection: 'column',
     overlayPadding: '2rem 4rem',
     paddingAround: '0.5rem',
     paddingBetween: '0',
     background: { color: '#f9f9f9' },
-    slideBox: [{
+    slider: [{
         type: 'Product',
         display: 'flex',
         height: 'fit-content',
@@ -2568,7 +2574,7 @@ export const Styles = [{
     title: {
         display: 'none'
     },
-    slideBox: [{
+    slider: [{
         type: 'Product',
         display: 'flex',
         height: 'fit-content',
@@ -2613,13 +2619,14 @@ export const Styles = [{
     }]
 }, */{
     viewPort: 'desktop',
+    type: 'MagicBox',
     name: 'Popular',
     flexDirection: 'column',
     overlayPadding: '2rem 4rem',
     paddingAround: '0',
     paddingBetween: '0',
     background: { color: '#f9f9f9' },
-    slideBox: [{
+    slider: [{
         type: 'Product',
         display: 'flex',
         height: 'fit-content',
@@ -2749,7 +2756,7 @@ export const Styles = [{
             color: '#d3b25d',
         },
     },
-    slideBox: [{
+    slider: [{
         type: 'Product',
         display: 'flex',
         height: 'fit-content',
@@ -2794,13 +2801,14 @@ export const Styles = [{
     }]
 }, */{
     viewPort: 'desktop',
+    type: 'MagicBox',
     name: 'Moment Suggestions',
     flexDirection: 'row',
     overlayPadding: '2rem 4rem',
     paddingAround: '0',
     paddingBetween: '2%',
     background: { color: '#fff' },
-    slideBox: [{
+    slider: [{
         type: 'Product',
         display: 'flex',
         height: 'fit-content',
@@ -3051,6 +3059,11 @@ export const Styles = [{
                 }
             }
         },
+        // timer bar
+        timerBar: {
+            display: 'flex',
+            margin: '0 0 1rem 0'
+        },
         // swiper
         swiper: {
             swipable: true,
@@ -3069,17 +3082,13 @@ export const Styles = [{
             },
             bullets: {
                 display: 'none'
-            },
-            timerBar: {
-                display: 'flex',
-                margin: '0 0 1rem 0'
             }
         },
     }],
 }, /*{
     viewPort: 'mobile',
     name: 'Moment Suggestions Mobile',
-    slideBox: [{
+    slider: [{
         type: 'Product',
         display: 'flex',
         height: 'fit-content',
@@ -3172,13 +3181,14 @@ export const Styles = [{
     }]
 }, */{
     viewPort: 'desktop',
+    type: 'MagicBox',
     name: 'Sub_Banners',
     flexDirection: 'column',
     overlayPadding: '2rem 4rem',
     paddingAround: '1rem',
     paddingBetween: '0',
     background: { color: '#f9f9f9' },
-    slideBox: [{
+    slider: [{
         type: 'Image',
         display: 'grid',
         height: 'fit-content',
@@ -3221,7 +3231,7 @@ export const Styles = [{
     title: {
         display: 'none'
     },
-    slideBox: [{
+    slider: [{
         type: 'Image',
         display: 'grid',
         height: 'fit-content',
@@ -3270,7 +3280,7 @@ export const Styles = [{
     }]
 }*/]
 
-export const defaultMobileStyles = {
+/*export const defaultMobileStyles = {
     viewPort: 'mobile',
     name: 'Default Mobile Styles',
     display: 'flex',
@@ -3328,7 +3338,7 @@ export const defaultMobileStyles = {
             fontSize: '1.6rem',// '1.9rem' },
         }
     },
-    slideBox: [{
+    slider: [{
         type: 'Image',// 'Image' },
         display: 'none',// 'none' },
         height: 'auto',// 'auto' },
@@ -3407,7 +3417,7 @@ export const defaultMobileStyles = {
                     color: '#444444',// '#444444' },
                     fontSize: '1.5rem',// '1.5rem' },
                 }
-            },*/
+            },
             // image
             image: {
                 borderRadius: '0',// '0' },
@@ -3515,4 +3525,4 @@ export const defaultMobileStyles = {
             }
         },
     }]
-}
+}*/

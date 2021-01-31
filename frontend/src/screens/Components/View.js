@@ -1,117 +1,70 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getSlides } from '../../actions/slidesActions';
 import { getStyles } from '../../actions/stylesActions';
-import SlideBox from './SlideBox';
-import { TitleContainer } from './TitleContainer'
+import { MagicBox } from './MagicBox';
 
-export const View = ({ view, viewPort, touchscreen }) => {
+export const View = ({ view, viewPort, touchScreen }) => {
     const dispatch = useDispatch()
-    const [params, setParams] = useState()
-    const data = view.styles[viewPort]
+    const stylesProps = view.styles[viewPort]
+    const type = stylesProps.type
 
-    var getStylesRequested, stylesExist, slidesExist, getSlidesRequested
-    const { defaultStyles } = useSelector(state => state.defaultStyles)
-    const { defaultStyles: defaultAddToCartStyles } = useSelector(state =>
-        state.defaultAddToCartStyles)
+    var slides = []
 
-    useSelector(state => {
-        if (!params) {
+    // AddToCart default styles
+    const defaultAddToCartStyles = useSelector(state => state.styles.find(styles =>
+        styles.name === 'Default Desktop AddToCart Styles'
+    ))
 
-            //// find styles
-            if (!stylesExist)
-                stylesExist = state.styles.find(obj => obj._id === data._id || obj.name === data.name)
+    // Slider default styles
+    const defaultStyles = useSelector(state => state.styles.find(styles =>
+        styles.name === 'Default Desktop MagicBox Styles'))
 
-            //// fetch styles
-            if (!stylesExist && !getStylesRequested) {
-                dispatch(getStyles({ _id: data._id, name: data.name }))
-                getStylesRequested = true
-            }
+    // Box styles
+    const styles = useSelector(state => state.styles.find(styles =>
+        styles._id === stylesProps._id || styles.name === stylesProps.name
+    ))
 
-            //// find slides
-            if (!slidesExist)
-                slidesExist = state.slides.find(obj => obj._id === view._id)
+    // get all slideLists => if (magicBoc) get slides from server
+    useSelector(state => { if (!styles) slides = state.slides })
 
-            //// fetch slides
-            if (!slidesExist && !getSlidesRequested) {
-                dispatch(getSlides(view))
-                getSlidesRequested = true
-            }
 
-            if (slidesExist && stylesExist) {
-                setParams({
-                    slides: slidesExist.slides,
-                    styles: stylesExist,
-                    defaultStyles: state.defaultStyles
+    useEffect(() => {
+        if (!styles) {
+            const _id = stylesProps._id
+            const name = stylesProps.name
+            const type = stylesProps.type
+
+            dispatch(getStyles({ _id, name, type }))
+
+            if (type === 'MagicBox') {
+                // get non existing slides
+                view.slider && view.slider.map(slider => {
+                    var slidesExist = slides.find(slidesList => slidesList._id === slider._id)
+                    if (!slidesExist)
+                        dispatch(getSlides(slider))
                 })
             }
         }
-    })
+    }, [styles])
 
-    if (params && defaultStyles && defaultAddToCartStyles) {
-        console.log(view.name, params)
-        const slideBoxDefaultStyles = defaultStyles.slideBox[0]
-        slideBoxDefaultStyles.product.addToCart = defaultAddToCartStyles
+    if (styles && defaultStyles) {
+        if (type === 'MagicBox') {
 
-        const _id = view._id
-        const styles = params.styles
-        const slides = params.slides
-        const Title = view.title
-        const TitleStyles = styles.title
+            // Send AddToCart styles within styles
+            if (defaultAddToCartStyles) {
+                defaultStyles.slider[0].product.addToCart = defaultAddToCartStyles
 
-        const background = typeof styles.background === 'object'
-            ? {
-                src: styles.background.src || defaultStyles.background.src,
-                isImage: styles.background.isImage || defaultStyles.background.isImage,
-            } : {
-                src: defaultStyles.background.src,
-                isImage: defaultStyles.background.isImage,
-            }
+                return <MagicBox
+                    styles={styles}
+                    defaultStyles={defaultStyles}
+                    touchScreen={touchScreen}
+                    magicBox={view} />
+            } else return <></>
 
-        const viewWrapper = {
-            borderRadius: styles.borderRadius || defaultStyles.borderRadius,
-            backgroundColor: styles.background.color || defaultStyles.background.color,
-            flexDirection: styles.flexDirection || defaultStyles.flexDirection,
-        }
+        } else if (type === 'LiteBox') {
+            /*<LiteBox styles={styles} defaultStyles={defaultStyles} touchScreen={touchScreen} liteBox={view} />*/
+        } else return <></>
 
-        const slideBoxWrapper = {
-            borderRadius: styles.borderRadius || defaultStyles.borderRadius,
-            gridColumnGap: styles.paddingBetween || defaultStyles.paddingBetween,
-            flexDirection: styles.flexDirection || defaultStyles.flexDirection,
-            gridRowGap: styles.paddingBetween || defaultStyles.paddingBetween,
-            padding: styles.paddingAround || defaultStyles.paddingAround,
-        }
-
-        const viewContainer = {
-            padding: styles.overlayPadding || defaultStyles.overlayPadding,
-            maxWidth: '100vw'
-        }
-
-        return (
-            <div style={viewContainer}>
-                <div className="view-wrapper" style={viewWrapper}>
-
-                    {/* Background */}
-                    {background.isImage && <img src={background.src}
-                        className='box-background-image' />}
-
-                    {/* Title */}
-                    {TitleStyles && TitleStyles.display !== 'none' &&
-                        <TitleContainer _id={_id} styles={TitleStyles} Title={Title} />}
-
-                    {/* Slide Box */}
-                    <div className='slideBox-wrapper' style={slideBoxWrapper}>
-                        {view.slideBox.map((box, index) =>
-                            <SlideBox
-                                styles={styles.slideBox[index]}
-                                slides={slides[index]}
-                                defaultStyles={defaultStyles.slideBox[0]}
-                                slideBox={box}
-                                touchscreen={touchscreen} />
-                        )}
-                    </div>
-                </div>
-            </div>
-        )
     } else return <></>
 }
