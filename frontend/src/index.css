@@ -1256,7 +1256,8 @@ input.checked[type="radio"] {
 
 /* Hero Banners */
 
-.view-wrapper {
+.view-wrapper,
+.view-overlay {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1495,14 +1496,14 @@ input.checked[type="radio"] {
 /* Form Note */
 
 @media screen and (max-width: 700px) {
-  .action-note-wrap {
+  .lite-box-wrap {
     width: 28rem;
     height: 3.3rem;
     left: calc((100vw - 28rem) / 2);
     font-size: 1.3rem;
   }
 
-  .faTimes-action-note {
+  .faTimes-lite-box {
     text-align: center;
     padding: 1rem;
     right: 0;
@@ -4612,23 +4613,36 @@ button[disabled]:hover {
 /*//////////////////// Classic Title ////////////////////*/
 
 .classic-title-wrap {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  backface-visibility: hidden !important;
   display: flex;
   overflow: hidden;
   width: 100%;
   background-color: inherit;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   min-height: fit-content;
   z-index: 1;
 }
 
 .classic-title {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-width: fit-content;
   z-index: 1;
   margin-right: 2rem;
+  position: relative;
 }
 
-.classic-title-stroke {
+.title-border {
+  position: absolute;
+}
+
+.title-stroke {
   height: 2px;
   background-color: #d3b25d;
   width: 100%;
@@ -4641,6 +4655,8 @@ button[disabled]:hover {
 }
 
 .classic-showall {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
   font-weight: 500;
   border-radius: 2rem;
   width: fit-content;
@@ -4711,12 +4727,12 @@ button[disabled]:hover {
 
 /* Action Note + Timer Bar */
 
-.action-note-wrap {
+.lite-box-wrap {
   display: flex;
-  justify-content: center;
   text-align: center;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   border-radius: 0 0 2rem 2rem;
   background-color: #f0c140ec;
   color: #000000;
@@ -4730,31 +4746,34 @@ button[disabled]:hover {
   transition: transform 0.5s;
 }
 
-.show-action-note {
+.show-lite-box {
   transform: translateY(0);
   box-shadow: 0 0 4px rgba(33, 33, 33, 0.431);
 }
 
-.faTimes-action-note {
+.faTimes-box {
   position: absolute;
   right: 1rem;
   cursor: pointer;
+  z-index: 1000;
 }
 
-.action-note-timerBar {
+.lite-box-timerBar {
   height: 2px;
   width: 0%;
   position: absolute;
   top: 0;
   left: 0;
   background-color: red;
-}
-
-.width-1000 {
-  width: 100%;
-  transition: all 5s;
   transition-timing-function: cubic-bezier(0, -0.28, 0, 1);
 }
+
+.play-timer {
+  width: 100%;
+  transition: all 5s;
+}
+
+/*/////////////////////////////*/
 
 .upcoming-badget {
   position: absolute;
@@ -4852,4 +4871,8 @@ button[disabled]:hover {
 
 .farUser:hover {
   color: #ff8000;
+}
+
+.timer-bar {
+  z-index: 999;
 }

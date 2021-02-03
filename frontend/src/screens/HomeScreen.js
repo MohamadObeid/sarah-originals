@@ -1,26 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import FontAwesome from 'react-fontawesome'
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faStar } from "@fortawesome/free-solid-svg-icons"
-import { Link } from "react-router-dom"
-import { addToCart, removeFromCart, updateCart } from "../actions/cartActions";
-import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { View } from "./Components/View";
 import { NavigationBar } from "./Components/NavigationBar";
 
 const HomeScreen = props => {
-  const imageUrl = window.location.origin + '/api/uploads/image/'
-  const [products, setProducts] = useState([])
   const [navigationBar, setNavigationBar] = useState()
-
-  //const { cartItems, message } = useSelector(state => state.cart)
   const { controls } = useSelector(state => state.controls)
 
   const dispatch = useDispatch()
 
   const [viewPort, setViewPort] = useState(window.innerWidth <= 700 ? 'mobile' : 'desktop')
-  var touchscreen
+  var touchScreen
 
   useEffect(() => {
     window.addEventListener("resize", function () {
@@ -28,33 +18,10 @@ const HomeScreen = props => {
       else setViewPort('desktop')
     })
     if (window.matchMedia("(pointer: coarse)").matches) {
-      console.log('touchscreen')
-      touchscreen = true
-    } else touchscreen = false
+      console.log('touchScreen')
+      touchScreen = true
+    } else touchScreen = false
   }, [])
-
-
-  // Toggle Handler
-  /*const toggleCartBtns = (product) => {
-    if (product.qty === 0) {
-      product.AddToCartClass = 'show';
-      product.PlusMinusClass = 'hide';
-    } else if (product.qty > 0) {
-      product.AddToCartClass = 'hide';
-      product.PlusMinusClass = 'show';
-    }
-  }*/
-
-  // Product Quick View Handler
-  const handleQuickView = (product) => {
-    dispatch({ type: 'UPDATE_ACTIONS', payload: { quickView: { product } } })
-    window.addEventListener('click', (e) => {
-      const quickViewOverlay = document.querySelector('.quick-view-overlay')
-      if (e.target === quickViewOverlay) {
-        dispatch({ type: 'REMOVE_FROM_ACTIONS', payload: 'quickView' })
-      }
-    })
-  }
 
   //////////////// Navigation Bar ////////////////
 
@@ -62,19 +29,12 @@ const HomeScreen = props => {
     controls.HomeScreen
       ? controls.HomeScreen.map((view, index) =>
         view.styles[viewPort] &&
-        view.active && <View view={view} viewPort={viewPort} key={index} touchscreen={touchscreen} />
+        view.active && <View view={view} viewPort={viewPort} key={index} touchScreen={touchScreen} />
       ) : <></>
 
   //////////////////////////////////// Slide Ribbon Props ///////////////////////////////////
 
-  /*const swiper = {
-    slidesOffsetAfter: 0,
-    freeMode: true,
-    grabCursor: true,
-    slidesPerView: 'auto',
-  }
-
-  const [imageBoxCategories, setimageBoxCategories] = useState()
+  /*const [imageBoxCategories, setimageBoxCategories] = useState()
 
   useEffect(() => {
 
@@ -140,8 +100,6 @@ const HomeScreen = props => {
           {QuickView(actions.quickView.product)}
         </div>
       */}
-
-      {/*controls && controls.navigationBar && <NavigationBar navigationBar={controls.navigationBar} />*/}
       <Views />
     </>
   );

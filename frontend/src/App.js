@@ -14,10 +14,10 @@ import Chatbox from './screens/Components/Chatbox';
 import { useDispatch } from "react-redux";
 import { saveControls, getControls, deleteControls } from "./actions/controlsActions";
 import { saveStyles, deleteStyles, getStyles, } from "./actions/stylesActions";
-import { magicBoxStyles } from './constants/magicBox'
+import { magicBoxStyles } from './constants/magicBoxStyles'
+import { liteBoxStyles } from './constants/liteBoxStyles'
 import { Controls } from './constants/defaultControls'
-import { defaultMagicBoxStyles, defaultTitleStyles, defaultAddToCartStyles } from "./constants/defaults";
-import { ActionNote } from "./screens/Components/ActionNote";
+import { defaultMagicBoxStyles, defaultTitleStyles, defaultAddToCartStyles, defaultLiteBoxStyles } from "./constants/defaults";
 
 const App = React.memo(() => {
 
@@ -30,8 +30,8 @@ const App = React.memo(() => {
     dispatch(getControls({ limit: 10 }))
 
     // save requests
-    //dispatch(saveControls(Controls))
-    //dispatch(saveStyles([...magicBoxStyles, defaultMagicBoxStyles, defaultTitleStyles, defaultAddToCartStyles]))
+    dispatch(saveControls(Controls))
+    dispatch(saveStyles([...magicBoxStyles, defaultMagicBoxStyles, defaultTitleStyles, defaultAddToCartStyles]))
 
     // delete requests
     //dispatch(deleteControls({ deleteAll: true }))
@@ -44,7 +44,6 @@ const App = React.memo(() => {
     <BrowserRouter>
       <div className="grid-container">
         <NavBar />
-        <ActionNote />
         <div className="main">
           <Route path="/dashboard" component={DashBoard} />
           <Route path="/signin" component={SigninScreen} />

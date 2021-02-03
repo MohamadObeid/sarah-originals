@@ -3,7 +3,17 @@ export const Controls = {
     name: 'Controls',
     HomeScreen: [{
         active: true,
-        type: 'Product Box',
+        name: 'Action Note',
+        controllable: true,
+        action: 'actionNote',
+        styles: {
+            desktop: {
+                type: 'MagicBox',
+                name: 'Action Note Desktop',
+            }
+        }
+    }, {
+        active: true,
         name: 'Image Ribbon',
         title: {
             title: 'Surprising Products',
@@ -23,7 +33,6 @@ export const Controls = {
         }]
     }, { // done
         active: true,
-        type: 'Image Box',
         name: 'Hero',
         styles: {
             desktop: {
@@ -72,7 +81,6 @@ export const Controls = {
         }]
     }, {
         active: true,
-        type: 'Product Box',
         name: 'Featured',
         styles: {
             desktop: {
@@ -92,7 +100,6 @@ export const Controls = {
         }]
     }, {
         active: true,
-        type: 'Product Box',
         name: 'Moment Suggestions',
         styles: {
             desktop: {
@@ -108,6 +115,12 @@ export const Controls = {
                 type: 'Product',
                 collections: ['Special Offer'],
             },
+            slide: [{
+                name: 'Adidas',
+                title: {
+                    title: 'New Collections'
+                }
+            }],
             slides: [{
                 link: '',
                 title: 'Adidas',
@@ -124,7 +137,6 @@ export const Controls = {
         }]
     }, { // done
         active: true,
-        type: 'Image Box',
         name: 'Categories',
         styles: {
             desktop: {
@@ -184,7 +196,6 @@ export const Controls = {
         }]
     }, {
         active: true,
-        type: 'Image Box',
         name: 'Sub_Banners',
         styles: {
             desktop: {
@@ -213,7 +224,6 @@ export const Controls = {
         }],
     }, {
         active: true,
-        type: 'Product Box',
         name: 'New Arrival',
         styles: {
             desktop: {
@@ -232,7 +242,6 @@ export const Controls = {
         }]
     }, { // done
         active: true,
-        type: 'Image Box',
         name: 'Banners',
         styles: {
             desktop: {
@@ -265,7 +274,6 @@ export const Controls = {
         }]
     }, {
         active: true,
-        type: 'Product Box',
         name: 'Popular',
         styles: {
             desktop: {

@@ -27,7 +27,7 @@ export const AddToCart = React.memo(({ product, styles }) => {
                 message = 'Quantity Reduced Successfully!'
             }
             // display action note
-            dispatch({ type: 'UPDATE_ACTIONS', payload: { actionNote: message } })
+            dispatch({ type: 'UPDATE_ACTIONS', payload: { actionNote: { title: message } } })
         }
     }
 
@@ -49,7 +49,7 @@ export const AddToCart = React.memo(({ product, styles }) => {
             message = 'Product Added Successfully!'
         }
         // display action note
-        dispatch({ type: 'UPDATE_ACTIONS', payload: { actionNote: message } })
+        dispatch({ type: 'UPDATE_ACTIONS', payload: { actionNote: { title: message } } })
     }
 
     const hide = item ? { display: 'none' } : {}

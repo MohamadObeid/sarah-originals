@@ -87,7 +87,7 @@ function actions(state = {}, action) {
         case 'UPDATE_ACTIONS':
             return ({ ...state, ...action.payload })
 
-        case 'REMOVE_FROM_ACTIONS':
+        case 'REMOVE_ACTION':
             { const { [action.payload]: _, ...updatedState } = state; return (updatedState) }
 
         default: return state

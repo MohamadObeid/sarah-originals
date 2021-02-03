@@ -10,15 +10,12 @@ import { Timer } from './SliderComponents'
 import { AddToCart } from './AddToCart'
 import { Badges } from './Badges'
 
-const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
+export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }) => {
     const dispatch = useDispatch()
-    const slides = useSelector(state => {
-        var slidesExist = state.slides.find(slidesList => slidesList._id === slider._id)
-        if (slidesExist) return slidesExist.slides
-    })
-
+    var slidesExist
     var timeOut
     var sliderWrapper
+    var timerBar
     var leftChevron
     var rightChevron
     var slideWidth
@@ -30,27 +27,49 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
     var swiperHeight
     var defaultSlideIndex
 
+    const _id = slider._id
+    const TitleStyles = styles.title
+    const slide = styles.slide || defaultStyles.slide
+    const product = styles.product || defaultStyles.product
+    const skeleton = styles.skeleton || defaultStyles.skeleton
+    const badges = styles.badges || defaultStyles.badges
+    const swiper = styles.swiper || defaultStyles.swiper
+
+    const defaultSlide = defaultStyles.slide[0]
+    const defaultProduct = defaultStyles.product
+    const defaultSkeleton = defaultStyles.skeleton
+    const defaultBadges = defaultStyles.badges
+    const defaultSwiper = defaultStyles.swiper
+    const defaultTimerBar = defaultStyles.timerBar
+    const defaultAddToCart = defaultProduct.addToCart
+
+    const slides = useSelector(state => {
+        slidesExist = state.slides.find(slidesList => slidesList._id === slider._id)
+        if (slidesExist) return slidesExist.slides
+    })
+
     useEffect(() => {
         if (slides) {
             element = document.getElementsByClassName('slider-' + _id)[0]
             sliderWrapper = element.getElementsByClassName('slider-wrapper')[0]
             leftChevron = element.getElementsByClassName('left-chevron-wrap')[0]
             rightChevron = element.getElementsByClassName('right-chevron-wrap')[0]
-
-            const titleElements = [...element.getElementsByClassName('slide-wrapper')]
+            timerBar = element.getElementsByClassName('timer-bar')[0]
+            const slideWrapper = [...element.getElementsByClassName('slide-wrapper')]
             var maxHeight = 0
 
-            titleElements.map(e => {
+            slideWrapper.map(e => {
                 if (e.offsetHeight > maxHeight)
                     maxHeight = e.offsetHeight
 
                 // if slide have a product timer => align the timer to the end
-                if (e.getElementsByClassName('product-timer-wrap') && e.getElementsByClassName('product-timer-wrap').length > 0)
+                if (e.getElementsByClassName('product-timer-wrap') &&
+                    e.getElementsByClassName('product-timer-wrap').length > 0)
                     e.getElementsByClassName('product-details-wrap')[0].style.justifyContent = 'space-between'
             })
 
-            for (var i = 0, len = titleElements.length; i < len; i++) {
-                titleElements[i].style["height"] = maxHeight + 'px';
+            for (var i = 0, len = slideWrapper.length; i < len; i++) {
+                slideWrapper[i].style["height"] = maxHeight + 'px';
             }
 
             slideHeight = maxHeight
@@ -70,32 +89,17 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
             else if (lineNum % 1 > 0)
                 swiperHeight = ((slideHeight + gapWidth) * (parseInt(lineNum + 1)) - gapWidth) + 'px'
 
-            if (autoPlay && !timeOut)
-                timeOut = [setInterval(() => chevronRight(), duration)]
+            if (autoPlay && !timeOut) {
+                clearTimeout(timeOut)
+                styles.width === '21%' && console.log(slides)
+                timeOut = setTimeout(() => chevronRight(), duration)
+                toggleTimerBar(true)
+            }
 
             if (swiper.swipable) toggleSlides(true)
         }
     }, [slides])
 
-
-    const _id = slider._id
-    const Title = slider.title
-    const TitleStyles = styles.title
-    const slide = styles.slide || defaultStyles.slide
-    const product = styles.product || defaultStyles.product
-    const skeleton = styles.skeleton || defaultStyles.skeleton
-    const badges = styles.badges || defaultStyles.badges
-    const swiper = styles.swiper || defaultStyles.swiper
-    const timerBar = styles.timerBar || defaultStyles.timerBar
-
-    const defaultSlide = defaultStyles.slide[0]
-    const defaultProduct = defaultStyles.product
-    const defaultSkeleton = defaultStyles.skeleton
-    const defaultBadges = defaultStyles.badges
-    const defaultSwiper = defaultStyles.swiper
-    const defaultTimerBar = defaultStyles.timerBar
-    const defaultAddToCart = defaultProduct.addToCart
-    //console.log(defaultProduct, product)
     defaultSlideIndex = slide.findIndex(slide => slide.isDefault)
     if (defaultSlideIndex === -1) defaultSlideIndex = undefined
 
@@ -124,7 +128,7 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
         gridTemplateColumns: `repeat(auto-fit, minmax(${slide[defaultSlideIndex].width}, 1fr))`,
         borderRadius: slide[defaultSlideIndex].borderRadius,
         overflow: styles.overflow || defaultStyles.overflow,
-        height: styles.height || defaultStyles.height
+        height: styles.height || defaultStyles.height,
     }
 
     const slideContainer = (index) =>
@@ -221,10 +225,12 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
             : defaultSwiper.chevrons.autoToggle
     }
 
-    const timerBarStyles = {
-        display: timerBar.display || defaultTimerBar.display,
-        margin: timerBar.margin || defaultTimerBar.margin,
-    }
+    var timerBarStyle = styles.timerBar || defaultStyles.timerBar
+    Object.entries(defaultStyles.timerBar).map(([key, value]) => {
+        timerBarStyle = { ...timerBarStyle, [key]: timerBarStyle[key] || value }
+    })
+    timerBarStyle.afterTransition = timerBarStyle.transition
+    timerBarStyle.width = '0%'
 
     /////////////////// product styles //////////////////////
 
@@ -517,14 +523,17 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
 
     const mouseEnterHandler = e => {
         e.preventDefault()
-        timeOut && timeOut.map(run => clearTimeout(run))
-        playTimerBar(false)
+        clearTimeout(timeOut)
+        toggleTimerBar(false)
     }
 
     const mouseLeaveHandler = e => {
         e.preventDefault()
-        if (autoPlay) timeOut = [setInterval(() => chevronRight(), duration)]
-        playTimerBar(true)
+        if (autoPlay) {
+            clearTimeout(timeOut)
+            timeOut = setTimeout(() => chevronRight(), duration)
+            toggleTimerBar(true)
+        }
     }
 
     const mouseDownHandler = (e) => {
@@ -549,7 +558,7 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
             window.addEventListener('touchmove', touchMoveHandler)
         }
         if (autoPlay) {
-            timeOut && timeOut.map(run => clearTimeout(run))
+            clearTimeout(timeOut)
             timeOut = []
         }
     }
@@ -564,7 +573,11 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
             window.removeEventListener('touchend', mouseUpHandler)
             window.removeEventListener('touchmove', touchMoveHandler)
         }
-        if (autoPlay && !stopOnHover) timeOut = [setInterval(() => chevronRight(), duration)]
+        if (autoPlay && !stopOnHover) {
+            clearTimeout(timeOut)
+            timeOut = setTimeout(() => chevronRight(), duration)
+            toggleTimerBar(true)
+        }
     }
 
     const mouseMoveHandler = (e) => {
@@ -599,8 +612,8 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
         !stopOnHover && mouseDownHandler(e)
         if (stopOnHover) {
             e.preventDefault()
-            timeOut && timeOut.map(run => clearTimeout(run))
-            playTimerBar(false)
+            clearTimeout(timeOut)
+            toggleTimerBar(false)
         }
     }
 
@@ -636,10 +649,17 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
 
     const chevronRight = e => {
         if (sliderWrapper) {
+            if (autoPlay) {
+                clearTimeout(timeOut)
+                timeOut = setTimeout(() => chevronRight(), duration)
+                toggleTimerBar(true)
+            }
+
             if (verticalSwiper) {
                 chevronBottom(e)
                 return
             }
+
             sliderWrapper.style.scrollBehavior = 'smooth'
             var visibleWidthofSlide = (sliderWrapper.clientWidth + sliderWrapper.scrollLeft) % (slideWidth + gapWidth)
             scrollLeft = sliderWrapper.scrollLeft + skipMore
@@ -711,7 +731,7 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
             else leftChevron.style.display = 'flex'
         }
 
-        toggleBullets_TimeBar()
+        toggleBullets()
     }
 
     const ToggleScroll = e => {
@@ -750,12 +770,15 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
 
             if (_idExist && !boxOpenned) {
                 boxOpenned = true
-                timeOut && timeOut.map(run => clearTimeout(run))
+                clearTimeout(timeOut)
                 timeOut = []
                 sliderWrapper.style.height = swiperHeight
 
             } else if (!_idExist && boxOpenned) {
-                if (autoPlay) timeOut = [...timeOut, setInterval(() => chevronRight(), duration)]
+                if (autoPlay) {
+                    timeOut = [...timeOut, setInterval(() => chevronRight(), duration)]
+                    toggleTimerBar(true)
+                }
                 boxOpenned = false
                 if (swiperBox.height === 'slideHeight')
                     sliderWrapper.style.height = slideHeight + 'px'
@@ -806,28 +829,31 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
 
     ///////////////////////////// Timer Bar /////////////////////////////
 
-    const playTimerBar = (state) => {
-        if (timerBarStyles.display !== 'none') {
-            slideIndex = slideIndex || 0
-            var i = slides.length - 1
-            const timerBarElement = [...element.getElementsByClassName('timerBar')]
-            while (i >= 0) {
-                timerBarElement[i].classList.remove('width-100')
-                i--
+    const toggleTimerBar = (state) => {
+
+        if (timerBarStyle.display !== 'none') {
+            if (state) {
+                timerBar.style.transition = 'all 300ms'
+                timerBar.style.width = '0'
+                setTimeout(() => {
+                    timerBar.style.transition = timerBarStyle.afterTransition
+                    timerBar.style.width = '100%'
+                }, 300)
+            } else {
+                timerBar.style.transition = 'unset'
+                timerBar.style.width = '0'
             }
-            if (state) timerBarElement[slideIndex].classList.add('width-100')
         }
     }
 
-    const toggleBullets_TimeBar = () => {
-        if (bullets.display !== 'none' || timerBarStyles.display !== 'none') {// toggle bullets
+    const toggleBullets = () => {
+        if (bullets.display !== 'none') {// toggle bullets
             if (!verticalSwiper) {
                 var index = parseInt((sliderWrapper.scrollLeft + sliderWrapper.clientWidth + gapWidth) / (slideWidth + gapWidth) + 0.01) - 1
                 if (index < 0 || isNaN(index) || !index) index = 0
 
                 if (slideIndex !== index && element) {
                     slideIndex = index
-                    playTimerBar(true)
                     const bulletElement = element.getElementsByClassName('bullet')
                     if (bulletElement[slideIndex] && bulletElement[slideIndex].style.color !== '#00bdd9') {
                         var i = slides.length - 1
@@ -843,7 +869,6 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
                 if (index < 0 || isNaN(index) || !index) index = 0
                 if (slideIndex !== index && element) {
                     slideIndex = index
-                    playTimerBar(true)
                     const bulletElement = element.getElementsByClassName('bullet')
                     if (bulletElement[slideIndex] && bulletElement[slideIndex].style.color !== '#00bdd9') {
                         var i = slides.length - 1
@@ -946,17 +971,20 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
 
             {/* Title */}
             {TitleStyles && TitleStyles.display !== 'none' &&
-                <TitleContainer _id={_id} Title={Title} styles={TitleStyles} />}
+                <TitleContainer box={slider} styles={TitleStyles} />}
 
             <div className='flex-slides-wrapper'>
                 <div className='fixed-slides-wrapper' style={slidesWrapperStyle}>
+
+                    {timerBarStyle.display !== 'none' &&
+                        <div className='timer-bar' style={timerBarStyle} />}
 
                     {/* Chevrons */}
                     {/* chevrons.display !== 'none' && <Chevrons /> */}
                     {/* Left Chevron */}
                     <div className='left-chevron-wrap'
                         onClick={e => {
-                            timeOut && timeOut.map(run => clearTimeout(run))
+                            clearTimeout(timeOut)
                             chevronLeft(e)
                             var newTimeOut = []
                             if (autoPlay) timeOut = [...newTimeOut, setInterval(() => chevronRight(), duration)]
@@ -970,7 +998,7 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
                     {/* Right Chevron */}
                     <div className='right-chevron-wrap'
                         onClick={e => {
-                            timeOut && timeOut.map(run => clearTimeout(run))
+                            clearTimeout(timeOut)
                             chevronRight(e)
                             var newTimeOut = []
                             if (autoPlay) timeOut = [...newTimeOut, setInterval(() => chevronRight(), duration)]
@@ -993,9 +1021,9 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
                         {slides && slides.map((slide, index) => {
                             const i = getSlideIndex(index)
                             const timer = showTimer(slide.onSale)
+                            const slideBox = slider.slide.find(slideBox => slideBox.name === (slide.nameEn || slide.title))
                             return (
                                 <div className='slide-container' style={slideContainer(i)} key={index}>
-                                    <div className='timerBar' style={timerBarStyles} />
                                     <div className='slide-wrapper' style={slideWrapperStyle(i)}>
 
                                         {/* Badges */}
@@ -1012,9 +1040,7 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
                                             />
                                         </div>
 
-                                        {slideTitleStyles(i) && slideTitleStyles(i).display !== 'none' &&
-                                            <TitleContainer _id={slide._id} styles={slideTitleStyles(i)}
-                                                Title={{ title: slide.title, description: slide.description }} />}
+                                        {slideBox && <TitleContainer box={slideBox} styles={slideTitleStyles(i)} />}
 
                                         {productVisible(i) &&
                                             <Product product={slide} timer={timer} styles={productStyles} />}
@@ -1032,6 +1058,4 @@ const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
         </div >
     )
 
-}
-
-export default React.memo(Slider)
+})

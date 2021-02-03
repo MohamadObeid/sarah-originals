@@ -1,14 +1,15 @@
 import mongoose from "mongoose";
 
 const TitleSchema = new mongoose.Schema({
-    SlideBoxPort: String,
+    viewPort: String,
     type: { type: String, default: 'Title' },
     display: String,
     name: String,
     design: String,// 'Classic' },
+    borderBottom: String,// '0' },
     border: String,// '0' },
-    borderSide: String,
-    backgroundColor: String,//'inherit' },
+    beforeBackgroundColor: String,
+    afterBackgroundColor: String,
     alignItems: String,//'center' },
     justifyContent: String,// 'space-between' },
     padding: String,// '0' },
@@ -17,34 +18,72 @@ const TitleSchema = new mongoose.Schema({
     width: String,
     flexDirection: String,
     title: {
-        color: String,// '#404040' },
-        position: String,// 'relative' },
+        beforeColor: String,
+        afterColor: String,
+        //position: String,// 'relative' },
         fontSize: String,//'1.9rem' },
         border: String,// '0' },
         padding: String,// '0' },
         margin: String,
+        textBorder: {
+            display: String,
+            top: String,
+            right: String,
+            bottom: String,
+            left: String,
+            height: String,
+            width: String,
+            borderRadius: String,
+            beforeBackgroundColor: String,
+            afterBackgroundColor: String,
+            transition: String
+        }
     },
     strokeLine: {
-        display: String,// 'flex' },
-        color: String,// 'blue' },
-        height: String,// '2px' },
-        width: String,// '100%' },
+        display: String,
+        top: String,
+        right: String,
+        bottom: String,
+        left: String,
+        height: String,
+        width: String,
+        borderRadius: String,
+        backgroundColor: String,
     },
     showAll: {
         display: String,// 'flex' },
         position: String,// 'relative' },
-        fontSize: String,// '1.3rem' },
-        color: String,// '#00000080' },
-        border: String,// '0' },
-        text: String,// 'show all' },
+        direction: String,
         padding: String,// '0' },
         margin: String,
-    },
-    chevron: {
-        display: String,// 'flex' },
-        color: String,// 'blue' },
-        fontSize: String,// '1.9rem' },
-        transform: String
+        text: {
+            fontSize: String,// '1.3rem' },
+            beforeColor: String,// '#00000080' },
+            afterColor: String,// '#00000080' },
+            backgroundColor: String,
+            border: String,// '0' },
+            text: String,// 'show all' },
+        },
+        textBorder: {
+            display: String,
+            top: String,
+            right: String,
+            bottom: String,
+            left: String,
+            height: String,
+            width: String,
+            borderRadius: String,
+            beforeBackgroundColor: String,
+            afterBackgroundColor: String,
+            transition: String
+        },
+        chevron: {
+            display: String,// 'flex' },
+            color: String,// 'blue' },
+            fontSize: String,// '1.9rem' },
+            transform: String,
+            transition: String,
+        }
     }
 })
 
@@ -91,8 +130,8 @@ const MagicBoxSchema = new mongoose.Schema({
     display: String,//'flex' },
     flexDirection: String,// default: 'column' },
     overlayPadding: String,// '0' },
+    backgroundColor: String,
     background: {
-        color: String,//'inherit' },
         isImage: Boolean,//false },
         title: String,//''
         src: String,//''
@@ -102,7 +141,43 @@ const MagicBoxSchema = new mongoose.Schema({
     borderRadius: String,// '0.2rem' },
     height: String,//'fit-content' },
     width: String,// 'fit-content' },
+    maxWidth: String,
+    minWidth: String,
+    position: String,
+    top: String,
+    right: String,
+    bottom: String,
+    left: String,
+    transition: String,
+    beforeTransform: String,
+    afterTransform: String,
+    beforeBoxShadow: String,
+    afterBoxShadow: String,
+    zIndex: String,
+    canHide: Boolean,
     title: TitleSchema,
+    // Timer Bar
+    timerBar: {
+        display: String,
+        position: String,
+        height: String,
+        width: String,
+        top: String,
+        right: String,
+        bottom: String,
+        left: String,
+        backgroundColor: String,
+        transition: String,
+    },
+    closeBtn: {
+        display: String,
+        color: String,
+        fontSize: String,
+        top: String,
+        right: String,
+        bottom: String,
+        left: String,
+    },
     slider: [{
         type: { type: String },// 'Image' },
         display: String,// 'none' },
@@ -115,11 +190,13 @@ const MagicBoxSchema = new mongoose.Schema({
         paddingBetween: String,// '0' },
         overflow: String,// 'hidden' },
         borderRadius: String,// '0.5rem' },
+        canHide: Boolean,
         title: TitleSchema,
         // slide
         slide: [{
             isDefault: Boolean,
             index: Number,
+            name: String,
             borderRadius: String,// '0' },
             border: String,// '0' },
             height: String,// 'auto' },
@@ -211,8 +288,16 @@ const MagicBoxSchema = new mongoose.Schema({
         },
         // Timer bar
         timerBar: {
-            display: String,// 'none' },
-            margin: String,// '0' },
+            display: String,
+            position: String,
+            height: String,
+            width: String,
+            top: String,
+            right: String,
+            bottom: String,
+            left: String,
+            backgroundColor: String,
+            transition: String,
         },
         // swiper
         swiper: {
@@ -249,6 +334,43 @@ const MagicBoxSchema = new mongoose.Schema({
     }]
 })
 
+const slideSchema = {
+    padding: String,
+    margin: String,
+    flexDirection: String,
+    alignItems: String,
+    justifyContent: String,
+    border: String,
+    borderRadius: String,
+    fontSize: String,
+    beforeColor: String,
+    afterColor: String,
+    beforeBackgroundColor: String,
+    afterBackgroundColor: String,
+    transition: String,
+    event: String,
+    textBorder: {
+        top: String,
+        right: String,
+        bottom: String,
+        left: String,
+        height: String,
+        width: String,
+        borderRadius: String,
+        beforeBackgroundColor: String,
+        afterBackgroundColor: String,
+        beforeTransform: String,
+        afterTransform: String,
+        transition: String
+    },
+    icon: {
+        display: String,
+        beforeColor: String,
+        afterColor: String,
+        fontSize: String
+    },
+}
+
 const LiteBoxSchema = new mongoose.Schema({
     active: Boolean,
     type: { type: String, default: 'LiteBox' },
@@ -258,16 +380,25 @@ const LiteBoxSchema = new mongoose.Schema({
     right: String,
     bottom: String,
     left: String,
+    flexDirection: String,
+    justifyContent: String,
+    alignItems: String,
     backgroundColor: String,
-    color: String,
     border: String,
     borderRadius: String,
-    boxShadow: String,
-    fontSize: String,
     padding: String,
     maxWidth: String,
     minWidth: String,
+    beforeBoxShadow: String,
+    afterBoxShadow: String,
+    beforeTransform: String,
+    afterTransform: String,
+    zIndex: String,
+    title: slideSchema,
+    slide: slideSchema,
+    swipable: Boolean,
     transition: String,
+    event: String,
     timerBar: {
         backgroundColor: String,
         height: String,
@@ -275,15 +406,16 @@ const LiteBoxSchema = new mongoose.Schema({
         top: String,
         right: String,
         bottom: String,
-        left: String
+        left: String,
+        transition: String,
     },
-    transform: {
-        before: String,
-        after: String
-    },
-    close: {
+    closeBtn: {
         color: String,
-        fontSize: String
+        fontSize: String,
+        top: String,
+        right: String,
+        bottom: String,
+        left: String,
     }
 })
 

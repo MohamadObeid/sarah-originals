@@ -8,23 +8,10 @@ const titleSchema = {
 const controlsSchema = new mongoose.Schema({
     active: Boolean,
     name: { type: String, unique: true },
-    actionNote: {
-        active: Boolean,
-        styles: {
-            desktop: {
-                _id: String,
-                type: String,
-                name: String,
-            }
-        }
-    },
     HomeScreen: [{
         active: Boolean,
         name: String,
         title: titleSchema,
-        controllable: Boolean,
-        controlAction: String,
-
         styles: {
             desktop: {
                 _id: String,
@@ -33,13 +20,23 @@ const controlsSchema = new mongoose.Schema({
             }
         },
 
-        slider: [{
+        controllable: Boolean,
+        controller: Boolean,
+        action: String,
+        control: {
+            event: String,
             title: titleSchema,
-            control: {
-                controllable: Boolean,
-                commander: Boolean,
-                action: String,
-            },
+            collections: {
+                type: { type: String },
+                collections: [String],
+                limit: { type: Number, default: 10 },
+                sort: { type: String, default: 'Recent' },
+            }
+        },
+
+        slider: [{
+            name: String,
+            title: titleSchema,
 
             collections: {
                 type: { type: String },
@@ -47,6 +44,39 @@ const controlsSchema = new mongoose.Schema({
                 limit: { type: Number, default: 10 },
                 sort: { type: String, default: 'Recent' },
             },
+
+            controllable: Boolean,
+            controller: Boolean,
+            action: String,
+            control: {
+                event: String,
+                title: titleSchema,
+                collections: {
+                    type: { type: String },
+                    collections: [String],
+                    limit: { type: Number, default: 10 },
+                    sort: { type: String, default: 'Recent' },
+                }
+            },
+
+            slide: [{
+                name: String,
+                title: titleSchema,
+
+                controllable: Boolean,
+                controller: Boolean,
+                action: String,
+                control: {
+                    event: String,
+                    title: titleSchema,
+                    collections: {
+                        type: { type: String },
+                        collections: [String],
+                        limit: { type: Number, default: 10 },
+                        sort: { type: String, default: 'Recent' },
+                    }
+                },
+            }],
 
             slides: [{
                 title: String,

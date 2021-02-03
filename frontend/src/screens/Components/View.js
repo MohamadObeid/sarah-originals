@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getSlides } from '../../actions/slidesActions';
 import { getStyles } from '../../actions/stylesActions';
 import { MagicBox } from './MagicBox';
+//import { LiteBox } from './LiteBox';
 
 export const View = ({ view, viewPort, touchScreen }) => {
     const dispatch = useDispatch()
@@ -11,60 +12,46 @@ export const View = ({ view, viewPort, touchScreen }) => {
 
     var slides = []
 
-    // AddToCart default styles
-    const defaultAddToCartStyles = useSelector(state => state.styles.find(styles =>
-        styles.name === 'Default Desktop AddToCart Styles'
-    ))
-
-    // Slider default styles
-    const defaultStyles = useSelector(state => state.styles.find(styles =>
-        styles.name === 'Default Desktop MagicBox Styles'))
-
     // Box styles
     const styles = useSelector(state => state.styles.find(styles =>
         styles._id === stylesProps._id || styles.name === stylesProps.name
     ))
 
-    // get all slideLists => if (magicBoc) get slides from server
     useSelector(state => { if (!styles) slides = state.slides })
 
-
+    var requested
     useEffect(() => {
-        if (!styles) {
+        if (!styles && !requested) {
+            requested = true
             const _id = stylesProps._id
             const name = stylesProps.name
             const type = stylesProps.type
 
             dispatch(getStyles({ _id, name, type }))
-
-            if (type === 'MagicBox') {
-                // get non existing slides
-                view.slider && view.slider.map(slider => {
-                    var slidesExist = slides.find(slidesList => slidesList._id === slider._id)
-                    if (!slidesExist)
-                        dispatch(getSlides(slider))
-                })
-            }
+            view.slider && view.slider.map(slider => {
+                var slidesExist = slides.find(slidesList => slidesList._id === slider._id)
+                if (!slidesExist)
+                    dispatch(getSlides(slider))
+            })
         }
     }, [styles])
 
-    if (styles && defaultStyles) {
+    if (styles) {
         if (type === 'MagicBox') {
 
-            // Send AddToCart styles within styles
-            if (defaultAddToCartStyles) {
-                defaultStyles.slider[0].product.addToCart = defaultAddToCartStyles
+            return <MagicBox
+                styles={styles}
+                touchScreen={touchScreen}
+                magicBox={view} />
 
-                return <MagicBox
-                    styles={styles}
-                    defaultStyles={defaultStyles}
-                    touchScreen={touchScreen}
-                    magicBox={view} />
-            } else return <></>
+        }/* else if (type === 'LiteBox') {
 
-        } else if (type === 'LiteBox') {
-            /*<LiteBox styles={styles} defaultStyles={defaultStyles} touchScreen={touchScreen} liteBox={view} />*/
-        } else return <></>
+            return <LiteBox
+                styles={styles}
+                touchScreen={touchScreen}
+                liteBox={view} />
+
+        }*/ else return <></>
 
     } else return <></>
 }

@@ -1710,7 +1710,6 @@ export const magicBoxStyles = [{
     overlayPadding: '2rem 4rem',
     paddingAround: '1rem',
     paddingBetween: '1rem',
-    background: { color: '#f9f9f9' },
     slider: [{
         type: 'Image',
         display: 'flex',
@@ -1952,7 +1951,6 @@ export const magicBoxStyles = [{
     overlayPadding: '2rem 4rem',
     paddingAround: '0.5rem',
     paddingBetween: '0',
-    background: { color: '#f9f9f9' },
     title: { display: 'none' },
     slider: [{
         type: 'Image',
@@ -1970,9 +1968,12 @@ export const magicBoxStyles = [{
             strokeLine: {
                 color: '#d3b25d',
             },
-            chevron: {
-                color: '#d3b25d',
-                transform: 'rotate(90deg)'
+            showAll: {
+                direction: 'Y',
+                chevron: {
+                    color: '#d3b25d',
+                    transform: 'rotate(90deg)'
+                }
             }
         },
         slide: [{
@@ -1995,13 +1996,15 @@ export const magicBoxStyles = [{
                     display: 'none'
                 },
                 showAll: {
-                    text: '',
-                    margin: '0'
+                    margin: '0',
+                    text: {
+                        text: 'none'
+                    },
+                    chevron: {
+                        color: '#d3b25d',
+                        fontSize: '1.7rem'
+                    }
                 },
-                chevron: {
-                    color: '#d3b25d',
-                    fontSize: '1.7rem'
-                }
             },
             image: {
                 borderRadius: '0.5rem',
@@ -2095,7 +2098,6 @@ export const magicBoxStyles = [{
     overlayPadding: '2rem 4rem',
     paddingAround: '1rem',
     paddingBetween: '0',
-    background: { color: '#f9f9f9' },
     slider: [{
         type: 'Image',
         display: 'flex',
@@ -2207,7 +2209,6 @@ export const magicBoxStyles = [{
     overlayPadding: '2rem 4rem',
     paddingAround: '1rem',
     paddingBetween: '0',
-    background: { color: '#f9f9f9' },
     title: {
         name: 'Top-Fish-100',
         design: 'Fish',
@@ -2335,7 +2336,7 @@ export const magicBoxStyles = [{
     paddingAround: '0.5rem',
     paddingBetween: '0',
     height: 'fit-content',
-    background: { color: '#6bb927' },
+    backgroundColor: '#6bb927',
     borderRadius: '0.5rem',
     boxShadow: false,
     slider: [{
@@ -2502,7 +2503,6 @@ export const magicBoxStyles = [{
     overlayPadding: '2rem 4rem',
     paddingAround: '0.5rem',
     paddingBetween: '0',
-    background: { color: '#f9f9f9' },
     slider: [{
         type: 'Product',
         display: 'flex',
@@ -2625,7 +2625,6 @@ export const magicBoxStyles = [{
     overlayPadding: '2rem 4rem',
     paddingAround: '0',
     paddingBetween: '0',
-    background: { color: '#f9f9f9' },
     slider: [{
         type: 'Product',
         display: 'flex',
@@ -2639,26 +2638,31 @@ export const magicBoxStyles = [{
         overflow: 'hidden',
         title: {
             name: 'Light Bottom Stroke 100',
-            padding: '1rem 1rem 0 1rem',
+            padding: '1rem 2rem 0 2rem',
             alignItems: 'flex-end',
             justifyContent: 'flex-end',
             title: {
-                border: '1px solid red',
-                padding: '1.2rem 2rem 1.2rem 0'
+                border: '0',
+                padding: '1.2rem 2rem 1.2rem 0',
+                textBorder: {
+                    display: 'flex',
+                    beforeBackgroundColor: 'red',
+                    afterBackgroundColor: 'red'
+                }
             },
             strokeLine: {
                 height: '1px',
-                color: '#00000020'
+                backgroundColor: '#cccccc'
             },
             showAll: {
                 position: 'absolute',
                 color: '#00000090',
                 padding: '1.2rem 1rem',
+                chevron: {
+                    color: '#00000080',
+                    fontSize: '1.6rem'
+                }
             },
-            chevron: {
-                color: '#00000080',
-                fontSize: '1.6rem'
-            }
         },
         slide: [{
             isDefault: true,
@@ -2807,7 +2811,7 @@ export const magicBoxStyles = [{
     overlayPadding: '2rem 4rem',
     paddingAround: '0',
     paddingBetween: '2%',
-    background: { color: '#fff' },
+    backgroundColor: 'inherit',
     slider: [{
         type: 'Product',
         display: 'flex',
@@ -2824,28 +2828,25 @@ export const magicBoxStyles = [{
             name: 'Light Bottom Stroke 100 (No show more)',
             display: 'flex',
             padding: '1rem 1rem 0 1rem',
-            border: '0',
+            borderBottom: '1px solid #cccccc',
             alignItems: 'flex-end',
             justifyContent: 'flex-end',
             title: {
-                border: '1px solid red',
-                padding: '1.2rem 2rem 1.2rem 0'
+                border: '0',
+                padding: '1.2rem 2rem 1.2rem 0',
+                textBorder: {
+                    display: 'flex',
+                    beforeBackgroundColor: 'red',
+                    afterBackgroundColor: 'red',
+                }
             },
             strokeLine: {
                 height: '1px',
-                color: '#00000020'
+                backgroundColor: '#cccccc'
             },
             showAll: {
-                display: 'none',
-                position: 'absolute',
-                color: '#00000080',
-                fontSize: '1.4rem',
-                padding: '1.2rem 0',
+                display: 'none'
             },
-            chevron: {
-                color: '#00000080',
-                fontSize: '1.6rem'
-            }
         },
         slide: [{
             index: 0,
@@ -2867,16 +2868,28 @@ export const magicBoxStyles = [{
                 name: 'Simple Slide Title',
                 margin: '0 0 1rem 0',
                 justifyContent: 'center',
+                border: '1px solid #aaaaaa',
+                borderBottom: '1px solid #aaaaaa',
+                borderRadius: '1rem',
+                width: 'fit-content',
+                padding: '0.8rem 2.5rem',
+                margin: '0 0 3rem 0',
                 title: {
-                    fontSize: '1.6rem',
+                    fontSize: '1.4rem',
                     margin: '0',
                 },
                 strokeLine: {
                     display: 'none'
                 },
                 showAll: {
-                    text: '',
-                    margin: '0'
+                    margin: '0',
+                    text: {
+                        text: 'none',
+                    },
+                    chevron: {
+                        color: '#d3b25d',
+                        fontSize: '1.7rem'
+                    }
                 },
                 chevron: {
                     color: '#444444',
@@ -3062,7 +3075,10 @@ export const magicBoxStyles = [{
         // timer bar
         timerBar: {
             display: 'flex',
-            margin: '0 0 1rem 0'
+            position: 'unset',
+            margin: '0 0 1rem 0',
+            height: '1px',
+            transition: 'all 7s',
         },
         // swiper
         swiper: {
@@ -3278,7 +3294,53 @@ export const magicBoxStyles = [{
             }
         },
     }]
-}*/]
+}*/ {
+    name: 'Action Note Desktop',
+    type: 'MagicBox',
+    viewPort: 'desktop',
+    position: 'fixed',
+    paddingAround: '0',
+    borderRadius: '0 0 2rem 2rem',
+    width: 'fit-content',
+    maxWidth: '40rem',
+    minWidth: '40rem',
+    beforeTransform: 'translateY(-100%)',
+    afterTransform: 'translateY(0)',
+    beforeBoxShadow: 'unset',
+    afterBoxShadow: '0 0 4px rgba(33, 33, 33, 0.431)',
+    backgroundColor: '#f0c040ec',
+    zIndex: '999',
+    canHide: true,
+    timerBar: {
+        display: 'flex'
+    },
+    closeBtn: {
+        display: 'flex'
+    },
+    title: {
+        design: 'Classic',
+        beforeBackgroundColor: 'unset',
+        afterBackgroundColor: 'unset',
+        padding: '0.8rem 2.5rem',
+        justifyContent: 'center',
+        margin: '0',
+        title: {
+            beforeColor: '#222222',
+            afterColor: '#222222',
+            fontSize: '1.5rem',
+            margin: '0',
+            textBorder: {
+                display: 'none'
+            }
+        },
+        strokeLine: {
+            display: 'none',
+        },
+        showAll: {
+            display: 'none'
+        }
+    }
+}]
 
 /*export const defaultMobileStyles = {
     viewPort: 'mobile',
