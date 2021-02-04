@@ -2019,7 +2019,8 @@ export const magicBoxStyles = [{
             direction: 'Y',
             autoPlay: {
                 duration: 3000,
-                run: true
+                run: true,
+                stopOnHover: true
             },
             chevrons: {
                 display: 'none'

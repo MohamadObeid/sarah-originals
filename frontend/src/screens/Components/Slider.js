@@ -90,9 +90,9 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                 swiperHeight = ((slideHeight + gapWidth) * (parseInt(lineNum + 1)) - gapWidth) + 'px'
 
             if (autoPlay && !timeOut) {
-                clearTimeout(timeOut)
+                clearInterval(timeOut)
                 styles.width === '21%' && console.log(slides)
-                timeOut = setTimeout(() => chevronRight(), duration)
+                timeOut = setInterval(() => chevronRight(), duration)
                 toggleTimerBar(true)
             }
 
@@ -488,6 +488,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     var scrollTop = 0
     var scrollWidth = 0
     var scrollHeight = 0
+    var mouseDown, touchStart, mouseEnter
 
     var gapWidth = styles.paddingBetween || defaultStyles.paddingBetween
 
@@ -523,21 +524,29 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
     const mouseEnterHandler = e => {
         e.preventDefault()
-        clearTimeout(timeOut)
-        toggleTimerBar(false)
+        mouseEnter = true
+        if (stopOnHover) {
+            clearInterval(timeOut)
+            toggleTimerBar(false)
+        }
     }
 
     const mouseLeaveHandler = e => {
         e.preventDefault()
-        if (autoPlay) {
-            clearTimeout(timeOut)
-            timeOut = setTimeout(() => chevronRight(), duration)
+        mouseEnter = false
+        if (autoPlay && stopOnHover && !mouseDown) {
+            timeOut = setInterval(() => chevronRight(), duration)
             toggleTimerBar(true)
         }
+
     }
 
     const mouseDownHandler = (e) => {
         e.preventDefault()
+        mouseDown = true
+        clearInterval(timeOut)
+        toggleTimerBar(false)
+
         sliderWrapper.style.scrollBehavior = 'auto'
         drag = true
 
@@ -551,33 +560,37 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         scrollWidth = e.currentTarget.scrollWidth - e.currentTarget.clientWidth
         scrollHeight = e.currentTarget.scrollHeight - e.currentTarget.clientHeight
 
-        window.addEventListener('mousemove', mouseMoveHandler)
-        window.addEventListener('mouseup', mouseUpHandler)
         if (touchScreen) {
             window.addEventListener('touchend', mouseUpHandler)
             window.addEventListener('touchmove', touchMoveHandler)
-        }
-        if (autoPlay) {
-            clearTimeout(timeOut)
-            timeOut = []
+        } else {
+            window.addEventListener('mousemove', mouseMoveHandler)
+            window.addEventListener('mouseup', mouseUpHandler)
         }
     }
 
     const mouseUpHandler = (e) => {
         drag = false
+        mouseDown = false
+        touchStart = false
+
         sliderWrapper.style.scrollBehavior = scrollBehavior
         ToggleScroll(e)
         window.removeEventListener('mousemove', mouseMoveHandler)
         window.removeEventListener('mouseup', mouseUpHandler)
+
         if (touchScreen) {
             window.removeEventListener('touchend', mouseUpHandler)
             window.removeEventListener('touchmove', touchMoveHandler)
         }
-        if (autoPlay && !stopOnHover) {
-            clearTimeout(timeOut)
-            timeOut = setTimeout(() => chevronRight(), duration)
+
+        if (autoPlay && (touchScreen
+            ? !touchStart
+            : ((stopOnHover ? !mouseEnter : true) && !mouseDown))) {
+            timeOut = setInterval(() => chevronRight(), duration)
             toggleTimerBar(true)
         }
+
     }
 
     const mouseMoveHandler = (e) => {
@@ -609,10 +622,11 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     }
 
     const touchStartHandler = e => {
-        !stopOnHover && mouseDownHandler(e)
+        touchStart = true
+        mouseDownHandler(e)
         if (stopOnHover) {
             e.preventDefault()
-            clearTimeout(timeOut)
+            clearInterval(timeOut)
             toggleTimerBar(false)
         }
     }
@@ -647,13 +661,10 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         }
     }
 
-    const chevronRight = e => {
+    const chevronRight = (e) => {
         if (sliderWrapper) {
-            if (autoPlay) {
-                clearTimeout(timeOut)
-                timeOut = setTimeout(() => chevronRight(), duration)
-                toggleTimerBar(true)
-            }
+
+            toggleTimerBar(true)
 
             if (verticalSwiper) {
                 chevronBottom(e)
@@ -742,7 +753,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
         if (scrollBehavior === 'smooth') { // auto scroll
             if (verticalSwiper) {
-                if (currClientY < clientY && !maxScroll) chevronRight(e)
+                if (currClientY < clientY && !maxScroll) chevronRight(e, true)
                 else if (currClientY > clientY && !minScroll) chevronLeft(e)
             } else if (!verticalSwiper) {
                 if (currClientX < clientX && !maxScroll) chevronRight(e)//sliderWrapper.scrollLeft += Math.pow(mouseTravel, 2)
@@ -770,15 +781,19 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
             if (_idExist && !boxOpenned) {
                 boxOpenned = true
-                clearTimeout(timeOut)
-                timeOut = []
+                clearInterval(timeOut)
+                toggleTimerBar(false)
                 sliderWrapper.style.height = swiperHeight
 
             } else if (!_idExist && boxOpenned) {
-                if (autoPlay) {
-                    timeOut = [...timeOut, setInterval(() => chevronRight(), duration)]
+
+                if (autoPlay && (touchScreen
+                    ? !touchStart
+                    : ((stopOnHover ? !mouseEnter : true) && !mouseDown))) {
+                    timeOut = setInterval(() => chevronRight(), duration)
                     toggleTimerBar(true)
                 }
+
                 boxOpenned = false
                 if (swiperBox.height === 'slideHeight')
                     sliderWrapper.style.height = slideHeight + 'px'
@@ -832,7 +847,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     const toggleTimerBar = (state) => {
 
         if (timerBarStyle.display !== 'none') {
-            if (state) {
+            if (state && !mouseEnter && !touchStart) {
                 timerBar.style.transition = 'all 300ms'
                 timerBar.style.width = '0'
                 setTimeout(() => {
@@ -984,10 +999,12 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                     {/* Left Chevron */}
                     <div className='left-chevron-wrap'
                         onClick={e => {
-                            clearTimeout(timeOut)
+                            clearInterval(timeOut)
                             chevronLeft(e)
-                            var newTimeOut = []
-                            if (autoPlay) timeOut = [...newTimeOut, setInterval(() => chevronRight(), duration)]
+                            if (autoPlay) {
+                                timeOut = setInterval(() => chevronRight(), duration)
+                                toggleTimerBar(true)
+                            }
                         }}
                         style={{ ...chevrons, ...leftChevronWrapper }}
                         onMouseEnter={e => { e.currentTarget.style.backgroundColor = chevrons.hoverBackgroundColor }}
@@ -998,10 +1015,12 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                     {/* Right Chevron */}
                     <div className='right-chevron-wrap'
                         onClick={e => {
-                            clearTimeout(timeOut)
+                            clearInterval(timeOut)
                             chevronRight(e)
-                            var newTimeOut = []
-                            if (autoPlay) timeOut = [...newTimeOut, setInterval(() => chevronRight(), duration)]
+                            if (autoPlay) {
+                                timeOut = setInterval(() => chevronRight(), duration)
+                                toggleTimerBar(true)
+                            }
                         }}
                         style={{ ...chevrons, ...rightChevronWrapper }}
                         onMouseEnter={e => { e.currentTarget.style.backgroundColor = chevrons.hoverBackgroundColor }}
@@ -1011,17 +1030,17 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
                     {/*////////////////////// Swiper ///////////////////////*/}
                     <div className="slider-wrapper" style={swiperBox}
-                        onMouseDown={e => { e.preventDefault(); sliderWrapper && !stopOnHover && mouseDownHandler(e); }}
-                        onMouseEnter={e => { e.preventDefault(); sliderWrapper && stopOnHover && mouseEnterHandler(e); }}
-                        onMouseLeave={e => { sliderWrapper && stopOnHover && mouseLeaveHandler(e) }}
+                        onMouseDown={e => { e.preventDefault(); sliderWrapper && mouseDownHandler(e); }}
+                        onMouseEnter={e => { e.preventDefault(); sliderWrapper && mouseEnterHandler(e); }}
+                        onMouseLeave={e => { sliderWrapper && mouseLeaveHandler(e) }}
                         onTouchStart={e => { sliderWrapper && touchScreen && touchStartHandler(e) }}
-                        onTouchEnd={e => { sliderWrapper && stopOnHover && touchScreen && mouseLeaveHandler(e) }}
+                        onTouchEnd={e => { sliderWrapper && touchScreen && mouseLeaveHandler(e) }}
                         onScroll={e => swiper.swipable && toggleSlides()}>
 
                         {slides && slides.map((slide, index) => {
                             const i = getSlideIndex(index)
                             const timer = showTimer(slide.onSale)
-                            const slideBox = slider.slide.find(slideBox => slideBox.name === (slide.nameEn || slide.title))
+                            const slideBox = slider.slide.find(slideBox => slideBox.name === (slide.nameEn || slide.name))
                             return (
                                 <div className='slide-container' style={slideContainer(i)} key={index}>
                                     <div className='slide-wrapper' style={slideWrapperStyle(i)}>

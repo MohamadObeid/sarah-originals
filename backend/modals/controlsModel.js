@@ -79,7 +79,7 @@ const controlsSchema = new mongoose.Schema({
             }],
 
             slides: [{
-                title: String,
+                name: String,
                 src: String,
                 link: String
             }]
