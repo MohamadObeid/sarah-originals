@@ -17,16 +17,27 @@ const TitleSchema = new mongoose.Schema({
     borderRadius: String,// '0' },
     width: String,
     flexDirection: String,
+    position: String,
     title: {
-        beforeColor: String,
-        afterColor: String,
-        //position: String,// 'relative' },
-        fontSize: String,//'1.9rem' },
+        position: String,
+        flexDirection: String,
+        transform: String,
         border: String,// '0' },
+        borderRadius: String,
         padding: String,// '0' },
         margin: String,
+        text: {
+            beforeColor: String,
+            afterColor: String,
+            backgroundColor: String,
+            borderRadius: String,
+            fontSize: String,//'1.9rem' },
+            padding: String,// '0' },
+            fontWeight: String,
+        },
         textBorder: {
             display: String,
+            position: String,
             top: String,
             right: String,
             bottom: String,
@@ -36,7 +47,23 @@ const TitleSchema = new mongoose.Schema({
             borderRadius: String,
             beforeBackgroundColor: String,
             afterBackgroundColor: String,
-            transition: String
+            transition: String,
+            boxShadow: String
+        },
+        secondBorder: {
+            display: String,
+            position: String,
+            top: String,
+            right: String,
+            bottom: String,
+            left: String,
+            height: String,
+            width: String,
+            borderRadius: String,
+            beforeBackgroundColor: String,
+            afterBackgroundColor: String,
+            transition: String,
+            boxShadow: String
         }
     },
     strokeLine: {

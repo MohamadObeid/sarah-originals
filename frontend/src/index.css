@@ -4617,13 +4617,13 @@ button[disabled]:hover {
   transform: translateZ(0);
   backface-visibility: hidden !important;
   display: flex;
-  overflow: hidden;
   width: 100%;
   background-color: inherit;
   align-items: center;
   justify-content: center;
   min-height: fit-content;
-  z-index: 1;
+  z-index: 10;
+  top: 0;
 }
 
 .classic-title {
@@ -4633,9 +4633,9 @@ button[disabled]:hover {
   align-items: center;
   justify-content: center;
   min-width: fit-content;
-  z-index: 1;
   margin-right: 2rem;
   position: relative;
+  overflow: hidden;
 }
 
 .title-border {

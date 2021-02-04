@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import { useDispatch, useSelector } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import { useDispatch, useSelector } from 'react-redux'
 
 export const TitleContainer = React.memo(({ box, styles }) => {
     const dispatch = useDispatch()
@@ -15,7 +15,7 @@ export const TitleContainer = React.memo(({ box, styles }) => {
         const defaultTitle = defaultStyles.title
 
         //
-        const fishTitleStyle = {
+        const fishtitleStyle = {
             fontSize: title.fontSize || defaultTitle.fontSize,
             backgroundColor: title.color || defaultStyles.color,
         }
@@ -33,7 +33,19 @@ export const TitleContainer = React.memo(({ box, styles }) => {
         Object.entries(defaultStyles.title).map(([key, value]) => {
             titleStyle = { ...titleStyle, [key]: titleStyle[key] || value }
         })
-        titleStyle.color = titleStyle.beforeColor
+
+        var titleTextStyle = titleStyle.text
+        Object.entries(defaultStyles.title.text).map(([key, value]) => {
+            titleTextStyle = { ...titleTextStyle, [key]: titleTextStyle[key] || value }
+        })
+        titleTextStyle.color = titleTextStyle.beforeColor
+        titleTextStyle.cursor = 'pointer'
+
+        var secondBorder = titleStyle.secondBorder
+        Object.entries(defaultStyles.title.secondBorder).map(([key, value]) => {
+            secondBorder = { ...secondBorder, [key]: secondBorder[key] || value }
+        })
+        secondBorder.backgroundColor = secondBorder.beforeBackgroundColor
 
         var titleBorder = titleStyle.textBorder
         Object.entries(defaultStyles.title.textBorder).map(([key, value]) => {
@@ -124,66 +136,50 @@ export const TitleContainer = React.memo(({ box, styles }) => {
             dispatch({ type: 'REMOVE_FROM_ACTIONS', payload: action })
         }
 
-        if (design === 'Fish') {
-            return (
-                <div className={'fish-title-design title-wrap-' + _id}>
-                    <div className='fish-title-border' style={fishTitleBorderStyle} />
-                    <div className='fish-title-cont'>
-                        <div className='fish-title-left-border' style={color} />
-                        <div className='fish-title' style={fishTitleStyle}>{Title.title}</div>
-                        <div className='fish-title-right-border' style={color} />
+        return (
+            <div className={'classic-title-wrap title-wrap-' + _id}
+                style={titleWrapStyle}
+                onClick={(e) => { event === 'Click' && dispatch(controlHandler()); e.preventDefault() }}
+                onMouseEnter={(e) => { event === 'Hover' && dispatch(controlHandler()); e.preventDefault() }}
+                onMouseLeave={(e) => { event === 'Hover' && cancelControl(); e.preventDefault() }}>
+                {/* Title */}
+                <div className='classic-title' style={titleStyle}>
+                    {/* 1st border */}
+                    <div className='title-border' style={titleBorder}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = titleBorder.afterBackgroundColor}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = titleBorder.beforeBackgroundColor} />
+                    {/* title */}
+                    <div style={titleTextStyle}
+                        onMouseEnter={(e) => e.target.style.color = titleTextStyle.afterColor}
+                        onMouseLeave={(e) => e.target.style.color = titleTextStyle.beforeColor}>
+                        {Title.title}</div>
+                    {/* 2nd border */}
+                    <div className='1st-title-border' style={secondBorder}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = titleBorder.afterBackgroundColor}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = titleBorder.beforeBackgroundColor} />
+                </div>
+                {/* Middle Stroke */}
+                <div className='title-stroke' style={titleStroke} />
+                {/* showAll wrapper */}
+                <div className='classic-showall-wrap' style={showAllWrapStyle}>
+                    {/* border */}
+                    <div className='show-all-border' style={showAllBorder}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = showAllBorder.afterBackgroundColor}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = showAllBorder.beforeBackgroundColor} />
+                    {/* text */}
+                    <div style={showAllText}
+                        className='classic-showall'
+                        onClick={e => showMore(e)}
+                        onMouseEnter={(e) => e.currentTarget.style.color = showAllText.afterColor}
+                        onMouseLeave={(e) => e.currentTarget.style.color = showAllText.beforeColor}>
+                        {showAllText.text === 'none' ? '' : showAllText.text}
+                        <FontAwesomeIcon
+                            icon={faChevronRight}
+                            style={chevronStyle}
+                            className='faChevronRight' />
                     </div>
                 </div>
-            )
-        } else if (design === 'Classic') {
-            return (
-                <div className={'classic-title-wrap title-wrap-' + _id}
-                    style={titleWrapStyle}
-                    onClick={(e) => { event === 'Click' && dispatch(controlHandler()); e.preventDefault() }}
-                    onMouseEnter={(e) => { event === 'Hover' && dispatch(controlHandler()); e.preventDefault() }}
-                    onMouseLeave={(e) => { event === 'Hover' && cancelControl(); e.preventDefault() }}>
-                    {/* Title */}
-                    <div className='classic-title' style={titleStyle}
-                        onMouseEnter={(e) => e.target.style.color = titleStyle.afterColor}
-                        onMouseLeave={(e) => e.target.style.color = titleStyle.beforeColor}>
-                        {Title.title}
-                        {/* border */}
-                        <div className='title-border' style={titleBorder}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = titleBorder.afterBackgroundColor}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = titleBorder.beforeBackgroundColor} />
-                    </div>
-                    {/* Middle Stroke */}
-                    <div className='title-stroke' style={titleStroke} />
-                    {/* showAll wrapper */}
-                    <div className='classic-showall-wrap' style={showAllWrapStyle}>
-                        {/* border */}
-                        <div className='show-all-border' style={showAllBorder}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = showAllBorder.afterBackgroundColor}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = showAllBorder.beforeBackgroundColor} />
-                        {/* text */}
-                        <div style={showAllText}
-                            className='classic-showall'
-                            onClick={e => showMore(e)}
-                            onMouseEnter={(e) => e.currentTarget.style.color = showAllText.afterColor}
-                            onMouseLeave={(e) => e.currentTarget.style.color = showAllText.beforeColor}>
-                            {showAllText.text === 'none' ? '' : showAllText.text}
-                            <FontAwesomeIcon
-                                icon={faChevronRight}
-                                style={chevronStyle}
-                                className='faChevronRight' />
-                        </div>
-                    </div>
-                </div>
-            )
-            /*} else if (design === 'Stunning') {
-                return (
-                    <div className='stunning-wrap'>
-                        <div className='stunning-img-wrap'>
-                            <img src={url('../../images/stunning.png')} className='stunning-img' />
-                        </div>
-                    </div>
-                )
-            } else return <></>*/
-        } else return <></>
+            </div>
+        )
     }
 })

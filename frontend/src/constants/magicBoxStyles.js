@@ -1989,8 +1989,10 @@ export const magicBoxStyles = [{
                 margin: '0 0 1rem 0',
                 justifyContent: 'center',
                 title: {
-                    fontSize: '1.5rem',
                     margin: '0',
+                    text: {
+                        fontSize: '1.5rem'
+                    }
                 },
                 strokeLine: {
                     display: 'none'
@@ -2130,6 +2132,7 @@ export const magicBoxStyles = [{
         swiper: {
             swipable: true,
             direction: 'X',
+            skipMore: 30,
             chevrons: {
                 display: 'flex',
                 color: '#fff',
@@ -2212,12 +2215,51 @@ export const magicBoxStyles = [{
     paddingBetween: '0',
     title: {
         name: 'Top-Fish-100',
-        design: 'Fish',
+        padding: '0',
+        design: 'Classic',
+        beforeBackgroundColor: '#d3b25d',
+        afterBackgroundColor: '#d3b25d',
+        position: 'absolute',
+        alignItems: 'flex-start',
         title: {
-            fontSize: '1.5rem',
-            text: 'Surprising Products',
-            color: '#d3b25d',
+            position: 'absolute',
+            margin: '0 0 0 10rem',
+            text: {
+                fontSize: '1.6rem',
+                beforeColor: '#fff',
+                afterColor: '#fff',
+                backgroundColor: '#d3b25d',
+                padding: '0.2rem 1.5rem',
+                borderRadius: '0 0 1.7rem 1.7rem',
+                fontWeight: '500'
+            },
+            textBorder: {
+                display: 'flex',
+                position: 'unset',
+                width: '4rem',
+                height: '2.8rem',
+                borderRadius: '0 1.8rem 0 0',
+                boxShadow: '1.5rem -1.4rem 0 0 #d3b25d',
+                beforeBackgroundColor: '#00000000',
+                afterBackgroundColor: '#00000000',
+            },
+            secondBorder: {
+                display: 'flex',
+                position: 'unset',
+                width: '4rem',
+                height: '2.8rem',
+                borderRadius: '1.8rem 0 0 0',
+                boxShadow: '-1.5rem -1.4rem 0 0 #d3b25d',
+                beforeBackgroundColor: '#00000000',
+                afterBackgroundColor: '#00000000',
+            }
         },
+        strokeLine: {
+            top: '0',
+        },
+        showAll: {
+            display: 'none',
+        }
     },
     slider: [{
         type: 'Image',
@@ -2517,12 +2559,6 @@ export const magicBoxStyles = [{
         overflow: 'hidden',
         title: {
             name: 'Center Stroke 100',
-            strokeLine: {
-                color: '#d3b25d',
-            },
-            chevron: {
-                color: '#d3b25d',
-            }
         },
         slide: [{
             isDefault: true,
@@ -2829,7 +2865,7 @@ export const magicBoxStyles = [{
             name: 'Light Bottom Stroke 100 (No show more)',
             display: 'flex',
             padding: '1rem 1rem 0 1rem',
-            borderBottom: '1px solid #cccccc',
+            borderBottom: '0',
             alignItems: 'flex-end',
             justifyContent: 'flex-end',
             title: {
@@ -2876,7 +2912,7 @@ export const magicBoxStyles = [{
                 padding: '0.8rem 2.5rem',
                 margin: '0 0 3rem 0',
                 title: {
-                    fontSize: '1.4rem',
+                    text: { fontSize: '1.4rem' },
                     margin: '0',
                 },
                 strokeLine: {
@@ -2892,10 +2928,6 @@ export const magicBoxStyles = [{
                         fontSize: '1.7rem'
                     }
                 },
-                chevron: {
-                    color: '#444444',
-                    fontSize: '1.7rem'
-                }
             },
         }, {
             isDefault: true,
@@ -2905,7 +2937,6 @@ export const magicBoxStyles = [{
             width: '25rem',
             backgroundColor: '#fff',
             title: {
-                name: 'none',
                 display: 'none',
             },
             image: {
@@ -3000,20 +3031,19 @@ export const magicBoxStyles = [{
             justifyContent: 'center',
             margin: '1rem 0 0 0',
             title: {
-                fontSize: '1.4rem',
-                position: 'relative',
+                text: {
+                    fontSize: '1.4rem',
+                    beforeColor: '#606060',
+                    afterColor: '#606060'
+                },
                 padding: '0',
                 margin: '0',
-                color: '#606060'
             },
             strokeLine: {
-                width: '0%'
+                display: 'none'
             },
             showAll: {
                 display: 'none',
-            },
-            chevron: {
-                display: 'none'
             }
         },
         slide: [{
