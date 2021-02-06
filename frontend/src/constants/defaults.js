@@ -21,6 +21,8 @@ export const defaultTitleStyles = {
         borderRadius: '0',
         padding: '0',
         margin: '0 2rem 0 0',
+        beforeBackgroundColor: 'inherit',
+        afterBackgroundColor: 'inherit',
         text: {
             beforeColor: '#404040',
             afterColor: '#202020',
@@ -271,12 +273,14 @@ export const defaultMagicBoxStyles = {
         flexWrap: 'nowrap',
         border: '0',
         backgroundColor: 'inherit',
+        justifyContent: 'unset',
         overlayPadding: '0',
         paddingAround: '0',
         paddingBetween: '0',
         overflow: 'hidden',
         borderRadius: '0.5rem',
         canHide: false,
+        flexDirection: 'column',
         // slide
         slide: [{
             isDefault: true,
@@ -387,12 +391,12 @@ export const defaultMagicBoxStyles = {
             chevrons: {
                 display: 'none',
                 color: '#fff',
-                height: '8rem',
-                width: '4rem',
+                height: '9rem',
+                width: '4.5rem',
                 backgroundColor: '#00000040',
                 hoverBackgroundColor: '#00000060',
                 autoToggle: true,
-                boxShadow: true,
+                boxShadow: '0px 0px 10px 0px #fff',
             },
             autoPlay: {
                 duration: '2000',

@@ -1312,7 +1312,7 @@ input.checked[type="radio"] {
   scroll-behavior: auto;
   width: 100%;
   height: 100%;
-  transition: height 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
   backface-visibility: hidden !important;
 }
 
@@ -1359,6 +1359,11 @@ input.checked[type="radio"] {
   align-items: center;
   cursor: pointer;
   position: relative;
+  float: left;
+}
+
+.slide-wrapper:nth-child(n + 2) {
+  margin-left: -1px;
 }
 
 .slide-wrapper:last-child {
@@ -1401,7 +1406,6 @@ input.checked[type="radio"] {
   transition: all 0.5s ease;
   transition: background-color 0.3s ease;
   box-shadow: 0px 0px 10px 0px #fff;
-  /*clip-path: inset(0px -5px -5px -5px);*/
   border-radius: 0 0.5rem 0.5rem 0;
 }
 
@@ -1433,15 +1437,16 @@ input.checked[type="radio"] {
 .left-chevron-wrap {
   border-radius: 0 0.5rem 0.5rem 0;
   background-color: #ffffff70;
+  clip-path: inset(-15px -15px -15px 0px);
   display: none;
 }
 
 .right-chevron-wrap {
   border-radius: 0.5rem 0 0 0.5rem;
+  clip-path: inset(-15px 0px -15px -15px);
 }
 
 .slides-overlay {
-  display: flex;
   flex-direction: column;
   position: relative;
 }
@@ -4618,11 +4623,12 @@ button[disabled]:hover {
   backface-visibility: hidden !important;
   display: flex;
   width: 100%;
+  height: fit-content;
   background-color: inherit;
   align-items: center;
   justify-content: center;
   min-height: fit-content;
-  z-index: 10;
+  z-index: 998;
   top: 0;
 }
 
@@ -4636,6 +4642,7 @@ button[disabled]:hover {
   margin-right: 2rem;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .title-border {

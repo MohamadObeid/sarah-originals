@@ -1957,7 +1957,6 @@ export const magicBoxStyles = [{
         display: 'grid',
         height: 'slideHeight',
         flexWrap: 'wrap',
-        justifyContent: 'space-around',
         backgroundColor: 'inherit',
         width: '100%',
         paddingAround: '0.5rem',
@@ -2217,13 +2216,13 @@ export const magicBoxStyles = [{
         name: 'Top-Fish-100',
         padding: '0',
         design: 'Classic',
-        beforeBackgroundColor: '#d3b25d',
-        afterBackgroundColor: '#d3b25d',
         position: 'absolute',
         alignItems: 'flex-start',
         title: {
             position: 'absolute',
             margin: '0 0 0 10rem',
+            beforeBackgroundColor: '#00000000',
+            afterBackgroundColor: '#00000000',
             text: {
                 fontSize: '1.6rem',
                 beforeColor: '#fff',
@@ -2452,11 +2451,9 @@ export const magicBoxStyles = [{
             chevrons: {
                 display: 'flex',
                 color: '#fff',
-                height: '10rem',
-                width: '5rem',
                 backgroundColor: '#6bb927',
                 hoverBackgroundColor: '#6bb927',
-                boxShadow: false,
+                boxShadow: '0',
             },
             autoPlay: {
                 duration: 3000,
@@ -2583,8 +2580,6 @@ export const magicBoxStyles = [{
             chevrons: {
                 display: 'flex',
                 color: '#444444',
-                height: '9rem',
-                width: '4.5rem',
                 backgroundColor: '#f9f9f9',
                 hoverBackgroundColor: '#f9f9f9',
             },
@@ -2675,7 +2670,7 @@ export const magicBoxStyles = [{
         overflow: 'hidden',
         title: {
             name: 'Light Bottom Stroke 100',
-            padding: '1rem 2rem 0 2rem',
+            padding: '1rem 2rem',
             alignItems: 'flex-end',
             justifyContent: 'flex-end',
             title: {
@@ -2864,7 +2859,7 @@ export const magicBoxStyles = [{
         title: {
             name: 'Light Bottom Stroke 100 (No show more)',
             display: 'flex',
-            padding: '1rem 1rem 0 1rem',
+            padding: '1rem',
             borderBottom: '0',
             alignItems: 'flex-end',
             justifyContent: 'flex-end',
@@ -3029,7 +3024,7 @@ export const magicBoxStyles = [{
             border: '0',
             alignItems: 'center',
             justifyContent: 'center',
-            margin: '1rem 0 0 0',
+            margin: '1rem',
             title: {
                 text: {
                     fontSize: '1.4rem',
@@ -3240,7 +3235,6 @@ export const magicBoxStyles = [{
         display: 'grid',
         height: 'fit-content',
         flexWrap: 'wrap',
-        justifyContent: 'space-around',
         backgroundColor: 'inherit',
         width: '100%',
         paddingAround: '0',
@@ -3371,6 +3365,248 @@ export const magicBoxStyles = [{
             display: 'none'
         }
     }
+}, {
+    name: '2controlBox',
+    type: 'MagicBox',
+    viewPort: 'desktop',
+    overlayPadding: '2rem 4rem',
+    paddingAround: '0',
+    paddingBetween: '0',
+    backgroundColor: '#f9f9f9',
+    border: '1px solid #eeeeee',
+    title: {
+        display: 'none',
+    },
+    slider: [{
+        //borderBottom: '1px solid #eeeeee',
+        borderRadius: '0.2rem 0.2rem 0 0',
+        type: 'Product',
+        display: 'flex',
+        width: '100%',
+        overlayPadding: '0',
+        paddingAround: '0 3rem 0 0',
+        paddingBetween: '1rem',
+        flexDirection: 'row',
+        backgroundColor: '#f9f9f9',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        title: {
+            display: 'flex',
+            width: 'auto',
+            margin: '0 2rem',
+            padding: '0',
+            title: {
+                padding: '0',
+                margin: '0',
+                icon: {
+                    display: 'flex',
+                    name: 'Filter',
+                    fontSize: '1.8rem',
+                    margin: '0 1rem 0 0',
+                    color: '#888888',
+                    hoverColor: '#444444'
+                },
+                text: {
+                    fontSize: '1.5rem'
+                }
+            },
+            strokeLine: {
+                display: 'none'
+            },
+            showAll: {
+                display: 'none'
+            }
+        },
+        /*title: {
+            
+            padding: '0',
+            position: 'relative',
+            alignItems: 'flex-start',
+            justifyContent: 'flex-start',
+            title: {
+                position: 'absolute',
+                margin: '0 0 0 2rem',
+                text: {
+                    fontSize: '1.9rem',
+                    beforeColor: '#fff',
+                    afterColor: '#fff',
+                    backgroundColor: '#6bb927',
+                    padding: '0.8rem 3.5rem',
+                    borderRadius: '0 0 5rem 5rem',
+                    fontWeight: '500'
+                },
+                textBorder: {
+                    display: 'flex',
+                    transform: 'translateX(1rem)',
+                    position: 'unset',
+                    width: '4rem',
+                    height: '4rem',
+                    borderRadius: '0 5rem 0 0',
+                    boxShadow: '0 -1.8rem 0 0 #6bb927',
+                    beforeBackgroundColor: '#00000000',
+                    afterBackgroundColor: '#00000000',
+                },
+                secondBorder: {
+                    display: 'flex',
+                    transform: 'translateX(-1rem)',
+                    position: 'unset',
+                    width: '4rem',
+                    height: '4rem',
+                    borderRadius: '5rem 0 0 0',
+                    boxShadow: '0 -1.8rem 0 0 #6bb927',
+                    beforeBackgroundColor: '#00000000',
+                    afterBackgroundColor: '#00000000',
+                }
+            },
+            strokeLine: {
+                display: 'none'
+            },
+            showAll: {
+                display: 'none',
+            }
+        },*/
+        slide: [{
+            isDefault: true,
+            width: 'auto',
+            justifyContent: 'center',
+            productVisible: false,
+            title: {
+                width: 'fit-content',
+                justifyContent: 'center',
+                position: 'unset',
+                margin: '0.5rem 0',
+                padding: '0',
+                title: {
+                    beforeBackgroundColor: 'inherit',
+                    afterBackgroundColor: '#00bfd6',
+                    padding: '0.2rem 2rem',
+                    borderRadius: '1rem',
+                    margin: '0',
+                    text: {
+                        fontSize: '1.4rem',
+                        beforeColor: '#444444',
+                        afterColor: '#fff',
+                        fontWeight: '400',
+                        hoverFontWeight: '500'
+                    },
+                },
+                strokeLine: {
+                    display: 'none',
+                },
+                showAll: {
+                    display: 'none',
+                }
+            },
+            // image
+            image: {
+                display: 'none'
+            },
+        }],
+        badges: {
+            display: 'none',
+        }
+    }, {
+        type: 'Product',
+        display: 'flex',
+        height: 'auto',
+        width: '100%',
+        flexWrap: 'nowrap',
+        justifyContent: 'initial',
+        backgroundColor: '#f9f9f9',
+        paddingAround: '0',
+        paddingBetween: '0',
+        overflow: 'hidden',
+        fixBorder: true,
+        slide: [{
+            isDefault: true,
+            borderRadius: '0',
+            border: '1px solid #eeeeee',
+            height: 'fit-content',
+            width: '25rem',
+            backgroundColor: '#fff',
+            transition: 'all .5s',
+            padding: '0.5rem 0 0 0',
+            title: {
+                display: 'none',
+            },
+            image: {
+                borderRadius: '0.5rem',
+                height: '20rem',
+                width: '20rem',
+                padding: '1rem',
+                animation: true,
+                forceWidth: false,
+            },
+        }],
+        borderMarker: {
+            autoPlay: true,
+            border: '1px solid #6bb927',
+            stopOnHover: true,
+            duration: 5000,
+        },
+        product: {
+            padding: '0 1rem',
+            priceAndAddToCartWrapper: {
+                padding: '0 1rem',
+                flexDirection: 'row',
+                justifyContent: 'space-between'
+            },
+            price: {
+                flexDirection: 'column',
+                textAlign: 'left',
+            },
+            reviews: {
+                display: 'none'
+            },
+            rating: {
+                display: 'none'
+            },
+            addToCart: {
+                name: 'AddToCart DigiStyle',
+                add: {
+                    btn: 'plus',
+                    fontSize: '1.4rem',
+                    height: '4.3rem',
+                    width: '5.5rem',
+                    borderRadius: '.8rem',
+                },
+                plus: {
+                    height: '3.5rem',
+                    width: '4rem',
+                },
+                minus: {
+                    height: '3.5rem',
+                    width: '4rem',
+                },
+                num: {
+                    height: '3.5rem',
+                    width: '4rem',
+                }
+            }
+        },
+        swiper: {
+            swipable: true,
+            direction: 'X',
+            chevrons: {
+                display: 'flex',
+                backgroundColor: '#f9f9f9',
+                hoverBackgroundColor: '#f9f9f9',
+                color: '#444444',
+                border: '1px solid #eeeeee'
+            },
+            autoPlay: {
+                duration: 3000,
+                run: false,
+            },
+            scroll: {
+                behavior: 'smooth',
+                autoToggle: false,
+            },
+            bullets: {
+                display: 'none'
+            }
+        }
+    }]
 }]
 
 /*export const defaultMobileStyles = {

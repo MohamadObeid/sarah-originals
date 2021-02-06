@@ -8,6 +8,7 @@ const TitleSchema = new mongoose.Schema({
     design: String,// 'Classic' },
     borderBottom: String,// '0' },
     border: String,// '0' },
+    borderRadius: String,
     beforeBackgroundColor: String,
     afterBackgroundColor: String,
     alignItems: String,//'center' },
@@ -18,14 +19,26 @@ const TitleSchema = new mongoose.Schema({
     width: String,
     flexDirection: String,
     position: String,
+    transform: String,
     title: {
         position: String,
+        display: String,
         flexDirection: String,
         transform: String,
         border: String,// '0' },
         borderRadius: String,
         padding: String,// '0' },
         margin: String,
+        beforeBackgroundColor: String,
+        afterBackgroundColor: String,
+        icon: {
+            display: String,
+            name: String,
+            fontSize: String,
+            margin: String,
+            color: String,
+            hoverColor: String
+        },
         text: {
             beforeColor: String,
             afterColor: String,
@@ -34,6 +47,7 @@ const TitleSchema = new mongoose.Schema({
             fontSize: String,//'1.9rem' },
             padding: String,// '0' },
             fontWeight: String,
+            hoverFontWeight: String,
         },
         textBorder: {
             display: String,
@@ -44,6 +58,7 @@ const TitleSchema = new mongoose.Schema({
             left: String,
             height: String,
             width: String,
+            transform: String,
             borderRadius: String,
             beforeBackgroundColor: String,
             afterBackgroundColor: String,
@@ -63,7 +78,8 @@ const TitleSchema = new mongoose.Schema({
             beforeBackgroundColor: String,
             afterBackgroundColor: String,
             transition: String,
-            boxShadow: String
+            boxShadow: String,
+            transform: String,
         }
     },
     strokeLine: {
@@ -158,6 +174,7 @@ const MagicBoxSchema = new mongoose.Schema({
     flexDirection: String,// default: 'column' },
     overlayPadding: String,// '0' },
     backgroundColor: String,
+    border: String,
     background: {
         isImage: Boolean,//false },
         title: String,//''
@@ -212,13 +229,20 @@ const MagicBoxSchema = new mongoose.Schema({
         width: String,// 'auto' },
         flexWrap: String,// 'nowrap' },
         border: String,// '0' },
+        borderTop: String,
+        borderBottom: String,
         backgroundColor: String,// 'inherit' },
         paddingAround: String,// '0' },
         paddingBetween: String,// '0' },
         overflow: String,// 'hidden' },
         borderRadius: String,// '0.5rem' },
         canHide: Boolean,
+        flexDirection: String,
+        transition: String,
+        justifyContent: String,
+        alignItems: String,
         title: TitleSchema,
+        fixBorder: Boolean,
         // slide
         slide: [{
             isDefault: Boolean,
@@ -231,16 +255,20 @@ const MagicBoxSchema = new mongoose.Schema({
             backgroundColor: String,// 'inherit' },
             justifyContent: String,// 'flex-start' },
             productVisible: Boolean,
+            transition: String,
+            padding: String,
             // slide Title
             title: TitleSchema,
             // image
             image: {
+                display: String,
                 borderRadius: String,// '0' },
                 height: String,// 'auto' },
                 width: String,// 'auto' },
                 forceWidth: Boolean,//false },
                 forceHeight: Boolean,
                 animation: Boolean,//true },
+                padding: String,
             },
         }],
         // product
@@ -326,6 +354,12 @@ const MagicBoxSchema = new mongoose.Schema({
             backgroundColor: String,
             transition: String,
         },
+        borderMarker: {
+            autoPlay: Boolean,
+            border: String,
+            stopOnHover: Boolean,
+            duration: Number,
+        },
         // swiper
         swiper: {
             swipable: Boolean,//true },
@@ -339,8 +373,9 @@ const MagicBoxSchema = new mongoose.Schema({
                 width: String,// '4rem' },
                 backgroundColor: String,// '#00000040' },
                 hoverBackgroundColor: String,// '#00000060' },
+                border: String,
                 autoToggle: Boolean,//true },
-                boxShadow: Boolean,//true },
+                boxShadow: String,//true },
             },
             autoPlay: {
                 duration: String,// '2000' },

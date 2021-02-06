@@ -27,13 +27,15 @@ const App = React.memo(() => {
     dispatch(getStyles({ name: 'Default Desktop AddToCart Styles', type: 'AddToCart' }))
     dispatch(getStyles({ name: 'Default Desktop Title Styles', type: 'Title' }))
     dispatch(getStyles({ name: 'Default Desktop MagicBox Styles', type: 'MagicBox' }))
-    dispatch(getControls({ limit: 10 }))
+    //dispatch(getStyles({ type: 'MagicBox' }))
+    dispatch(getControls({ limit: 11 }))
 
     // save requests
-    //dispatch(saveControls(Controls))
+    dispatch(saveControls(Controls))
     dispatch(saveStyles([...magicBoxStyles, defaultMagicBoxStyles, defaultTitleStyles, defaultAddToCartStyles]))
 
     // delete requests
+    //dispatch(deleteStyles({ type: 'MagicBox', name: '2controlBox' }))
     //dispatch(deleteControls({ deleteAll: true }))
     //dispatch(deleteStyles({ deleteAll: true, type: 'Title' }))
     //dispatch(deleteStyles({ deleteAll: true, type: 'MagicBox' }))

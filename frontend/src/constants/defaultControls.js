@@ -258,6 +258,94 @@ export const Controls = {
         }]
     }, {
         active: true,
+        name: 'Controller-Controllabel',
+        styles: {
+            desktop: {
+                type: 'MagicBox',
+                name: '2controlBox'
+            }
+        },
+        slider: [{
+            title: {
+                title: 'Filter By : '
+            },
+            controller: true,
+            action: 'changeSlides',
+            control: {
+                event: 'Click',
+                collections: {
+                    type: 'Product',
+                    collections: ['Popular', 'Featured', 'New Arrival', 'Special'],
+                    limit: 100,
+                }
+            },
+            slide: [{
+                title: {
+                    title: 'Popular'
+                },
+                controller: true,
+                action: 'changeSlides',
+                control: {
+                    event: 'Click',
+                    collections: {
+                        type: 'Product',
+                        collections: ['Popular'],
+                        limit: 100,
+                    }
+                }
+            }, {
+                title: {
+                    title: 'Featured'
+                },
+                controller: true,
+                action: 'changeSlides',
+                control: {
+                    event: 'Click',
+                    collections: {
+                        type: 'Product',
+                        collections: ['Featured'],
+                        limit: 100,
+                    }
+                }
+            }, {
+                title: {
+                    title: 'New Arrival'
+                },
+                controller: true,
+                action: 'changeSlides',
+                control: {
+                    event: 'Click',
+                    collections: {
+                        type: 'Product',
+                        collections: ['New Arrival'],
+                        limit: 100,
+                    }
+                }
+            }, {
+                title: {
+                    title: 'Special'
+                },
+                controller: true,
+                action: 'changeSlides',
+                control: {
+                    event: 'Click',
+                    collections: {
+                        type: 'Product',
+                        collections: ['Special'],
+                        limit: 100,
+                    }
+                }
+            }]
+        }, {
+            collections: {
+                type: 'Product',
+                collections: ['Popular'],
+            },
+            controllable: true,
+            action: 'changeSlides',
+        }]
+    }, {
+        active: true,
         name: 'Sub_Banners',
         styles: {
             desktop: {

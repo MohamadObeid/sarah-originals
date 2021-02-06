@@ -8,14 +8,20 @@ import { MagicBox } from './MagicBox';
 export const View = ({ view, viewPort, touchScreen }) => {
     const dispatch = useDispatch()
     const stylesProps = view.styles[viewPort]
-    const type = stylesProps.type
 
     var slides = []
-
+    var stylesExists
     // Box styles
-    const styles = useSelector(state => state.styles.find(styles =>
-        styles._id === stylesProps._id || styles.name === stylesProps.name
-    ))
+    const styles = useSelector(state => {
+        if (!stylesExists) {
+            var styles = state.styles.find(styles =>
+                (stylesProps._id && styles._id === stylesProps._id) || styles.name === stylesProps.name
+            )
+            if (styles) return styles
+        } else return
+    })
+
+    stylesExists = styles
 
     useSelector(state => { if (!styles) slides = state.slides })
 
@@ -36,22 +42,9 @@ export const View = ({ view, viewPort, touchScreen }) => {
         }
     }, [styles])
 
-    if (styles) {
-        if (type === 'MagicBox') {
-
-            return <MagicBox
-                styles={styles}
-                touchScreen={touchScreen}
-                magicBox={view} />
-
-        }/* else if (type === 'LiteBox') {
-
-            return <LiteBox
-                styles={styles}
-                touchScreen={touchScreen}
-                liteBox={view} />
-
-        }*/ else return <></>
-
-    } else return <></>
+    return styles ? <MagicBox
+        styles={styles}
+        touchScreen={touchScreen}
+        magicBox={view} />
+        : <></>
 }

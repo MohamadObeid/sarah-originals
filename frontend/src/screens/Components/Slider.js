@@ -9,9 +9,11 @@ import { showTimer } from '../../methods/methods'
 import { Timer } from './SliderComponents'
 import { AddToCart } from './AddToCart'
 import { Badges } from './Badges'
+import { getSlides } from '../../actions/slidesActions'
 
 export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }) => {
     const dispatch = useDispatch()
+
     var slidesExist
     var timeOut
     var sliderWrapper
@@ -26,6 +28,13 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     var lastClientX
     var swiperHeight
     var defaultSlideIndex
+    var slideWrapper
+    var productTimerWrapper
+    var toggleBorderInterval
+    var borderIndex = 0
+    var titleSlides = slider.slide
+        .filter(slide => !slide.name)
+        .map(slide => slide.title)
 
     const _id = slider._id
     const TitleStyles = styles.title
@@ -44,28 +53,57 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     const defaultAddToCart = defaultProduct.addToCart
 
     const slides = useSelector(state => {
-        slidesExist = state.slides.find(slidesList => slidesList._id === slider._id)
-        if (slidesExist) return slidesExist.slides
+        if (slider.controllable && state.actions[slider.action]) {
+            if (state.actions[slider.action].slides !== currentSlides) {
+                if (slideWrapper && borderMarker) {
+                    slideWrapper[borderIndex === 0 ? 0 : borderIndex - 1].style.border = slideWrapperStyle(getSlideIndex(borderIndex)).border
+                    clearInterval(toggleBorderInterval)
+                }
+                return state.actions[slider.action].slides
+
+            } else return currentSlides
+        } else {
+            slidesExist = state.slides.find(slidesList => slidesList._id === slider._id)
+            if (slidesExist) return slidesExist.slides
+        }
     })
+    //console.log('rendered')
+
+    if (titleSlides.length > 0 && slides) {
+        const added = slides.find(slide => slide == titleSlides[0])
+        if (!added) slides.push(...titleSlides)
+    }
+    var currentSlides = slides
 
     useEffect(() => {
         if (slides) {
+
             element = document.getElementsByClassName('slider-' + _id)[0]
             sliderWrapper = element.getElementsByClassName('slider-wrapper')[0]
             leftChevron = element.getElementsByClassName('left-chevron-wrap')[0]
             rightChevron = element.getElementsByClassName('right-chevron-wrap')[0]
             timerBar = element.getElementsByClassName('timer-bar')[0]
-            const slideWrapper = [...element.getElementsByClassName('slide-wrapper')]
+            slideWrapper = [...element.getElementsByClassName('slide-wrapper')]
+            productTimerWrapper = element.getElementsByClassName('product-timer-wrap')
+
             var maxHeight = 0
+
+            // collapse wrapper totally
+            if (slides.length === 0) {
+                element.style.padding = '0'
+                sliderWrapper.style.padding = '0'
+            } else {
+                element.style.padding = slidesOverlayStyle.padding
+                sliderWrapper.style.padding = swiperBox.padding
+            }
 
             slideWrapper.map(e => {
                 if (e.offsetHeight > maxHeight)
                     maxHeight = e.offsetHeight
 
                 // if slide have a product timer => align the timer to the end
-                if (e.getElementsByClassName('product-timer-wrap') &&
-                    e.getElementsByClassName('product-timer-wrap').length > 0)
-                    e.getElementsByClassName('product-details-wrap')[0].style.justifyContent = 'space-between'
+                if (productTimerWrapper && productTimerWrapper.length > 0)
+                    productTimerWrapper[0].style.justifyContent = 'space-between'
             })
 
             for (var i = 0, len = slideWrapper.length; i < len; i++) {
@@ -73,10 +111,10 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             }
 
             slideHeight = maxHeight
-            slideWidth = element.getElementsByClassName('slide-wrapper')[0] && element.getElementsByClassName('slide-wrapper')[0].offsetWidth
+            slideWidth = slideWrapper[0] && slideWrapper[0].offsetWidth
 
             if (swiperBox.height === 'slideHeight')
-                sliderWrapper.style["height"] = slideHeight + 'px'
+                sliderWrapper.style["height"] = slideHeight + (fixBorder ? 1 : 0) + 'px'
 
             widthSlideSkipper = (slideWidth + gapWidth) * skip
             heightSlideSkipper = (slideHeight + gapWidth) * skip
@@ -91,12 +129,14 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
             if (autoPlay && !timeOut && !boxOpenned) {
                 clearInterval(timeOut)
-                styles.width === '21%' && console.log(slides)
                 timeOut = setInterval(() => chevronRight(), duration)
                 toggleTimerBar(true)
             }
 
             if (swiper.swipable) toggleSlides(true)
+            if (borderMarker.autoPlay) {
+                toggleBorderInterval = setInterval(() => { toggleBorder() }, borderMarker.duration)
+            }
         }
     }, [slides])
 
@@ -104,7 +144,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     if (defaultSlideIndex === -1) defaultSlideIndex = undefined
 
     const skipMore = swiper.skipMore || defaultSwiper.skipMore
-
+    const fixBorder = styles.fixBorder || defaultStyles.fixBorder
     const scrollBehavior = swiper.scroll && swiper.scroll.behavior || defaultSwiper.scroll.behavior
     const verticalSwiper = (swiper.direction === 'Y' || defaultSwiper.direction === 'Y') ? true : false
 
@@ -113,12 +153,17 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         width: styles.width || defaultStyles.width,
         backgroundColor: styles.backgroundColor || defaultStyles.backgroundColor,
         border: styles.border || defaultStyles.border,
-        borderRadius: styles.borderRadius || defaultStyles.borderRadius
+        borderBottom: styles.borderBottom || defaultStyles.borderBottom || styles.border,
+        borderTop: styles.borderTop || defaultStyles.borderTop || styles.border,
+        borderRadius: styles.borderRadius || defaultStyles.borderRadius,
+        flexDirection: styles.flexDirection || defaultStyles.flexDirection,
+        justifyContent: styles.justifyContent || defaultStyles.justifyContent,
+        alignItems: styles.alignItems || defaultStyles.alignItems,
+        padding: styles.paddingAround || defaultStyles.paddingAround,
     }
 
     const slidesWrapperStyle = {
-        padding: styles.paddingAround || defaultStyles.paddingAround,
-        borderRadius: styles.borderRadius || defaultStyles.borderRadius
+        borderRadius: styles.borderRadius || defaultStyles.borderRadius,
     }
 
     const swiperBox = {
@@ -129,6 +174,8 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         borderRadius: slide[defaultSlideIndex].borderRadius,
         overflow: styles.overflow || defaultStyles.overflow,
         height: styles.height || defaultStyles.height,
+        borderLeft: fixBorder && (slide[defaultSlideIndex].border || defaultSlide.border),
+        borderTop: fixBorder && (slide[defaultSlideIndex].border || defaultSlide.border)
     }
 
     const slideContainer = (index) =>
@@ -136,9 +183,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         height: slide[index].height || defaultSlide.height,
         minWidth: slide[index].width || defaultSlide.width,
         borderRadius: slide[index].borderRadius || defaultSlide.borderRadius,
-        border: slide[index].border || defaultSlide.border,
     })
-
 
     const slideWrapperStyle = (index) =>
     ({
@@ -147,13 +192,27 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         borderRadius: slide[index].borderRadius || defaultSlide.borderRadius,
         border: slide[index].border || defaultSlide.border,
         backgroundColor: slide[index].backgroundColor || defaultSlide.backgroundColor,
-        justifyContent: slide[index].justifyContent || defaultSlide.justifyContent
+        transition: slide[index].transition || defaultSlide.transition,
+        justifyContent: slide[index].justifyContent || defaultSlide.justifyContent,
+        padding: slide[index].padding || defaultSlide.padding,
+        borderLeft: fixBorder ? '1px solid #00000000' : (slide[index].border || defaultSlide.border),
+        borderTop: fixBorder ? '1px solid #00000000' : (slide[index].border || defaultSlide.border)
     })
+
+    var borderMarker = styles.borderMarker ? styles.borderMarker : false
+    if (borderMarker) borderMarker = {
+        autoPlay: borderMarker.autoPlay || defaultSlide.borderMarker.autoPlay,
+        border: borderMarker.border || defaultSlide.borderMarker.border,
+        stopOnHover: borderMarker.stopOnHover || defaultSlide.borderMarker.stopOnHover,
+        duration: borderMarker.duration || defaultSlide.borderMarker.duration,
+    }
 
     const imageWrapStyle = (index) =>
     ({
         minHeight: slide[index].image.height || defaultSlide.image.height,
         borderRadius: slide[index].image.borderRadius || defaultSlide.image.borderRadius,
+        display: slide[index].image.display || defaultSlide.image.display,
+        padding: slide[index].image.padding || defaultSlide.image.padding,
 
         width: (slide[index].image.forceWidth || defaultSlide.image.forceWidth)
             && slide[index].image.width
@@ -193,7 +252,8 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             backgroundColor: swiper.chevrons.backgroundColor || defaultSwiper.chevrons.backgroundColor,
             hoverBackgroundColor: swiper.chevrons.hoverBackgroundColor || defaultSwiper.chevrons.hoverBackgroundColor,
             initialBackgroundColor: swiper.chevrons.backgroundColor || defaultSwiper.chevrons.backgroundColor,
-            boxShadow: (!swiper.chevrons.boxShadow || !defaultSwiper.chevrons.boxShadow) && 'none'
+            boxShadow: swiper.chevrons.boxShadow || defaultSwiper.chevrons.boxShadow,
+            border: swiper.chevrons.border || defaultSwiper.chevrons.border,
         }
 
         leftChevronWrapper = !verticalSwiper
@@ -861,41 +921,45 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         }
     }
 
-    const toggleBullets = () => {
-        if (bullets.display !== 'none') {// toggle bullets
-            if (!verticalSwiper) {
-                var index = parseInt((sliderWrapper.scrollLeft + sliderWrapper.clientWidth + gapWidth) / (slideWidth + gapWidth) + 0.01) - 1
-                if (index < 0 || isNaN(index) || !index) index = 0
+    const toggleBorder = () => {
+        if (slideWrapper.length > 0) {
+            if (borderIndex === slides.length) borderIndex = 0
+            var prevIndex = borderIndex === 0 ? slideWrapper.length - 1 : borderIndex - 1
+            slideWrapper[prevIndex].style.border = slideWrapperStyle(getSlideIndex(borderIndex)).border
+            if (fixBorder) {
+                slideWrapper[prevIndex].style.borderTop = '1px solid #00000000'
+                slideWrapper[prevIndex].style.borderLeft = '1px solid #00000000'
+            }
+            slideWrapper[borderIndex].style.border = borderMarker.border
+            borderIndex++
+        }
+    }
 
-                if (slideIndex !== index && element) {
-                    slideIndex = index
-                    const bulletElement = element.getElementsByClassName('bullet')
-                    if (bulletElement[slideIndex] && bulletElement[slideIndex].style.color !== '#00bdd9') {
-                        var i = slides.length - 1
-                        while (i >= 0) {
-                            bulletElement[i].style.color = '#eeeeee'
-                            i--
-                        }
-                        bulletElement[slideIndex].style.color = '#00bdd9'
+    const toggleBullets = () => {
+        // toggle bullets
+
+        var index = verticalSwiper
+            ? parseInt((sliderWrapper.scrollTop + sliderWrapper.clientHeight + gapWidth) / (slideHeight + gapWidth) + 0.01) - 1
+            : parseInt((sliderWrapper.scrollLeft + sliderWrapper.clientWidth + gapWidth) / (slideWidth + gapWidth) + 0.01) - 1
+
+        if (index < 0 || isNaN(index) || !index) index = 0
+
+        if (slideIndex !== index && element) {
+            slideIndex = index
+
+            if (bullets.display !== 'none') {
+                const bulletElement = element.getElementsByClassName('bullet')
+                if (bulletElement[slideIndex] && bulletElement[slideIndex].style.color !== '#00bdd9') {
+                    var i = slides.length - 1
+                    while (i >= 0) {
+                        bulletElement[i].style.color = '#eeeeee'
+                        i--
                     }
-                }
-            } else {
-                var index = parseInt((sliderWrapper.scrollTop + sliderWrapper.clientHeight + gapWidth) / (slideHeight + gapWidth) + 0.01) - 1
-                if (index < 0 || isNaN(index) || !index) index = 0
-                if (slideIndex !== index && element) {
-                    slideIndex = index
-                    const bulletElement = element.getElementsByClassName('bullet')
-                    if (bulletElement[slideIndex] && bulletElement[slideIndex].style.color !== '#00bdd9') {
-                        var i = slides.length - 1
-                        while (i >= 0) {
-                            bulletElement[i].style.color = '#eeeeee'
-                            i--
-                        }
-                        bulletElement[slideIndex].style.color = '#00bdd9'
-                    }
+                    bulletElement[slideIndex].style.color = '#00bdd9'
                 }
             }
         }
+
     }
 
     // Product Quick View Handler
@@ -1040,24 +1104,30 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                         {slides && slides.map((slide, index) => {
                             const i = getSlideIndex(index)
                             const timer = showTimer(slide.onSale)
-                            const slideBox = slider.slide.find(slideBox => slideBox.name === (slide.nameEn || slide.name))
+                            const slideBox = slider.slide.find(slideBox =>
+                                (slideBox.name && (slideBox.name === (slide.nameEn || slide.name))) ||
+                                (slide.title && slideBox.title.title === slide.title)
+                            )
+
                             return (
                                 <div className='slide-container' style={slideContainer(i)} key={index}>
-                                    <div className='slide-wrapper' style={slideWrapperStyle(i)}>
+                                    <div className='slide-wrapper'
+                                        style={slideWrapperStyle(i)}>
 
                                         {/* Badges */}
                                         {badges.display !== 'none' &&
                                             <Badges slide={slide} timer={timer} styles={badgeStyles} />}
 
-                                        <div className='image-wrap' style={imageWrapStyle(i)}>
-                                            {/*<div className='image-skeleton' style={skeleton}>Sarah Originals</div>*/}
-                                            <img src={/*imageUrl + slide.src*/url(slide.src || slide.image)}
-                                                className="slide-img"
-                                                style={imageStyle(i)}
-                                                onClick={e => linkSlide(e, slide.link)}
-                                            //onLoad={e => { e.currentTarget.previousSibling.classList.add('hide') }}
-                                            />
-                                        </div>
+                                        {imageWrapStyle(i).display !== 'none' &&
+                                            <div className='image-wrap' style={imageWrapStyle(i)}>
+                                                {/*<div className='image-skeleton' style={skeleton}>Sarah Originals</div>*/}
+                                                <img src={/*imageUrl + slide.src*/url(slide.src || slide.image)}
+                                                    className="slide-img"
+                                                    style={imageStyle(i)}
+                                                    onClick={e => linkSlide(e, slide.link)}
+                                                //onLoad={e => { e.currentTarget.previousSibling.classList.add('hide') }}
+                                                />
+                                            </div>}
 
                                         {slideBox && <TitleContainer box={slideBox} styles={slideTitleStyles(i)} />}
 
@@ -1067,7 +1137,8 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                                     </div>
                                 </div>
                             )
-                        })}
+                        })
+                        }
                     </div>
                 </div>
 

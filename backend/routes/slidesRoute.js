@@ -37,7 +37,6 @@ router.post("/get", async (req, res) => {
         } catch (err) { console.log(err) }
     })*/
     //////////////////////////////////////
-
     const slider = req.body
     const _id = slider._id
     var slides = []
@@ -46,22 +45,21 @@ router.post("/get", async (req, res) => {
         slides = slider.slides
 
     if (slider.collections) {
-        const data = slider.collections
+        const collections = slider.collections
 
-        if (data.type === 'Product') {
-
-            var conditions = !data.collections.includes('Any')
-                ? { $or: [{ collections: { $in: data.collections } }, { category: { $in: data.collections } }] }
+        if (collections.type === 'Product') {
+            var conditions = !collections.collections.includes('Any')
+                ? { $or: [{ collections: { $in: collections.collections } }, { category: { $in: collections.collections } }] }
                 : {}
 
             await Product
                 .find(conditions)
-                .sort(data.sort)
-                .limit(data.limit)
+                .sort(collections.sort)
+                .limit(collections.limit)
                 .then(products => {
                     if (products) {
                         slides.push(...products)
-                        return res.send({ _id, slides })
+                        return res.send({ _id, slides, collections })
                     }
                 })
         }

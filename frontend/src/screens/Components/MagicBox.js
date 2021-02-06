@@ -49,6 +49,7 @@ export const MagicBox = React.memo(({ styles, touchScreen, magicBox }) => {
             maxWidth: styles.maxWidth || defaultStyles.maxWidth,
             minWidth: styles.minWidth || defaultStyles.minWidth,
             canHide: styles.canHide || defaultStyles.canHide,
+            border: styles.border || defaultStyles.border,
         }
 
         const background = typeof styles.background === 'object'
