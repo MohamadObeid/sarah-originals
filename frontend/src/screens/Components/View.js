@@ -37,7 +37,7 @@ export const View = ({ view, viewPort, touchScreen }) => {
             view.slider && view.slider.map(slider => {
                 var slidesExist = slides.find(slidesList => slidesList._id === slider._id)
                 if (!slidesExist)
-                    dispatch(getSlides(slider))
+                    dispatch(getSlides(slider, slider.action, true)) // true means first update
             })
         }
     }, [styles])

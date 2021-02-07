@@ -272,11 +272,10 @@ export const Controls = {
             controller: true,
             action: 'changeSlides',
             control: {
-                event: 'Click',
+                event: 'click',
                 collections: {
                     type: 'Product',
-                    collections: ['Popular', 'Featured', 'New Arrival', 'Special'],
-                    limit: 100,
+                    collections: ['Popular', 'Featured', 'Special Offer'],
                 }
             },
             slide: [{
@@ -286,11 +285,10 @@ export const Controls = {
                 controller: true,
                 action: 'changeSlides',
                 control: {
-                    event: 'Click',
+                    event: 'click',
                     collections: {
                         type: 'Product',
                         collections: ['Popular'],
-                        limit: 100,
                     }
                 }
             }, {
@@ -300,11 +298,10 @@ export const Controls = {
                 controller: true,
                 action: 'changeSlides',
                 control: {
-                    event: 'Click',
+                    event: 'click',
                     collections: {
                         type: 'Product',
                         collections: ['Featured'],
-                        limit: 100,
                     }
                 }
             }, {
@@ -314,11 +311,10 @@ export const Controls = {
                 controller: true,
                 action: 'changeSlides',
                 control: {
-                    event: 'Click',
+                    event: 'click',
                     collections: {
                         type: 'Product',
                         collections: ['New Arrival'],
-                        limit: 100,
                     }
                 }
             }, {
@@ -328,18 +324,17 @@ export const Controls = {
                 controller: true,
                 action: 'changeSlides',
                 control: {
-                    event: 'Click',
+                    event: 'click',
                     collections: {
                         type: 'Product',
                         collections: ['Special'],
-                        limit: 100,
                     }
                 }
             }]
         }, {
             collections: {
                 type: 'Product',
-                collections: ['Popular'],
+                collections: ['Popular', 'Featured', 'Special Offer'],
             },
             controllable: true,
             action: 'changeSlides',

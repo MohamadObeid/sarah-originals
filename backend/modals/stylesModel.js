@@ -9,8 +9,7 @@ const TitleSchema = new mongoose.Schema({
     borderBottom: String,// '0' },
     border: String,// '0' },
     borderRadius: String,
-    beforeBackgroundColor: String,
-    afterBackgroundColor: String,
+    backgroundColor: String,
     alignItems: String,//'center' },
     justifyContent: String,// 'space-between' },
     padding: String,// '0' },
@@ -20,6 +19,9 @@ const TitleSchema = new mongoose.Schema({
     flexDirection: String,
     position: String,
     transform: String,
+    hover: {
+        backgroundColor: String,
+    },
     title: {
         position: String,
         display: String,
@@ -29,25 +31,41 @@ const TitleSchema = new mongoose.Schema({
         borderRadius: String,
         padding: String,// '0' },
         margin: String,
-        beforeBackgroundColor: String,
-        afterBackgroundColor: String,
+        backgroundColor: String,
+        click: {
+            backgroundColor: String,
+        },
+        hover: {
+            backgroundColor: String,
+        },
         icon: {
             display: String,
             name: String,
             fontSize: String,
             margin: String,
             color: String,
-            hoverColor: String
+            click: {
+                color: String,
+            },
+            hover: {
+                color: String,
+            },
         },
         text: {
-            beforeColor: String,
-            afterColor: String,
+            color: String,
             backgroundColor: String,
             borderRadius: String,
-            fontSize: String,//'1.9rem' },
-            padding: String,// '0' },
+            fontSize: String,
+            padding: String,
             fontWeight: String,
-            hoverFontWeight: String,
+            click: {
+                color: String,
+                fontWeight: String,
+            },
+            hover: {
+                color: String,
+                fontWeight: String,
+            },
         },
         textBorder: {
             display: String,
@@ -60,10 +78,15 @@ const TitleSchema = new mongoose.Schema({
             width: String,
             transform: String,
             borderRadius: String,
-            beforeBackgroundColor: String,
-            afterBackgroundColor: String,
+            backgroundColor: String,
             transition: String,
-            boxShadow: String
+            boxShadow: String,
+            click: {
+                backgroundColor: String,
+            },
+            hover: {
+                backgroundColor: String,
+            },
         },
         secondBorder: {
             display: String,
@@ -75,11 +98,16 @@ const TitleSchema = new mongoose.Schema({
             height: String,
             width: String,
             borderRadius: String,
-            beforeBackgroundColor: String,
-            afterBackgroundColor: String,
+            backgroundColor: String,
             transition: String,
             boxShadow: String,
             transform: String,
+            click: {
+                backgroundColor: String,
+            },
+            hover: {
+                backgroundColor: String,
+            },
         }
     },
     strokeLine: {
@@ -92,6 +120,12 @@ const TitleSchema = new mongoose.Schema({
         width: String,
         borderRadius: String,
         backgroundColor: String,
+        click: {
+            width: String,
+        },
+        hover: {
+            width: String,
+        },
     },
     showAll: {
         display: String,// 'flex' },
@@ -101,11 +135,16 @@ const TitleSchema = new mongoose.Schema({
         margin: String,
         text: {
             fontSize: String,// '1.3rem' },
-            beforeColor: String,// '#00000080' },
-            afterColor: String,// '#00000080' },
+            color: String,// '#00000080' },
             backgroundColor: String,
             border: String,// '0' },
             text: String,// 'show all' },
+            click: {
+                color: String,
+            },
+            hover: {
+                color: String,
+            },
         },
         textBorder: {
             display: String,
@@ -116,9 +155,14 @@ const TitleSchema = new mongoose.Schema({
             height: String,
             width: String,
             borderRadius: String,
-            beforeBackgroundColor: String,
-            afterBackgroundColor: String,
-            transition: String
+            backgroundColor: String,
+            transition: String,
+            click: {
+                backgroundColor: String,
+            },
+            hover: {
+                backgroundColor: String,
+            },
         },
         chevron: {
             display: String,// 'flex' },
@@ -126,6 +170,12 @@ const TitleSchema = new mongoose.Schema({
             fontSize: String,// '1.9rem' },
             transform: String,
             transition: String,
+            click: {
+                color: String,
+            },
+            hover: {
+                color: String,
+            },
         }
     }
 })
@@ -257,6 +307,7 @@ const MagicBoxSchema = new mongoose.Schema({
             productVisible: Boolean,
             transition: String,
             padding: String,
+            boxShadow: String,
             // slide Title
             title: TitleSchema,
             // image
@@ -354,11 +405,12 @@ const MagicBoxSchema = new mongoose.Schema({
             backgroundColor: String,
             transition: String,
         },
-        borderMarker: {
-            autoPlay: Boolean,
-            border: String,
-            stopOnHover: Boolean,
+        autoMarker: {
+            run: Boolean,
             duration: Number,
+            border: String,
+            boxShadow: String,
+            stopOnHover: String,
         },
         // swiper
         swiper: {

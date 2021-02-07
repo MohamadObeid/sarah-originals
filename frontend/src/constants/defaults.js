@@ -7,8 +7,7 @@ export const defaultTitleStyles = {
     design: 'Classic',
     borderBottom: '0',
     width: '100%',
-    beforeBackgroundColor: 'inherit',
-    afterBackgroundColor: 'inherit',
+    backgroundColor: 'inherit',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: '0',
@@ -21,11 +20,10 @@ export const defaultTitleStyles = {
         borderRadius: '0',
         padding: '0',
         margin: '0 2rem 0 0',
-        beforeBackgroundColor: 'inherit',
-        afterBackgroundColor: 'inherit',
+        backgroundColor: 'inherit',
         text: {
-            beforeColor: '#404040',
-            afterColor: '#202020',
+            color: '#404040',
+            hover: { color: '#202020' },
             fontSize: '1.9rem',
             backgroundColor: 'unset',
             borderRadius: '0',
@@ -41,8 +39,7 @@ export const defaultTitleStyles = {
             height: '2px',
             width: '100%',
             borderRadius: '2rem 2rem 0 0',
-            beforeBackgroundColor: '#d3b25d',
-            afterBackgroundColor: '#d3b25d',
+            backgroundColor: '#d3b25d',
             transition: 'all 0.5s'
         },
         secondBorder: {
@@ -55,8 +52,7 @@ export const defaultTitleStyles = {
             height: '2px',
             width: '100%',
             borderRadius: '2rem 2rem 0 0',
-            beforeBackgroundColor: '#d3b25d',
-            afterBackgroundColor: '#d3b25d',
+            backgroundColor: '#d3b25d',
             transition: 'all 0.5s'
         }
     },
@@ -80,9 +76,8 @@ export const defaultTitleStyles = {
         text: {
             text: 'show all',
             fontSize: '1.3rem',
-            beforeColor: '#00000080',
-            afterColor: '#00000080',
-            backgroundColor: '#00000000',
+            color: '#666666',
+            backgroundColor: 'inherit',
             border: '0',
         },
         textBorder: {
@@ -94,8 +89,7 @@ export const defaultTitleStyles = {
             height: '0',
             width: '100%',
             borderRadius: '2rem 2rem 0 0',
-            beforeBackgroundColor: '#d3b25d',
-            afterBackgroundColor: '#d3b25d',
+            backgroundColor: '#d3b25d',
             transition: 'all 0.5s'
         },
         chevron: {

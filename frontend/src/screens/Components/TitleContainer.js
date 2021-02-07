@@ -4,99 +4,100 @@ import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { useDispatch, useSelector } from 'react-redux'
 import { getSlides } from '../../actions/slidesActions'
 import { FilterOutlined } from '@ant-design/icons'
+import _ from 'lodash'
 
 export const TitleContainer = React.memo(({ box, styles }) => {
+    /////////////////////////// Get styles from server ////////////////////////////
+
     const dispatch = useDispatch()
     const defaultStyles = useSelector(state => state.styles.find(styles => styles.name === 'Default Desktop Title Styles'))
 
     if (defaultStyles) {
+
+        /////////////////////////// Consts & Vars ////////////////////////////
+
         const _id = box._id
         const Title = box.title || { title: '' }
-
-        var titleWrapStyle = styles || defaultStyles
-        Object.entries(defaultStyles).map(([key, value]) => {
-            titleWrapStyle = { ...titleWrapStyle, [key]: titleWrapStyle[key] || value }
-        })
-        if (titleWrapStyle.beforeBackgroundColor)
-            titleWrapStyle.backgroundColor = titleWrapStyle.beforeBackgroundColor
-
-        var titleStyle = titleWrapStyle.title
-        Object.entries(defaultStyles.title).map(([key, value]) => {
-            titleStyle = { ...titleStyle, [key]: titleStyle[key] || value }
-        })
-        if (titleStyle.beforeBackgroundColor)
-            titleStyle.backgroundColor = titleStyle.beforeBackgroundColor
-
-        var iconStyle = titleStyle.icon || {}
-        defaultStyles.title.icon &&
-            Object.entries(defaultStyles.title.icon).map(([key, value]) => {
-                iconStyle = { ...iconStyle, [key]: iconStyle[key] || value }
-            })
-
-        var titleTextStyle = titleStyle.text
-        Object.entries(defaultStyles.title.text).map(([key, value]) => {
-            titleTextStyle = { ...titleTextStyle, [key]: titleTextStyle[key] || value }
-        })
-        titleTextStyle.color = titleTextStyle.beforeColor
-        titleTextStyle.cursor = 'pointer'
-
-        var secondBorderStyle = titleStyle.secondBorder
-        Object.entries(defaultStyles.title.secondBorder).map(([key, value]) => {
-            secondBorderStyle = { ...secondBorderStyle, [key]: secondBorderStyle[key] || value }
-        })
-        secondBorderStyle.backgroundColor = secondBorderStyle.beforeBackgroundColor
-
-        var titleBorderStyle = titleStyle.textBorder
-        Object.entries(defaultStyles.title.textBorder).map(([key, value]) => {
-            titleBorderStyle = { ...titleBorderStyle, [key]: titleBorderStyle[key] || value }
-        })
-        titleBorderStyle.backgroundColor = titleBorderStyle.beforeBackgroundColor
-        //titleBorderStyle.width = '0'
-
-        var titleStroke = titleWrapStyle.strokeLine
-        Object.entries(defaultStyles.strokeLine).map(([key, value]) => {
-            titleStroke = { ...titleStroke, [key]: titleStroke[key] || value }
-        })
-
-        var showAllWrapStyle = titleWrapStyle.showAll
-        Object.entries(defaultStyles.showAll).map(([key, value]) => {
-            showAllWrapStyle = { ...showAllWrapStyle, [key]: showAllWrapStyle[key] || value }
-        })
-
-        var showAllText = showAllWrapStyle.text
-        Object.entries(defaultStyles.showAll.text).map(([key, value]) => {
-            showAllText = { ...showAllText, [key]: showAllText[key] || value }
-        })
-        showAllText.color = showAllText.beforeColor
-
-        var showAllBorder = showAllWrapStyle.textBorder
-        Object.entries(defaultStyles.showAll.textBorder).map(([key, value]) => {
-            showAllBorder = { ...showAllBorder, [key]: showAllBorder[key] || value }
-        })
-        showAllBorder.backgroundColor = showAllBorder.beforeBackgroundColor
-
-        var chevronStyle = showAllWrapStyle.chevron
-        Object.entries(defaultStyles.showAll.chevron).map(([key, value]) => {
-            chevronStyle = { ...chevronStyle, [key]: chevronStyle[key] || value }
-        })
-
-        /////////////////////////// Show more ////////////////////////////
-
         const control = box.control
         const action = box.action || 'none'
         const controllable = box.controllable
         const controller = box.controller
         const event = controller && control && control.event || 'none'
 
-        var openBox
-        useSelector(state => {
-            if (state.actions.openBox)
-                openBox = state.actions.openBox
+        var titleWrapper, titleElement, titleText, icon, titleBorder, secondBorder,
+            titleStroke, showAllWrapper, showAllText, showAllBorder, chevron
+        var openBox, changeEffects = true, onHold = false, mounted = false
 
-            if (controllable)
-                if (state.actions[action] && state.actions[action].title)
-                    titleElement.innerHTML = state.actions[action].title
+        /////////////////////////// Styles ////////////////////////////
+
+        // wrapper styles
+        var titleWrapStyle = styles || defaultStyles
+        Object.entries(defaultStyles).map(([key, value]) => {
+            titleWrapStyle = { ...titleWrapStyle, [key]: titleWrapStyle[key] || value }
         })
+
+        // title wrapper styles
+        var titleStyle = titleWrapStyle.title
+        Object.entries(defaultStyles.title).map(([key, value]) => {
+            titleStyle = { ...titleStyle, [key]: titleStyle[key] || value }
+        })
+
+        // icon styles
+        var iconStyle = titleStyle.icon || {}
+        defaultStyles.title.icon &&
+            Object.entries(defaultStyles.title.icon).map(([key, value]) => {
+                iconStyle = { ...iconStyle, [key]: iconStyle[key] || value }
+            })
+
+        // title text styles
+        var titleTextStyle = titleStyle.text
+        Object.entries(defaultStyles.title.text).map(([key, value]) => {
+            titleTextStyle = { ...titleTextStyle, [key]: titleTextStyle[key] || value }
+        })
+
+        // second border styles
+        var secondBorderStyle = titleStyle.secondBorder
+        Object.entries(defaultStyles.title.secondBorder).map(([key, value]) => {
+            secondBorderStyle = { ...secondBorderStyle, [key]: secondBorderStyle[key] || value }
+        })
+
+        // title border styles
+        var titleBorderStyle = titleStyle.textBorder
+        Object.entries(defaultStyles.title.textBorder).map(([key, value]) => {
+            titleBorderStyle = { ...titleBorderStyle, [key]: titleBorderStyle[key] || value }
+        })
+
+        // title stroker styles
+        var titleStrokeStyles = titleWrapStyle.strokeLine
+        Object.entries(defaultStyles.strokeLine).map(([key, value]) => {
+            titleStrokeStyles = { ...titleStrokeStyles, [key]: titleStrokeStyles[key] || value }
+        })
+
+        // show all wrapper styles
+        var showAllWrapStyle = titleWrapStyle.showAll
+        Object.entries(defaultStyles.showAll).map(([key, value]) => {
+            showAllWrapStyle = { ...showAllWrapStyle, [key]: showAllWrapStyle[key] || value }
+        })
+
+        // show all text styles
+        var showAllTextStyles = showAllWrapStyle.text
+        Object.entries(defaultStyles.showAll.text).map(([key, value]) => {
+            showAllTextStyles = { ...showAllTextStyles, [key]: showAllTextStyles[key] || value }
+        })
+
+        // show all border styles
+        var showAllBorderStyles = showAllWrapStyle.textBorder
+        Object.entries(defaultStyles.showAll.textBorder).map(([key, value]) => {
+            showAllBorderStyles = { ...showAllBorderStyles, [key]: showAllBorderStyles[key] || value }
+        })
+
+        // chevron styles
+        var chevronStyle = showAllWrapStyle.chevron
+        Object.entries(defaultStyles.showAll.chevron).map(([key, value]) => {
+            chevronStyle = { ...chevronStyle, [key]: chevronStyle[key] || value }
+        })
+
+        /////////////////////////// functions ////////////////////////////
 
         const showMore = e => {
             e.preventDefault()
@@ -116,7 +117,107 @@ export const TitleContainer = React.memo(({ box, styles }) => {
             }
         }
 
-        var titleWrapper, titleElement, titleBorder, secondBorder, titleText, icon
+        const eventStyles = (apply, actionType) => {
+
+            if (changeEffects && !onHold) { // remove hover/click styles
+
+                titleWrapStyle[actionType] &&
+                    Object.entries(titleWrapStyle[actionType]).map(([key, value]) => {
+                        titleWrapper.style[key] = apply ? value : titleWrapStyle[key]
+                    })
+
+                titleStyle[actionType] &&
+                    Object.entries(titleStyle[actionType]).map(([key, value]) => {
+                        titleElement.style[key] = apply ? value : titleStyle[key]
+                    })
+
+                titleBorderStyle[actionType] &&
+                    Object.entries(titleBorderStyle[actionType]).map(([key, value]) => {
+                        titleBorder.style[key] = apply ? value : titleBorderStyle[key]
+                    })
+
+                titleTextStyle[actionType] &&
+                    Object.entries(titleTextStyle[actionType]).map(([key, value]) => {
+                        titleText.style[key] = apply ? value : titleTextStyle[key]
+                    })
+
+                if (icon)
+                    iconStyle[actionType] &&
+                        Object.entries(iconStyle[actionType]).map(([key, value]) => {
+                            icon.style[key] = apply ? value : iconStyle[key]
+                        })
+
+                secondBorderStyle[actionType] &&
+                    Object.entries(secondBorderStyle[actionType]).map(([key, value]) => {
+                        secondBorder.style[key] = apply ? value : secondBorderStyle[key]
+                    })
+            }
+
+            if (apply && !mounted) {
+
+                if (controller && event === actionType) {
+                    onHold = true
+                    dispatch(getSlides(control, action))
+                }
+
+            } //else dispatch({ type: 'REMOVE_FROM_ACTIONS', payload: action })
+        }
+
+        const showAllEventStylesy = (apply, actionType) => {
+
+            showAllWrapStyle[actionType] &&
+                Object.entries(showAllWrapStyle[actionType]).map(([key, value]) => {
+                    showAllWrapper.style[key] = apply ? value : showAllWrapStyle[key]
+                })
+
+            showAllTextStyles[actionType] &&
+                Object.entries(showAllTextStyles[actionType]).map(([key, value]) => {
+                    showAllText.style[key] = apply ? value : showAllTextStyles[key]
+                })
+
+            showAllBorderStyles[actionType] &&
+                Object.entries(showAllBorderStyles[actionType]).map(([key, value]) => {
+                    showAllBorder.style[key] = apply ? value : showAllBorderStyles[key]
+                })
+
+            chevronStyle[actionType] &&
+                Object.entries(chevronStyle[actionType]).map(([key, value]) => {
+                    chevron.style[key] = apply ? value : chevronStyle[key]
+                })
+        }
+
+        /////////////////////////// Hooks ////////////////////////////
+
+        useSelector(state => {
+            if (state.actions.openBox)
+                openBox = state.actions.openBox
+
+            if (controllable)
+                if (state.actions[action] && state.actions[action].title)
+                    titleElement.innerHTML = state.actions[action].title
+
+            if (controller) {
+
+                if (state.actions[action]) {
+                    const slidesExist = _.isEqual(state.actions[action].collections, control.collections)
+
+                    if (slidesExist && !mounted) {
+                        mounted = true
+                        if (changeEffects)
+                            eventStyles(true, event)
+                        changeEffects = false
+                        onHold = false
+
+                    } else if (!slidesExist && !changeEffects) {
+                        changeEffects = true
+                        mounted = false
+                        eventStyles(false, event)
+                    }
+
+                }
+            }
+        })
+
         useEffect(() => {
             titleWrapper = document.getElementsByClassName('title-wrap-' + _id)[0]
             titleElement = titleWrapper.getElementsByClassName('classic-title')[0]
@@ -126,58 +227,16 @@ export const TitleContainer = React.memo(({ box, styles }) => {
             secondBorder = titleElement.getElementsByClassName('second-border')[0]
         }, [])
 
-        const mouseClickHandler = () => {
-            if (event === 'Click' && controller) {
-                dispatch(getSlides(control, action))
-            }
-        }
-
-        const cancelControl = () => {
-            dispatch({ type: 'REMOVE_FROM_ACTIONS', payload: action })
-        }
-
-        const mouseEnterHandler = (e) => {
-            e.preventDefault()
-            event === 'Hover' && mouseClickHandler()
-            titleWrapper.style.backgroundColor = titleWrapStyle.afterBackgroundColor
-        }
-
-        const mouseLeaveHandler = (e) => {
-            e.preventDefault()
-            event === 'Hover' && cancelControl()
-            titleWrapper.style.backgroundColor = titleWrapStyle.beforeBackgroundColor
-        }
-
-        const titleMouseEnter = (e) => {
-            titleBorder.style.backgroundColor = titleBorderStyle.afterBackgroundColor
-            //titleBorder.style.width = '100%'
-            if (titleTextStyle.hoverFontWeight)
-                titleText.style.fontWeight = titleTextStyle.hoverFontWeight
-            if (icon) icon.style.color = iconStyle.hoverColor
-            titleText.style.color = titleTextStyle.afterColor
-            secondBorder.style.backgroundColor = titleBorderStyle.afterBackgroundColor
-            titleElement.style.backgroundColor = titleStyle.afterBackgroundColor
-        }
-
-        const titleMouseLeave = (e) => {
-            titleBorder.style.backgroundColor = titleBorderStyle.beforeBackgroundColor
-            //itleBorder.style.width = '0%'
-            titleText.style.fontWeight = titleTextStyle.fontWeight
-            if (icon) icon.style.color = iconStyle.color
-            titleText.style.color = titleTextStyle.beforeColor
-            secondBorder.style.backgroundColor = titleBorderStyle.beforeBackgroundColor
-            titleElement.style.backgroundColor = titleStyle.beforeBackgroundColor
-        }
+        /////////////////////////// JSX ////////////////////////////
 
         return (
             <div className={'classic-title-wrap title-wrap-' + _id}
                 style={titleWrapStyle}
-                onClick={mouseClickHandler}
-                onMouseEnter={mouseEnterHandler}
-                onMouseLeave={mouseLeaveHandler}>
+                onClick={e => eventStyles(true, 'click')}
+                onMouseEnter={e => eventStyles(true, 'hover')}
+                onMouseLeave={e => eventStyles(false, 'hover')}>
                 {/* Title */}
-                <div className='classic-title' style={titleStyle}
-                    onMouseEnter={titleMouseEnter} onMouseLeave={titleMouseLeave}>
+                <div className='classic-title' style={titleStyle}>
                     {/* 1st border */}
                     <div className='title-border' style={titleBorderStyle} />
                     {/* Icon */}
@@ -189,20 +248,19 @@ export const TitleContainer = React.memo(({ box, styles }) => {
                     <div className='second-border' style={secondBorderStyle} />
                 </div>
                 {/* Middle Stroke */}
-                <div className='title-stroke' style={titleStroke} />
+                <div className='title-stroke' style={titleStrokeStyles} />
                 {/* showAll wrapper */}
                 <div className='classic-showall-wrap' style={showAllWrapStyle}>
                     {/* border */}
-                    <div className='show-all-border' style={showAllBorder}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = showAllBorder.afterBackgroundColor}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = showAllBorder.beforeBackgroundColor} />
+                    <div className='show-all-border' style={showAllBorderStyles}
+                        onMouseEnter={(e) => showAllEventStylesy(true, 'hover')}
+                        onMouseLeave={(e) => showAllEventStylesy(false, 'hover')} />
                     {/* text */}
-                    <div style={showAllText}
+                    <div style={showAllTextStyles}
                         className='classic-showall'
-                        onClick={e => showMore(e)}
-                        onMouseEnter={(e) => e.currentTarget.style.color = showAllText.afterColor}
-                        onMouseLeave={(e) => e.currentTarget.style.color = showAllText.beforeColor}>
-                        {showAllText.text === 'none' ? '' : showAllText.text}
+                        onClick={e => showMore(e)}>
+
+                        {showAllTextStyles.text === 'none' ? '' : showAllTextStyles.text}
                         <FontAwesomeIcon
                             icon={faChevronRight}
                             style={chevronStyle}

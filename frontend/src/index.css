@@ -1407,6 +1407,7 @@ input.checked[type="radio"] {
   transition: background-color 0.3s ease;
   box-shadow: 0px 0px 10px 0px #fff;
   border-radius: 0 0.5rem 0.5rem 0;
+  z-index: 2;
 }
 
 .last-slide {
@@ -4642,6 +4643,10 @@ button[disabled]:hover {
   margin-right: 2rem;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
+}
+
+.title-text {
   cursor: pointer;
 }
 

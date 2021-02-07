@@ -2221,12 +2221,10 @@ export const magicBoxStyles = [{
         title: {
             position: 'absolute',
             margin: '0 0 0 10rem',
-            beforeBackgroundColor: '#00000000',
-            afterBackgroundColor: '#00000000',
+            backgroundColor: '#00000000',
             text: {
                 fontSize: '1.6rem',
-                beforeColor: '#fff',
-                afterColor: '#fff',
+                color: '#fff',
                 backgroundColor: '#d3b25d',
                 padding: '0.2rem 1.5rem',
                 borderRadius: '0 0 1.7rem 1.7rem',
@@ -2239,8 +2237,7 @@ export const magicBoxStyles = [{
                 height: '2.8rem',
                 borderRadius: '0 1.8rem 0 0',
                 boxShadow: '1.5rem -1.4rem 0 0 #d3b25d',
-                beforeBackgroundColor: '#00000000',
-                afterBackgroundColor: '#00000000',
+                backgroundColor: '#00000000',
             },
             secondBorder: {
                 display: 'flex',
@@ -2249,8 +2246,7 @@ export const magicBoxStyles = [{
                 height: '2.8rem',
                 borderRadius: '1.8rem 0 0 0',
                 boxShadow: '-1.5rem -1.4rem 0 0 #d3b25d',
-                beforeBackgroundColor: '#00000000',
-                afterBackgroundColor: '#00000000',
+                backgroundColor: '#00000000',
             }
         },
         strokeLine: {
@@ -2678,8 +2674,7 @@ export const magicBoxStyles = [{
                 padding: '1.2rem 2rem 1.2rem 0',
                 textBorder: {
                     display: 'flex',
-                    beforeBackgroundColor: 'red',
-                    afterBackgroundColor: 'red'
+                    backgroundColor: 'red'
                 }
             },
             strokeLine: {
@@ -2868,8 +2863,7 @@ export const magicBoxStyles = [{
                 padding: '1.2rem 2rem 1.2rem 0',
                 textBorder: {
                     display: 'flex',
-                    beforeBackgroundColor: 'red',
-                    afterBackgroundColor: 'red',
+                    backgroundColor: 'red',
                 }
             },
             strokeLine: {
@@ -3028,8 +3022,7 @@ export const magicBoxStyles = [{
             title: {
                 text: {
                     fontSize: '1.4rem',
-                    beforeColor: '#606060',
-                    afterColor: '#606060'
+                    color: '#606060',
                 },
                 padding: '0',
                 margin: '0',
@@ -3344,14 +3337,12 @@ export const magicBoxStyles = [{
     },
     title: {
         design: 'Classic',
-        beforeBackgroundColor: 'unset',
-        afterBackgroundColor: 'unset',
+        backgroundColor: 'unset',
         padding: '0.8rem 2.5rem',
         justifyContent: 'center',
         margin: '0',
         title: {
-            beforeColor: '#222222',
-            afterColor: '#222222',
+            color: '#222222',
             fontSize: '1.5rem',
             margin: '0',
             textBorder: {
@@ -3404,7 +3395,9 @@ export const magicBoxStyles = [{
                     fontSize: '1.8rem',
                     margin: '0 1rem 0 0',
                     color: '#888888',
-                    hoverColor: '#444444'
+                    hover: {
+                        color: '#444444'
+                    }
                 },
                 text: {
                     fontSize: '1.5rem'
@@ -3477,17 +3470,24 @@ export const magicBoxStyles = [{
                 margin: '0.5rem 0',
                 padding: '0',
                 title: {
-                    beforeBackgroundColor: 'inherit',
-                    afterBackgroundColor: '#00bfd6',
+                    backgroundColor: 'inherit',
+                    click: {
+                        backgroundColor: '#00bfd6',
+                    },
+                    hover: {
+                        backgroundColor: '#cccccc',
+                    },
                     padding: '0.2rem 2rem',
                     borderRadius: '1rem',
                     margin: '0',
                     text: {
                         fontSize: '1.4rem',
-                        beforeColor: '#444444',
-                        afterColor: '#fff',
+                        color: '#444444',
                         fontWeight: '400',
-                        hoverFontWeight: '500'
+                        click: {
+                            fontWeight: '500',
+                            color: '#fff',
+                        }
                     },
                 },
                 strokeLine: {
@@ -3538,11 +3538,12 @@ export const magicBoxStyles = [{
                 forceWidth: false,
             },
         }],
-        borderMarker: {
-            autoPlay: true,
-            border: '1px solid #6bb927',
-            stopOnHover: true,
+        autoMarker: {
+            run: true,
+            //border: '1px solid #00bfd6',
+            boxShadow: '0px 0px 13px 8px #f0f0f0',
             duration: 5000,
+            stopOnHover: true
         },
         product: {
             padding: '0 1rem',

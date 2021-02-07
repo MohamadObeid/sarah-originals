@@ -41,9 +41,6 @@ router.post("/get", async (req, res) => {
     const _id = slider._id
     var slides = []
 
-    if (slider.slides && slider.slides.length > 0)
-        slides = slider.slides
-
     if (slider.collections) {
         const collections = slider.collections
 
@@ -62,10 +59,9 @@ router.post("/get", async (req, res) => {
                         return res.send({ _id, slides, collections })
                     }
                 })
-        }
-    }
 
-    return res.send({ _id, slides })
+        } else return res.send({ _id, slides, collections: {} })
+    }
 })
 
 export default router
