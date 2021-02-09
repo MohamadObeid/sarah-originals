@@ -220,12 +220,13 @@ const reducer = combineReducers({
   liveUserDetails: liveUserDetailsReducer,
 });
 
-// add recorder to inspect in chrome to watch actions. || instead of using composeEnhancer use compose itself from react
+
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
   reducer,
   initialState,
-  composeEnhancer(applyMiddleware(thunk)) // allows us to run async operation inside action in the redux
-);
+  // allows us to run async operation inside action in the redux
+  composeEnhancer(applyMiddleware(thunk))
+)
 
 export default store

@@ -50,47 +50,22 @@ const Navbar = React.memo(props => {
     /////////////////////////////////////////
     ////////////////Drag Btn/////////////////
     const [active, setActive] = useState()
-    var currentX
     var currentY
-    var initialX
-    var initialY
-    var xOffset = 0
-    var yOffset = 0
 
     const drag = e => {
         if (active) {
             e.preventDefault()
-
-            /*if (e.type === "touchmove") {
-                currentX = initialX;*/
-            currentY = e.touches[0].clientY;
-            /*} else {
-                currentX = initialX;
-                currentY = e.clientY;
-            }
-
-            xOffset = currentX;
-            yOffset = currentY;*/
-
+            currentY = e.touches[0].clientY
             const screenHeight = window.screen.height
             e.currentTarget.style.top = (currentY / screenHeight * 100) + 'vh'
         }
     }
 
     const dragStart = e => {
-        /*if (e.type === "touchstart") {
-            initialX = e.touches[0].clientX - xOffset
-            initialY = e.touches[0].clientY - yOffset
-        } else {
-            initialX = e.clientX - xOffset
-            initialY = e.clientY - yOffset
-        }*/
         setActive(true)
     }
 
     const dragEnd = e => {
-        /*initialX = currentX;
-        initialY = currentY;*/
         setActive(false)
     }
 

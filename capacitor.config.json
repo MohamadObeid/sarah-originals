@@ -1,0 +1,11 @@
+{
+  "appId": "io.ionic.reactproject",
+  "appName": "reactproject",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "frontend/build",
+  "cordova": {},
+  "server": {
+    "url": "https://sarah-originals.herokuapp.com"
+  }
+}

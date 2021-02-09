@@ -1,5 +1,5 @@
 {
-  "name": "react-project",
+  "name": "reactproject",
   "version": "1.0.0",
   "main": "index.js",
   "engines": {
@@ -7,6 +7,8 @@
     "npm": "6.14.4"
   },
   "dependencies": {
+    "@capacitor/android": "^2.4.6",
+    "@capacitor/core": "^2.4.6",
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -28,6 +30,7 @@
     "@babel/core": "^7.10.2",
     "@babel/node": "^7.10.1",
     "@babel/preset-env": "^7.10.2",
+    "@capacitor/cli": "2.4.6",
     "nodemon": "^2.0.4",
     "prettier": "2.0.5"
   },
@@ -35,7 +38,8 @@
     "frontend": "cd frontend && npm start",
     "start": "npx kill-port 5000 && nodemon --watch backend --exec babel-node backend/server.js",
     "clean": "rm -rf ./dist && cd frontend && rm -rf ./build && rm -rf ./.netlify",
-    "build": "npm run clean && npm run babel && cd frontend && npm run build && netlify deploy --dir=build --prod",
+    "build": "npm run clean && npm run babel && cd frontend && npm run build",
+    "netlify": "npm run build && netlify deploy --dir=build --prod",
     "heroku-postbuild": "npm run clean && npm run babel && cd frontend && npm install && npm run build",
     "babel": "babel backend -d dist"
   },
