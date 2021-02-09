@@ -41,7 +41,8 @@
     "build": "npm run clean && npm run babel && cd frontend && npm run build",
     "netlify": "npm run build && netlify deploy --dir=build --prod",
     "heroku-postbuild": "npm run clean && npm run babel && cd frontend && npm install && npm run build",
-    "babel": "babel backend -d dist"
+    "babel": "babel backend -d dist",
+    "android": "npm run build && rm -rf android && ionic capacitor add android"
   },
   "repository": {
     "type": "git",

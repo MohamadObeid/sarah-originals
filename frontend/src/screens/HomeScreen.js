@@ -13,13 +13,13 @@ import {
 const HomeScreen = (props) => {
   const dispatch = useDispatch()
   const { controls } = useSelector(state => state.controls)
-  const [viewPort, setViewPort] = useState(window.innerWidth <= 700 ? 'mobile' : 'desktop')
+  const [viewPort, setViewPort] = useState(/*window.innerWidth <= 700 ? 'mobile' : */'desktop')
   var touchScreen
 
   useEffect(() => {
     window.addEventListener("resize", function () {
-      if (window.innerWidth <= 700) setViewPort('mobile')
-      else setViewPort('desktop')
+      //if (window.innerWidth <= 700) setViewPort('mobile')
+      /*else */setViewPort('desktop')
     })
     if (window.matchMedia("(pointer: coarse)").matches) {
       console.log('touchScreen')
@@ -27,9 +27,9 @@ const HomeScreen = (props) => {
     } else touchScreen = false
 
     // get initials requests
-    dispatch(getStyles({ name: 'Default Desktop AddToCart Styles', type: 'AddToCart' }))
-    dispatch(getStyles({ name: 'Default Desktop Title Styles', type: 'Title' }))
-    dispatch(getStyles({ name: 'Default Desktop MagicBox Styles', type: 'MagicBox' }))
+    dispatch(getStyles({ name: 'Default Desktop AddToCart Styles', type: 'AddToCart', viewPort }))
+    dispatch(getStyles({ name: 'Default Desktop Title Styles', type: 'Title', viewPort }))
+    dispatch(getStyles({ name: 'Default Desktop MagicBox Styles', type: 'MagicBox', viewPort }))
     //dispatch(getStyles({ type: 'MagicBox' }))
     dispatch(getControls({ limit: 11 }))
 
@@ -46,7 +46,7 @@ const HomeScreen = (props) => {
     ? controls.HomeScreen.map((view, index) =>
       view.styles[viewPort] &&
       <View view={view} viewPort={viewPort} key={index} touchScreen={touchScreen} />
-    ) : <></>
+    ) : <div>{viewPort}</div>
 }
 
 export default HomeScreen;
