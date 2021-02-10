@@ -10,7 +10,6 @@ import { defaultMagicBoxStyles, defaultTitleStyles, defaultAddToCartStyles } fro
 const HomeScreen = (props) => {
   const dispatch = useDispatch()
   const HomeScreen = useSelector(state => state.controls.HomeScreen)
-  const { styles } = useSelector(state => state.styles)
   const [viewPort, setViewPort] = useState(window.innerWidth <= 700 ? 'mobile' : 'desktop')
   var touchScreen
 
@@ -33,8 +32,8 @@ const HomeScreen = (props) => {
     dispatch(getControls({ fields: 'HomeScreen' }))
 
     // save requests
-    //dispatch(saveControls(Controls))
-    //dispatch(saveStyles([...magicBoxStyles, defaultMagicBoxStyles, defaultTitleStyles, defaultAddToCartStyles]))
+    dispatch(saveControls(Controls))
+    dispatch(saveStyles([...magicBoxStyles, defaultMagicBoxStyles, defaultTitleStyles, defaultAddToCartStyles]))
 
     // delete requests
     //dispatch(deleteStyles({ type: 'MagicBox', name: '2controlBox' }))

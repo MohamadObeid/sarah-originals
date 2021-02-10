@@ -58,6 +58,7 @@ const TitleSchema = new mongoose.Schema({
             fontSize: String,
             padding: String,
             fontWeight: String,
+            width: String,
             click: {
                 color: String,
                 fontWeight: String,
@@ -133,6 +134,10 @@ const TitleSchema = new mongoose.Schema({
         direction: String,
         padding: String,// '0' },
         margin: String,
+        top: String,
+        right: String,
+        bottom: String,
+        left: String,
         text: {
             fontSize: String,// '1.3rem' },
             color: String,// '#00000080' },
@@ -221,7 +226,7 @@ const MagicBoxSchema = new mongoose.Schema({
     type: { type: String, default: 'MagicBox' },
     name: { type: String, unique: true },
     display: String,//'flex' },
-    flexDirection: String,// default: 'column' },
+    flexDirection: String,
     overlayPadding: String,// '0' },
     backgroundColor: String,
     border: String,
@@ -283,6 +288,8 @@ const MagicBoxSchema = new mongoose.Schema({
         border: String,// '0' },
         borderTop: String,
         borderBottom: String,
+        borderLeft: String,
+        borderRight: String,
         backgroundColor: String,// 'inherit' },
         paddingAround: String,// '0' },
         paddingBetween: String,// '0' },
@@ -292,6 +299,7 @@ const MagicBoxSchema = new mongoose.Schema({
         flexDirection: String,
         transition: String,
         justifyContent: String,
+        justifySelf: String,
         alignItems: String,
         title: TitleSchema,
         fixBorder: Boolean,
@@ -305,11 +313,14 @@ const MagicBoxSchema = new mongoose.Schema({
             height: String,// 'auto' },
             width: String,// 'auto' },
             backgroundColor: String,// 'inherit' },
+            flexDirection: String,
             justifyContent: String,// 'flex-start' },
             productVisible: Boolean,
+            transform: String,
             transition: String,
             padding: String,
             boxShadow: String,
+            forceWidth: Boolean,
             // slide Title
             title: TitleSchema,
             // image
@@ -330,22 +341,29 @@ const MagicBoxSchema = new mongoose.Schema({
             addToCart: addToCartSchema,
             justifyContent: String,// 'flex-start' },
             padding: String,// '1rem' },
+            alignItems: String,
             name: {
                 fontSize: String,// '1.4rem' },
                 color: String,// '#444444' },
                 hoverColor: String,// 'blue' },
                 textAlign: String,// 'center' },
+                fontWeight: String,
+                margin: String
             },
             brand: {
                 display: String,// 'flex' },
                 fontSize: String,// '1.2rem' },
                 color: String,// '#444444' },
                 hoverColor: String,// 'blue' },
+                alignSelf: String,
             },
             priceAndAddToCartWrapper: {
+                display: String,
                 padding: String,
                 flexDirection: String,
                 justifyContent: String,
+                alignItems: String,
+                height: String,
             },
             price: {
                 fontSize: String,// '2rem' },
@@ -418,6 +436,8 @@ const MagicBoxSchema = new mongoose.Schema({
         swiper: {
             swipable: Boolean,//true },
             direction: String,// 'X' },
+            flexDirection: String,
+            justifyContent: String,
             skip: Number,// 1 },
             skipMore: Number,// 0 },
             chevrons: {

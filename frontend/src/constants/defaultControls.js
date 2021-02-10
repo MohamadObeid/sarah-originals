@@ -81,6 +81,35 @@ export const Controls = {
         }]
     }, {
         active: true,
+        name: 'digikala style',
+        styles: {
+            desktop: {
+                type: 'MagicBox',
+                name: 'digikala style'
+            }
+        },
+        title: {
+            title: 'SuperMarket Products'
+        },
+        slider: [{
+            controllable: true,
+            action: 'digiProduct',
+            collections: {
+                type: 'Product',
+                collections: ['Featured'],
+                limit: 1
+            },
+        }, {
+            controller: true,
+            action: 'digiProduct',
+            collections: {
+                type: 'Product',
+                collections: ['Featured'],
+                limit: 5
+            },
+        }]
+    }, {
+        active: true,
         name: 'Featured',
         styles: {
             desktop: {

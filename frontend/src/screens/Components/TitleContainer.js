@@ -26,7 +26,7 @@ export const TitleContainer = React.memo(({ box, styles }) => {
 
         var titleWrapper, titleElement, titleText, icon, titleBorder, secondBorder,
             titleStroke, showAllWrapper, showAllText, showAllBorder, chevron
-        var openBox, changeEffects = true, onHold = false, mounted = false
+        var openBox, changeEffects = true, onHold = false, mounted = false, assigned = false
 
         /////////////////////////// Styles ////////////////////////////
 
@@ -101,19 +101,21 @@ export const TitleContainer = React.memo(({ box, styles }) => {
 
         const showMore = e => {
             e.preventDefault()
+
             if (showAllWrapStyle.direction === 'Y') {
                 const boxOpenned = openBox && openBox.find(box_id => box_id == _id)
-                var chevronElement = e.currentTarget.getElementsByClassName('faChevronRight')[0]
+
                 if (!boxOpenned) {
                     var newOpenBox = []
                     if (openBox) newOpenBox = openBox
                     dispatch({ type: 'UPDATE_ACTIONS', payload: { openBox: [...newOpenBox, _id] } })
-                    chevronElement.style["transform"] = `rotate(${parseInt(chevronStyle.transform.replace(/[^\d.]/g, '')) * (-1)}deg)`
+                    chevron.style["transform"] = `rotate(${parseInt(chevronStyle.transform.replace(/[^\d.]/g, '')) * (-1)}deg)`
+
                 } else {
                     dispatch({ type: 'UPDATE_ACTIONS', payload: { openBox: openBox.filter(box_id => box_id !== _id) } })
-                    chevronElement.style["transform"] = chevronStyle.transform
+                    chevron.style["transform"] = chevronStyle.transform
                 }
-                return
+
             }
         }
 
@@ -163,7 +165,7 @@ export const TitleContainer = React.memo(({ box, styles }) => {
             } //else dispatch({ type: 'REMOVE_FROM_ACTIONS', payload: action })
         }
 
-        const showAllEventStylesy = (apply, actionType) => {
+        const showAllEventStyles = (apply, actionType) => {
 
             showAllWrapStyle[actionType] &&
                 Object.entries(showAllWrapStyle[actionType]).map(([key, value]) => {
@@ -189,31 +191,34 @@ export const TitleContainer = React.memo(({ box, styles }) => {
         /////////////////////////// Hooks ////////////////////////////
 
         useSelector(state => {
-            if (state.actions.openBox)
+            if (!assigned) {
                 openBox = state.actions.openBox
 
-            if (controllable)
-                if (state.actions[action] && state.actions[action].title)
-                    titleElement.innerHTML = state.actions[action].title
-
-            if (controller) {
-
                 if (state.actions[action]) {
-                    const slidesExist = _.isEqual(state.actions[action].collections, control.collections)
+                    assigned = true
+                    setTimeout(() => { assigned = false }, 100)
 
-                    if (slidesExist && !mounted) {
-                        mounted = true
-                        if (changeEffects)
-                            eventStyles(true, event)
-                        changeEffects = false
-                        onHold = false
+                    const title = state.actions[action].title
+                    const collections = state.actions[action].collections
 
-                    } else if (!slidesExist && !changeEffects) {
-                        changeEffects = true
-                        mounted = false
-                        eventStyles(false, event)
+                    if (controllable && title)
+                        titleElement.innerHTML = title
+
+                    if (controller) {
+                        const slidesExist = _.isEqual(collections, control.collections)
+
+                        if (slidesExist && !mounted) {
+                            mounted = true
+                            if (changeEffects) eventStyles(true, event)
+                            changeEffects = false
+                            onHold = false
+
+                        } else if (!slidesExist && !changeEffects) {
+                            changeEffects = true
+                            mounted = false
+                            eventStyles(false, event)
+                        }
                     }
-
                 }
             }
         })
@@ -225,6 +230,7 @@ export const TitleContainer = React.memo(({ box, styles }) => {
             titleText = titleElement.getElementsByClassName('title-text')[0]
             titleBorder = titleElement.getElementsByClassName('title-border')[0]
             secondBorder = titleElement.getElementsByClassName('second-border')[0]
+            chevron = titleWrapper.getElementsByClassName('faChevronRight')[0]
         }, [])
 
         /////////////////////////// JSX ////////////////////////////
@@ -242,8 +248,7 @@ export const TitleContainer = React.memo(({ box, styles }) => {
                     {/* Icon */}
                     {iconStyle.name === 'Filter' && <FilterOutlined style={iconStyle} className='icon' />}
                     {/* title */}
-                    <div className='title-text' style={titleTextStyle}>
-                        {Title.title}</div>
+                    <div className='title-text' style={titleTextStyle}>{Title.title}</div>
                     {/* 2nd border */}
                     <div className='second-border' style={secondBorderStyle} />
                 </div>
@@ -253,8 +258,8 @@ export const TitleContainer = React.memo(({ box, styles }) => {
                 <div className='classic-showall-wrap' style={showAllWrapStyle}>
                     {/* border */}
                     <div className='show-all-border' style={showAllBorderStyles}
-                        onMouseEnter={(e) => showAllEventStylesy(true, 'hover')}
-                        onMouseLeave={(e) => showAllEventStylesy(false, 'hover')} />
+                        onMouseEnter={(e) => showAllEventStyles(true, 'hover')}
+                        onMouseLeave={(e) => showAllEventStyles(false, 'hover')} />
                     {/* text */}
                     <div style={showAllTextStyles}
                         className='classic-showall'

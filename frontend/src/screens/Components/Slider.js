@@ -10,6 +10,7 @@ import { Timer } from './SliderComponents'
 import { AddToCart } from './AddToCart'
 import { Badges } from './Badges'
 import _ from 'lodash'
+import { getSlides } from '../../actions/slidesActions'
 
 export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }) => {
     const dispatch = useDispatch()
@@ -41,6 +42,8 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     const _id = slider._id
     const action = slider.action
     const control = slider.control
+    const controller = slider.controller
+    const controllable = slider.controllable
     const title = slider.title
     const collections = control.collections
     const TitleStyles = styles.title
@@ -61,9 +64,8 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     const [slides, setSlides] = useState()
 
     useSelector(state => {
-        if (slider.controllable && state.actions[action]) {
+        if (controllable && state.actions[action]) {
             const sameSlides = state.actions[action].slides === slides
-
             // controllable? => update slides
             if (!sameSlides) {
                 // clear marker
@@ -167,6 +169,8 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         border: styles.border || defaultStyles.border,
         borderBottom: styles.borderBottom || defaultStyles.borderBottom || styles.border,
         borderTop: styles.borderTop || defaultStyles.borderTop || styles.border,
+        borderLeft: styles.borderLeft || defaultStyles.borderLeft || styles.border,
+        borderRight: styles.borderRight || defaultStyles.borderRight || styles.border,
         borderRadius: styles.borderRadius || defaultStyles.borderRadius,
         flexDirection: styles.flexDirection || defaultStyles.flexDirection,
         justifyContent: styles.justifyContent || defaultStyles.justifyContent,
@@ -177,6 +181,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
     const slidesWrapperStyle = {
         borderRadius: styles.borderRadius || defaultStyles.borderRadius,
+        width: '100%',
     }
 
     const swiperBox = {
@@ -188,13 +193,17 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         overflow: styles.overflow || defaultStyles.overflow,
         height: styles.height || defaultStyles.height,
         borderLeft: fixBorder && (slide[defaultSlideIndex].border || defaultSlide.border),
-        borderTop: fixBorder && (slide[defaultSlideIndex].border || defaultSlide.border)
+        borderTop: fixBorder && (slide[defaultSlideIndex].border || defaultSlide.border),
+        flexDirection: swiper.flexDirection || defaultSwiper.flexDirection,
+        justifyContent: swiper.justifyContent || defaultSwiper.justifyContent,
+        width: '100%',
     }
 
     const slideContainer = (index) =>
     ({
         height: slide[index].height || defaultSlide.height,
         minWidth: slide[index].width || defaultSlide.width,
+        width: slide[index].forceWidth && (slide[index].width || defaultSlide.width),
         borderRadius: slide[index].borderRadius || defaultSlide.borderRadius,
     })
 
@@ -206,7 +215,9 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         border: slide[index].border || defaultSlide.border,
         backgroundColor: slide[index].backgroundColor || defaultSlide.backgroundColor,
         transition: slide[index].transition || defaultSlide.transition,
+        transform: slide[index].transform || defaultSlide.transform,
         justifyContent: slide[index].justifyContent || defaultSlide.justifyContent,
+        flexDirection: slide[index].flexDirection || defaultSlide.flexDirection,
         padding: slide[index].padding || defaultSlide.padding,
         borderLeft: fixBorder ? '1px solid #00000000' : (slide[index].border || defaultSlide.border),
         borderTop: fixBorder ? '1px solid #00000000' : (slide[index].border || defaultSlide.border),
@@ -227,26 +238,25 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         padding: slide[index].image.padding || defaultSlide.image.padding,
 
         width: (slide[index].image.forceWidth || defaultSlide.image.forceWidth)
-            && slide[index].image.width
-            || defaultSlide.image.width,
+            && (slide[index].image.width || defaultSlide.image.width),
 
         maxWidth: (!slide[index].image.forceWidth || !defaultSlide.image.forceWidth)
-            && slide[index].image.width
-            || defaultSlide.image.width
+            && (slide[index].image.width || defaultSlide.image.width),
+
+        minWidth: (!slide[index].image.forceWidth || !defaultSlide.image.forceWidth)
+            && (slide[index].image.width || defaultSlide.image.width)
     })
 
     const imageStyle = (index) =>
     ({
         borderRadius: slide[index].image.borderRadius || defaultSlide.image.borderRadius,
-        transform: (!slide[index].image.animation || !defaultSlide.image.animation)
-            && 'unset',
+        transform: (!slide[index].image.animation || !defaultSlide.image.animation) && 'unset',
+
         width: (slide[index].image.forceWidth || defaultSlide.image.forceWidth)
-            && slide[index].image.width
-            || defaultSlide.image.width,
+            && (slide[index].image.width || defaultSlide.image.width),
 
         height: (slide[index].image.forceHeight || defaultSlide.image.forceHeight)
-            && slide[index].image.height
-            || defaultSlide.image.height,
+            && (slide[index].image.height || defaultSlide.image.height),
 
         maxWidth: slide[index].image.width || defaultSlide.image.width,
         maxHeight: slide[index].image.height || defaultSlide.image.height,
@@ -313,6 +323,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     productWrap = {
         display: product.display || defaultProduct.display,
         justifyContent: product.justifyContent || defaultProduct.justifyContent,
+        alignItems: product.alignItems || defaultProduct.alignItems,
         padding: product.padding || defaultProduct.padding,
         height: '100%',
     }
@@ -323,6 +334,8 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         color: productName.color || defaultProduct.name.color,
         //hoverColor: product.name.hoverColor ,
         textAlign: productName.textAlign || defaultProduct.name.textAlign,
+        fontWeight: productName.fontWeight || defaultProduct.name.fontWeight,
+        margin: productName.margin || defaultProduct.name.margin,
     }
 
     productBrand = product.brand || defaultProduct.brand
@@ -330,14 +343,17 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         display: productBrand.display || defaultProduct.brand.display,
         fontSize: productBrand.fontSize || defaultProduct.brand.fontSize,
         color: productBrand.color || defaultProduct.brand.color,
-        //hoverColor: product.name.hoverColor ,
     }
 
     priceAndAddToCartWrapper = product.priceAndAddToCartWrapper || defaultProduct.priceAndAddToCartWrapper
     priceAndAddToCartWrapper = {
+        display: priceAndAddToCartWrapper.display || defaultProduct.display,
         padding: priceAndAddToCartWrapper.padding || defaultProduct.padding,
         flexDirection: priceAndAddToCartWrapper.flexDirection || defaultProduct.flexDirection,
-        justifyContent: priceAndAddToCartWrapper.justifyContent || defaultProduct.justifyContent
+        justifyContent: priceAndAddToCartWrapper.justifyContent || defaultProduct.justifyContent,
+        alignItems: priceAndAddToCartWrapper.alignItems || defaultProduct.alignItems,
+        height: priceAndAddToCartWrapper.height || defaultProduct.height,
+        flex: '0.5'
     }
 
     productPrice = product.price || defaultProduct.price
@@ -351,10 +367,12 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     productPrice = {
         fontSize: productPrice.fontSize || defaultProduct.price.fontSize,
         color: productPrice.color || defaultProduct.price.color,
+        unit: productPrice.unit || defaultProduct.price.unit,
+        beforeDiscount: productPrice.beforeDiscount || defaultProduct.price.beforeDiscount,
         //hoverColor: product.price.hoverColor ,
     }
 
-    productPriceBeforeDiscount = productPrice.fontSize || defaultProduct.price.beforeDiscount
+    productPriceBeforeDiscount = productPrice.beforeDiscount || defaultProduct.price.beforeDiscount
     productPriceBeforeDiscount = {
         display: productPriceBeforeDiscount.display || defaultProduct.price.beforeDiscount.display,
         fontSize: productPriceBeforeDiscount.fontSize || defaultProduct.price.beforeDiscount.fontSize,
@@ -388,9 +406,9 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         minusBtn, removeBtn, qtyBtn, addToCartStyles, btnsWrap
 
     addToCart = product.addToCart
-    addToCartVisible = addToCart && addToCart.display === 'none'
+    addToCartVisible = addToCart && addToCart.display !== 'none'
 
-    if (!addToCartVisible) {
+    if (addToCartVisible) {
         addToCartWrap = {
             display: addToCart.display || defaultAddToCart.display,
             design: addToCart.design || defaultAddToCart.design,
@@ -971,22 +989,24 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     }
 
     const clearMarker = (index) => {
-        slideWrapper[index].style.zIndex = 'unset'
-        if (autoMarker.boxShadow)
-            slideWrapper[index].style.boxShadow = slideWrapperStyle(getSlideIndex(markerIndex)).boxShadow
+        if (slideWrapper[index]) {
+            slideWrapper[index].style.zIndex = 'unset'
+            if (autoMarker.boxShadow)
+                slideWrapper[index].style.boxShadow = slideWrapperStyle(getSlideIndex(markerIndex)).boxShadow
 
-        if (autoMarker.border)
-            slideWrapper[index].style.border = slideWrapperStyle(getSlideIndex(markerIndex)).border
+            if (autoMarker.border)
+                slideWrapper[index].style.border = slideWrapperStyle(getSlideIndex(markerIndex)).border
 
-        if (fixBorder) {
-            slideWrapper[index].style.borderTop = '1px solid #00000000'
-            slideWrapper[index].style.borderLeft = '1px solid #00000000'
+            if (fixBorder) {
+                slideWrapper[index].style.borderTop = '1px solid #00000000'
+                slideWrapper[index].style.borderLeft = '1px solid #00000000'
+            }
         }
-
     }
 
     const runAutoMarker = (index) => {
         if (slideWrapper && slideWrapper.length > 0 && autoMarker.run) {
+
             if (markerIndex === allSlides.length) markerIndex = 0
             var prevIndex = markerIndex === 0 ? slideWrapper.length - 1 : markerIndex - 1
             clearMarker(prevIndex)
@@ -1001,6 +1021,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                 slideWrapper[markerIndex].style.boxShadow = autoMarker.boxShadow
 
             !mouseEnter && chevronRight(true)
+            controlActionHandler(slides[markerIndex])
 
             markerIndex++
         }
@@ -1044,6 +1065,12 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         })
     }
 
+    const controlActionHandler = (slide) => {
+        if (action && controller) {
+            dispatch(getSlides({}, action, false, slide))
+        }
+    }
+
     ////////////////////////// Product ////////////////////////////
 
     const productVisible = (index) =>
@@ -1067,36 +1094,37 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             : false
 
         return <div className='product-details-wrap' style={productWrap}>
-            <div className='product-details-wrap-1'>
-                <div className="product-name" style={productName}>
-                    <Link to={"/product/" + product._id}>
-                        <div className='product-nameEn'>{product.nameEn || product.title}</div>
+            <div className="product-name" onClick={e => controlActionHandler(product)}>
+                {controller
+                    ? <div className='product-nameEn' style={productName}>{product.nameEn}</div>
+                    : <Link to={"/product/" + product._id}>
+                        <div className='product-nameEn' style={productName}>{product.nameEn}</div>
                     </Link>
-                </div>
-                <div className="product-brand" style={productBrand}>{product.brand}</div>
-                <div className='product-det-price-reviews-cont' style={priceAndAddToCartWrapper}>
-                    <div className="product-det-price-reviews-wrap">
-                        <div className="product-price" style={productPriceWrap}>
-                            <div className={product.discounted ? 'before-discount' : ''}
-                                style={product.discounted ? productPriceBeforeDiscount : productPrice}>{product.priceUsd}
-                                <div className='price-unit' style={productPriceUnit}>${!product.priceAfterDiscount ? '/' + product.unit : ''}</div>
-                            </div>
-                            {product.priceAfterDiscount &&
-                                <div className='after-discount' style={productPrice}>
-                                    {product.priceAfterDiscount}
-                                    <div className='price-unit' style={productPriceUnit}>$/{product.unit}</div>
-                                </div>}
+                }
+            </div>
+            <div className="product-brand" style={productBrand}>{product.brand}</div>
+            <div className='product-det-price-reviews-cont' style={priceAndAddToCartWrapper}>
+                <div className="product-det-price-reviews-wrap">
+                    <div className="product-price" style={productPriceWrap}>
+                        <div className={product.discounted ? 'before-discount' : ''}
+                            style={product.discounted ? productPriceBeforeDiscount : productPrice}>{product.priceUsd}
+                            <div className='price-unit' style={productPriceUnit}>${!product.priceAfterDiscount ? '/' + product.unit : ''}</div>
                         </div>
-                        <div className='product-review-container'>
-                            <div className='product-review' style={productRating}>
-                                <FontAwesomeIcon icon={faStar} className='faStar' />
-                                4.5</div>
-                            <div className='product-review-qty' style={productReviews}>(21)</div>
-                        </div>
+                        {product.priceAfterDiscount &&
+                            <div className='after-discount' style={productPrice}>
+                                {product.priceAfterDiscount}
+                                <div className='price-unit' style={productPriceUnit}>$/{product.unit}</div>
+                            </div>}
                     </div>
-                    {/* Add To Cart */}
-                    {addToCartStyles && <AddToCart product={product} styles={addToCartStyles} />}
+                    <div className='product-review-container'>
+                        <div className='product-review' style={productRating}>
+                            <FontAwesomeIcon icon={faStar} className='faStar' />
+                                4.5</div>
+                        <div className='product-review-qty' style={productReviews}>(21)</div>
+                    </div>
                 </div>
+                {/* Add To Cart */}
+                {addToCartStyles && <AddToCart product={product} styles={addToCartStyles} />}
             </div>
 
             {/* Timer */}
@@ -1113,7 +1141,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         return i
     }
 
-    const slideTitleStyles = (index) => slide[index].title
+    const slideTitleStyles = (index) => slide[index].title || defaultSlide.title
 
     return (
         <div className={'slides-overlay slider-' + _id} style={slidesOverlayStyle}>
@@ -1159,8 +1187,8 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                             const i = getSlideIndex(index)
                             const timer = showTimer(slide.onSale)
                             const slideBox = slider.slide.find(slideBox =>
-                                (slideBox.name && (slideBox.name === (slide.nameEn || slide.name))) ||
-                                (slide.title && slideBox.title.title === slide.title)
+                                (slideBox.name && (slideBox.name === (slide.nameEn || slide.name)))
+                                || (slide.title && slideBox.title.title === slide.title)
                             )
 
                             return (
@@ -1185,7 +1213,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                                             </div>}
 
                                         {/* Slide Title */}
-                                        {slideBox &&
+                                        {slideTitleStyles(i).display && slideTitleStyles(i).display !== 'none' &&
                                             <TitleContainer box={slideBox} styles={slideTitleStyles(i)} />}
 
                                         {/* Product */}

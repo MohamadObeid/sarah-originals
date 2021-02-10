@@ -2,7 +2,7 @@ export const defaultTitleStyles = {
     // Default styles
     type: 'Title',
     name: 'Default Desktop Title Styles',
-    display: 'flex',
+    display: 'none',
     padding: '1rem',
     design: 'Classic',
     borderBottom: '0',
@@ -23,7 +23,6 @@ export const defaultTitleStyles = {
         backgroundColor: 'inherit',
         text: {
             color: '#404040',
-            hover: { color: '#202020' },
             fontSize: '1.9rem',
             backgroundColor: 'unset',
             borderRadius: '0',
@@ -285,6 +284,7 @@ export const defaultMagicBoxStyles = {
             backgroundColor: 'inherit',
             justifyContent: 'flex-start',
             productVisible: true,
+            title: defaultTitleStyles,
             // image
             image: {
                 borderRadius: '0',
@@ -314,9 +314,11 @@ export const defaultMagicBoxStyles = {
                 hoverColor: 'blue',
             },
             priceAndAddToCartWrapper: {
+                display: 'flex',
                 padding: '0',
                 flexDirection: 'column',
-                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100%'
             },
             price: {
                 fontSize: '2rem',

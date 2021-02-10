@@ -2,7 +2,7 @@ import axios from "axios";
 import { domain } from "../methods/methods";
 import _ from 'lodash'
 
-const getSlides = (control, action, firstUpdate) => async (dispatch, getState) => {
+const getSlides = (control, action, firstUpdate, slide) => async (dispatch, getState) => {
     try {
         if (action) {
             const { slides } = getState()
@@ -18,6 +18,11 @@ const getSlides = (control, action, firstUpdate) => async (dispatch, getState) =
                 })
                 return
             }
+        }
+
+        if (slide) {
+            dispatch({ type: 'UPDATE_ACTIONS', payload: { [action]: { slides: [slide] } } })
+            return
         }
 
         dispatch({ type: 'GET_SLIDES_REQUEST' })

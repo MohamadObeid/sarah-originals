@@ -86,6 +86,7 @@ export const MagicBox = React.memo(({ styles, touchScreen, magicBox }) => {
 
         const action = magicBox.action || 'none'
         const controllable = magicBox.controllable
+        var timerBar, viewWrapper, viewOverlay, timeOut, height, width, checkSelector
 
         const showTimer = () => {
             if (viewWrapStyles.canHide)
@@ -130,20 +131,19 @@ export const MagicBox = React.memo(({ styles, touchScreen, magicBox }) => {
         }
 
         useSelector(state => {
-            if (controllable)
-                if (viewWrapper && timerBar &&
-                    state.actions[action] && state.actions[action].title) {
+            if (state.actions[action] && controllable)
+                if (state.actions[action].title && checkSelector) {
                     dispatch({ type: 'REMOVE_ACTION', payload: action })
                     hideBox()
                     showBox()
                 }
         })
 
-        var timerBar, viewWrapper, viewOverlay, timeOut, height, width
         useEffect(() => {
             viewOverlay = document.getElementsByClassName('view-overlay-' + _id)[0]
             viewWrapper = viewOverlay.getElementsByClassName('view-wrapper')[0]
             timerBar = viewWrapper.getElementsByClassName('timer-bar')[0]
+            checkSelector = true
         }, [])
 
         return (
