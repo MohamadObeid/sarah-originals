@@ -49,25 +49,24 @@ const Navbar = React.memo(props => {
 
     /////////////////////////////////////////
     ////////////////Drag Btn/////////////////
-    const [active, setActive] = useState()
-    var currentY
+    var currentY, active
 
     const drag = e => {
-        if (active) {
-            e.preventDefault()
-            currentY = e.touches[0].clientY
-            const screenHeight = window.screen.height
-            e.currentTarget.style.top = (currentY / screenHeight * 100) + 'vh'
-        }
+        //if (active) {
+        e.preventDefault()
+        currentY = e.touches[0].clientY
+        const screenHeight = window.screen.height
+        e.currentTarget.style.top = (currentY / screenHeight * 100) + 'vh'
+
     }
 
-    const dragStart = e => {
-        setActive(true)
+    /*const dragStart = e => {
+        active = true
     }
 
     const dragEnd = e => {
-        setActive(false)
-    }
+        active = false
+    }*/
 
     ////////////////End Drag/////////////////
     /////////////////////////////////////////
@@ -81,9 +80,9 @@ const Navbar = React.memo(props => {
                 </div>
                 <div className="header-links">
                     <Link className="header-link-cart" to="/cart"
-                        onTouchMove={drag}
-                        onTouchStart={dragStart}
-                        onTouchEnd={dragEnd}>
+                        //onTouchStart={dragStart}
+                        //onTouchEnd={dragEnd}
+                        onTouchMove={drag}>
                         <div className='item-qty-div'>
                             {cartItems.reduce((total, item) => total + item.qty, 0) > 0 &&
                                 <p className='header-link-item'>
