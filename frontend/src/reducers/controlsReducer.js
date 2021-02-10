@@ -50,12 +50,12 @@ function controlSaveReducer(state = { controls: {}, loading: true }, action) {
     }
 }*/
 
-function controlsReducer(state = { controls: {} }, action) {
+function controlsReducer(state = {}, action) {
     switch (action.type) {
         case 'GET_CONTROLS_REQUEST':
             return state
         case 'GET_CONTROLS_SUCCESS':
-            return { controls: action.payload }
+            return action.payload
         case 'GET_CONTROLS_FAIL':
             return state
         default:

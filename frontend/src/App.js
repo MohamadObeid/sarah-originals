@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Route } from "react-router-dom";
 import "./index.css";
 import HomeScreen from "./screens/HomeScreen";
@@ -11,8 +11,13 @@ import DashBoard from "./screens/AdminPanel/DashBoard";
 import NavBar from "./screens/Components/NavBar";
 import ProfileScreen from './screens/ProfileScreen';
 import Chatbox from './screens/Components/Chatbox';
+import { getControls } from "./actions/controlsActions";
+import { useDispatch } from "react-redux";
 
 const App = React.memo(() => {
+
+  const dispatch = useDispatch()
+  useEffect(() => { dispatch(getControls({ fields: 'mainControls' })) }, [])
 
   return (
     <BrowserRouter>

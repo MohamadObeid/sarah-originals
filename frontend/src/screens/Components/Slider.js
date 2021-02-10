@@ -172,6 +172,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         justifyContent: styles.justifyContent || defaultStyles.justifyContent,
         alignItems: styles.alignItems || defaultStyles.alignItems,
         padding: styles.paddingAround || defaultStyles.paddingAround,
+        minHeight: styles.minHeight || defaultStyles.minHeight,
     }
 
     const slidesWrapperStyle = {

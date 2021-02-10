@@ -277,6 +277,8 @@ const MagicBoxSchema = new mongoose.Schema({
         display: String,// 'none' },
         height: String,// 'auto' },
         width: String,// 'auto' },
+        minHeight: String,
+        maxHeight: String,
         flexWrap: String,// 'nowrap' },
         border: String,// '0' },
         borderTop: String,

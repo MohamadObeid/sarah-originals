@@ -7,19 +7,20 @@ const router = express.Router()
 router.post("/get", async (req, res) => {
     const { _id, name } = req.body
     const limit = req.body.limit || 100
+    const fields = req.body.fields || null
     const skip = 0
 
     if (_id || name) {
 
         const conditions = { $or: [{ _id }, { name }] }
-        const controls = await Controls.findOne(conditions)
+        const controls = await Controls.findOne(conditions, fields)
         if (controls) return res.send(controls)
         else return res.send({ message: 'Controls are not Available!' })
 
     } else {
 
         const conditions = { active: true }
-        const controls = await Controls.findOne(conditions, { HomeScreen: { $slice: [skip, limit] } })
+        const controls = await Controls.findOne(conditions, fields, { HomeScreen: { $slice: [skip, limit] } })
         if (controls) return res.send(controls)
         else return res.send({ message: 'Controls are not Available!' })
     }

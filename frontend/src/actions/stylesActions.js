@@ -1,8 +1,12 @@
 import axios from "axios"
 import { domain } from "../methods/methods"
 
-const getStyles = (conditions) => async (dispatch) => {
+const getStyles = (conditions) => async (dispatch, getState) => {
     try {
+        const { styles } = getState()
+        const stylesExist = styles.find(styles => styles.name === conditions.name)
+        if (stylesExist) return
+
         dispatch({ type: 'STYLES_GET_REQUEST' })
         const { data } = await axios.post(domain + '/api/styles/get', conditions)
 
