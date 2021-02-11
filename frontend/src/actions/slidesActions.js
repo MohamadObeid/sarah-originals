@@ -25,6 +25,13 @@ const getSlides = (control, action, firstUpdate, slide) => async (dispatch, getS
             return
         }
 
+        // clear controller data
+        dispatch({
+            type: 'UPDATE_ACTIONS', payload: {
+                [action]: { slides: [], title: control.title }
+            }
+        })
+
         dispatch({ type: 'GET_SLIDES_REQUEST' })
         const { data } = await axios.post(domain + '/api/slides/get', control)
 

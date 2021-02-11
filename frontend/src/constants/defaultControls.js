@@ -94,6 +94,9 @@ export const Controls = {
         slider: [{
             controllable: true,
             action: 'digiProduct',
+            control: {
+                event: 'hover',
+            },
             collections: {
                 type: 'Product',
                 collections: ['Featured'],
@@ -102,6 +105,9 @@ export const Controls = {
         }, {
             controller: true,
             action: 'digiProduct',
+            control: {
+                event: 'hover',
+            },
             collections: {
                 type: 'Product',
                 collections: ['Featured'],

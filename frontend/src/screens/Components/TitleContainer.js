@@ -195,8 +195,6 @@ export const TitleContainer = React.memo(({ box, styles }) => {
                 openBox = state.actions.openBox
 
                 if (state.actions[action]) {
-                    assigned = true
-                    setTimeout(() => { assigned = false }, 100)
 
                     const title = state.actions[action].title
                     const collections = state.actions[action].collections
@@ -222,6 +220,9 @@ export const TitleContainer = React.memo(({ box, styles }) => {
                 }
             }
         })
+
+        assigned = true
+        setTimeout(() => { assigned = false }, 500)
 
         useEffect(() => {
             titleWrapper = document.getElementsByClassName('title-wrap-' + _id)[0]
