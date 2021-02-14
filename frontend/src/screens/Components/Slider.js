@@ -190,7 +190,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     }, [slides])
 
     defaultSlideIndex = slide.findIndex(slide => slide.isDefault)
-    if (defaultSlideIndex === -1) defaultSlideIndex = undefined
+    if (defaultSlideIndex === -1) defaultSlideIndex = 0
 
     const skipMore = swiper.skipMore || defaultSwiper.skipMore
     const fixBorder = styles.fixBorder || defaultStyles.fixBorder
