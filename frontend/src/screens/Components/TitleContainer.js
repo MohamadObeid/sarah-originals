@@ -22,7 +22,7 @@ export const TitleContainer = React.memo(({ box, styles }) => {
         const action = box.action || 'none'
         const controllable = box.controllable
         const controller = box.controller
-        const event = controller && controls && controls.event || 'none'
+        const event = controls.event || 'none'
 
         var titleWrapper, titleElement, titleText, icon, titleBorder, secondBorder,
             titleStroke, showAllWrapper, showAllText, showAllBorder, chevron
@@ -158,7 +158,7 @@ export const TitleContainer = React.memo(({ box, styles }) => {
             if (apply && !mounted) {
 
                 if (controller) {
-                    if (controls.event === event)
+                    if (event === actionType)
                         if (controls.trigger.includes('title')) {
                             onHold = true
                             dispatch(getSlides(controls, action, {}))

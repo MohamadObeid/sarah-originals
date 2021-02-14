@@ -417,14 +417,13 @@ export const Controls = {
                 }
             },
             slide: [{
-                title: {
-                    title: 'Popular'
-                },
+                name: 'Popular',
+                title: { title: 'Popular' },
                 controller: true,
                 action: 'changeSlides',
                 controls: {
                     event: 'click',
-                    read: ['slides', 'title'],
+                    read: ['title'],
                     trigger: ['title'],
                     getFrom: 'controls',
                     collections: {
@@ -433,14 +432,13 @@ export const Controls = {
                     }
                 }
             }, {
-                title: {
-                    title: 'Featured'
-                },
+                name: 'Featured',
+                title: { title: 'Featured' },
                 controller: true,
                 action: 'changeSlides',
                 controls: {
                     event: 'click',
-                    read: ['slides', 'title'],
+                    read: ['title'],
                     trigger: ['title'],
                     getFrom: 'controls',
                     collections: {
@@ -449,14 +447,13 @@ export const Controls = {
                     }
                 }
             }, {
-                title: {
-                    title: 'New Arrival'
-                },
+                name: 'New Arrival',
+                title: { title: 'New Arrival' },
                 controller: true,
                 action: 'changeSlides',
                 controls: {
                     event: 'click',
-                    read: ['slides', 'title'],
+                    read: ['title'],
                     trigger: ['title'],
                     getFrom: 'controls',
                     collections: {
@@ -465,14 +462,13 @@ export const Controls = {
                     }
                 }
             }, {
-                title: {
-                    title: 'Special'
-                },
+                name: 'Special',
+                title: { title: 'Special' },
                 controller: true,
                 action: 'changeSlides',
                 controls: {
                     event: 'click',
-                    read: ['slides', 'title'],
+                    read: ['title'],
                     trigger: ['title'],
                     getFrom: 'controls',
                     collections: {
@@ -480,7 +476,13 @@ export const Controls = {
                         collections: ['Special'],
                     }
                 }
-            }]
+            }],
+            slides: [
+                { name: 'Popular' },
+                { name: 'Featured' },
+                { name: 'New Arrival' },
+                { name: 'Special' }
+            ]
         }, {
             collections: {
                 type: 'Product',

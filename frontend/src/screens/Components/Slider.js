@@ -32,8 +32,8 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     var productTimerWrapper
     var markerInterval
     var markerIndex = 0
-    var titleSlides = slider.slide.filter(slide => slide.name)
-    if (titleSlides.length > 0) titleSlides = titleSlides.map(slide => slide.title)
+    //var titleSlides = slider.slide.filter(slide => slide.name)
+    //if (titleSlides.length > 0) titleSlides = titleSlides.map(slide => slide.title)
 
     var otherSlides = slider.slides
     var allSlides = []
@@ -118,7 +118,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     assigned = true
     setTimeout(() => { assigned = false }, 200)
 
-    if (slides) allSlides = [...otherSlides, ...titleSlides, ...slides]
+    if (slides) allSlides = [...otherSlides, ...slides]
 
     useEffect(() => {
         if (slides) {
@@ -1242,7 +1242,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         markerIndex = index
         markerHandler(false)
 
-        if (slide && slide.controllable) {
+        if (slide && slide.controllable && slide.controls.event === 'hover') {
             dispatch({
                 type: 'UPDATE_ACTIONS', payload: {
                     [slide.action]: { ...currentAction, stop: false }
@@ -1256,7 +1256,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         markerIndex = index
         markerHandler(true)
 
-        if (slide && slide.controllable) {
+        if (slide && slide.controllable && slide.controls.event === 'hover') {
             dispatch({
                 type: 'UPDATE_ACTIONS', payload: {
                     [slide.action]: { ...currentAction, stop: true }
