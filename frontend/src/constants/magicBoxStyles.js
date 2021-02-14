@@ -1545,6 +1545,7 @@ export const magicBoxStyles = [{
             height: '23rem',
             width: '30rem',
             backgroundColor: '#fff',
+            productVisible: false,
             title: {
                 display: 'none',
             },
