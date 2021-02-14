@@ -5,14 +5,13 @@ import { listCategory } from '../../actions/categoryActions';
 import FontAwesome from 'react-fontawesome';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser as farUser } from '@fortawesome/free-regular-svg-icons'
+import { SideBar } from './SideBar'
 
 const Navbar = React.memo(props => {
 
+    const [subSidebarVisible, setSubSidebarVisible] = useState(false);
     const { userInfo } = useSelector(state => state.userSignin);
     const { cartItems } = useSelector(state => state.cart);
-
-    const [subSidebarVisible, setSubSidebarVisible] = useState(false);
-    const [categoryHovered, setCategoryHovered] = useState()
 
     const openSideBar = () => {
         document.querySelector('.sidebar').classList.add('open');
@@ -21,6 +20,7 @@ const Navbar = React.memo(props => {
             const sidebarOverlay = document.querySelector('.sidebar-overlay');
             e.target == sidebarOverlay && closeSideBar();
         });
+
         window.addEventListener('mouseover', (e) => {
             const sidebarOverlay = document.querySelector('.sidebar-overlay');
             e.target == sidebarOverlay && setSubSidebarVisible(false);
@@ -33,22 +33,11 @@ const Navbar = React.memo(props => {
         setSubSidebarVisible(false);
     }
 
-    const { category } = useSelector(state => state.categoryList);
-
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(listCategory())
     }, []);
 
-    const handleHover = (e) => {
-        if (e.target.innerText) {
-            setCategoryHovered(e.target.innerText);
-            setSubSidebarVisible(true);
-        } else setSubSidebarVisible(false);
-    }
-
-    /////////////////////////////////////////
-    ////////////////Drag Btn/////////////////
     var currentY, active
 
     const drag = e => {
@@ -60,83 +49,37 @@ const Navbar = React.memo(props => {
 
     }
 
-    /*const dragStart = e => {
-        active = true
-    }
-
-    const dragEnd = e => {
-        active = false
-    }*/
-
-    ////////////////End Drag/////////////////
-    /////////////////////////////////////////
-
     return (
-        <div className="navbar-div">
-            <header className="header">
-                <div className="brand">
-                    <FontAwesome name="fa-bars" className="fas fa-bars" onClick={() => openSideBar()} />
-                    <Link className="brand-name" to="/">Sarah Originals</Link>
-                </div>
-                <div className="header-links">
-                    <Link className="header-link-cart" to="/cart"
-                        //onTouchStart={dragStart}
-                        //onTouchEnd={dragEnd}
-                        onTouchMove={drag}>
-                        <div className='item-qty-div'>
-                            {cartItems.reduce((total, item) => total + item.qty, 0) > 0 &&
-                                <p className='header-link-item'>
-                                    {cartItems.reduce((total, item) => total + item.qty, 0)}
-                                </p>}
-                            <FontAwesome name='fa-cart-plus' className="fas fa-cart-plus fa-2x" />
-                        </div>
-                    </Link>
-                    {
-                        (userInfo && userInfo.name) ?
-                            <Link className="header-link-user" to='/profile'>
-                                Hi, {userInfo.name.split(" ")[0]}
+        <header className="header">
+            <SideBar />
+            <div className="brand">
+                <FontAwesome name="fa-bars" className="fas fa-bars" onClick={() => openSideBar()} />
+                <Link className="brand-name" to="/">Sarah Originals</Link>
+            </div>
+            <div className="header-links">
+                <Link className="header-link-cart" to="/cart"
+                    onTouchMove={drag}>
+                    <div className='item-qty-div'>
+                        {cartItems.reduce((total, item) => total + item.qty, 0) > 0 &&
+                            <p className='header-link-item'>
+                                {cartItems.reduce((total, item) => total + item.qty, 0)}
+                            </p>}
+                        <FontAwesome name='fa-cart-plus' className="fas fa-cart-plus fa-2x" />
+                    </div>
+                </Link>
+                {
+                    (userInfo && userInfo.name) ?
+                        <Link className="header-link-user" to='/profile'>
+                            Hi, {userInfo.name.split(" ")[0]}
+                            <FontAwesomeIcon icon={farUser} className='farUser fa-lg' />
+                        </Link> :
+                        <Link className="header-link-user" to="/signin">
+                            Sign In
                                 <FontAwesomeIcon icon={farUser} className='farUser fa-lg' />
-                            </Link> :
-                            <Link className="header-link-user" to="/signin">
-                                Sign In
-                                <FontAwesomeIcon icon={farUser} className='farUser fa-lg' />
-                            </Link>
-                    }
-                </div>
-            </header>
-            <div className="sidebar-overlay">
-                <aside className="sidebar">
-                    <h3 className="sidebar-header">Categories</h3>
-                    <FontAwesome name="fa-window-close"
-                        className="far fa-window-close fa-lg sidebar-close-button"
-                        onClick={() => closeSideBar()} />
-
-                    <ul className="sidebar-ul">
-                        {category && category.map(category => (
-                            !category.headCategory &&
-                            <li key={category._id}>
-                                <Link className="sidebar-link" onMouseOver={(e) => handleHover(e)} to="/products">{category.name}</Link>
-                            </li>
-                        ))}
-                    </ul>
-                </aside>
-                {subSidebarVisible &&
-                    <aside className="sub-sidebar">
-                        <div>
-                            <h4 className="sub-sidebar-header">{categoryHovered}</h4>
-                            {category && category.map(category => (
-                                category.headCategory == categoryHovered &&
-                                <ul className="subSidebar-ul">
-                                    <li key={category._id}>
-                                        <Link className="subSidebar-link" to="/products">{category.name}</Link>
-                                    </li>
-                                </ul>
-                            ))}
-                        </div>
-                    </aside>
+                        </Link>
                 }
             </div>
-        </div >
+        </header>
     )
 })
 
