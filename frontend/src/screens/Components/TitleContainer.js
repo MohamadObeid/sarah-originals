@@ -164,7 +164,6 @@ export const TitleContainer = React.memo(({ box, styles }) => {
                             dispatch(getSlides(controls, action, {}))
                         }
                 }
-
             } //else dispatch({ type: 'REMOVE_FROM_ACTIONS', payload: action })
         }
 

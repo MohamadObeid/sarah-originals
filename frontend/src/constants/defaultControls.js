@@ -12,7 +12,7 @@ export const Controls = {
         },
         slider: [{
             slide: [{
-                name: 'none',
+                name: 'Product Categories',
                 title: { title: 'Product Categories' },
                 controller: true,
                 action: 'showNavBarSubBox',
@@ -22,9 +22,9 @@ export const Controls = {
                     trigger: ['slide'],
                     getFrom: 'none'
                 }
-            },
-            {
-                name: 'none', title: { title: 'SuperMarket' },
+            }, {
+                name: 'SuperMarket',
+                title: { title: 'SuperMarket' },
                 controller: true,
                 action: 'showNavBarSubBox',
                 controls: {
@@ -33,9 +33,9 @@ export const Controls = {
                     trigger: ['slide'],
                     getFrom: 'none'
                 }
-            },
-            {
-                name: 'none', title: { title: 'Offers & Suggestions' },
+            }, {
+                name: 'Offers & Suggestions',
+                title: { title: 'Offers & Suggestions' },
                 controller: true,
                 action: 'showNavBarSubBox',
                 controls: {
@@ -44,9 +44,9 @@ export const Controls = {
                     trigger: ['slide'],
                     getFrom: 'none'
                 }
-            },
-            {
-                name: 'none', title: { title: "My Sarah's" },
+            }, {
+                name: "My Sarah's",
+                title: { title: "My Sarah's" },
                 controller: true,
                 action: 'showNavBarSubBox',
                 controls: {
@@ -55,9 +55,8 @@ export const Controls = {
                     trigger: ['slide'],
                     getFrom: 'none'
                 }
-            },
-            {
-                name: 'none', title: { title: 'Sarah Plus' },
+            }, {
+                name: 'Sarah Plus', title: { title: 'Sarah Plus' },
                 controller: true,
                 action: 'showNavBarSubBox',
                 controls: {
@@ -66,9 +65,9 @@ export const Controls = {
                     trigger: ['slide'],
                     getFrom: 'none'
                 }
-            },
-            {
-                name: 'none', title: { title: 'Sarah Club' },
+            }, {
+                name: 'Sarah Club',
+                title: { title: 'Sarah Club' },
                 controller: true,
                 action: 'showNavBarSubBox',
                 controls: {
@@ -77,9 +76,9 @@ export const Controls = {
                     trigger: ['slide'],
                     getFrom: 'none'
                 }
-            },
-            {
-                name: 'none', title: { title: 'Question!' },
+            }, {
+                name: 'Question!',
+                title: { title: 'Question!' },
                 controller: true,
                 action: 'showNavBarSubBox',
                 controls: {
@@ -88,9 +87,9 @@ export const Controls = {
                     trigger: ['slide'],
                     getFrom: 'none'
                 }
-            },
-            {
-                name: 'none', title: { title: 'Become a Seller' },
+            }, {
+                name: 'Become a Seller',
+                title: { title: 'Become a Seller' },
                 controller: true,
                 action: 'showNavBarSubBox',
                 controls: {
@@ -99,7 +98,10 @@ export const Controls = {
                     trigger: ['slide'],
                     getFrom: 'none'
                 }
-            }]
+            }],
+            slides: [{ name: 'Product Categories' }, { name: 'SuperMarket' },
+            { name: 'Offers & Suggestions' }, { name: "My Sarah's" },
+            { name: 'Sarah Plus' }, { name: 'Question!' }, { name: 'Become a Seller' }]
         }]
     }, {
         active: true,
