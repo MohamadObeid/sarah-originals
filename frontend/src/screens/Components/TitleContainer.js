@@ -18,11 +18,11 @@ export const TitleContainer = React.memo(({ box, styles }) => {
 
         const _id = box._id
         const Title = box.title || { title: '' }
-        const control = box.control
+        const controls = box.controls
         const action = box.action || 'none'
         const controllable = box.controllable
         const controller = box.controller
-        const event = controller && control && control.event || 'none'
+        const event = controller && controls && controls.event || 'none'
 
         var titleWrapper, titleElement, titleText, icon, titleBorder, secondBorder,
             titleStroke, showAllWrapper, showAllText, showAllBorder, chevron
@@ -121,7 +121,7 @@ export const TitleContainer = React.memo(({ box, styles }) => {
 
         const eventStyles = (apply, actionType) => {
 
-            if (changeEffects && !onHold) { // remove hover/click styles
+            if (changeEffects && !onHold && titleWrapper) { // remove hover/click styles
 
                 titleWrapStyle[actionType] &&
                     Object.entries(titleWrapStyle[actionType]).map(([key, value]) => {
@@ -157,9 +157,12 @@ export const TitleContainer = React.memo(({ box, styles }) => {
 
             if (apply && !mounted) {
 
-                if (controller && event === actionType) {
-                    onHold = true
-                    dispatch(getSlides(control, action))
+                if (controller) {
+                    if (controls.event === event)
+                        if (controls.trigger.includes('title')) {
+                            onHold = true
+                            dispatch(getSlides(controls, action, {}))
+                        }
                 }
 
             } //else dispatch({ type: 'REMOVE_FROM_ACTIONS', payload: action })
@@ -194,7 +197,7 @@ export const TitleContainer = React.memo(({ box, styles }) => {
             if (!assigned) {
                 openBox = state.actions.openBox
 
-                if (state.actions[action]) {
+                if (state.actions[action] && titleWrapper) {
 
                     const title = state.actions[action].title
                     const collections = state.actions[action].collections
@@ -203,7 +206,7 @@ export const TitleContainer = React.memo(({ box, styles }) => {
                         titleElement.innerHTML = title
 
                     if (controller) {
-                        const slidesExist = _.isEqual(collections, control.collections)
+                        const slidesExist = _.isEqual(collections, controls.collections)
 
                         if (slidesExist && !mounted) {
                             mounted = true

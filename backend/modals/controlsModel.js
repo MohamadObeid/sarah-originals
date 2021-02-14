@@ -23,8 +23,11 @@ const controlsSchema = new mongoose.Schema({
         controllable: Boolean,
         controller: Boolean,
         action: String,
-        control: {
-            event: String,
+        controls: {
+            event: String, // click, hover
+            getFrom: String, // content, controls, none
+            trigger: Array, // [slideWrapper, slideTitle, slideImage, slideButton,       sliderWrapper, sliderTitle, sliderImage, sliderButton,       magicBoxWrapper, magicBoxTitle, magicBoxImage, magicBoxButton          , autoPlay]
+            read: Array, // [slides, title, styles]
             title: titleSchema,
             collections: {
                 type: { type: String },
@@ -48,8 +51,11 @@ const controlsSchema = new mongoose.Schema({
             controllable: Boolean,
             controller: Boolean,
             action: String,
-            control: {
+            controls: {
                 event: String,
+                getFrom: String,
+                trigger: Array,
+                read: Array,
                 title: titleSchema,
                 collections: {
                     type: { type: String },
@@ -63,11 +69,15 @@ const controlsSchema = new mongoose.Schema({
                 name: String,
                 title: titleSchema,
 
+                isDefault: Boolean,
                 controllable: Boolean,
                 controller: Boolean,
                 action: String,
-                control: {
+                controls: {
                     event: String,
+                    getFrom: String,
+                    trigger: Array,
+                    read: Array,
                     title: titleSchema,
                     collections: {
                         type: { type: String },

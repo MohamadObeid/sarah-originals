@@ -9,7 +9,6 @@ import { showTimer } from '../../methods/methods'
 import { Timer } from './SliderComponents'
 import { AddToCart } from './AddToCart'
 import { Badges } from './Badges'
-import _ from 'lodash'
 import { getSlides } from '../../actions/slidesActions'
 
 export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }) => {
@@ -29,26 +28,26 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     var swiperHeight
     var defaultSlideIndex
     var slideWrapper
+    var markerElement
     var productTimerWrapper
     var markerInterval
     var markerIndex = 0
-    var titleSlides = slider.slide
-        .filter(slide => !slide.name)
-        .map(slide => slide.title)
+    var titleSlides = slider.slide.filter(slide => slide.name)
+    if (titleSlides.length > 0) titleSlides = titleSlides.map(slide => slide.title)
 
     var otherSlides = slider.slides
     var allSlides = []
     var currentAction = {}
     var assigned = false
+    var slideBox = {}
 
     const _id = slider._id
     const action = slider.action
-    const control = slider.control
+    const controls = slider.controls
     const controller = slider.controller
     const controllable = slider.controllable
-    const event = control.event
+    const event = controls.event
     const title = slider.title
-    const collections = control.collections
     const TitleStyles = styles.title
     const slide = styles.slide || defaultStyles.slide
     const product = styles.product || defaultStyles.product
@@ -63,50 +62,52 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     const defaultSwiper = defaultStyles.swiper
     const defaultTimerBar = defaultStyles.timerBar
     const defaultAddToCart = defaultProduct.addToCart
+    const defaultSlideBox = slider.slide.find(slideBox => slideBox.isDefault)
 
     const [slides, setSlides] = useState()
 
     useSelector(state => {
 
-        if (!assigned)
-            if (state.actions[action]) {
-                currentAction = state.actions[action]
+        if (!assigned) {
+            var slideAction = slideBox.action
+            var slideController = slideBox.controller
+            var slideControllable = slideBox.controllable
 
-                if (controller) {
+            if (state.actions[action] || state.actions[slideAction]) {
+                currentAction = state.actions[action] || state.actions[slideAction]
 
-                    if (slideWrapper && autoMarker)
+                if (controller || slideController) {
+
+                    if (markerStyle && markerStyle.display !== 'none')
                         if (currentAction.stop) {
 
                             markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
-                            clearMarker(markerIndex)
                             clearInterval(markerInterval)
                             markerInterval = 0
 
                         } else {
-                            if (markerInterval === 0) {
-                                markerInterval = 1
-                                runAutoMarker()
-                                markerInterval = setInterval(() => { runAutoMarker() }, autoMarker.duration)
+                            if (markerStyle.autoPlay && !markerInterval) {
+                                markerInterval = setInterval(() => { markerHandler(false) }, markerStyle.duration)
+                                markerHandler(false)
                             }
                         }
 
-                } else if (controllable) {
+                } else if (controllable || slideControllable) {
 
                     const sameSlides = currentAction.slides === slides
                     // controllable? => update slides
                     if (!sameSlides) {
                         // clear marker
-                        if (slideWrapper && autoMarker) {
+                        if (markerStyle && markerStyle.display !== 'none') {
                             markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
-                            clearMarker(markerIndex)
                             clearInterval(markerInterval)
-
                         }
 
                         setSlides(currentAction.slides)
                     }
                 }
             }
+        }
 
         if (!slides) {
             var slidesExist = state.slides.find(slides => slides._id === _id)
@@ -117,8 +118,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     assigned = true
     setTimeout(() => { assigned = false }, 200)
 
-    if (slides)
-        allSlides = [...otherSlides, ...titleSlides, ...slides]
+    if (slides) allSlides = [...otherSlides, ...titleSlides, ...slides]
 
     useEffect(() => {
         if (slides) {
@@ -130,6 +130,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             timerBar = element.getElementsByClassName('timer-bar')[0]
             slideWrapper = [...element.getElementsByClassName('slide-wrapper')]
             productTimerWrapper = element.getElementsByClassName('product-timer-wrap')
+            markerElement = element.getElementsByClassName('marker-transform')[0]
 
             var maxHeight = 0
 
@@ -179,8 +180,12 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             }
 
             toggleSlides(true)
-            runAutoMarker()
-            markerInterval = setInterval(() => { runAutoMarker() }, autoMarker.duration)
+
+            if (markerStyle.autoPlay) {
+                clearInterval(markerInterval)
+                markerHandler(false)
+                markerInterval = setInterval(() => { markerHandler(false) }, markerStyle.duration)
+            }
         }
     }, [slides])
 
@@ -235,6 +240,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         minWidth: slide[index].width || defaultSlide.width,
         width: slide[index].forceWidth && (slide[index].width || defaultSlide.width),
         borderRadius: slide[index].borderRadius || defaultSlide.borderRadius,
+        margin: slide[index].margin || defaultSlide.margin,
     })
 
     const slideWrapperStyle = (index) =>
@@ -254,10 +260,10 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         boxShadow: slide[index].boxShadow || defaultSlide.boxShadow || 'unset',
     })
 
-    var autoMarker = styles.autoMarker ? styles.autoMarker : {}
-    defaultStyles.autoMarker &&
-        Object.entries(defaultStyles.autoMarker).map(([key, value]) => {
-            autoMarker = { ...autoMarker, [key]: autoMarker[key] || value }
+    var markerStyle = styles.marker ? styles.marker : {}
+    defaultStyles.marker &&
+        Object.entries(defaultStyles.marker).map(([key, value]) => {
+            markerStyle = { ...markerStyle, [key]: markerStyle[key] || value }
         })
 
     const imageWrapStyle = (index) =>
@@ -645,11 +651,10 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     const mouseEnterHandler = e => {
         e.preventDefault()
         mouseEnter = true
-        if (autoMarker.stopOnHover) {
+        if (markerStyle.stopOnHover) {
             markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
-            clearMarker(markerIndex)
+            //clearMarker(markerIndex)
             clearInterval(markerInterval)
-
         }
         if (stopOnHover) {
             clearInterval(timeOut)
@@ -665,11 +670,11 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             toggleTimerBar(true)
         }
 
-        if (autoMarker.stopOnHover)
-            if (autoMarker.run) {
+        if (markerStyle.stopOnHover)
+            if (markerStyle.autoPlay) {
                 markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
-                runAutoMarker()
-                markerInterval = setInterval(() => { runAutoMarker() }, autoMarker.duration)
+                markerHandler(false)
+                markerInterval = setInterval(() => { markerHandler(false) }, markerStyle.duration)
             }
     }
 
@@ -962,6 +967,33 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
     ////////////////////// Bullets ///////////////////////
 
+    const toggleBullets = () => {
+        // toggle bullets
+
+        var index = verticalSwiper
+            ? parseInt((sliderWrapper.scrollTop + sliderWrapper.clientHeight + gapWidth) / (slideHeight + gapWidth) + 0.01) - 1
+            : parseInt((sliderWrapper.scrollLeft + sliderWrapper.clientWidth + gapWidth) / (slideWidth + gapWidth) + 0.01) - 1
+
+        if (index < 0 || isNaN(index) || !index) index = 0
+
+        if (slideIndex !== index && element) {
+            slideIndex = index
+
+            if (bullets.display !== 'none') {
+                const bulletElement = element.getElementsByClassName('bullet')
+                if (bulletElement[slideIndex] && bulletElement[slideIndex].style.color !== '#00bdd9') {
+                    var i = allSlides.length - 1
+                    while (i >= 0) {
+                        bulletElement[i].style.color = '#eeeeee'
+                        i--
+                    }
+                    bulletElement[slideIndex].style.color = '#00bdd9'
+                }
+            }
+        }
+
+    }
+
     const bullets = swiper.bullets || defaultSwiper.bullets
 
     const Bullets = React.memo(() => {
@@ -1019,76 +1051,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         }
     }
 
-    const clearMarker = (index) => {
-        if (slideWrapper[index]) {
-            slideWrapper[index].style.zIndex = 'unset'
-            if (autoMarker.boxShadow)
-                slideWrapper[index].style.boxShadow = slideWrapperStyle(getSlideIndex(markerIndex)).boxShadow
-
-            if (autoMarker.border)
-                slideWrapper[index].style.border = slideWrapperStyle(getSlideIndex(markerIndex)).border
-
-            if (fixBorder) {
-                slideWrapper[index].style.borderTop = '1px solid #00000000'
-                slideWrapper[index].style.borderLeft = '1px solid #00000000'
-            }
-        }
-    }
-
-    const runAutoMarker = (index) => {
-        if (slideWrapper && slideWrapper.length > 0 && autoMarker.run && !currentAction.stop) {
-
-            if (markerIndex === allSlides.length) markerIndex = 0
-            var prevIndex = markerIndex === 0 ?
-                (slideWrapper.length > 0
-                    ? slideWrapper.length - 1
-                    : 0)
-                : markerIndex - 1
-
-            clearMarker(prevIndex)
-
-            if (index !== undefined) markerIndex = index
-            slideWrapper[markerIndex].style.zIndex = '1'
-
-            if (autoMarker.border)
-                slideWrapper[markerIndex].style.border = autoMarker.border
-
-            if (autoMarker.boxShadow)
-                slideWrapper[markerIndex].style.boxShadow = autoMarker.boxShadow
-
-            !mouseEnter && chevronRight(true)
-            if (event === 'hover') controlActionHandler(slides[markerIndex])
-
-            markerIndex++
-        }
-    }
-
-    const toggleBullets = () => {
-        // toggle bullets
-
-        var index = verticalSwiper
-            ? parseInt((sliderWrapper.scrollTop + sliderWrapper.clientHeight + gapWidth) / (slideHeight + gapWidth) + 0.01) - 1
-            : parseInt((sliderWrapper.scrollLeft + sliderWrapper.clientWidth + gapWidth) / (slideWidth + gapWidth) + 0.01) - 1
-
-        if (index < 0 || isNaN(index) || !index) index = 0
-
-        if (slideIndex !== index && element) {
-            slideIndex = index
-
-            if (bullets.display !== 'none') {
-                const bulletElement = element.getElementsByClassName('bullet')
-                if (bulletElement[slideIndex] && bulletElement[slideIndex].style.color !== '#00bdd9') {
-                    var i = allSlides.length - 1
-                    while (i >= 0) {
-                        bulletElement[i].style.color = '#eeeeee'
-                        i--
-                    }
-                    bulletElement[slideIndex].style.color = '#00bdd9'
-                }
-            }
-        }
-
-    }
+    ////////////////////////// Product ////////////////////////////
 
     // Product Quick View Handler
     const handleQuickView = (product) => {
@@ -1101,14 +1064,12 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         })
     }
 
-    ////////////////////////// Product ////////////////////////////
-
     const productVisible = (index) =>
         slide[index].productVisible === undefined
             ? defaultSlide.productVisible
             : slide[index].productVisible
 
-    const Product = React.memo(({ timer, product, styles }) => {
+    const Product = React.memo(({ slideBox, timer, product, styles }) => {
 
         const {
             productWrap, productName, productBrand, productPrice, productPriceBeforeDiscount,
@@ -1124,7 +1085,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             : false
 
         return <div className='product-details-wrap' style={productWrap}>
-            <div className="product-name" onClick={e => controlActionHandler(product)}>
+            <div className="product-name" onClick={e => controllerHandler('click', 'title', { slides: [product], title: product.nameEn }, slideBox)}>
                 {controller
                     ? <div className='product-nameEn' style={productName}>{product.nameEn}</div>
                     : <Link to={"/product/" + product._id}>
@@ -1173,9 +1134,32 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
     const slideTitleStyles = (index) => slide[index].title || defaultSlide.title
 
-    const controlActionHandler = (slide) => {
-        if (action && controller && !currentAction.stop) {
-            dispatch(getSlides({}, action, false, slide))
+    const controllerHandler = (event, trigger, content, slideBox) => {
+
+        if (slider.controller) {
+            const controls = slider.controls
+            const action = slider.action
+
+            if (controls.event === event || trigger === 'autoPlay')
+                if (controls.trigger.includes(trigger)) {
+                    if (controls.getFrom === 'content')
+                        dispatch(getSlides(controls, action, { slides, title }))
+                    else if (controls.getFrom === 'controls')
+                        dispatch(getSlides(controls, action, {}))
+                }
+        }
+
+        if (slideBox.controller) {
+            const controls = slideBox.controls
+            const action = slideBox.action
+
+            if (controls.event === event || trigger === 'autoPlay')
+                if (controls.trigger.includes(trigger)) {
+                    if (controls.getFrom === 'content')
+                        dispatch(getSlides(controls, action, content))
+                    else if (controls.getFrom === 'controls')
+                        dispatch(getSlides(controls, action, {}))
+                }
         }
     }
 
@@ -1196,6 +1180,86 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             dispatch({
                 type: 'UPDATE_ACTIONS', payload: {
                     [action]: { ...currentAction, stop: false }
+                }
+            })
+        }
+    }
+
+    ///////////////////////////// Marker /////////////////////////////////
+
+    const markerHandler = (hovering) => {
+        if (slideWrapper && slideWrapper.length > 0) {
+
+            if (markerIndex === allSlides.length) markerIndex = 0
+            var marker = markerStyle || {}
+
+            if (markerElement)
+                if (marker.display && marker.display !== 'none') {
+                    var target = slideWrapper[markerIndex]
+
+                    var slideWidth = target.offsetWidth
+                    var slideHeight = target.offsetHeight
+
+                    var offsetLeft = target.offsetLeft
+                    var offsetTop = target.offsetTop
+
+                    if (markerStyle.type === 'line') {
+                        if (hovering) {
+                            markerElement.style.width = slideWidth + 'px'
+                            markerElement.style.left = offsetLeft + 'px'
+
+                        } else {
+                            var left = offsetLeft + slideWidth * 0.5
+                            //var top = offsetTop + slideHeight * 0.5
+
+                            markerElement.style.width = '0'
+                            markerElement.style.left = left + 'px'
+                        }
+                    } else if (markerStyle.type === 'box') {
+                        markerElement.style.height = slideHeight + 'px'
+                        markerElement.style.width = slideWidth + 'px'
+                        markerElement.style.top = offsetTop + 'px'
+                    }
+
+                    // controller handler
+                    const slide = allSlides[markerIndex]
+                    slideBox = slider.slide.find(slideBox =>
+                        (slideBox.name && (slideBox.name === (slide.nameEn || slide.name)))
+                        || (slide.title && slideBox.title && slideBox.title.title === slide.title)
+                    ) || defaultSlideBox
+
+                    var trigger = hovering && 'hover'
+                    if (markerStyle.autoPlay) trigger = 'autoPlay'
+                    controllerHandler('', trigger, { slides: [allSlides[markerIndex]], title: slideBox.title }, slideBox)
+
+                    markerIndex++
+                }
+        }
+    }
+
+    const mouseLeaveSlideHandler = (e, index, slide) => {
+        e.preventDefault()
+        markerIndex = index
+        markerHandler(false)
+
+        if (slide && slide.controllable) {
+            dispatch({
+                type: 'UPDATE_ACTIONS', payload: {
+                    [slide.action]: { ...currentAction, stop: false }
+                }
+            })
+        }
+    }
+
+    const mouseEnterSlideHandler = (e, index, slide) => {
+        e.preventDefault()
+        markerIndex = index
+        markerHandler(true)
+
+        if (slide && slide.controllable) {
+            dispatch({
+                type: 'UPDATE_ACTIONS', payload: {
+                    [slide.action]: { ...currentAction, stop: true }
                 }
             })
         }
@@ -1233,6 +1297,8 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                         <FontAwesomeIcon icon={faChevronRight} style={swiperChevronsStyle} />
                     </div>
 
+                    <div className='marker-transform' style={markerStyle} />
+
                     {/* Swiper */}
                     <div className="slider-wrapper" style={swiperBox}
                         onMouseDown={e => { sliderWrapper && mouseDownHandler(e); }}
@@ -1248,19 +1314,20 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                             const slideBox = slider.slide.find(slideBox =>
                                 (slideBox.name && (slideBox.name === (slide.nameEn || slide.name)))
                                 || (slide.title && slideBox.title.title === slide.title)
-                            )
+                            ) || defaultSlideBox
 
                             return (
                                 <div className='slide-container' style={slideContainer(i)} key={index}>
                                     <div className='slide-wrapper' style={slideWrapperStyle(i)}
-                                        onMouseEnter={e => runAutoMarker(index)}>
+                                        onMouseEnter={e => mouseEnterSlideHandler(e, index, slideBox)}
+                                        onMouseLeave={e => mouseLeaveSlideHandler(e, index, slideBox)}>
 
                                         {/* Badges */}
                                         {badges.display !== 'none' &&
                                             <Badges slide={slide} timer={timer} styles={badgeStyles} />}
 
                                         {/* Image */}
-                                        {imageWrapStyle(i).display !== 'none' &&
+                                        {imageWrapStyle(i).display !== 'none' && (slide.src || slide.image) &&
                                             <div className='image-wrap' style={imageWrapStyle(i)}>
                                                 {/*<div className='image-skeleton' style={skeleton}>Sarah Originals</div>*/}
                                                 <img src={/*imageUrl + slide.src*/url(slide.src || slide.image)}
@@ -1277,7 +1344,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
                                         {/* Product */}
                                         {productVisible(i) &&
-                                            <Product product={slide} timer={timer} styles={productStyles} />}
+                                            <Product slideBox={slideBox} product={slide} timer={timer} styles={productStyles} />}
 
                                     </div>
                                 </div>

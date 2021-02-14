@@ -85,7 +85,6 @@ textarea {
   position: relative;
   align-items: center;
   padding: 0.5rem;
-
   width: 100vw;
 }
 
@@ -472,7 +471,7 @@ textarea {
 .product-price {
   display: flex;
   flex-direction: row;
-  line-height: 1.8rem;
+  line-height: 2rem;
   text-align: center;
   font-size: 1.9rem;
   font-weight: 500;
@@ -4894,4 +4893,10 @@ button[disabled]:hover {
 
 .timer-bar {
   z-index: 999;
+}
+
+/*//////////////////////////////////////////////*/
+
+.marker-transform {
+  position: absolute;
 }

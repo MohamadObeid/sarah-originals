@@ -29,19 +29,17 @@ export const MagicBox = React.memo(({ styles, touchScreen, magicBox }) => {
             right: styles.right || defaultStyles.right,
             bottom: styles.bottom || defaultStyles.bottom,
             left: styles.left || defaultStyles.left,
-            transform: styles.beforeTransform || defaultStyles.beforeTransform,
-            afterTransform: styles.afterTransform || defaultStyles.afterTransform,
-            beforeTransform: styles.beforeTransform || defaultStyles.beforeTransform,
-            transition: styles.transition || defaultStyles.transition,
             padding: styles.overlayPadding || defaultStyles.overlayPadding,
             zIndex: styles.zIndex || defaultStyles.zIndex,
-            maxWidth: '100vw'
+            maxWidth: '100vw',
+            transform: styles.transform || defaultStyles.transform,
+            transition: styles.transition || defaultStyles.transition,
+            after: styles.after || defaultStyles.after,
         }
 
         const viewWrapStyles = {
-            boxShadow: styles.beforeBoxShadow || defaultStyles.beforeBoxShadow,
-            beforeBoxShadow: styles.beforeBoxShadow || defaultStyles.beforeBoxShadow,
-            afterBoxShadow: styles.afterBoxShadow || defaultStyles.afterBoxShadow,
+            boxShadow: styles.boxShadow || defaultStyles.boxShadow,
+            after: styles.after || defaultStyles.after,
             borderRadius: styles.borderRadius || defaultStyles.borderRadius,
             backgroundColor: styles.backgroundColor || defaultStyles.backgroundColor,
             flexDirection: styles.flexDirection || defaultStyles.flexDirection,
@@ -73,8 +71,6 @@ export const MagicBox = React.memo(({ styles, touchScreen, magicBox }) => {
         Object.entries(defaultStyles.timerBar).map(([key, value]) => {
             timerBarStyle = { ...timerBarStyle, [key]: timerBarStyle[key] || value }
         })
-        timerBarStyle.afterTransition = timerBarStyle.transition
-        timerBarStyle.transition = 'unset'
         timerBarStyle.width = '0'
 
         var closeBtnStyles = styles.closeBtn || defaultStyles.closeBtn
@@ -95,7 +91,7 @@ export const MagicBox = React.memo(({ styles, touchScreen, magicBox }) => {
             if (timerBarStyle.display !== 'none') {
                 setTimeout(() => {
                     timerBar.style.width = '100%'
-                    timerBar.style.transition = timerBarStyle.afterTransition
+                    timerBar.style.transition = timerBarStyle.after.transition
                 }, 50)
             }
         }
@@ -108,8 +104,8 @@ export const MagicBox = React.memo(({ styles, touchScreen, magicBox }) => {
 
             // toggle wrapper styles
             viewOverlay.style.left = `calc((100vw - ${width + 'px'}) / 2)`
-            viewOverlay.style.transform = viewOverlayStyle.afterTransform
-            viewWrapper.style.boxShadow = viewWrapStyles.afterBoxShadow
+            viewOverlay.style.transform = viewOverlayStyle.after.transform
+            viewWrapper.style.boxShadow = viewWrapStyles.after.boxShadow
         }
 
         const hideTimer = () => {
@@ -124,8 +120,8 @@ export const MagicBox = React.memo(({ styles, touchScreen, magicBox }) => {
 
         const hideBox = () => {
             // toggle wrapper styles
-            viewOverlay.style.transform = viewOverlayStyle.beforeTransform
-            viewWrapper.style.boxShadow = viewWrapStyles.beforeBoxShadow
+            viewOverlay.style.transform = viewOverlayStyle.transform
+            viewWrapper.style.boxShadow = viewWrapStyles.boxShadow
 
             hideTimer()
         }

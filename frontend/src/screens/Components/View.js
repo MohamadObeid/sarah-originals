@@ -1,3 +1,4 @@
+import { Collection } from 'mongoose';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getSlides } from '../../actions/slidesActions';
@@ -37,9 +38,8 @@ export const View = ({ view, viewPort, touchScreen }) => {
             dispatch(getStyles({ _id, name, type }))
 
             view.slider && view.slider.map(slider => {
-                var slidesExist = slides.find(slides => slides._id === slider._id)
-                if (!slidesExist)
-                    dispatch(getSlides(slider, slider.action, true)) // true means first update
+                var slidesExist = slides.find(slides => slides._id === slider._id) || false
+                if (!slidesExist) dispatch(getSlides(slider))
             })
         }
     }, [styles])

@@ -1627,15 +1627,17 @@ export const magicBoxStyles = [{
     width: 'fit-content',
     maxWidth: '40rem',
     minWidth: '40rem',
-    beforeTransform: 'translateY(-100%)',
-    afterTransform: 'translateY(0)',
-    beforeBoxShadow: 'unset',
-    afterBoxShadow: '0 0 4px rgba(33, 33, 33, 0.431)',
+    transform: 'translateY(-100%)',
+    after: {
+        transform: 'translateY(0)',
+        boxShadow: '0 0 4px rgba(33, 33, 33, 0.431)',
+    },
+    boxShadow: 'unset',
     backgroundColor: '#f0c040ec',
     zIndex: '999',
     canHide: true,
     timerBar: {
-        display: 'flex'
+        display: 'flex',
     },
     closeBtn: {
         display: 'flex'
@@ -1662,7 +1664,17 @@ export const magicBoxStyles = [{
             display: 'none'
         }
     }
-}, {
+},
+//
+//
+//
+//
+//
+//
+//
+//
+//
+{
     name: '2controlBox',
     type: 'MagicBox',
     viewPort: 'desktop',
@@ -1797,13 +1809,6 @@ export const magicBoxStyles = [{
                 forceWidth: false,
             },
         }],
-        autoMarker: {
-            run: true,
-            //border: '1px solid #00bfd6',
-            boxShadow: '0px 0px 13px 8px #f0f0f0',
-            duration: 5000,
-            stopOnHover: true
-        },
         product: {
             padding: '0 1rem',
             priceAndAddToCartWrapper: {
@@ -1867,7 +1872,19 @@ export const magicBoxStyles = [{
             }
         }
     }]
-}, {
+},
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+{
     type: 'MagicBox',
     name: 'digikala style',
     display: 'flex',
@@ -2092,12 +2109,164 @@ export const magicBoxStyles = [{
             direction: 'Y',
             scroll: { autoToggle: false }
         },
-        autoMarker: {
-            run: true,
+        marker: {
+            display: 'flex',
+            autoPlay: true,
             border: '1px solid #6bb927',
-            //boxShadow: '0px 0px 13px 8px #f0f0f0',
+            borderRadius: '0.5rem',
             duration: 5000,
-            stopOnHover: true
+            stopOnHover: true,
+            transition: 'all 0.5s',
+            type: 'box'
         },
+    }]
+},
+//
+//
+//
+//
+//
+//
+//
+//
+//
+{
+    name: 'Secondary Navigation Bar',
+    type: 'MagicBox',
+    viewPort: 'desktop',
+    overlayPadding: '0 0 2rem 0',
+    paddingAround: '0',
+    paddingBetween: '0',
+    backgroundColor: '#fff',
+    borderRadius: '0',
+    border: 'unset',
+    boxShadow: '0 0 4px rgba(33, 33, 33, 0.431)',
+    title: {
+        display: 'none',
+    },
+    slider: [{
+        //borderBottom: '1px solid #eeeeee',
+        display: 'flex',
+        borderRadius: '0',
+        flexDirection: 'row',
+        backgroundColor: '#fff',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        title: {
+            display: 'none',
+        },
+        slide: [{
+            isDefault: true,
+            justifyContent: 'center',
+            productVisible: false,
+            title: {
+                display: 'flex',
+                width: 'fit-content',
+                justifyContent: 'center',
+                position: 'unset',
+                margin: '0',
+                padding: '0',
+                title: {
+                    backgroundColor: 'inherit',
+                    transition: 'all 0.25s',
+                    hover: {
+                        backgroundColor: '#eeeeee',
+                    },
+                    padding: '1rem 2rem',
+                    borderRadius: '0',
+                    margin: '0',
+                    text: {
+                        fontSize: '1.4rem',
+                        color: '#444444',
+                        fontWeight: '400',
+                        /*click: {
+                            fontWeight: '500',
+                            color: '#fff',
+                        }*/
+                    },
+                },
+                strokeLine: {
+                    display: 'none',
+                },
+                showAll: {
+                    display: 'none',
+                }
+            },
+            // image
+            image: {
+                display: 'none'
+            },
+        }, {
+            isDefault: false,
+            index: 0,
+            justifyContent: 'center',
+            productVisible: false,
+            margin: '0 1rem 0 0',
+            title: {
+                display: 'flex',
+                width: 'fit-content',
+                justifyContent: 'center',
+                position: 'unset',
+                margin: '0',
+                padding: '0',
+                title: {
+                    backgroundColor: 'inherit',
+                    transition: 'all 0.25s',
+                    hover: {
+                        backgroundColor: '#eeeeee',
+                    },
+                    padding: '1rem 2rem',
+                    borderRadius: '0',
+                    margin: '0',
+                    text: {
+                        fontSize: '1.5rem',
+                        color: '#444444',
+                        fontWeight: '400',
+                    },
+                    textBorder: {
+                        display: 'flex',
+                        width: '2px',
+                        height: '70%',
+                        bottom: 'unset',
+                        left: 'unset',
+                        top: '15%',
+                        right: '0',
+                        borderRadius: '0',
+                        backgroundColor: '#eeeeee',
+                        transition: 'unset'
+                    }
+                },
+                strokeLine: {
+                    display: 'none',
+                },
+                showAll: {
+                    display: 'none',
+                }
+            },
+            // image
+            image: {
+                display: 'none'
+            },
+        }],
+        marker: {
+            display: 'flex',
+            height: '2px',
+            width: '0%',
+            transition: 'all 0.5s',
+            top: 'unset',
+            left: '50%',
+            bottom: '0',
+            right: 'unset',
+            backgroundColor: 'red',
+            type: 'line',
+            zIndex: '1000',
+            hover: {
+                width: 'slideWidth',
+                left: '',
+            },
+        },
+        badges: {
+            display: 'none',
+        }
     }]
 }]

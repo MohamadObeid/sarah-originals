@@ -232,10 +232,12 @@ export const defaultMagicBoxStyles = {
     bottom: 'unset',
     left: 'unset',
     transition: 'all 0.5s',
-    beforeTransform: 'unset',
-    afterTransform: 'unset',
-    beforeBoxShadow: '0',
-    afterBoxShadow: '0',
+    transform: 'unset',
+    boxShadow: '0',
+    after: {
+        boxShadow: '0',
+        transform: 'unset',
+    },
     zIndex: 'unset',
     timerBar: {
         display: 'none',
@@ -247,7 +249,10 @@ export const defaultMagicBoxStyles = {
         right: 'initial',
         bottom: 'initial',
         left: '0',
-        transition: 'all 5s',
+        transition: 'unset',
+        after: {
+            transition: 'all 5s',
+        }
     },
     closeBtn: {
         display: 'none',
@@ -350,6 +355,9 @@ export const defaultMagicBoxStyles = {
         // skeleton
         skeleton: {
             fontSize: '1.2rem',
+        },
+        marker: {
+            display: 'none'
         },
         // badges
         badges: {

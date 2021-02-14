@@ -2,58 +2,49 @@ import axios from "axios";
 import { domain } from "../methods/methods";
 import _ from 'lodash'
 
-const getSlides = (control, action, firstUpdate, slide) => async (dispatch, getState) => {
+const getSlides = (controls, action, content) => async (dispatch, getState) => {
     try {
         if (action) {
             const { slides } = getState()
 
             var slidesExist = slides.find(slides => slides.collections &&
-                _.isEqual(slides.collections, control.collections))
+                _.isEqual(slides.collections, controls.collections))
 
             if (slidesExist) {
                 dispatch({
                     type: 'UPDATE_ACTIONS', payload: {
-                        [action]: { ...slidesExist, title: control.title }
+                        [action]: { ...slidesExist, title: controls.title }
                     }
                 })
                 return
             }
-        }
 
-        if (slide) {
-            dispatch({ type: 'UPDATE_ACTIONS', payload: { [action]: { slides: [slide] } } })
-            return
+            if (content && (content.slides || content.title)) {
+                const slides = content.slides
+                const title = content.title
+                dispatch({ type: 'UPDATE_ACTIONS', payload: { [action]: { slides, title } } })
+                return
+            }
         }
 
         // clear controller data
-        dispatch({
+        /*dispatch({
             type: 'UPDATE_ACTIONS', payload: {
-                [action]: { slides: [], title: control.title }
+                [action]: { slides: [], title: controls.title }
             }
-        })
+        })*/
 
-        dispatch({ type: 'GET_SLIDES_REQUEST' })
-        const { data } = await axios.post(domain + '/api/slides/get', control)
-
+        const { data } = await axios.post(domain + '/api/slides/get', controls)
         dispatch({ type: 'GET_SLIDES_SUCCESS', payload: data })
 
         if (action && data) {
-            if (firstUpdate) {
-                if (control.controllable)
-                    dispatch({
-                        type: 'UPDATE_ACTIONS', payload: {
-                            [action]: { ...data, title: control.title }
-                        }
-                    })
-
-            } else {
-                dispatch({
-                    type: 'UPDATE_ACTIONS', payload: {
-                        [action]: { ...data, title: control.title }
-                    }
-                })
-            }
+            dispatch({
+                type: 'UPDATE_ACTIONS', payload: {
+                    [action]: { ...data, title: controls.title }
+                }
+            })
         }
+
     } catch (error) {
         dispatch({ type: 'GET_SLIDES_FAIL', payload: error.message })
     }

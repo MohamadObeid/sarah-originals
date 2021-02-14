@@ -3,6 +3,106 @@ export const Controls = {
     name: 'Controls',
     HomeScreen: [{
         active: true,
+        name: 'Secondary Navigation Bar',
+        styles: {
+            desktop: {
+                type: 'MagicBox',
+                name: 'Secondary Navigation Bar',
+            }
+        },
+        slider: [{
+            slide: [{
+                name: 'none',
+                title: { title: 'Product Categories' },
+                controller: true,
+                action: 'showNavBarSubBox',
+                controls: {
+                    event: 'hover',
+                    read: ['styles'],
+                    trigger: ['slide'],
+                    getFrom: 'none'
+                }
+            },
+            {
+                name: 'none', title: { title: 'SuperMarket' },
+                controller: true,
+                action: 'showNavBarSubBox',
+                controls: {
+                    event: 'hover',
+                    read: ['styles'],
+                    trigger: ['slide'],
+                    getFrom: 'none'
+                }
+            },
+            {
+                name: 'none', title: { title: 'Offers & Suggestions' },
+                controller: true,
+                action: 'showNavBarSubBox',
+                controls: {
+                    event: 'hover',
+                    read: ['styles'],
+                    trigger: ['slide'],
+                    getFrom: 'none'
+                }
+            },
+            {
+                name: 'none', title: { title: "My Sarah's" },
+                controller: true,
+                action: 'showNavBarSubBox',
+                controls: {
+                    event: 'hover',
+                    read: ['styles'],
+                    trigger: ['slide'],
+                    getFrom: 'none'
+                }
+            },
+            {
+                name: 'none', title: { title: 'Sarah Plus' },
+                controller: true,
+                action: 'showNavBarSubBox',
+                controls: {
+                    event: 'hover',
+                    read: ['styles'],
+                    trigger: ['slide'],
+                    getFrom: 'none'
+                }
+            },
+            {
+                name: 'none', title: { title: 'Sarah Club' },
+                controller: true,
+                action: 'showNavBarSubBox',
+                controls: {
+                    event: 'hover',
+                    read: ['styles'],
+                    trigger: ['slide'],
+                    getFrom: 'none'
+                }
+            },
+            {
+                name: 'none', title: { title: 'Question!' },
+                controller: true,
+                action: 'showNavBarSubBox',
+                controls: {
+                    event: 'hover',
+                    read: ['styles'],
+                    trigger: ['slide'],
+                    getFrom: 'none'
+                }
+            },
+            {
+                name: 'none', title: { title: 'Become a Seller' },
+                controller: true,
+                action: 'showNavBarSubBox',
+                controls: {
+                    event: 'hover',
+                    read: ['styles'],
+                    trigger: ['slide'],
+                    getFrom: 'none'
+                }
+            }]
+        }]
+    }, {
+        active: true,
         name: 'Action Note',
         controllable: true,
         action: 'actionNote',
@@ -94,7 +194,7 @@ export const Controls = {
         slider: [{
             controllable: true,
             action: 'digiProduct',
-            control: {
+            controls: {
                 event: 'hover',
             },
             collections: {
@@ -103,16 +203,22 @@ export const Controls = {
                 limit: 1
             },
         }, {
-            controller: true,
-            action: 'digiProduct',
-            control: {
-                event: 'hover',
-            },
             collections: {
                 type: 'Product',
                 collections: ['Featured'],
                 limit: 5
             },
+            slide: [{
+                isDefault: true,
+                controller: true,
+                action: 'digiProduct',
+                controls: {
+                    event: 'hover',
+                    read: ['slides'],
+                    trigger: ['slide', 'autoPlay'],
+                    getFrom: 'content',
+                },
+            }]
         }]
     }, {
         active: true,
@@ -179,12 +285,6 @@ export const Controls = {
                 type: 'MagicBox',
             }
         },
-        slide: [{
-            name: 'Adidas',
-            title: {
-                title: 'New Collections'
-            }
-        }],
         slider: [{
             title: {
                 title: 'Product Categories',
@@ -306,8 +406,11 @@ export const Controls = {
             },
             controller: true,
             action: 'changeSlides',
-            control: {
+            controls: {
                 event: 'click',
+                read: ['slides', 'title'],
+                trigger: ['title'],
+                getFrom: 'controls',
                 collections: {
                     type: 'Product',
                     collections: ['Popular', 'Featured', 'Special Offer'],
@@ -319,8 +422,11 @@ export const Controls = {
                 },
                 controller: true,
                 action: 'changeSlides',
-                control: {
+                controls: {
                     event: 'click',
+                    read: ['slides', 'title'],
+                    trigger: ['title'],
+                    getFrom: 'controls',
                     collections: {
                         type: 'Product',
                         collections: ['Popular'],
@@ -332,8 +438,11 @@ export const Controls = {
                 },
                 controller: true,
                 action: 'changeSlides',
-                control: {
+                controls: {
                     event: 'click',
+                    read: ['slides', 'title'],
+                    trigger: ['title'],
+                    getFrom: 'controls',
                     collections: {
                         type: 'Product',
                         collections: ['Featured'],
@@ -345,8 +454,11 @@ export const Controls = {
                 },
                 controller: true,
                 action: 'changeSlides',
-                control: {
+                controls: {
                     event: 'click',
+                    read: ['slides', 'title'],
+                    trigger: ['title'],
+                    getFrom: 'controls',
                     collections: {
                         type: 'Product',
                         collections: ['New Arrival'],
@@ -358,8 +470,11 @@ export const Controls = {
                 },
                 controller: true,
                 action: 'changeSlides',
-                control: {
+                controls: {
                     event: 'click',
+                    read: ['slides', 'title'],
+                    trigger: ['title'],
+                    getFrom: 'controls',
                     collections: {
                         type: 'Product',
                         collections: ['Special'],

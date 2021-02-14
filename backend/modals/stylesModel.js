@@ -27,6 +27,7 @@ const TitleSchema = new mongoose.Schema({
         display: String,
         flexDirection: String,
         transform: String,
+        transition: String,
         border: String,// '0' },
         borderRadius: String,
         padding: String,// '0' },
@@ -248,13 +249,16 @@ const MagicBoxSchema = new mongoose.Schema({
     bottom: String,
     left: String,
     transition: String,
-    beforeTransform: String,
-    afterTransform: String,
-    beforeBoxShadow: String,
-    afterBoxShadow: String,
+    transform: String,
+    boxShadow: String,
     zIndex: String,
     canHide: Boolean,
     title: TitleSchema,
+    after: {
+        boxShadow: String,
+        transform: String,
+        transition: String,
+    },
     // Timer Bar
     timerBar: {
         display: String,
@@ -267,6 +271,9 @@ const MagicBoxSchema = new mongoose.Schema({
         left: String,
         backgroundColor: String,
         transition: String,
+        after: {
+            transition: String,
+        },
     },
     closeBtn: {
         display: String,
@@ -303,6 +310,7 @@ const MagicBoxSchema = new mongoose.Schema({
         alignItems: String,
         title: TitleSchema,
         fixBorder: Boolean,
+        boxShadow: String,
         // slide
         slide: [{
             isDefault: Boolean,
@@ -319,6 +327,7 @@ const MagicBoxSchema = new mongoose.Schema({
             transform: String,
             transition: String,
             padding: String,
+            margin: String,
             boxShadow: String,
             forceWidth: Boolean,
             // slide Title
@@ -333,6 +342,10 @@ const MagicBoxSchema = new mongoose.Schema({
                 forceHeight: Boolean,
                 animation: Boolean,//true },
                 padding: String,
+            },
+            hover: {
+                boxShadow: String,
+                zIndex: String
             },
         }],
         // product
@@ -425,12 +438,34 @@ const MagicBoxSchema = new mongoose.Schema({
             backgroundColor: String,
             transition: String,
         },
-        autoMarker: {
-            run: Boolean,
+        marker: {
+            type: { type: String },
+            autoPlay: Boolean,
+            display: String,
             duration: Number,
             border: String,
             boxShadow: String,
             stopOnHover: String,
+            /////////////////
+            position: String,
+            display: String,
+            top: String,
+            right: String,
+            bottom: String,
+            left: String,
+            height: String,
+            width: String,
+            borderRadius: String,
+            backgroundColor: String,
+            transition: String,
+            transform: String,
+            direction: String,
+            zIndex: String,
+            hover: {
+                transform: String,
+                left: String,
+                width: String,
+            }
         },
         // swiper
         swiper: {

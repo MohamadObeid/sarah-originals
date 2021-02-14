@@ -72,7 +72,7 @@ function Chatbox(props) {
             userInfo.isCallCenterAgent && dispatch(refreshLiveUsers())
             return
         }
-        setTimeout(refreshChat, userInfo.isCallCenterAgent ? 1000 : 5000)
+        //setTimeout(refreshChat, userInfo.isCallCenterAgent ? 1000 : 5000)
     }
 
     useEffect(() => {
