@@ -100,8 +100,8 @@ const listLiveUser = (liveUser) => async (dispatch) => {
         dispatch({ type: CLEAR_LIVE_USER_LIST, payload: undefined });
     } else try {
         dispatch({ type: LIVE_USER_LIST_REQUEST })
-        const { data } = await axios.get("/api/live");
-        dispatch({ type: LIVE_USER_LIST_SUCCESS, payload: data })
+        /*const { data } = await axios.get("/api/live");
+        dispatch({ type: LIVE_USER_LIST_SUCCESS, payload: data })*/
     } catch (error) {
         dispatch({ type: LIVE_USER_LIST_FAIL, payload: error.message })
     }

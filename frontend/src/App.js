@@ -34,7 +34,7 @@ const App = React.memo(() => {
           <Route path="/profile" component={ProfileScreen} />
         </div>
         <Chatbox />
-        <footer className="footer">All rights reserved.</footer>
+        <footer className="footer"><div>Icons made from <a href="http://www.onlinewebfonts.com">oNline Web Fonts</a> is licensed by CC BY 3.0</div></footer>
       </div>
     </BrowserRouter >
   )

@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { useDispatch, useSelector } from 'react-redux'
 import { getSlides } from '../../actions/slidesActions'
 import { FilterOutlined } from '@ant-design/icons'
@@ -17,7 +16,8 @@ export const TitleContainer = React.memo(({ box, styles }) => {
         /////////////////////////// Consts & Vars ////////////////////////////
 
         const _id = box._id
-        const Title = box.title || { title: '' }
+        var Title = box.title || { title: '', icon: {} }
+        if (!Title.icon) Title.icon = {}
         const controls = box.controls
         const action = box.action || 'none'
         const controllable = box.controllable
@@ -224,7 +224,7 @@ export const TitleContainer = React.memo(({ box, styles }) => {
         })
 
         assigned = true
-        setTimeout(() => { assigned = false }, 500)
+        setTimeout(() => assigned = false, 500)
 
         useEffect(() => {
             titleWrapper = document.getElementsByClassName('title-wrap-' + _id)[0]
@@ -249,7 +249,8 @@ export const TitleContainer = React.memo(({ box, styles }) => {
                     {/* 1st border */}
                     <div className='title-border' style={titleBorderStyle} />
                     {/* Icon */}
-                    {iconStyle.name === 'Filter' && <FilterOutlined style={iconStyle} className='icon' />}
+                    {iconStyle.display === 'flex' &&
+                        <FontAwesomeIcon icon={[Title.icon.code, Title.icon.name]} style={iconStyle} />}
                     {/* title */}
                     <div className='title-text' style={titleTextStyle}>{Title.title}</div>
                     {/* 2nd border */}
@@ -267,10 +268,9 @@ export const TitleContainer = React.memo(({ box, styles }) => {
                     <div style={showAllTextStyles}
                         className='classic-showall'
                         onClick={e => showMore(e)}>
-
                         {showAllTextStyles.text === 'none' ? '' : showAllTextStyles.text}
                         <FontAwesomeIcon
-                            icon={faChevronRight}
+                            icon={['fas', 'chevron-right']}
                             style={chevronStyle}
                             className='faChevronRight' />
                     </div>

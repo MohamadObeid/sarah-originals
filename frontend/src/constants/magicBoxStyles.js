@@ -3,7 +3,6 @@ export const magicBoxStyles = [{
     type: 'MagicBox',
     name: 'Hero',
     display: 'flex',
-    flexWrap: 'wrap',
     flexDirection: 'row',
     overlayPadding: '2rem 4rem',
     paddingAround: '1rem',
@@ -44,8 +43,8 @@ export const magicBoxStyles = [{
             chevrons: {
                 display: 'flex',
                 color: '#444444',
-                height: '8rem',
-                width: '4rem',
+                height: '9rem',
+                width: '4.5rem',
                 backgroundColor: '#f9f9f9',
                 hoverBackgroundColor: '#f9f9f9',
                 skip: 1,
@@ -1710,10 +1709,9 @@ export const magicBoxStyles = [{
                 margin: '0',
                 icon: {
                     display: 'flex',
-                    name: 'Filter',
                     fontSize: '1.8rem',
                     margin: '0 1rem 0 0',
-                    color: '#888888',
+                    color: '#aaaaaa',
                     hover: {
                         color: '#444444'
                     }
@@ -2176,6 +2174,12 @@ export const magicBoxStyles = [{
                     padding: '1rem 2rem',
                     borderRadius: '0',
                     margin: '0',
+                    icon: {
+                        display: 'flex',
+                        fontSize: '1.8rem',
+                        margin: '0 0.7rem 0 0',
+                        color: 'red',
+                    },
                     text: {
                         fontSize: '1.4rem',
                         color: '#444444',
@@ -2219,6 +2223,12 @@ export const magicBoxStyles = [{
                     padding: '1rem 2rem',
                     borderRadius: '0',
                     margin: '0',
+                    icon: {
+                        display: 'flex',
+                        fontSize: '1.8rem',
+                        margin: '0 1rem 0 0',
+                        color: '#444444',
+                    },
                     text: {
                         fontSize: '1.5rem',
                         color: '#444444',

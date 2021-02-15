@@ -2,7 +2,11 @@ import mongoose from "mongoose"
 
 const titleSchema = {
     title: String,
-    description: String
+    description: String,
+    icon: {
+        name: String,
+        code: String
+    }
 }
 
 const controlsSchema = new mongoose.Schema({

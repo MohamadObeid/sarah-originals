@@ -6,6 +6,7 @@ const getStyles = (conditions) => async (dispatch, getState) => {
         const { styles } = getState()
         const stylesExist = styles.find(styles => styles.name === conditions.name)
         if (stylesExist) return
+        console.log('styles')
 
         dispatch({ type: 'STYLES_GET_REQUEST' })
         const { data } = await axios.post(domain + '/api/styles/get', conditions)

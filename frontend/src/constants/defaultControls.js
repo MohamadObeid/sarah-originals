@@ -13,7 +13,13 @@ export const Controls = {
         slider: [{
             slide: [{
                 name: 'Product Categories',
-                title: { title: 'Product Categories' },
+                title: {
+                    title: 'Product Categories',
+                    icon: {
+                        code: 'fas',
+                        name: 'bars'
+                    }
+                },
                 controller: true,
                 action: 'showNavBarSubBox',
                 controls: {
@@ -24,7 +30,9 @@ export const Controls = {
                 }
             }, {
                 name: 'SuperMarket',
-                title: { title: 'SuperMarket' },
+                title: {
+                    title: 'SuperMarket',
+                },
                 controller: true,
                 action: 'showNavBarSubBox',
                 controls: {
@@ -35,7 +43,13 @@ export const Controls = {
                 }
             }, {
                 name: 'Offers & Suggestions',
-                title: { title: 'Offers & Suggestions' },
+                title: {
+                    title: 'Offers & Suggestions',
+                    icon: {
+                        name: 'fire-alt',
+                        code: 'fas',
+                    }
+                },
                 controller: true,
                 action: 'showNavBarSubBox',
                 controls: {
@@ -404,7 +418,11 @@ export const Controls = {
         },
         slider: [{
             title: {
-                title: 'Filter By : '
+                title: 'Filter By : ',
+                icon: {
+                    name: 'filter',
+                    code: 'fas',
+                }
             },
             controller: true,
             action: 'changeSlides',

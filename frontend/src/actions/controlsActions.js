@@ -6,7 +6,7 @@ const getControls = (conditions) => async (dispatch, getState) => {
         const fields = conditions.fields || null
         const { controls } = getState()
         if (controls[fields]) return
-
+        console.log('controls')
         dispatch({ type: 'GET_CONTROLS_REQUEST' })
 
         const { data } = await axios.post(domain + '/api/controls/get', conditions)

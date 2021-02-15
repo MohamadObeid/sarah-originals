@@ -67,7 +67,6 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     const [slides, setSlides] = useState()
 
     useSelector(state => {
-
         if (!assigned) {
             var slideAction = slideBox.action
             var slideController = slideBox.controller
@@ -108,15 +107,13 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                 }
             }
         }
-
         if (!slides) {
             var slidesExist = state.slides.find(slides => slides._id === _id)
             if (slidesExist) setSlides(slidesExist.slides)
         }
     })
-
     assigned = true
-    setTimeout(() => { assigned = false }, 200)
+    setTimeout(() => assigned = false, 500)
 
     if (slides) allSlides = [...otherSlides, ...slides]
 
@@ -133,6 +130,11 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             markerElement = element.getElementsByClassName('marker-transform')[0]
 
             var maxHeight = 0
+
+
+            sliderWrapper.style.scrollBehavior = 'auto'
+            sliderWrapper.scrollLeft = 0
+            sliderWrapper.scrollTop = 0
 
             // collapse wrapper totally
             if (allSlides.length === 0) {
@@ -826,11 +828,13 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             var visibleWidthofSlide = (sliderWrapper.clientWidth + sliderWrapper.scrollLeft) % (slideWidth + gapWidth)
             scrollLeft = sliderWrapper.scrollLeft + skipMore
             if (sliderWrapper.scrollWidth - (sliderWrapper.clientWidth + sliderWrapper.scrollLeft) <= 2)
-                sliderWrapper.scrollLeft = 0
+                scrollLeft = 0
+
             else if (visibleWidthofSlide === slideWidth) scrollLeft += widthSlideSkipper
             else if (slideWidth - visibleWidthofSlide <= 2) scrollLeft += widthSlideSkipper
             else scrollLeft += slideWidth - visibleWidthofSlide + (widthSlideSkipper - (slideWidth + gapWidth))
             sliderWrapper.scrollLeft = scrollLeft
+
         }
     }
 
@@ -856,8 +860,10 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             sliderWrapper.style.scrollBehavior = 'smooth'
             var visibleHeightofSlide = (sliderWrapper.clientHeight + sliderWrapper.scrollTop) % (slideHeight + gapWidth)
             scrollTop = sliderWrapper.scrollTop + skipMore
+
             if (sliderWrapper.scrollHeight - (sliderWrapper.clientHeight + sliderWrapper.scrollTop) <= 2)
-                sliderWrapper.scrollTop = 0
+                scrollTop = 0
+
             else if (visibleHeightofSlide === slideHeight) scrollTop += heightSlideSkipper
             else scrollTop += slideHeight - visibleHeightofSlide + (heightSlideSkipper - (slideHeight + gapWidth))
             sliderWrapper.scrollTop = scrollTop
@@ -1085,7 +1091,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             : false
 
         return <div className='product-details-wrap' style={productWrap}>
-            <div className="product-name" onClick={e => controllerHandler('click', 'title', { slides: [product], title: product.nameEn }, slideBox)}>
+            <div className="product-name" onClick={e => controllerHandler('click', 'title', { slides: [product], title: product.nameEn }, slideBox || {})}>
                 {controller
                     ? <div className='product-nameEn' style={productName}>{product.nameEn}</div>
                     : <Link to={"/product/" + product._id}>
@@ -1230,7 +1236,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
                     var trigger = hovering && 'hover'
                     if (markerStyle.autoPlay) trigger = 'autoPlay'
-                    controllerHandler('', trigger, { slides: [allSlides[markerIndex]], title: slideBox.title }, slideBox)
+                    controllerHandler('', trigger, { slides: [allSlides[markerIndex]], title: slideBox.title }, slideBox || {})
 
                     markerIndex++
                 }

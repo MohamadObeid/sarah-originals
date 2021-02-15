@@ -53,7 +53,7 @@ const Navbar = React.memo(props => {
         <header className="header">
             <SideBar />
             <div className="brand">
-                <FontAwesome name="fa-bars" className="fas fa-bars" onClick={() => openSideBar()} />
+                {/*<FontAwesome name="fa-bars" className="fas fa-bars" onClick={() => openSideBar()} />*/}
                 <Link className="brand-name" to="/">Sarah Originals</Link>
             </div>
             <div className="header-links">

@@ -47,6 +47,7 @@ export const View = ({ view, viewPort, touchScreen }) => {
     return styles ? <MagicBox
         styles={styles}
         touchScreen={touchScreen}
+        viewPort={viewPort}
         magicBox={view} />
         : <></>
 }

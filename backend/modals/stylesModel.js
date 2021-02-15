@@ -45,6 +45,8 @@ const TitleSchema = new mongoose.Schema({
             fontSize: String,
             margin: String,
             color: String,
+            name: String,
+            code: String,
             click: {
                 color: String,
             },

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Slider } from './Slider';
 import { TitleContainer } from './TitleContainer'
 
-export const MagicBox = React.memo(({ styles, touchScreen, magicBox }) => {
+export const MagicBox = React.memo(({ styles, touchScreen, magicBox, viewPort }) => {
 
     // AddToCart default styles
     const defaultAddToCartStyles = useSelector(state =>
@@ -31,7 +31,7 @@ export const MagicBox = React.memo(({ styles, touchScreen, magicBox }) => {
             left: styles.left || defaultStyles.left,
             padding: styles.overlayPadding || defaultStyles.overlayPadding,
             zIndex: styles.zIndex || defaultStyles.zIndex,
-            maxWidth: '100vw',
+            maxWidth: viewPort === 'desktop' ? 'calc(100vw - 12px)' : '100vw',
             transform: styles.transform || defaultStyles.transform,
             transition: styles.transition || defaultStyles.transition,
             after: styles.after || defaultStyles.after,
@@ -43,7 +43,7 @@ export const MagicBox = React.memo(({ styles, touchScreen, magicBox }) => {
             borderRadius: styles.borderRadius || defaultStyles.borderRadius,
             backgroundColor: styles.backgroundColor || defaultStyles.backgroundColor,
             flexDirection: styles.flexDirection || defaultStyles.flexDirection,
-            width: styles.flexDirection || defaultStyles.flexDirection,
+            width: styles.width || defaultStyles.width,
             maxWidth: styles.maxWidth || defaultStyles.maxWidth,
             minWidth: styles.minWidth || defaultStyles.minWidth,
             canHide: styles.canHide || defaultStyles.canHide,
@@ -125,15 +125,20 @@ export const MagicBox = React.memo(({ styles, touchScreen, magicBox }) => {
 
             hideTimer()
         }
+        var assigned = false
 
         useSelector(state => {
-            if (state.actions[action] && controllable)
-                if (state.actions[action].title && checkSelector) {
-                    dispatch({ type: 'REMOVE_ACTION', payload: action })
-                    hideBox()
-                    showBox()
-                }
+            if (!assigned)
+                if (state.actions[action] && controllable)
+                    if (state.actions[action].title && checkSelector) {
+                        dispatch({ type: 'REMOVE_ACTION', payload: action })
+                        hideBox()
+                        showBox()
+                    }
         })
+
+        assigned = true
+        setTimeout(() => assigned = false, 1000)
 
         useEffect(() => {
             viewOverlay = document.getElementsByClassName('view-overlay-' + _id)[0]
