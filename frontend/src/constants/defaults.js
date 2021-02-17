@@ -250,6 +250,7 @@ export const defaultMagicBoxStyles = {
         bottom: 'initial',
         left: '0',
         transition: 'unset',
+        backgroundImage: 'linear-gradient(to right, rgb(255, 210, 210), red)',
         after: {
             transition: 'all 5s',
         }
@@ -385,6 +386,7 @@ export const defaultMagicBoxStyles = {
             bottom: 'initial',
             left: '0',
             transition: 'all 5s',
+            backgroundImage: 'linear-gradient(to right, rgb(255, 210, 210), red)'
         },
         // swiper
         swiper: {

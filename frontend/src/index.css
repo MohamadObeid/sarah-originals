@@ -1467,7 +1467,7 @@ input.checked[type="radio"] {
   clip-path: inset(-15px 0px -15px -15px);
 }
 
-.slides-overlay {
+.slider-overlay {
   flex-direction: column;
   position: relative;
   transition: all 0.5s !important;
@@ -4631,7 +4631,7 @@ button[disabled]:hover {
   align-items: center;
   justify-content: center;
   min-height: fit-content;
-  z-index: 998;
+  z-index: 2;
   top: 0;
 }
 

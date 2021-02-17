@@ -273,6 +273,7 @@ const MagicBoxSchema = new mongoose.Schema({
         left: String,
         backgroundColor: String,
         transition: String,
+        backgroundImage: String,
         after: {
             transition: String,
         },

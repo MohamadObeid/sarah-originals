@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 
-const titleSchema = {
+/*const titleSchema = {
     title: String,
     description: String,
     icon: {
@@ -9,13 +9,43 @@ const titleSchema = {
     }
 }
 
+const controls = {
+    controllable: Boolean,
+    controller: Boolean,
+    action: String,
+    controls: {
+        event: String, // click, hover
+        getFrom: String, // content, controls, none
+        trigger: Array, // [slideWrapper, slideTitle, slideImage, slideButton,       sliderWrapper, sliderTitle, sliderImage, sliderButton,       magicBoxWrapper, magicBoxTitle, magicBoxImage, magicBoxButton          , autoPlay]
+        read: Array, // [slides, title, styles]
+        title: titleSchema,
+        collections: {
+            type: { type: String },
+            collections: [String],
+            limit: { type: Number, default: 10 },
+            sort: { type: String, default: 'Recent' },
+        }
+    }
+}*/
+
 const controlsSchema = new mongoose.Schema({
     active: Boolean,
     name: { type: String, unique: true },
-    HomeScreen: [{
+    /*screens: [{
         active: Boolean,
+        route: String,
+        name: String,
+        views: [{ name: String }]
+    }],
+
+    views: [{
+        active: Boolean,
+        screen: [String],
+
         name: String,
         title: titleSchema,
+        ...controls,
+
         styles: {
             desktop: {
                 _id: String,
@@ -24,26 +54,10 @@ const controlsSchema = new mongoose.Schema({
             }
         },
 
-        controllable: Boolean,
-        controller: Boolean,
-        action: String,
-        controls: {
-            event: String, // click, hover
-            getFrom: String, // content, controls, none
-            trigger: Array, // [slideWrapper, slideTitle, slideImage, slideButton,       sliderWrapper, sliderTitle, sliderImage, sliderButton,       magicBoxWrapper, magicBoxTitle, magicBoxImage, magicBoxButton          , autoPlay]
-            read: Array, // [slides, title, styles]
-            title: titleSchema,
-            collections: {
-                type: { type: String },
-                collections: [String],
-                limit: { type: Number, default: 10 },
-                sort: { type: String, default: 'Recent' },
-            }
-        },
-
         slider: [{
             name: String,
             title: titleSchema,
+            ...controls,
 
             collections: {
                 type: { type: String },
@@ -52,44 +66,11 @@ const controlsSchema = new mongoose.Schema({
                 sort: { type: String, default: 'Recent' },
             },
 
-            controllable: Boolean,
-            controller: Boolean,
-            action: String,
-            controls: {
-                event: String,
-                getFrom: String,
-                trigger: Array,
-                read: Array,
-                title: titleSchema,
-                collections: {
-                    type: { type: String },
-                    collections: [String],
-                    limit: { type: Number, default: 10 },
-                    sort: { type: String, default: 'Recent' },
-                }
-            },
-
             slide: [{
+                isDefault: Boolean,
                 name: String,
                 title: titleSchema,
-
-                isDefault: Boolean,
-                controllable: Boolean,
-                controller: Boolean,
-                action: String,
-                controls: {
-                    event: String,
-                    getFrom: String,
-                    trigger: Array,
-                    read: Array,
-                    title: titleSchema,
-                    collections: {
-                        type: { type: String },
-                        collections: [String],
-                        limit: { type: Number, default: 10 },
-                        sort: { type: String, default: 'Recent' },
-                    }
-                },
+                ...controls,
             }],
 
             slides: [{
@@ -99,7 +80,7 @@ const controlsSchema = new mongoose.Schema({
             }]
 
         }]
-    }]
+    }]*/
 })
 
 export default mongoose.model("Controls", controlsSchema)

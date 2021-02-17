@@ -10,6 +10,7 @@ import { Timer } from './SliderComponents'
 import { AddToCart } from './AddToCart'
 import { Badges } from './Badges'
 import { getSlides } from '../../actions/slidesActions'
+import _ from 'lodash'
 
 export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }) => {
     const dispatch = useDispatch()
@@ -32,11 +33,15 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     var productTimerWrapper
     var markerInterval
     var markerIndex = 0
-    //var titleSlides = slider.slide.filter(slide => slide.name)
-    //if (titleSlides.length > 0) titleSlides = titleSlides.map(slide => slide.title)
+    var stateAction
+    var stateSlideAction
+    var slideAction
+    var slideController
+    var slideControllable
+    var skeletonSlides = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
 
     var otherSlides = slider.slides
-    var allSlides = []
+    var allSlides
     var currentAction = {}
     var assigned = false
     var slideBox = {}
@@ -67,53 +72,51 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     const [slides, setSlides] = useState()
 
     useSelector(state => {
-        if (!assigned) {
-            var slideAction = slideBox.action
-            var slideController = slideBox.controller
-            var slideControllable = slideBox.controllable
 
-            if (state.actions[action] || state.actions[slideAction]) {
-                currentAction = state.actions[action] || state.actions[slideAction]
+        if ((state.actions[action] && !_.isEqual(stateAction, state.actions[action]))
+            || (state.actions[slideAction] && !_.isEqual(stateSlideAction, state.actions[slideAction]))) {
 
-                if (controller || slideController) {
+            stateAction = state.actions[action]
+            stateSlideAction = state.actions[slideAction]
 
-                    if (markerStyle && markerStyle.display !== 'none')
-                        if (currentAction.stop) {
+            currentAction = stateAction || stateSlideAction
 
-                            markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
-                            clearInterval(markerInterval)
-                            markerInterval = 0
+            if (controller || slideController) {
 
-                        } else {
-                            if (markerStyle.autoPlay && !markerInterval) {
-                                markerInterval = setInterval(() => { markerHandler(false) }, markerStyle.duration)
-                                markerHandler(false)
-                            }
+                if (markerStyle && markerStyle.display !== 'none')
+                    if (currentAction.stop) {
+                        markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
+                        clearInterval(markerInterval)
+                        markerInterval = 0
+
+                    } else {
+                        if (markerStyle.autoPlay && !markerInterval) {
+                            markerInterval = setInterval(() => { markerHandler(false) }, markerStyle.duration)
+                            markerHandler(false)
                         }
-
-                } else if (controllable || slideControllable) {
-
-                    const sameSlides = currentAction.slides === slides
-                    // controllable? => update slides
-                    if (!sameSlides) {
-                        // clear marker
-                        if (markerStyle && markerStyle.display !== 'none') {
-                            markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
-                            clearInterval(markerInterval)
-                        }
-
-                        setSlides(currentAction.slides)
                     }
+
+            } else if (controllable || slideControllable) {
+
+                const sameSlides = currentAction.slides === slides
+                // controllable? => update slides
+                if (!sameSlides) {
+                    // clear marker
+                    if (markerStyle && markerStyle.display !== 'none') {
+                        markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
+                        clearInterval(markerInterval)
+                    }
+
+                    setSlides(currentAction.slides)
                 }
             }
         }
+
         if (!slides) {
             var slidesExist = state.slides.find(slides => slides._id === _id)
             if (slidesExist) setSlides(slidesExist.slides)
         }
     })
-    assigned = true
-    setTimeout(() => assigned = false, 500)
 
     if (slides) allSlides = [...otherSlides, ...slides]
 
@@ -183,10 +186,9 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
             toggleSlides(true)
 
-            if (markerStyle.autoPlay) {
-                clearInterval(markerInterval)
-                markerHandler(false)
+            if (markerStyle.autoPlay && !markerInterval) {
                 markerInterval = setInterval(() => { markerHandler(false) }, markerStyle.duration)
+                markerHandler(false)
             }
         }
     }, [slides])
@@ -675,8 +677,8 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         if (markerStyle.stopOnHover)
             if (markerStyle.autoPlay) {
                 markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
-                markerHandler(false)
                 markerInterval = setInterval(() => { markerHandler(false) }, markerStyle.duration)
+                markerHandler(false)
             }
     }
 
@@ -1234,8 +1236,15 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                         || (slide.title && slideBox.title && slideBox.title.title === slide.title)
                     ) || defaultSlideBox
 
+                    if (slideBox) {
+                        slideAction = slideBox.action
+                        slideController = slideBox.controller
+                        slideControllable = slideBox.controllable
+                    }
+
                     var trigger = hovering && 'hover'
                     if (markerStyle.autoPlay) trigger = 'autoPlay'
+
                     controllerHandler('', trigger, { slides: [allSlides[markerIndex]], title: slideBox.title }, slideBox || {})
 
                     markerIndex++
@@ -1272,12 +1281,15 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     }
 
     return (
-        <div className={'slides-overlay slider-' + _id} style={slidesOverlayStyle}
+        <div className={'slider-overlay slider-' + _id} style={slidesOverlayStyle}
             onMouseEnter={overlayMouseEnter} onMouseLeave={overlayMouseLeave}>
 
             {/* Slider Title */}
             {TitleStyles && TitleStyles.display !== 'none' &&
-                <TitleContainer box={slider} styles={TitleStyles} />}
+                <TitleContainer
+                    box={slider}
+                    styles={TitleStyles}
+                    defaultStyles={defaultStyles.title} />}
 
             <div className='flex-slides-wrapper'>
                 <div className='fixed-slides-wrapper' style={slidesWrapperStyle}>
@@ -1314,49 +1326,57 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                         onTouchEnd={e => { sliderWrapper && touchScreen && mouseLeaveHandler(e) }}
                         onScroll={e => sliderWrapper && toggleSlides()}>
 
-                        {allSlides.map((slide, index) => {
-                            const i = getSlideIndex(index)
-                            const timer = showTimer(slide.onSale)
-                            const slideBox = slider.slide.find(slideBox =>
-                                (slideBox.name && (slideBox.name === (slide.nameEn || slide.name)))
-                                || (slide.title && slideBox.title.title === slide.title)
-                            ) || defaultSlideBox
+                        {allSlides
+                            ? allSlides.map((slide, index) => {
+                                const i = getSlideIndex(index)
+                                const timer = showTimer(slide.onSale)
+                                const slideBox = slider.slide.find(slideBox =>
+                                    (slideBox.name && (slideBox.name === (slide.nameEn || slide.name)))
+                                    || (slide.title && slideBox.title.title === slide.title)
+                                ) || defaultSlideBox
 
-                            return (
-                                <div className='slide-container' style={slideContainer(i)} key={index}>
-                                    <div className='slide-wrapper' style={slideWrapperStyle(i)}
-                                        onMouseEnter={e => mouseEnterSlideHandler(e, index, slideBox)}
-                                        onMouseLeave={e => mouseLeaveSlideHandler(e, index, slideBox)}>
+                                return (
+                                    <div className='slide-container' style={slideContainer(i)} key={index}>
+                                        <div className='slide-wrapper' style={slideWrapperStyle(i)}
+                                            onMouseEnter={e => mouseEnterSlideHandler(e, index, slideBox)}
+                                            onMouseLeave={e => mouseLeaveSlideHandler(e, index, slideBox)}>
 
-                                        {/* Badges */}
-                                        {badges.display !== 'none' &&
-                                            <Badges slide={slide} timer={timer} styles={badgeStyles} />}
+                                            {/* Badges */}
+                                            {badges.display !== 'none' &&
+                                                <Badges slide={slide} timer={timer} styles={badgeStyles} />}
 
-                                        {/* Image */}
-                                        {imageWrapStyle(i).display !== 'none' && (slide.src || slide.image) &&
-                                            <div className='image-wrap' style={imageWrapStyle(i)}>
-                                                {/*<div className='image-skeleton' style={skeleton}>Sarah Originals</div>*/}
-                                                <img src={/*imageUrl + slide.src*/url(slide.src || slide.image)}
-                                                    className="slide-img"
-                                                    style={imageStyle(i)}
-                                                    onClick={e => linkSlide(e, slide.link)}
-                                                //onLoad={e => { e.currentTarget.previousSibling.classList.add('hide') }}
-                                                />
-                                            </div>}
+                                            {/* Image */}
+                                            {imageWrapStyle(i).display !== 'none' && (slide.src || slide.image) &&
+                                                <div className='image-wrap' style={imageWrapStyle(i)}>
+                                                    {/*<div className='image-skeleton' style={skeleton}>Sarah Originals</div>*/}
+                                                    <img src={/*imageUrl + slide.src*/url(slide.src || slide.image)}
+                                                        className="slide-img"
+                                                        style={imageStyle(i)}
+                                                        onClick={e => linkSlide(e, slide.link)}
+                                                    //onLoad={e => { e.currentTarget.previousSibling.classList.add('hide') }}
+                                                    />
+                                                </div>}
 
-                                        {/* Slide Title */}
-                                        {slideTitleStyles(i).display && slideTitleStyles(i).display !== 'none' &&
-                                            <TitleContainer box={slideBox} styles={slideTitleStyles(i)} />}
+                                            {/* Slide Title */}
+                                            {slideTitleStyles(i).display && slideTitleStyles(i).display !== 'none' &&
+                                                <TitleContainer
+                                                    box={slideBox}
+                                                    styles={slideTitleStyles(i)}
+                                                    defaultStyles={defaultStyles.title} />}
 
-                                        {/* Product */}
-                                        {productVisible(i) &&
-                                            <Product slideBox={slideBox} product={slide} timer={timer} styles={productStyles} />}
+                                            {/* Product */}
+                                            {productVisible(i) &&
+                                                <Product slideBox={slideBox} product={slide} timer={timer} styles={productStyles} />}
 
+                                        </div>
                                     </div>
+                                )
+                            })
+                            : skeletonSlides.map((slide, index) =>
+                                <div className='slide-container' style={slideContainer(0)} key={index}>
+                                    <div className='slide-wrapper' style={slideWrapperStyle(0)} />
                                 </div>
-                            )
-                        })
-                        }
+                            )}
                     </div>
                 </div>
 

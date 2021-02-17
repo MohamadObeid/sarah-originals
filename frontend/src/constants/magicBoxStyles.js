@@ -1638,6 +1638,7 @@ export const magicBoxStyles = [{
     canHide: true,
     timerBar: {
         display: 'flex',
+        backgroundImage: 'unset'
     },
     closeBtn: {
         display: 'flex'
@@ -2133,13 +2134,16 @@ export const magicBoxStyles = [{
     name: 'Secondary Navigation Bar',
     type: 'MagicBox',
     viewPort: 'desktop',
-    overlayPadding: '0 0 2rem 0',
+    overlayPadding: '0',
     paddingAround: '0',
     paddingBetween: '0',
     backgroundColor: '#fff',
     borderRadius: '0',
     border: 'unset',
     boxShadow: '0 0 4px rgba(33, 33, 33, 0.431)',
+    position: 'sticky',
+    top: '0',
+    zIndex: '998',
     title: {
         display: 'none',
     },

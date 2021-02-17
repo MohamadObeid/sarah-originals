@@ -116,6 +116,16 @@ import {
   stylesSaveReducer
 } from "./reducers/stylesReducer";
 
+import {
+  screenListReducer,
+  screenSaveReducer,
+} from "./reducers/screenReducer";
+
+import {
+  viewListReducer,
+  viewSaveReducer,
+} from "./reducers/viewReducer";
+
 const cartItems = cookie.getJSON("cartItems") || []
 const userInfo = cookie.getJSON("userInfo") || {}
 const address = cookie.getJSON("address") || undefined
@@ -132,7 +142,6 @@ const initialState = {
 
 const reducer = combineReducers({
   actions: actions,
-  views: viewsReducer,
   time: timeReducer,
   clock: clockReducer,
 
@@ -145,6 +154,12 @@ const reducer = combineReducers({
   productDetails: productDetailsReducer,
   productSave: productSaveReducer,
   productDelete: productDeleteReducer,
+
+  screens: screenListReducer,
+  screenSave: screenSaveReducer,
+
+  views: viewListReducer,
+  viewSave: viewSaveReducer,
 
   slides: slidesReducer,
 

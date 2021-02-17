@@ -23,6 +23,8 @@ import imageRoute from './routes/imageRoute';
 import controlsRoute from './routes/controlsRoute';
 import slidesRoute from './routes/slidesRoute';
 import stylesRoute from './routes/stylesRoute';
+import screenRoute from './routes/screenRoute';
+import viewRoute from './routes/viewRoute';
 import http from 'http'
 import socketIo from 'socket.io'
 
@@ -75,7 +77,7 @@ const mongodbUrl = config.MONGODB_URL;
 db.on('error', console.error);
 db.once('open', function () {
   console.log("db connect");
-  db.dropCollection("styles", function (err, result) {
+  db.dropCollection("controls", function (err, result) {
     if (err) {
       console.log("error delete collection");
     } else {
@@ -139,13 +141,9 @@ app.use("/api/slides", slidesRoute)
 
 app.use("/api/styles", stylesRoute)
 
-//app.use('/api/uploads/image', express.static(path.join(__dirname, '/../frontend/uploads')));
+app.use("/api/screen", screenRoute)
 
-// view engine setup
-/*app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-app.use(cors({ origin: '*' }));
-app.use(logger('dev'));*/
+app.use("/api/view", viewRoute)
 
 //Serve static files from the React frontend app
 app.use(express.static(path.join(__dirname, '/../frontend/build')))
@@ -153,7 +151,6 @@ app.use(express.static(path.join(__dirname, '/../frontend/build')))
 app.get('*', (req, res) => {
   res.sendFile(path.join(`${__dirname}/../frontend/build/index.html`));
 });
-//app.use(express.static(path.join(__dirname, 'public')))
 
 app.listen(config.PORT, () => {
   console.log("Server started at http://localhost:5000")
