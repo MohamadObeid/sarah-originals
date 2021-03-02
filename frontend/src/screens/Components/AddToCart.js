@@ -1,11 +1,12 @@
 import { faMinus, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React, { useEffect } from 'react'
-import FontAwesome from 'react-fontawesome'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { addToCart, removeFromCart, updateCart } from '../../actions/cartActions'
 
 export const AddToCart = React.memo(({ product, styles }) => {
+    const [controllerID] = useState(Math.floor(Math.random() * 10000000000000))
+
     const item = useSelector(state =>
         state.cart.cartItems.find(item => item._id === product._id))
     //console.log(item)
@@ -27,7 +28,7 @@ export const AddToCart = React.memo(({ product, styles }) => {
                 message = 'Quantity Reduced Successfully!'
             }
             // display action note
-            dispatch({ type: 'UPDATE_ACTIONS', payload: { actionNote: { title: message } } })
+            dispatch({ type: 'UPDATE_ACTIONS', payload: { addToCart: { title: message, controllerID } } })
         }
     }
 
@@ -49,7 +50,7 @@ export const AddToCart = React.memo(({ product, styles }) => {
             message = 'Product Added Successfully!'
         }
         // display action note
-        dispatch({ type: 'UPDATE_ACTIONS', payload: { actionNote: { title: message } } })
+        dispatch({ type: 'UPDATE_ACTIONS', payload: { addToCart: { title: message, controllerID } } })
     }
 
     const hide = item ? { display: 'none' } : {}

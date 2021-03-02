@@ -10,8 +10,8 @@ import {
 } from "./reducers/productReducers";
 
 import {
-  slidesReducer
-} from "./reducers/slidesReducer";
+  searchReducer
+} from "./reducers/searchReducer";
 
 import {
   assignmentListReducer,
@@ -110,7 +110,6 @@ import {
   actions,
 } from "./reducers/controlsReducer"
 
-import { viewsReducer } from './reducers/viewsReducer'
 import {
   stylesReducer,
   stylesSaveReducer
@@ -125,6 +124,11 @@ import {
   viewListReducer,
   viewSaveReducer,
 } from "./reducers/viewReducer";
+
+import {
+  websiteListReducer,
+  websiteSaveReducer,
+} from "./reducers/websiteReducer";
 
 const cartItems = cookie.getJSON("cartItems") || []
 const userInfo = cookie.getJSON("userInfo") || {}
@@ -161,7 +165,10 @@ const reducer = combineReducers({
   views: viewListReducer,
   viewSave: viewSaveReducer,
 
-  slides: slidesReducer,
+  websites: websiteListReducer,
+  websiteSave: websiteSaveReducer,
+
+  searchResults: searchReducer,
 
   cart: cartReducer,
   packed: packedReducer,

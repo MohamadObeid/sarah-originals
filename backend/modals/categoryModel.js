@@ -10,6 +10,7 @@ const categorySchema = new mongoose.Schema({
     name: { type: String, required: true },
     headCategory: { type: String, required: false, default: '' },
     isSubCategory: { type: Boolean, default: false, required: true },
+    collections: [String],
     brand: { type: Array, required: true, default: [] },
     description: { type: String, required: true, default: '' },
 })

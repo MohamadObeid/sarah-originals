@@ -1,13 +1,11 @@
-
-
-function slidesReducer(state = [], action) {
+function searchReducer(state = [], action) {
     switch (action.type) {
-        case 'GET_SLIDES_REQUEST':
+        case 'SEARCH_REQUEST':
             return state
-        case 'GET_SLIDES_SUCCESS':
+        case 'SEARCH_SUCCESS':
             state.push(action.payload)
             return state
-        case 'GET_SLIDES_FAIL':
+        case 'SEARCH_FAIL':
             return state
         default:
             return state
@@ -15,5 +13,5 @@ function slidesReducer(state = [], action) {
 }
 
 export {
-    slidesReducer
+    searchReducer
 };

@@ -1,5 +1,6 @@
 export const defaultTitleStyles = {
     // Default styles
+    website: 'Sarah Originals',
     type: 'Title',
     name: 'Default Desktop Title Styles',
     display: 'none',
@@ -13,6 +14,7 @@ export const defaultTitleStyles = {
     borderRadius: '0',
     flexDirection: 'row',
     title: {
+        display: 'flex',
         transform: 'unset',
         flexDirection: 'row',
         position: 'relative',
@@ -22,11 +24,19 @@ export const defaultTitleStyles = {
         margin: '0 2rem 0 0',
         backgroundColor: 'inherit',
         text: {
-            color: '#404040',
+            color: '#444444',
             fontSize: '1.9rem',
             backgroundColor: 'unset',
             borderRadius: '0',
             padding: '0',
+            textShadow: 'unset',
+            click: {
+                color: '#444444',
+            },
+            hover: {
+                color: '#444444',
+                textShadow: 'unset',
+            }
         },
         textBorder: {
             display: 'none',
@@ -103,6 +113,7 @@ export const defaultTitleStyles = {
 
 export const defaultAddToCartStyles = {
     viewPort: 'desktop',
+    website: 'Sarah Originals',
     type: 'AddToCart',
     name: 'Default Desktop AddToCart Styles',
     display: 'flex',
@@ -207,11 +218,28 @@ export const defaultAddToCartStyles = {
 export const defaultMagicBoxStyles = {
     // default desktop styles
     viewPort: 'desktop',
+    website: 'Sarah Originals',
     type: 'MagicBox',
     name: 'Default Desktop MagicBox Styles',
     display: 'flex',
     flexDirection: 'column',
-    overlayPadding: '0',
+    overlay: {
+        padding: '0',
+        position: 'unset',
+        top: '0',
+        right: 'unset',
+        bottom: 'unset',
+        left: 'unset',
+        zIndex: 'unset',
+        transition: 'all 0.5s',
+        transform: 'unset',
+        maxWidth: '100%',
+        after: {
+            boxShadow: '0',
+            transform: 'unset',
+        },
+    },
+    position: 'relative',
     backgroundColor: '#f9f9f9',
     background: {
         isImage: false,
@@ -226,19 +254,7 @@ export const defaultMagicBoxStyles = {
     width: '100%',
     maxWidth: 'unset',
     minWidth: 'unset',
-    position: 'unset',
-    top: '0',
-    right: 'unset',
-    bottom: 'unset',
-    left: 'unset',
-    transition: 'all 0.5s',
-    transform: 'unset',
     boxShadow: '0',
-    after: {
-        boxShadow: '0',
-        transform: 'unset',
-    },
-    zIndex: 'unset',
     timerBar: {
         display: 'none',
         backgroundColor: 'red',
@@ -246,8 +262,8 @@ export const defaultMagicBoxStyles = {
         width: '100%',
         position: 'absolute',
         top: '0',
-        right: 'initial',
-        bottom: 'initial',
+        right: 'unset',
+        bottom: 'unset',
         left: '0',
         transition: 'unset',
         backgroundImage: 'linear-gradient(to right, rgb(255, 210, 210), red)',
@@ -410,7 +426,7 @@ export const defaultMagicBoxStyles = {
                 stopOnHover: false,
             },
             scroll: {
-                behavior: 'auto',
+                behavior: 'smooth',
                 autoToggle: true,
             },
             bullets: {
@@ -421,50 +437,4 @@ export const defaultMagicBoxStyles = {
             }
         },
     }]
-}
-
-export const defaultLiteBoxStyles = {
-    active: true,
-    type: 'LiteBox',
-    name: 'Default Desktop LiteBox Styles',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'fixed',
-    top: '0',
-    right: 'initial',
-    bottom: 'initial',
-    left: 'initial',
-    backgroundColor: '#f0c040ec',
-    color: '#222222',
-    border: '0',
-    borderRadius: '0 0 2rem 2rem',
-    fontSize: '1.4rem',
-    padding: '1rem 2.5rem',
-    maxWidth: '40rem',
-    minWidth: '40rem',
-    transition: 'all 0.5s',
-    beforeBoxShadow: 'unset',
-    afterBoxShadow: '0 0 4px rgba(33, 33, 33, 0.431)',
-    beforeTransform: 'translateY(-100%)',
-    afterTransform: 'translateY(0)',
-    zIndex: '999',
-    timerBar: {
-        backgroundColor: 'red',
-        height: '2px',
-        position: 'absolute',
-        top: '0',
-        right: 'initial',
-        bottom: 'initial',
-        left: '0',
-        transition: 'all 5s',
-    },
-    closeBtn: {
-        color: '#222222',
-        fontSize: '1.5rem',
-        top: '1.4rem',
-        right: '1.4rem',
-        bottom: 'initial',
-        left: 'initial'
-    }
 }

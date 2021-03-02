@@ -1,28 +1,79 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useDispatch, useSelector } from 'react-redux'
-import { getSlides } from '../../actions/slidesActions'
-import _ from 'lodash'
 
-export const TitleContainer = React.memo(({ box, styles, defaultStyles }) => {
+export const Title = React.memo(({ box, styles, defaultStyles }) => {
 
+    /////////////////////////// Hooks ////////////////////////////
+
+    const [_id] = useState(Math.floor(Math.random() * 10000000000000))
     const dispatch = useDispatch()
+
+    useSelector(state => {
+
+        if (DOMLoaded) {
+            openBox = state.actions.openBox
+
+            // controllable
+            if (controllable)
+                if (state.actions[action]) {
+                    controllableStateAction = state.actions[action]
+
+                    // set action mounted
+                    if (!controllableStateAction.mounted.includes(_id)) {
+
+                        controllableStateAction.mounted.push(_id)
+                        dispatch({ type: 'UPDATE_ACTIONS', payload: controllableStateAction })
+
+                        // mount title && styles
+                        titleText.innerHTML = controllableStateAction.title
+                        eventStyles(false, 'after')
+                    }
+                }
+
+            // controller
+            if (controller)
+                controls.map(controls => {
+                    if (state.actions[controls.action]) {
+                        controllerStateAction = state.actions[controls.action]
+
+                        // set action mounted
+                        if (!controllerStateAction.mounted.includes(_id)) {
+
+                            controllerStateAction.mounted.push(_id)
+                            dispatch({ type: 'UPDATE_ACTIONS', payload: controllerStateAction })
+
+                            // style controller
+                            eventStyles(false, controllerStateAction.event) // false = clear styles
+                        }
+                    }
+                })
+        }
+    })
+
+    useEffect(() => {
+        titleWrapper = document.getElementsByClassName('title-wrap-' + _id)[0]
+        titleElement = titleWrapper.getElementsByClassName('title-wrapper')[0]
+        icon = titleElement.getElementsByClassName('icon')[0]
+        titleText = titleElement.getElementsByClassName('title-text')[0]
+        titleBorder = titleElement.getElementsByClassName('title-border')[0]
+        secondBorder = titleElement.getElementsByClassName('second-border')[0]
+        chevron = titleWrapper.getElementsByClassName('showall-faChevronRight')[0]
+        DOMLoaded = true
+    }, [])
 
     /////////////////////////// Consts & Vars ////////////////////////////
 
-    const _id = box._id
-    var Title = box.title || { title: '', icon: {} }
-    if (!Title.icon) Title.icon = {}
     const controls = box.controls
-    const action = box.action || 'none'
+    const action = box.action
     const controllable = box.controllable
     const controller = box.controller
-    const event = controls.event || 'none'
+    const title = box.title
 
     var titleWrapper, titleElement, titleText, icon, titleBorder, secondBorder,
-        titleStroke, showAllWrapper, showAllText, showAllBorder, chevron
-    var openBox, changeEffects = true, onHold = false, mounted = false,
-        checkSelector, stateAction
+        titleStroke, showAllWrapper, showAllText, showAllBorder, chevron,
+        openBox, onHold = false, DOMLoaded, controllableStateAction, event,
+        controllerStateAction
 
     /////////////////////////// Styles ////////////////////////////
 
@@ -47,9 +98,10 @@ export const TitleContainer = React.memo(({ box, styles, defaultStyles }) => {
 
     // title text styles
     var titleTextStyle = titleStyle.text
-    Object.entries(defaultStyles.title.text).map(([key, value]) => {
-        titleTextStyle = { ...titleTextStyle, [key]: titleTextStyle[key] || value }
-    })
+    defaultStyles.title.text &&
+        Object.entries(defaultStyles.title.text).map(([key, value]) => {
+            titleTextStyle = { ...titleTextStyle, [key]: titleTextStyle[key] || value }
+        })
 
     // second border styles
     var secondBorderStyle = titleStyle.secondBorder
@@ -117,50 +169,36 @@ export const TitleContainer = React.memo(({ box, styles, defaultStyles }) => {
 
     const eventStyles = (apply, actionType) => {
 
-        if (changeEffects && !onHold && titleWrapper) { // remove hover/click styles
+        titleWrapStyle[actionType] &&
+            Object.entries(titleWrapStyle[actionType]).map(([key, value]) => {
+                titleWrapper.style[key] = apply ? value : titleWrapStyle[key]
+            })
 
-            titleWrapStyle[actionType] &&
-                Object.entries(titleWrapStyle[actionType]).map(([key, value]) => {
-                    titleWrapper.style[key] = apply ? value : titleWrapStyle[key]
+        titleStyle[actionType] &&
+            Object.entries(titleStyle[actionType]).map(([key, value]) => {
+                titleElement.style[key] = apply ? value : titleStyle[key]
+            })
+
+        titleBorderStyle[actionType] &&
+            Object.entries(titleBorderStyle[actionType]).map(([key, value]) => {
+                titleBorder.style[key] = apply ? value : titleBorderStyle[key]
+            })
+
+        titleTextStyle[actionType] &&
+            Object.entries(titleTextStyle[actionType]).map(([key, value]) => {
+                titleText.style[key] = apply ? value : titleTextStyle[key]
+            })
+
+        if (icon)
+            iconStyle[actionType] &&
+                Object.entries(iconStyle[actionType]).map(([key, value]) => {
+                    icon.style[key] = apply ? value : iconStyle[key]
                 })
 
-            titleStyle[actionType] &&
-                Object.entries(titleStyle[actionType]).map(([key, value]) => {
-                    titleElement.style[key] = apply ? value : titleStyle[key]
-                })
-
-            titleBorderStyle[actionType] &&
-                Object.entries(titleBorderStyle[actionType]).map(([key, value]) => {
-                    titleBorder.style[key] = apply ? value : titleBorderStyle[key]
-                })
-
-            titleTextStyle[actionType] &&
-                Object.entries(titleTextStyle[actionType]).map(([key, value]) => {
-                    titleText.style[key] = apply ? value : titleTextStyle[key]
-                })
-
-            if (icon)
-                iconStyle[actionType] &&
-                    Object.entries(iconStyle[actionType]).map(([key, value]) => {
-                        icon.style[key] = apply ? value : iconStyle[key]
-                    })
-
-            secondBorderStyle[actionType] &&
-                Object.entries(secondBorderStyle[actionType]).map(([key, value]) => {
-                    secondBorder.style[key] = apply ? value : secondBorderStyle[key]
-                })
-        }
-
-        if (apply && !mounted) {
-
-            if (controller) {
-                if (event === actionType)
-                    if (controls.trigger.includes('title')) {
-                        onHold = true
-                        dispatch(getSlides(controls, action, {}))
-                    }
-            }
-        }
+        secondBorderStyle[actionType] &&
+            Object.entries(secondBorderStyle[actionType]).map(([key, value]) => {
+                secondBorder.style[key] = apply ? value : secondBorderStyle[key]
+            })
     }
 
     const showAllEventStyles = (apply, actionType) => {
@@ -186,93 +224,43 @@ export const TitleContainer = React.memo(({ box, styles, defaultStyles }) => {
             })
     }
 
-    /////////////////////////// Hooks ////////////////////////////
-
-    useSelector(state => {
-
-        openBox = state.actions.openBox
-
-        if (state.actions[action]) {
-
-            if (!_.isEqual(stateAction, state.actions[action])) {
-                stateAction = state.actions[action]
-
-                if (checkSelector) {
-
-                    const title = state.actions[action].title
-                    const collections = state.actions[action].collections
-
-                    if (controllable && title)
-                        titleElement.innerHTML = title
-
-                    if (controller) {
-                        const slidesExist = _.isEqual(collections, controls.collections)
-
-                        if (slidesExist && !mounted) {
-                            mounted = true
-                            if (changeEffects) eventStyles(true, event)
-                            changeEffects = false
-                            onHold = false
-
-                        } else if (!slidesExist && !changeEffects) {
-                            changeEffects = true
-                            mounted = false
-                            eventStyles(false, event)
-                        }
-                    }
-                }
-            }
-        }
-    })
-
-    useEffect(() => {
-        titleWrapper = document.getElementsByClassName('title-wrap-' + _id)[0]
-        titleElement = titleWrapper.getElementsByClassName('classic-title')[0]
-        icon = titleElement.getElementsByClassName('icon')[0]
-        titleText = titleElement.getElementsByClassName('title-text')[0]
-        titleBorder = titleElement.getElementsByClassName('title-border')[0]
-        secondBorder = titleElement.getElementsByClassName('second-border')[0]
-        chevron = titleWrapper.getElementsByClassName('faChevronRight')[0]
-        checkSelector = true
-    }, [])
-
-    /////////////////////////// JSX ////////////////////////////
+    /////////////////////////// DOM ////////////////////////////
 
     return (
-        <div className={'classic-title-wrap title-wrap-' + _id}
-            style={titleWrapStyle}
-            onClick={e => eventStyles(true, 'click')}
-            onMouseEnter={e => eventStyles(true, 'hover')}
-            onMouseLeave={e => eventStyles(false, 'hover')}>
+        <div className={'title-container title-wrap-' + _id}
+            style={titleWrapStyle}>
             {/* Title */}
-            <div className='classic-title' style={titleStyle}>
+            <div className='title-wrapper' style={titleStyle}
+                onClick={e => eventStyles(true, 'click')}
+                onMouseEnter={e => eventStyles(true, 'hover')}
+                onMouseLeave={e => eventStyles(false, 'hover')}>
                 {/* 1st border */}
                 <div className='title-border' style={titleBorderStyle} />
                 {/* Icon */}
-                {iconStyle.display === 'flex' &&
-                    <FontAwesomeIcon icon={[Title.icon.code, Title.icon.name]} style={iconStyle} />}
+                {iconStyle.display === 'flex' && title.icon.name &&
+                    <FontAwesomeIcon icon={[title.icon.code, title.icon.name]} style={iconStyle} />}
                 {/* title */}
-                <div className='title-text' style={titleTextStyle}>{Title.title}</div>
+                <div className='title-text' style={titleTextStyle}>{title.title}</div>
                 {/* 2nd border */}
-                <div className='second-border' style={secondBorderStyle} />
+                <div className='title-second-border' style={secondBorderStyle} />
             </div>
             {/* Middle Stroke */}
             <div className='title-stroke' style={titleStrokeStyles} />
             {/* showAll wrapper */}
-            <div className='classic-showall-wrap' style={showAllWrapStyle}>
+            <div className='showall-wrapper' style={showAllWrapStyle}>
                 {/* border */}
-                <div className='show-all-border' style={showAllBorderStyles}
+                <div className='showall-border' style={showAllBorderStyles}
                     onMouseEnter={(e) => showAllEventStyles(true, 'hover')}
                     onMouseLeave={(e) => showAllEventStyles(false, 'hover')} />
                 {/* text */}
                 <div style={showAllTextStyles}
-                    className='classic-showall'
+                    className='showall-text'
                     onClick={e => showMore(e)}>
                     {showAllTextStyles.text === 'none' ? '' : showAllTextStyles.text}
                     <FontAwesomeIcon
                         icon={['fas', 'chevron-right']}
                         style={chevronStyle}
-                        className='faChevronRight' />
+                        className='showall-faChevronRight' />
                 </div>
             </div>
         </div>

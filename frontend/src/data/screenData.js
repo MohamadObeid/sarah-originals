@@ -1,41 +1,42 @@
-export const screensData = {
+export const screenData = [{
     active: true,
     viewPort: 'desktop',
     name: 'HomeScreen',
+    website: 'Sarah Originals',
     path: '/',
     exact: true,
     viewList: [
         {
             name: 'Secondary Navigation Bar',
-            styles: 'Secondary Navigation Bar'
+            styles: 'Secondary Navigation Bar',
         },
         {
             name: 'Action Note',
-            styles: 'Action Note Desktop'
+            styles: 'Action Note Desktop',
         },
         {
             name: 'Image Ribbon',
-            styles: 'Image Ribbon'
+            styles: 'Image Ribbon',
         },
         {
             name: 'Hero',
-            styles: 'Hero'
+            styles: 'Hero',
         },
         {
             name: 'digikala style',
-            styles: 'digikala style'
+            styles: 'digikala style',
         },
         {
             name: 'Featured',
-            styles: 'Featured'
+            styles: 'Featured',
         },
         {
             name: 'Moment Suggestions',
-            styles: 'Moment Suggestions'
+            styles: 'Moment Suggestions',
         },
         {
             name: 'Categories',
-            styles: 'Categories'
+            styles: 'Categories',
         },
         {
             name: 'Controller-Controllabel',
@@ -58,4 +59,25 @@ export const screensData = {
             styles: 'Popular'
         }
     ]
-}
+}, {
+    active: true,
+    viewPort: 'desktop',
+    name: 'Products',
+    path: '/products',
+    website: 'Sarah Originals',
+    exact: false,
+    viewList: [
+        {
+            name: 'Secondary Navigation Bar',
+            styles: 'Secondary Navigation Bar',
+        },
+        {
+            name: 'SuperMarkety',
+            styles: 'SuperMarkety',
+        },
+        {
+            name: 'Category Ribbon',
+            styles: 'Category Ribbon',
+        }
+    ]
+}]

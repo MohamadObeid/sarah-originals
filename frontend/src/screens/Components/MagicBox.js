@@ -1,38 +1,100 @@
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
+// components
+import { Slider } from './Slider';
+import { Title } from './Title'
+// actions
+import { search } from '../../actions/searchActions';
+// plugins
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
-import { Slider } from './Slider';
-import { TitleContainer } from './TitleContainer'
-import _ from 'lodash'
-import { getSlides } from '../../actions/slidesActions';
 
-export const MagicBox = React.memo(({ styles, defaultStyles, magicBox, touchScreen, viewPort }) => {
+export const MagicBox = React.memo(({ styles, defaultStyles, magicBox, touchScreen }) => {
+
+    ////////////////////////// Variables & Constants //////////////////////////
+
+    const _id = magicBox._id
+    const action = magicBox.action || 'none'
+    const controllable = magicBox.controllable
+    const controller = magicBox.controller
+    const controls = magicBox.controls
+
+    var timerBar, viewWrapper, viewOverlay, timeOut, width, height, DOMLoaded,
+        controllableStateAction, controllerStateAction
+
+    ////////////////////////// Hooks //////////////////////////
 
     const dispatch = useDispatch()
-    const _id = magicBox._id
 
-    magicBox.slider.map((slider, index) => {
-        console.log(styles.name, index)
-        dispatch(getSlides(slider))
+    useSelector(state => {
+
+        if (DOMLoaded) {
+
+            // controllable
+            if (controllable)
+                if (state.actions[action]) {
+                    controllableStateAction = state.actions[action]
+
+                    // set action mounted
+                    if (!controllableStateAction.mounted.includes(_id)) {
+
+                        controllableStateAction.mounted.push(_id)
+                        dispatch({ type: 'UPDATE_ACTIONS', payload: controllableStateAction })
+
+                        // show Box
+                        hideBox()
+                        showBox()
+                    }
+                }
+
+            // controller
+            if (controller)
+                controls.map(controls => {
+                    if (state.actions[controls.action]) {
+                        controllerStateAction = state.actions[controls.action]
+
+                        // set action styled
+                        if (!controllerStateAction.mounted.includes(_id)) {
+
+                            controllerStateAction.mounted.push(_id)
+                            dispatch({ type: 'UPDATE_ACTIONS', payload: controllerStateAction })
+                        }
+                    }
+                })
+        }
     })
 
-    const viewOverlayStyle = {
-        position: styles.position || defaultStyles.position,
-        top: styles.top || defaultStyles.top,
-        right: styles.right || defaultStyles.right,
-        bottom: styles.bottom || defaultStyles.bottom,
-        left: styles.left || defaultStyles.left,
-        padding: styles.overlayPadding || defaultStyles.overlayPadding,
-        zIndex: styles.zIndex || defaultStyles.zIndex,
-        maxWidth: viewPort === 'desktop' ? 'calc(100vw - 12px)' : '100vw',
-        transform: styles.transform || defaultStyles.transform,
-        transition: styles.transition || defaultStyles.transition,
-        after: styles.after || defaultStyles.after,
-    }
+    useEffect(() => {
+
+        // set dom elements
+        viewOverlay = document.getElementsByClassName('view-overlay-' + _id)[0]
+        viewWrapper = viewOverlay.getElementsByClassName('view-wrapper')[0]
+        timerBar = viewWrapper.getElementsByClassName('timer-bar')[0]
+        DOMLoaded = true
+
+        // search slides
+        magicBox.slider.map(slider => {
+            // search(_id, controls)
+            dispatch(search(slider._id, {
+                title: slider.title,
+                search: slider.search,
+                action: slider._id
+            }))
+        })
+
+    }, [])
+
+    /////////////////////// styles /////////////////////////
+
+    var viewOverlayStyle = styles.overlay || defaultStyles.overlay
+    defaultStyles.overlay &&
+        Object.entries(defaultStyles.overlay).map(([key, value]) => {
+            viewOverlayStyle = { ...viewOverlayStyle, [key]: viewOverlayStyle[key] || value }
+        })
 
     const viewWrapStyles = {
         boxShadow: styles.boxShadow || defaultStyles.boxShadow,
+        position: styles.position || defaultStyles.position,
         after: styles.after || defaultStyles.after,
         borderRadius: styles.borderRadius || defaultStyles.borderRadius,
         backgroundColor: styles.backgroundColor || defaultStyles.backgroundColor,
@@ -72,17 +134,13 @@ export const MagicBox = React.memo(({ styles, defaultStyles, magicBox, touchScre
         closeBtnStyles = { ...closeBtnStyles, [key]: closeBtnStyles[key] || value }
     })
 
-    ///////////////////// hide-show Box //////////////////////
-
-    const action = magicBox.action || 'none'
-    const controllable = magicBox.controllable
-    var timerBar, viewWrapper, viewOverlay, timeOut, height, width, checkSelector
+    //////////////////////// Functions /////////////////////////
 
     const showTimer = () => {
-        if (viewWrapStyles.canHide)
-            timeOut = setTimeout(() => { hideBox() }, 5000)
-
         if (timerBarStyle.display !== 'none') {
+            if (viewWrapStyles.canHide)
+                timeOut = setTimeout(() => { hideBox() }, 5000)
+
             setTimeout(() => {
                 timerBar.style.width = '100%'
                 timerBar.style.transition = timerBarStyle.after.transition
@@ -99,14 +157,15 @@ export const MagicBox = React.memo(({ styles, defaultStyles, magicBox, touchScre
         // toggle wrapper styles
         viewOverlay.style.left = `calc((100vw - ${width + 'px'}) / 2)`
         viewOverlay.style.transform = viewOverlayStyle.after.transform
-        viewWrapper.style.boxShadow = viewWrapStyles.after.boxShadow
+        viewWrapper.style.boxShadow = viewOverlayStyle.after.boxShadow
     }
 
     const hideTimer = () => {
-        if (viewWrapStyles.canHide)
-            clearTimeout(timeOut)
-
         if (timerBarStyle.display !== 'none') {
+
+            if (viewWrapStyles.canHide)
+                clearTimeout(timeOut)
+
             timerBar.style.width = '0'
             timerBar.style.transition = 'unset'
         }
@@ -120,27 +179,7 @@ export const MagicBox = React.memo(({ styles, defaultStyles, magicBox, touchScre
         hideTimer()
     }
 
-    var stateAction
-    useSelector(state => {
-        if (controllable && state.actions[action]) {
-            if (!_.isEqual(stateAction, state.actions[action])) {
-                stateAction = state.actions[action]
-
-                if (stateAction.title && checkSelector) {
-                    dispatch({ type: 'REMOVE_ACTION', payload: action })
-                    hideBox()
-                    showBox()
-                }
-            }
-        }
-    })
-
-    useEffect(() => {
-        viewOverlay = document.getElementsByClassName('view-overlay-' + _id)[0]
-        viewWrapper = viewOverlay.getElementsByClassName('view-wrapper')[0]
-        timerBar = viewWrapper.getElementsByClassName('timer-bar')[0]
-        checkSelector = true
-    }, [])
+    ////////////////////////// DOM ///////////////////////////
 
     return (
         <div className={'view-overlay-' + _id}
@@ -165,14 +204,14 @@ export const MagicBox = React.memo(({ styles, defaultStyles, magicBox, touchScre
                     <img src={background.src} className='box-background-image' />}
 
                 {/* Title */}
-                {styles.title && styles.title.display !== 'none' &&
-                    <TitleContainer
+                {magicBox.title && styles.title && styles.title.display !== 'none' &&
+                    <Title
                         styles={styles.title}
                         defaultStyles={defaultStyles.title}
                         box={magicBox} />}
 
                 {/* Slide Box */}
-                {magicBox.slider.length > 0 &&
+                {magicBox.slider && magicBox.slider.length > 0 &&
                     <div className='slider-wrapper' style={sliderWrapper}>
                         {magicBox.slider.map((slider, index) =>
                             <Slider

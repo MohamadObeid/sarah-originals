@@ -6,7 +6,7 @@ const router = express.Router()
 
 router.post("/get", async (req, res) => {
     try {
-        const { _id, name } = req.body
+        const { _id, name, website } = req.body
         const limit = req.body.limit || 100
         const fields = req.body.fields || null
         const skip = 0
@@ -14,14 +14,14 @@ router.post("/get", async (req, res) => {
         if (_id || name) {
 
             // get view that have 
-            const conditions = { $or: [{ _id }, { name }] }
+            const conditions = { $and: [{ $or: [{ _id }, { name }] }, { website }] }
             const view = await View.findOne(conditions, fields)
             if (view) return res.send(view)
             else return res.send({ message: 'View is not Available!' })
 
         } else {
 
-            const conditions = { active: true }
+            const conditions = { $and: [{ active }, { website }] }
             const view = await View.find(conditions, fields, { $slice: [skip, limit] })
             if (view) return res.send(view)
             else return res.send({ message: 'Views are not Available!' })
@@ -42,8 +42,8 @@ router.post("/save", isAuth, isAdmin, async (req, res) => {
                 viewSaved = false
 
                 if (view._id || view.name) { // update a View
-                    const { _id, name, ...updatedView } = view
-                    const conditions = { $or: [{ _id }, { name }] }
+                    const { _id, name, website, ...updatedView } = view
+                    const conditions = { $and: [{ $or: [{ _id }, { name }] }, { website }] }
                     const options = { new: true }
 
                     viewSaved = await View.findOneAndUpdate(conditions, updatedView, options)
@@ -54,7 +54,7 @@ router.post("/save", isAuth, isAdmin, async (req, res) => {
 
                     } else {
                         // if screen box doesnot exist create a new screen Box
-                        const newView = new View({ ...updatedView, name })
+                        const newView = new View({ ...updatedView, name, website })
                         viewSaved = await newView.save()
                         viewList[index] = viewSaved
                         message = "View has been created!"
@@ -82,15 +82,15 @@ router.post("/save", isAuth, isAdmin, async (req, res) => {
         } else {
             if (req.body._id || req.body.name) { // there exist _id or name
 
-                const { _id, name, ...updatedView } = req.body
-                const conditions = { $or: [{ _id }, { name }] }
+                const { _id, name, website, ...updatedView } = req.body
+                const conditions = { $and: [{ $or: [{ _id }, { name }] }, { website }] }
                 const options = { new: true }
 
                 viewSaved = await View.findOneAndUpdate(conditions, updatedView, options)
                 if (viewSaved) message = 'View has been updated!'
                 else {
                     // if View doesnot exist create a new View
-                    const newView = new View({ ...updatedView, name })
+                    const newView = new View({ ...updatedView, name, website })
                     viewSaved = await newView.save()
                     message = 'View has been created!'
                 }
@@ -115,8 +115,8 @@ router.post("/delete", isAuth, isAdmin, async (req, res) => {
             const viewList = []
 
             req.body.map(async (view, index) => {
-                const { _id, name } = view
-                const conditions = { $or: [{ _id }, { name }] }
+                const { _id, name, website } = view
+                const conditions = { $and: [{ $or: [{ _id }, { name }] }, { website }] }
 
                 viewDeleted = await View.findOneAndRemove(conditions)
                 viewList[index] = viewDeleted
@@ -147,8 +147,8 @@ router.post("/delete", isAuth, isAdmin, async (req, res) => {
 
             } else {
 
-                const { _id, name } = req.body
-                const conditions = { $or: [{ _id }, { name }] }
+                const { _id, name, website } = req.body
+                const conditions = { $and: [{ $or: [{ _id }, { name }] }, { website }] }
 
                 viewDeleted = await View.findOneAndRemove(conditions)
                 if (viewDeleted)

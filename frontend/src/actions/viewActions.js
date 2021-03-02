@@ -1,8 +1,9 @@
 import axios from "axios"
-import { domain } from "../methods/methods"
+import { domain, website } from "../methods/methods"
 
 const getViews = (conditions) => async (dispatch, getState) => {
     try {
+        conditions.website = website
         const { views } = getState()
         const viewExist = views.find(view => view.name === conditions.name)
         if (viewExist) return
@@ -11,7 +12,7 @@ const getViews = (conditions) => async (dispatch, getState) => {
         const { data } = await axios.post(domain + '/api/view/get', conditions)
 
         dispatch({ type: 'VIEW_GET_SUCCESS', payload: data })
-        console.log('view', data)
+        //console.log(conditions.name, data)
 
     } catch (error) {
         dispatch({ type: 'VIEW_GET_FAIL', payload: error })

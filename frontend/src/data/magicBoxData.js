@@ -1,7 +1,8 @@
-export const magicBoxStyles = [{
+export const magicBoxData = [{
     viewPort: 'desktop',
     type: 'MagicBox',
     name: 'Hero',
+    website: 'Sarah Originals',
     flexDirection: 'row',
     overlay: {
         padding: '2rem 4rem',
@@ -127,123 +128,22 @@ export const magicBoxStyles = [{
             }
         },
     }],
-}, /*{
-    viewPort: 'mobile',
-    name: 'Hero mobile',
-    display: 'flex',
-    flexWrap: 'wrap',
-    paddingAround: '0',
-    paddingBetween: '0',
-    flexDirection: 'column',
-    background: { color: '#f9f9f9' },
-    slider: [{
-        type: 'Image',
-        display: 'flex',
-        height: '18rem',
-        width: '100%',
-        flexWrap: 'wrap',
-        paddingAround: '0',
-        paddingBetween: '0.5rem',
-        borderRadius: '0',
-        overflow: 'hidden',
-        slide: [{
-            borderRadius: '0',
-            border: '0',
-            height: '100%',
-            width: '100%',
-            backgroundColor: '#fff',
-            image: {
-                borderRadius: '0',
-                height: '100%',
-                width: '100%',
-                animation: false,
-                forceWidth: true,
-            },
-        }],
-        showMore: {
-            display: 'none'
-        },
-        swiper: {
-            swipable: true,
-            direction: 'X',
-            chevrons: {
-                display: 'none',
-                color: '#fff',
-                height: '8rem',
-                width: '4rem',
-                backgroundColor: '#00000000',
-                hoverBackgroundColor: '#00000000',
-                skip: 1,
-                autoToggle: true
-            },
-            autoPlay: {
-                duration: 3000,
-                run: true,
-            },
-            scroll: {
-                behavior: 'smooth',
-                autoToggle: true,
-            },
-            bullets: {
-                paddingBetween: '0.5rem',
-                fontSize: '0.8rem',
-            }
-        },
-    }, {
-        type: 'Image',
-        display: 'flex',
-        height: '10rem',
-        width: '100%',
-        flexWrap: 'wrap',
-        backgroundColor: 'inherit',
-        paddingAround: '0.5rem',
-        paddingBetween: '0.5rem',
-        slide: [{
-            borderRadius: '0.5rem',
-            border: '0',
-            height: '100%',
-            width: '16.5rem',
-            backgroundColor: '#fff',
-            image: {
-                borderRadius: '0.5rem',
-                height: '100%',
-                width: '100%',
-                animation: false,
-                forceWidth: true,
-            },
-        }],
-        // show more
-        showMore: {
-            display: 'none'
-        },
-        swiper: {
-            swipable: true,
-            direction: 'X',
-            chevrons: {
-                display: 'none',
-                color: '#fff',
-                height: '8rem',
-                width: '4rem',
-                backgroundColor: '#00000000',
-                hoverBackgroundColor: '#00000000',
-                boxShadow: false,
-                skip: 1,
-                autoToggle: true
-            },
-            autoPlay: {
-                run: false,
-            },
-            scroll: {
-                behavior: 'auto',
-                autoToggle: false,
-            },
-            bullets: {
-                display: 'none'
-            }
-        }
-    }]
-}, */{
+},
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+{
     viewPort: 'desktop',
+    website: 'Sarah Originals',
     type: 'MagicBox',
     name: 'Categories',
     overlay: {
@@ -339,65 +239,22 @@ export const magicBoxStyles = [{
             }
         },
     }],
-}, /*{
-    viewPort: 'mobile',
-    name: 'Categories mobile',
-    overlayPadding: '0',
-    paddingAround: '0.5rem',
-    background: { color: '#f9f9f9' },
-    // box title
-    title: {
-        display: 'none'
-    },
-    slider: [{
-        type: 'Image',
-        display: 'grid',
-        height: 'fit-content',
-        width: '100%',
-        flexWrap: 'wrap',
-        justifyContent: 'space-around',
-        backgroundColor: 'inherit',
-        paddingAround: '0',
-        paddingBetween: '0.5rem',
-        overflow: 'auto',
-        slide: [{
-            borderRadius: '0.5rem',
-            border: '0',
-            height: '11rem',
-            width: '11rem',
-            backgroundColor: '#fff',
-            image: {
-                borderRadius: '0.5rem',
-                height: '100%',
-                width: 'initial',
-                animation: false,
-                forceWidth: false,
-            },
-        }],
-        slideTitle: {
-            display: 'none',
-        },
-        swiper: {
-            swipable: true,
-            direction: 'Y',
-            autoPlay: {
-                duration: 3000,
-                run: false
-            },
-            chevrons: {
-                display: 'none'
-            },
-            scroll: {
-                autoToggle: false,
-                behavior: 'smooth',
-            },
-            bullets: {
-                display: 'none',
-            }
-        }
-    }]
-}, */{
+},
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+{
     viewPort: 'desktop',
+    website: 'Sarah Originals',
     type: 'MagicBox',
     name: 'Banners',
     flexDirection: 'column',
@@ -460,59 +317,22 @@ export const magicBoxStyles = [{
             }
         },
     }],
-}, /*{
-    viewPort: 'mobile',
-    name: 'Banners mobile',
-    slider: [{
-        type: 'Image',
-        display: 'flex',
-        height: '17rem',
-        width: '100%',
-        flexWrap: 'wrap',
-        justifyContent: 'initial',
-        backgroundColor: 'inherit',
-        paddingAround: '0',
-        paddingBetween: '0.5rem',
-        overflow: 'auto',
-        slide: [{
-            borderRadius: '1.5rem',
-            border: '0',
-            height: '100%',
-            width: '34rem',
-            backgroundColor: '#fff',
-            image: {
-                borderRadius: '1.5rem',
-                height: '100%',
-                width: '100%',
-                animation: false,
-                forceWidth: true,
-            },
-        }],
-        swiper: {
-            swipable: true,
-            direction: 'X',
-            chevrons: {
-                display: 'none',
-                color: '#fff',
-                height: '6rem',
-                width: '3rem',
-                backgroundColor: '#00000000',
-                hoverBackgroundColor: '#00000000',
-                autoToggle: true,
-                boxShadow: false
-            },
-            autoPlay: {
-                duration: 2000,
-                run: true,
-            },
-            scroll: {
-                behavior: 'smooth',
-                autoToggle: true,
-            },
-        }
-    }]
-}, */{
+},
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+{
     viewPort: 'desktop',
+    website: 'Sarah Originals',
     type: 'MagicBox',
     name: 'Image Ribbon',
     flexDirection: 'column',
@@ -617,68 +437,22 @@ export const magicBoxStyles = [{
             }
         },
     }],
-}, /*{
-    viewPort: 'mobile',
-    name: 'Image Ribbon mobile',
-    flexDirection: 'column',
-    overlayPadding: '0',
-    paddingAround: '0',
-    paddingBetween: '0',
-    background: { color: '#f9f9f9' },
-    // box title
-    title: {
-        display: 'flex',
-        title: 'Surprising Products',
-        fontSize: '1.2rem',
-        design: 'Fish',
-        color: '#d3b25d',
-    },
-    slider: [{
-        type: 'Image',
-        display: 'flex',
-        height: 'fit-content',
-        width: '100%',
-        flexWrap: 'wrap',
-        justifyContent: 'initial',
-        backgroundColor: 'inherit',
-        paddingAround: '0.5rem',
-        paddingBetween: '0.5rem',
-        overflow: 'hidden',
-        slide: [{
-            borderRadius: '0.5rem',
-            border: '0',
-            height: '7rem',
-            width: '9rem',
-            backgroundColor: '#fff',
-            justifyContent: 'center',
-            image: {
-                borderRadius: '0.5rem',
-                height: '6rem',
-                width: '8rem',
-                animation: false,
-                forceWidth: false,
-            },
-        }],
-        swiper: {
-            swipable: true,
-            direction: 'X',
-            chevrons: {
-                display: 'none',
-            },
-            autoPlay: {
-                run: false,
-            },
-            scroll: {
-                behavior: 'auto',
-                autoToggle: false,
-            },
-            bullets: {
-                display: 'none'
-            }
-        }
-    }]
-}, */{
+},
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+{
     viewPort: 'desktop',
+    website: 'Sarah Originals',
     type: 'MagicBox',
     name: 'Featured',
     flexDirection: 'row',
@@ -780,75 +554,22 @@ export const magicBoxStyles = [{
             }
         }
     }],
-}, /*{
-    viewPort: 'mobile',
-    name: 'Featured mobile',
-    flexDirection: 'row',
-    overlayPadding: '0',
-    paddingAround: '0',
-    background: { color: '#6bb927' },
-    // box title
-    title: {
-        display: 'flex',
-        title: 'Featured Products',
-        padding: '0.5rem',
-        fontSize: '1.3rem',
-        design: 'Stunning',
-        border: '1px solid #fff',
-        iconColor: '#fff',
-        textAlign: 'center',
-        showAll: {
-            fontSize: '1.3rem',
-            color: '#fff',
-            border: '1px solid #fff'
-        },
-    },
-    slider: [{
-        type: 'Product',
-        display: 'flex',
-        height: 'fit-content',
-        width: '100%',
-        flexWrap: 'wrap',
-        justifyContent: 'initial',
-        backgroundColor: 'inherit',
-        paddingAround: '0.5rem',
-        paddingBetween: '0.5rem',
-        overflow: 'auto',
-        slide: [{
-            borderRadius: '0.5rem',
-            border: '0',
-            height: 'fit-content',
-            width: '16rem',
-            backgroundColor: '#fff',
-            image: {
-                borderRadius: '0.5rem',
-                height: '12rem',
-                width: '12rem',
-                animation: false,
-                forceWidth: false,
-            },
-        }],
-        swiper: {
-            swipable: true,
-            direction: 'X',
-            skipMore: 20,
-            chevrons: {
-                display: 'none',
-            },
-            autoPlay: {
-                run: false,
-            },
-            scroll: {
-                behavior: 'smooth',
-                autoToggle: true,
-            },
-            bullets: {
-                display: 'flex'
-            }
-        }
-    }]
-}, */{
+},
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+{
     viewPort: 'desktop',
+    website: 'Sarah Originals',
     type: 'MagicBox',
     name: 'New Arrival',
     flexDirection: 'column',
@@ -912,61 +633,22 @@ export const magicBoxStyles = [{
             }
         },
     }],
-}, /*{
-    viewPort: 'mobile',
-    name: 'New Arrival mobile',
-    overlayPadding: '0',
-    paddingAround: '0',
-    background: { color: '#f9f9f9' },
-    // box title
-    title: {
-        display: 'none'
-    },
-    slider: [{
-        type: 'Product',
-        display: 'flex',
-        height: 'fit-content',
-        width: '100%',
-        flexWrap: 'wrap',
-        justifyContent: 'initial',
-        backgroundColor: 'inherit',
-        paddingAround: '0.5rem',
-        paddingBetween: '0.5rem',
-        overflow: 'hidden',
-        slide: [{
-            borderRadius: '0.5rem',
-            border: '0',
-            height: 'fit-content',
-            width: '16rem',
-            backgroundColor: '#fff',
-            image: {
-                borderRadius: '0.5rem',
-                height: '12rem',
-                width: '12rem',
-                animation: false,
-                forceWidth: false,
-            },
-        }],
-        swiper: {
-            swipable: true,
-            direction: 'X',
-            chevrons: {
-                display: 'none',
-            },
-            autoPlay: {
-                run: false,
-            },
-            scroll: {
-                behavior: 'auto',
-                autoToggle: false,
-            },
-            bullets: {
-                display: 'flex'
-            }
-        }
-    }]
-}, */{
+},
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+{
     viewPort: 'desktop',
+    website: 'Sarah Originals',
     type: 'MagicBox',
     name: 'Popular',
     flexDirection: 'column',
@@ -1097,66 +779,22 @@ export const magicBoxStyles = [{
             },
         },
     }],
-}, /*{
-    viewPort: 'mobile',
-    name: 'Popular mobile',
-    overlayPadding: '0',
-    paddingAround: '0',
-    background: { color: '#f9f9f9' },
-    // box title
-    title: {
-        title: {
-            text: 'Popular Products',
-        },
-        strokeLine: {
-            color: '#d3b25d',
-        },
-    },
-    slider: [{
-        type: 'Product',
-        display: 'flex',
-        height: 'fit-content',
-        width: '100%',
-        flexWrap: 'wrap',
-        justifyContent: 'initial',
-        backgroundColor: 'inherit',
-        paddingAround: '0.5rem',
-        paddingBetween: '0.5rem',
-        overflow: 'hidden',
-        slide: [{
-            borderRadius: '0.5rem',
-            border: '0',
-            height: 'fit-content',
-            width: '16rem',
-            backgroundColor: '#fff',
-            image: {
-                borderRadius: '0.5rem',
-                height: '12rem',
-                width: '12rem',
-                animation: false,
-                forceWidth: false,
-            },
-        }],
-        swiper: {
-            swipable: true,
-            direction: 'X',
-            chevrons: {
-                display: 'none',
-            },
-            autoPlay: {
-                run: false,
-            },
-            scroll: {
-                behavior: 'auto',
-                autoToggle: false,
-            },
-            bullets: {
-                display: 'flex'
-            }
-        }
-    }]
-}, */{
+},
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+{
     viewPort: 'desktop',
+    website: 'Sarah Originals',
     type: 'MagicBox',
     name: 'Moment Suggestions',
     flexDirection: 'row',
@@ -1450,102 +1088,22 @@ export const magicBoxStyles = [{
             }
         },
     }],
-}, /*{
-    viewPort: 'mobile',
-    name: 'Moment Suggestions Mobile',
-    slider: [{
-        type: 'Product',
-        display: 'flex',
-        height: 'fit-content',
-        width: '100%',
-        flexWrap: 'wrap',
-        justifyContent: 'initial',
-        backgroundColor: 'inherit',
-        paddingAround: '0.5rem',
-        paddingBetween: '0.5rem',
-        overflow: 'hidden',
-        slide: [{
-            borderRadius: '0.5rem',
-            border: '0',
-            height: 'fit-content',
-            width: '16rem',
-            backgroundColor: '#fff',
-            image: {
-                borderRadius: '0.5rem',
-                height: '12rem',
-                width: '12rem',
-                animation: false,
-                forceWidth: false,
-            },
-        }],
-        swiper: {
-            swipable: true,
-            direction: 'X',
-            chevrons: {
-                display: 'none',
-            },
-            autoPlay: {
-                run: false,
-            },
-            scroll: {
-                behavior: 'auto',
-                autoToggle: false,
-            },
-            bullets: {
-                display: 'flex'
-            }
-        }
-    }, {
-        type: 'Product',
-        display: 'flex',
-        height: 'fit-content',
-        width: '100%',
-        flexWrap: 'wrap',
-        justifyContent: 'initial',
-        backgroundColor: 'inherit',
-        paddingAround: '0.5rem',
-        paddingBetween: '0.5rem',
-        overflow: 'hidden',
-        slide: [{
-            borderRadius: '0.5rem',
-            border: '0',
-            height: 'fit-content',
-            width: '16rem',
-            backgroundColor: '#fff',
-            title: {
-                display: 'none'
-            },
-            image: {
-                borderRadius: '0.5rem',
-                height: '12rem',
-                width: '12rem',
-                animation: false,
-                forceWidth: false,
-            },
-        }],
-        swiper: {
-            swipable: true,
-            direction: 'X',
-            chevrons: {
-                display: 'none',
-            },
-            autoPlay: {
-                run: false,
-            },
-            scroll: {
-                behavior: 'auto',
-                autoToggle: false,
-            },
-            bullets: {
-                display: 'flex'
-            },
-            timerBar: {
-                display: 'flex'
-            }
-        }
-    }]
-}, */{
+},
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+{
     viewPort: 'desktop',
+    website: 'Sarah Originals',
     type: 'MagicBox',
     name: 'Sub_Banners',
     flexDirection: 'column',
@@ -1589,64 +1147,10 @@ export const magicBoxStyles = [{
             swipable: false
         }
     }],
-}, /*{
-    viewPort: 'mobile',
-    name: 'Sub_Banners mobile',
-    overlayPadding: '0',
-    paddingAround: '0.5rem',
-    background: { color: '#f9f9f9' },
-    // box title
-    title: {
-        display: 'none'
-    },
-    slider: [{
-        type: 'Image',
-        display: 'grid',
-        height: 'fit-content',
-        width: '100%',
-        flexWrap: 'wrap',
-        justifyContent: 'space-around',
-        backgroundColor: 'inherit',
-        paddingAround: '0',
-        paddingBetween: '0.5rem',
-        overflow: 'auto',
-        slide: [{
-            borderRadius: '0.5rem',
-            border: '0',
-            height: '11rem',
-            width: '11rem',
-            backgroundColor: '#fff',
-            image: {
-                borderRadius: '0.5rem',
-                height: '100%',
-                width: 'initial',
-                animation: false,
-                forceWidth: false,
-            },
-        }],
-        slideTitle: {
-            display: 'none',
-        },
-        swiper: {
-            swipable: true,
-            direction: 'Y',
-            autoPlay: {
-                duration: 3000,
-                run: false
-            },
-            chevrons: {
-                display: 'none'
-            },
-            scroll: {
-                autoToggle: false,
-                behavior: 'smooth',
-            },
-            bullets: {
-                display: 'none',
-            }
-        },
-    }]
-}*/
+},
+//
+//
+//
 //
 //
 //
@@ -1658,6 +1162,7 @@ export const magicBoxStyles = [{
 //
 {
     name: '2controlBox',
+    website: 'Sarah Originals',
     type: 'MagicBox',
     viewPort: 'desktop',
     overlay: {
@@ -1672,7 +1177,6 @@ export const magicBoxStyles = [{
         display: 'none',
     },
     slider: [{
-        //borderBottom: '1px solid #eeeeee',
         borderRadius: '0.2rem 0.2rem 0 0',
         type: 'Product',
         display: 'flex',
@@ -1870,6 +1374,7 @@ export const magicBoxStyles = [{
 //
 {
     type: 'MagicBox',
+    website: 'Sarah Originals',
     name: 'digikala style',
     display: 'flex',
     viewPort: 'desktop',
@@ -2119,6 +1624,7 @@ export const magicBoxStyles = [{
 //
 {
     name: 'Secondary Navigation Bar',
+    website: 'Sarah Originals',
     type: 'MagicBox',
     viewPort: 'desktop',
     overlay: {
@@ -2289,6 +1795,7 @@ export const magicBoxStyles = [{
 //
 {
     name: 'SuperMarkety',
+    website: 'Sarah Originals',
     type: 'MagicBox',
     viewPort: 'desktop',
     overlay: {
@@ -2449,6 +1956,7 @@ export const magicBoxStyles = [{
 //
 {
     viewPort: 'desktop',
+    website: 'Sarah Originals',
     type: 'MagicBox',
     name: 'Category Ribbon',
     overlay: {
@@ -2616,6 +2124,7 @@ export const magicBoxStyles = [{
 //
 {
     name: 'Action Note Desktop',
+    website: 'Sarah Originals',
     type: 'MagicBox',
     viewPort: 'desktop',
     overlay: {

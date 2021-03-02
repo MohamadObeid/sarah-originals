@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { getSlides } from '../../actions/slidesActions';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { MagicBox } from './MagicBox';
 
 export const View = ({ view, viewPort, touchScreen }) => {

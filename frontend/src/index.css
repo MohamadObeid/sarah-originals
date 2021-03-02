@@ -326,7 +326,7 @@ textarea {
   color: #d3b25d;
 }
 
-.faChevronRight {
+.showall-faChevronRight {
   color: #d3b25d;
   margin-left: 1rem;
   transition: transform 0.3s ease-in-out;
@@ -468,7 +468,7 @@ textarea {
   width: 100%;
 }
 
-.product-nameEn {
+.product-name {
   font-size: 1.4rem;
   font-weight: 500;
   color: #505050;
@@ -476,7 +476,7 @@ textarea {
   text-align: center;
 }
 
-.product-name:hover {
+.product-name-wrapper:hover {
   color: #ff8000;
 }
 
@@ -579,7 +579,7 @@ textarea {
     padding: 0.7rem 0;
     font-size: 1.5rem;
   }
-  .product-nameEn {
+  .product-name {
     font-size: 1.3rem;
   }
   .product-brand {
@@ -1277,6 +1277,9 @@ input.checked[type="radio"] {
 }
 
 /* Hero Banners */
+.screen-wrapper {
+  max-width: 100vw;
+}
 
 .view-wrapper,
 .view-overlay {
@@ -1286,11 +1289,11 @@ input.checked[type="radio"] {
   justify-content: center;
   align-items: center;
   background-color: #f9f9f9;
-  position: relative;
   width: 100%;
   border-radius: 0.1rem;
   overflow: hidden;
   backface-visibility: hidden !important;
+  color: #ff000023;
   /*box-shadow: 0px 0px 10px 0px #00000020;*/
 }
 
@@ -4618,9 +4621,9 @@ button[disabled]:hover {
   color: #00000060;
 }
 
-/*//////////////////// Classic Title ////////////////////*/
+/*//////////////////// Title ////////////////////*/
 
-.classic-title-wrap {
+.title-container {
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   backface-visibility: hidden !important;
@@ -4635,7 +4638,7 @@ button[disabled]:hover {
   top: 0;
 }
 
-.classic-title {
+.title-wrapper {
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   display: flex;
@@ -4666,13 +4669,12 @@ button[disabled]:hover {
   width: 100%;
 }
 
-.classic-showall-wrap {
+.showall-wrapper {
   color: #00000080;
   min-width: fit-content;
-  margin-left: 2rem;
 }
 
-.classic-showall {
+.showall-text {
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   font-weight: 500;
@@ -4683,44 +4685,8 @@ button[disabled]:hover {
   align-items: center;
 }
 
-.classic-showall-wrap *:hover {
+.showall-wrapper *:hover {
   font-weight: 600;
-}
-
-.stunning-wrap {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-}
-
-.stunning-img-wrap {
-  width: 15rem;
-  max-height: 30rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 3rem;
-}
-
-.stunning-img {
-  max-width: 100%;
-  max-height: 100%;
-}
-
-@media screen and (max-width: 700px) {
-  .stunning-wrap {
-    width: fit-content;
-  }
-  .stunning-img-wrap {
-    width: 10rem;
-    margin: 0 2rem;
-    height: 20rem;
-  }
-  .classic-showall-wrap {
-    margin-right: 0.5rem;
-  }
 }
 
 .box-background-image {
@@ -4898,7 +4864,7 @@ button[disabled]:hover {
 
 /*//////////////////////////////////////////////*/
 
-.marker-transform {
+.marker-wrapper {
   position: absolute;
   pointer-events: none;
   z-index: 1;

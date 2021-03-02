@@ -5,7 +5,7 @@ import audio from '../screens/Components/swiftly.mp3'
 import UIfx from 'uifx';
 import { LIVE_USER_LIST_SUCCESS } from '../constants/constants';
 import React from 'react'
-import { useSelector } from 'react-redux';
+
 const tick = new UIfx(audio)
 
 const timer = (endDate, active) => { //gets date and retruns time difference between current date, active is active user
@@ -574,8 +574,23 @@ const domain = window.location.href.includes('netlify')
     ? 'https://sarah-originals.herokuapp.com'
     : ''
 
+const website = 'Sarah Originals'
+
+const screenProps = (viewPort, setViewPort, touchScreen, setTouchScreen) => {
+    window.addEventListener("resize", function () {
+        // check view port: desktop, mobile
+        if (window.innerWidth <= 700) {
+            if (viewPort !== 'mobile') setViewPort('mobile')
+        } else if (viewPort !== 'desktop') setViewPort('desktop')
+
+        // check touch screen
+        if (window.matchMedia("(pointer: coarse)").matches !== touchScreen)
+            setTouchScreen(window.matchMedia("(pointer: coarse)").matches)
+    })
+}
+
 export {
     timer, timeDiffCalc, refreshLiveUsers, creationDatePrettier,
     updateRequestStatus, statusModifier, date, qtyCalc, paymentCalc, cartAmountCalc,
-    discountCalc, totalAmountCalc, deliveryCalc, showTimer, domain
+    discountCalc, totalAmountCalc, deliveryCalc, showTimer, domain, website, screenProps
 }

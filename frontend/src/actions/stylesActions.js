@@ -1,8 +1,9 @@
 import axios from "axios"
-import { domain } from "../methods/methods"
+import { domain, website } from "../methods/methods"
 
 const getStyles = (conditions) => async (dispatch, getState) => {
     try {
+        conditions.website = website
         const { styles } = getState()
         const stylesExist = styles.find(styles => styles.name === conditions.name)
         if (stylesExist) return
@@ -26,7 +27,7 @@ const saveStyles = (styles) => async (dispatch, getState) => {
         const { data } = await axios.post(domain + '/api/styles/save', styles, {
             headers: { Authorization: 'Bearer ' + userInfo.token }
         })
-        console.log('save styles', data)
+        // console.log('save styles', data)
         dispatch({ type: 'STYLES_SAVE_SUCCESS', payload: data })
 
     } catch (error) {

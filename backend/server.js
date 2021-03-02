@@ -21,10 +21,11 @@ import chatRoute from './routes/chatRoute';
 import liveChatRoute from './routes/liveUserRoute';
 import imageRoute from './routes/imageRoute';
 import controlsRoute from './routes/controlsRoute';
-import slidesRoute from './routes/slidesRoute';
+import searchRoute from './routes/searchRoute';
 import stylesRoute from './routes/stylesRoute';
 import screenRoute from './routes/screenRoute';
 import viewRoute from './routes/viewRoute';
+import websiteRoute from './routes/websiteRoute';
 import http from 'http'
 import socketIo from 'socket.io'
 
@@ -77,7 +78,7 @@ const mongodbUrl = config.MONGODB_URL;
 db.on('error', console.error);
 db.once('open', function () {
   console.log("db connect");
-  db.dropCollection("controls", function (err, result) {
+  db.dropCollection("//", function (err, result) {
     if (err) {
       console.log("error delete collection");
     } else {
@@ -85,6 +86,7 @@ db.once('open', function () {
     }
   });
 });*/
+
 mongoose.connect(mongodbUrl, {
   useUnifiedTopology: true,
   useNewUrlParser: true,
@@ -137,13 +139,15 @@ app.use("/api/chat", chatRoute);
 
 app.use("/api/live", liveChatRoute);
 
-app.use("/api/slides", slidesRoute)
+app.use("/api/search", searchRoute)
 
 app.use("/api/styles", stylesRoute)
 
 app.use("/api/screen", screenRoute)
 
 app.use("/api/view", viewRoute)
+
+app.use("/api/website", websiteRoute)
 
 //Serve static files from the React frontend app
 app.use(express.static(path.join(__dirname, '/../frontend/build')))

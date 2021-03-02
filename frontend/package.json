@@ -3,6 +3,7 @@
   "proxy": "http://localhost:5000",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "@ant-design/icons": "^4.3.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.30",
@@ -21,7 +22,6 @@
     "font-awesome": "^4.7.0",
     "jquery": "^3.5.1",
     "js-cookie": "^2.2.1",
-    "lodash": "^4.17.20",
     "mapbox-gl-geocoder": "^2.0.1",
     "netlify-cli": "^3.4.6",
     "package": "^1.0.1",

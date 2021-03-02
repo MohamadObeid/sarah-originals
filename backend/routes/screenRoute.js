@@ -5,7 +5,7 @@ import { isAuth, isAdmin } from '../util'
 const router = express.Router()
 
 router.post("/get", async (req, res) => {
-    const { _id, name, viewPort } = req.body
+    const { _id, name, viewPort, website } = req.body
     const limit = req.body.limit || 100
     const fields = req.body.fields || null
     const skip = 0
@@ -13,14 +13,14 @@ router.post("/get", async (req, res) => {
 
     if (_id || name) {
 
-        const conditions = { $and: [{ $or: [{ _id }, { name }] }, { viewPort }] }
+        const conditions = { $and: [{ $or: [{ _id }, { name }] }, { viewPort }, { website }] }
         const screen = await Screen.findOne(conditions, fields)
         if (screen) return res.send(screen)
         else return res.send({ message: 'Screen are not Available!' })
 
     } else {
 
-        const conditions = { $and: [{ active }, { viewPort }] }
+        const conditions = { $and: [{ active }, { viewPort }, { website }] }
         const screens = await Screen.find(conditions, fields, { viewList: { $slice: [skip, limit] } })
 
         if (screens) return res.send(screens)
@@ -40,8 +40,8 @@ router.post("/save", isAuth, isAdmin, async (req, res) => {
                 screenSaved = false
 
                 if (Screen._id || Screen.name) { // update a screen
-                    const { _id, name, viewPort, ...updatedscreen } = screen
-                    const conditions = { $and: [{ $or: [{ _id }, { name }] }, { viewPort }] }
+                    const { _id, name, viewPort, website, ...updatedscreen } = screen
+                    const conditions = { $and: [{ $or: [{ _id }, { name }] }, { viewPort }, { website }] }
                     const options = { new: true }
 
                     screenSaved = await Screen.findOneAndUpdate(conditions, updatedscreen, options)
@@ -51,7 +51,7 @@ router.post("/save", isAuth, isAdmin, async (req, res) => {
 
                     } else {
                         // if screen box doesnot exist create a new screen Box
-                        const newScreen = new Screen({ ...updatedscreen, name })
+                        const newScreen = new Screen({ ...updatedscreen, viewPort, name, website })
                         screenSaved = await newScreen.save()
                         screenList[index] = screenSaved
                         message = "Screen has been created!"
@@ -78,15 +78,15 @@ router.post("/save", isAuth, isAdmin, async (req, res) => {
         } else {
             if (req.body._id || req.body.name) { // there exist _id or name
 
-                const { _id, name, viewPort, ...updatedscreen } = req.body
-                const conditions = { $and: [{ $or: [{ _id }, { name }] }, { viewPort }] }
+                const { _id, name, viewPort, website, ...updatedscreen } = req.body
+                const conditions = { $and: [{ $or: [{ _id }, { name }] }, { viewPort }, { website }] }
                 const options = { new: true }
 
                 screenSaved = await Screen.findOneAndUpdate(conditions, updatedscreen, options)
                 if (screenSaved) message = 'Screen has been updated!'
                 else {
                     // if screen doesnot exist create a new screen
-                    const newScreen = new Screen({ ...updatedscreen, name, viewPort })
+                    const newScreen = new Screen({ ...updatedscreen, name, viewPort, website })
                     screenSaved = await newScreen.save()
                     message = 'Screen has been created!'
                 }
@@ -110,8 +110,8 @@ router.post("/delete", isAuth, isAdmin, async (req, res) => {
         const screenList = []
 
         req.body.map(async (screen, index) => {
-            const { _id, name, viewPort } = screen
-            const conditions = { $and: [{ $or: [{ _id }, { name }] }, { viewPort }] }
+            const { _id, name, viewPort, website } = screen
+            const conditions = { $and: [{ $or: [{ _id }, { name }] }, { viewPort }, { website }] }
 
             screenDeleted = await Screen.findOneAndRemove(conditions)
             screenList[index] = screenDeleted
@@ -124,7 +124,7 @@ router.post("/delete", isAuth, isAdmin, async (req, res) => {
 
     } else {
         if (req.body.deleteAll) {
-            const deletedScreen = await Screen.find({})
+            const deletedScreen = await Screen.find({ website: req.body.website })
             const screenList = []
 
             deletedScreen.map(async (screen, index) => {
@@ -140,8 +140,8 @@ router.post("/delete", isAuth, isAdmin, async (req, res) => {
             })
 
         } else {
-            const { _id, name, viewPort } = req.body
-            const conditions = { $and: [{ $or: [{ _id }, { name }] }, { viewPort }] }
+            const { _id, name, viewPort, website } = req.body
+            const conditions = { $and: [{ $or: [{ _id }, { name }] }, { viewPort }, { website }] }
             screenDeleted = await Screen.findOneAndRemove(conditions)
             if (screenDeleted)
                 return res.send({ message: "Screen has been deleted!", data: screenDeleted })

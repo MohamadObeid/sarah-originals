@@ -1,17 +1,23 @@
 import axios from "axios"
-import { domain } from "../methods/methods"
+import { domain, website } from "../methods/methods"
 
 const getScreens = (conditions) => async (dispatch, getState) => {
     try {
+        conditions.website = website
         const { screens } = getState()
-        const screenExist = screens.find(screen => screen.viewPort === conditions.viewPort)
+
+        const screenExist = screens.find(screen =>
+            screen.viewPort === conditions.viewPort
+            && (conditions.name ? screen.name === conditions.name : true)
+            && screen.website === conditions.website)
+
         if (screenExist) return
 
         dispatch({ type: 'SCREEN_GET_REQUEST' })
         const { data } = await axios.post(domain + '/api/screen/get', conditions)
 
         dispatch({ type: 'SCREEN_GET_SUCCESS', payload: data })
-        console.log('screens', data)
+        // console.log('screens', data)
 
     } catch (error) {
         dispatch({ type: 'SCREEN_GET_FAIL', payload: error })
