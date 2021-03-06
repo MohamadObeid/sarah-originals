@@ -7,22 +7,13 @@ import { faChevronLeft, faChevronRight, faCircle } from '@fortawesome/free-solid
 // components
 import { Title } from './Title'
 import { Slide } from './Slide'
+import { Skeleton } from './Skeleton'
 // actions
 import { search } from '../../actions/searchActions'
 
 export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }) => {
-    const dispatch = useDispatch()
 
-    const [props, setProps] = useState({
-        slides: slider.search.collections.length === 0 && !slider.search.keyword && [],
-        title: slider.title
-    })
-
-    const stateAction = useRef({})
-
-    var slideStyles = { slide: styles.slide }
-    var direction
-    var chevronInterval
+    var sliderOverlay
     var sliderWrapper
     var timerBar
     var leftChevron
@@ -36,7 +27,6 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     var defaultStylesIndex
     var slideWrapper
     var markerElement
-    var markerInterval
     var markerIndex = 0
     var skeletonSlides = []
     while (skeletonSlides.length < 10) {
@@ -45,15 +35,16 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     var widthSlideSkipper
     var maxHeight = 0
     var DOMLoaded = false
+    var slideStyles = { slide: styles.slide }
 
-    var otherSlides = slider.slide
-    otherSlides = otherSlides.filter(slide =>
+    var controlsSlides = slider.slide
+    controlsSlides = controlsSlides.filter(slide =>
         (slide.title && slide.title.title) || slide.src)
-    var allSlides
+
     var controllableStateAction
     var controllerStateAction
     var firstLoadStateAction
-    var markerControls = []
+    var markerControls
 
     const _id = slider._id
     const action = slider.action
@@ -74,69 +65,71 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     const defaultBadges = defaultStyles.badges
     const defaultSwiper = defaultStyles.swiper
     const defaultAddToCart = defaultProduct.addToCart
-    const defaultSlideControls = slider.controls.filter(controls =>
-        controls.trigger.type === 'slide' && !controls.slideName
-    )
 
-    ////////////////////// Open Box ///////////////////////////
+    ////////////////////////// Hook ///////////////////////////
 
+    const dispatch = useDispatch()
+
+    const [props, setProps] = useState()
+
+    const stateAction = useRef(action)
+    const chevronInterval = useRef()
+    const markerInterval = useRef()
+
+    // open Box handler
     useSelector(state => {
+
         if (DOMLoaded) {
+            if (state.actions.openBox) {
+                const openBox = state.actions.openBox.find(box_id => box_id == _id)
 
-            const _idExist = state.actions.openBox &&
-                state.actions.openBox.find(box_id => box_id == _id)
+                if (openBox && !boxOpenned) {
+                    boxOpenned = true
 
-            if (_idExist && !boxOpenned) {
-                boxOpenned = true
-                clearInterval(chevronInterval)
-                toggleTimerBar(false)
-                sliderWrapper.style.height = swiperHeight
+                    clearInterval(chevronInterval.current)
+                    toggleTimerBar(false)
+                    sliderWrapper.style.height = swiperHeight
 
-            } else if (!_idExist && boxOpenned) {
-                boxOpenned = false
+                } else if (!openBox && boxOpenned) {
+                    boxOpenned = false
 
-                if (autoPlay && !boxOpenned && (touchScreen
-                    ? !touchStart
-                    : ((stopOnHover ? !mouseEnter : true) && !mouseDown))) {
-                    chevronInterval = setInterval(() => chevronRight(), duration)
-                    toggleTimerBar(true)
+                    if (autoPlay && !touchStart && !mouseDown)
+                        if (stopOnHover ? !mouseEnter : true) {
+                            chevronInterval.current = setInterval(() => chevronRight(), duration)
+                            toggleTimerBar(true)
+                        }
+
+                    // reset height
+                    if (sliderWrapStyles.height === 'slideHeight')
+                        sliderWrapper.style.height = slideHeight + 'px'
+                    else sliderWrapper.style.height = styles.height || defaultStyles.height
                 }
-
-                if (swiperBox.height === 'slideHeight')
-                    sliderWrapper.style.height = slideHeight + 'px'
-                else sliderWrapper.style.height = styles.height || defaultStyles.height
             }
         }
     })
 
     useSelector(state => {
 
-        // first Load State Action: set props
+        // first Load of State Action: set props
         if (state.actions[_id]) {
             firstLoadStateAction = state.actions[_id]
-            var modified
 
             if (!firstLoadStateAction.mounted.includes(_id)) {
                 // if no title: keep current
                 firstLoadStateAction.title = firstLoadStateAction.title
-                    ? firstLoadStateAction.title : props.title
 
                 // if no slides: set []
                 firstLoadStateAction.slides = firstLoadStateAction.slides
-                    ? firstLoadStateAction.slides : []
 
                 // set action mounted
                 firstLoadStateAction.mounted.push(_id)
-                modified = true
+                dispatch({ type: 'UPDATE_ACTIONS', payload: { [_id]: firstLoadStateAction } })
 
                 setProps({
                     slides: firstLoadStateAction.slides,
                     title: firstLoadStateAction.title
                 })
             }
-
-            if (modified)
-                dispatch({ type: 'UPDATE_ACTIONS', payload: firstLoadStateAction })
         }
 
         if (DOMLoaded) {
@@ -145,31 +138,26 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             if (controllable)
                 if (state.actions[action]) {
                     controllableStateAction = state.actions[action]
+
                     // update state action for event listeners
                     stateAction.current = controllableStateAction
-                    var modified
 
                     if (!controllableStateAction.mounted.includes(_id)) {
                         // if no title: keep current
-                        controllableStateAction.title = controllableStateAction.title
-                            ? controllableStateAction.title : props.title
+                        controllableStateAction.title = controllableStateAction.title || props.title
 
                         // if no slides: set []
-                        controllableStateAction.slides = controllableStateAction.slides
-                            ? controllableStateAction.slides : []
+                        controllableStateAction.slides = controllableStateAction.slides || []
 
                         // set action mounted
                         controllableStateAction.mounted.push(_id)
-                        modified = true
+                        dispatch({ type: 'UPDATE_ACTIONS', payload: { [action]: controllableStateAction } })
 
                         setProps({
                             slides: controllableStateAction.slides,
                             title: controllableStateAction.title
                         })
                     }
-
-                    if (modified)
-                        dispatch({ type: 'UPDATE_ACTIONS', payload: controllableStateAction })
                 }
 
             // controller slider: clear event effects
@@ -178,14 +166,13 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
                     if (state.actions[controls.action]) {
                         controllerStateAction = state.actions[controls.action]
-                        var modified
 
                         if (!controllerStateAction.mounted.includes(_id)) {
                             clearEventStyles(controls.event, controls.trigger)
 
                             // update action
                             controllerStateAction.mounted.push(_id)
-                            modified = true
+                            dispatch({ type: 'UPDATE_ACTIONS', payload: { [controls.action]: controllerStateAction } })
                         }
 
                         // pause controller
@@ -194,7 +181,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
                             // pause actions
                             controllerStateAction.paused = true
-                            modified = true
+                            dispatch({ type: 'UPDATE_ACTIONS', payload: { [controls.action]: controllerStateAction } })
 
                             // play controller
                         } else if (!controllerStateAction.pause && controllerStateAction.paused) {
@@ -202,11 +189,8 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
                             // unpause actions
                             controllerStateAction.paused = false
-                            modified = true
+                            dispatch({ type: 'UPDATE_ACTIONS', payload: { [controls.action]: controllerStateAction } })
                         }
-
-                        if (modified)
-                            dispatch({ type: 'UPDATE_ACTIONS', payload: controllerStateAction })
                     }
                 })
 
@@ -222,20 +206,16 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         }
     })
 
-    // set slides
-    if (props.slides) allSlides = [...otherSlides, ...props.slides]
-    else if (otherSlides.length > 0) allSlides = otherSlides
-    else allSlides = skeletonSlides
-
     useEffect(() => {
         if (props) {
-            sliderContainer = document.getElementsByClassName('slider-' + _id)[0]
-            sliderWrapper = sliderContainer.getElementsByClassName('slider-wrapper')[0]
+            sliderOverlay = document.getElementsByClassName('slider-' + _id)[0]
+            timerBar = sliderOverlay.getElementsByClassName('timer-bar')[0]
+            sliderContainer = sliderOverlay.getElementsByClassName('slider-container')[0]
             leftChevron = sliderContainer.getElementsByClassName('left-chevron-wrap')[0]
             rightChevron = sliderContainer.getElementsByClassName('right-chevron-wrap')[0]
-            timerBar = sliderContainer.getElementsByClassName('timer-bar')[0]
-            slideWrapper = [...sliderContainer.getElementsByClassName('slide-wrapper')]
-            markerElement = sliderContainer.getElementsByClassName('marker-transform')[0]
+            sliderWrapper = sliderContainer.getElementsByClassName('slider-wrapper')[0]
+            markerElement = sliderWrapper.getElementsByClassName('marker-wrapper')[0]
+            slideWrapper = [...sliderWrapper.getElementsByClassName('slide-wrapper')]
             DOMLoaded = true
 
             sliderWrapper.style.scrollBehavior = 'auto'
@@ -243,108 +223,61 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             sliderWrapper.scrollTop = 0
 
             // collapse wrapper totally
-            if (allSlides.length === 0) {
+            if (props.slides.length === 0) {
                 sliderContainer.style.padding = '0'
                 sliderWrapper.style.padding = '0'
             } else {
                 sliderContainer.style.padding = sliderOverlayStyle.padding
-                sliderWrapper.style.padding = swiperBox.padding
+                sliderWrapper.style.padding = sliderWrapStyles.padding
             }
 
-            // get max slide height and width
-            slideWrapper.map(e => {
-                if (e.offsetHeight > maxHeight)
-                    maxHeight = e.offsetHeight
-            })
-
-            for (var i = 0, len = slideWrapper.length; i < len; i++) {
-                slideWrapper[i].style.height = maxHeight + 'px';
-            }
-
-            slideHeight = maxHeight
-            slideWidth = slideWrapper[0] && slideWrapper[0].offsetWidth
-
-            widthSlideSkipper = slideWidth
-                ? (slideWidth + gapWidth) * skip
-                : slideWidth * skip
-
-            if (swiperBox.height === 'slideHeight')
-                sliderWrapper.style.height = slideHeight + (fixBorder ? 1 : 0) + 'px'
-
-            // skipper width and height
-            widthSlideSkipper = (slideWidth + gapWidth) * skip
-            heightSlideSkipper = (slideHeight + gapWidth) * skip
-
-            const currSwiperWidth = sliderWrapper.offsetWidth
-            const lineCapacity = parseInt((currSwiperWidth + gapWidth) / (slideWidth + gapWidth))
-            const lineNum = allSlides.length / lineCapacity
-
-            if (lineNum % 1 === 0)
-                swiperHeight = ((slideHeight + gapWidth) * lineNum - gapWidth) + 'px'
-            else if (lineNum % 1 > 0)
-                swiperHeight = ((slideHeight + gapWidth) * (parseInt(lineNum + 1)) - gapWidth) + 'px'
-
-
+            setSlideDimensions()
             toggleSlides(true)
             autoPlayHandler(true)
 
-            // add marker handler event listener
-            slideWrapper.map(slideWrapper => {
-                // mouse enter
-                slideWrapper.addEventListener('mouseenter', () => markerHandler(true))
+            // add marker event
+            slideWrapper.map((slide, index) => {
 
-                // mouse leave
-                slideWrapper.addEventListener('mouseleave', () => markerHandler(false))
+                slide.addEventListener('mouseenter', () => {
+                    markerHandler(true, index)
+                })
+
+                slide.addEventListener('mouseleave', () => {
+                    markerHandler(false, index)
+                })
             })
-
-            // hold controls on hover box
-            if (controllable)
-                sliderWrapper.addEventListener('mouseenter', () => {
-                    stateAction.current.pause = true
-                    dispatch({ type: 'UPDATE_ACTIONS', payload: stateAction.current })
-                })
-
-            // onhold controls on hover box
-            if (controllable)
-                sliderWrapper.addEventListener('mouseleave', () => {
-                    stateAction.current.pause = false
-                    dispatch({ type: 'UPDATE_ACTIONS', payload: stateAction.current })
-                })
 
             // add conrtroller handler on event to specified triggers
             if (controller)
                 controls.map(controls => {
                     if (controls.trigger.type === 'slider') {
 
-                        // autoPlay trigger
-                        if (controls.event === 'autoPlay') {
-                            // marker event
-                            if (controls.trigger.className.includes('marker-wrapper')) {
-                                controls.marker = true
-                                markerControls = controls
-                            }
-                        }
+                        if (controls.event === 'autoPlay')
+                            markerControls = controls
 
                         // hover event: mouseenter
                         else if (controls.event === 'hover')
                             controls.trigger.className.map(className => {
-                                sliderContainer.getElementsByClassName(className)[0]
-                                    .addEventListener('mouseenter', () => {
-                                        controllerHandler(controls)
-                                    })
+
+                                if (!className.includes('title') && !className.includes('showall'))
+                                    sliderContainer.getElementsByClassName(className)[0]
+                                        .addEventListener('mouseenter', () => {
+                                            controllerHandler(controls)
+                                        })
                             })
 
                         // click event: mousedown
                         else if (controls.event === 'click')
                             controls.trigger.className.map(className => {
-                                sliderContainer.getElementsByClassName(className)[0]
-                                    .addEventListener('mousedown', () => {
-                                        controllerHandler(controls)
-                                    })
+
+                                if (!className.includes('title') && !className.includes('showall'))
+                                    sliderContainer.getElementsByClassName(className)[0]
+                                        .addEventListener('mousedown', () => {
+                                            controllerHandler(controls)
+                                        })
                             })
                     }
                 })
-
         }
     }, [props])
 
@@ -376,12 +309,12 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         boxShadow: styles.boxShadow || defaultStyles.boxShadow,
     }
 
-    const slidesWrapperStyle = {
+    const sliderContainerStyle = {
         borderRadius: styles.borderRadius || defaultStyles.borderRadius,
-        width: '100%',
+        width: '100%'
     }
 
-    const swiperBox = {
+    const sliderWrapStyles = {
         display: styles.display || defaultStyles.display,
         gridColumnGap: styles.paddingBetween || defaultStyles.paddingBetween,
         gridRowGap: styles.paddingBetween || defaultStyles.paddingBetween,
@@ -683,39 +616,19 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     const mouseEnterHandler = e => {
         e.preventDefault()
         mouseEnter = true
-
-        if (markerStyles.stopOnHover) {
-            markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
-            clearInterval(markerInterval)
-        }
-
-        if (stopOnHover) {
-            clearInterval(chevronInterval)
-            toggleTimerBar(false)
-        }
+        autoPlayHandler(false)
     }
 
     const mouseLeaveHandler = e => {
         e.preventDefault()
         mouseEnter = false
-        if (autoPlay && stopOnHover && !mouseDown && !boxOpenned) {
-            chevronInterval = setInterval(() => chevronRight(), duration)
-            toggleTimerBar(true)
-        }
-
-        if (markerStyles.stopOnHover)
-            if (markerStyles.autoPlay) {
-                markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
-                markerInterval = setInterval(() => { markerHandler(false) }, markerStyles.duration)
-                markerHandler(false)
-            }
+        autoPlayHandler(true)
     }
 
     const mouseDownHandler = (e) => {
         e.preventDefault()
         mouseDown = true
-        clearInterval(chevronInterval)
-        toggleTimerBar(false)
+        autoPlayHandler(false)
 
         sliderWrapper.style.scrollBehavior = 'auto'
         drag = true
@@ -755,13 +668,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             window.removeEventListener('touchmove', touchMoveHandler)
         }
 
-        if (autoPlay && !boxOpenned && (touchScreen
-            ? !touchStart
-            : ((stopOnHover ? !mouseEnter : true) && !mouseDown))) {
-            chevronInterval = setInterval(() => chevronRight(), duration)
-            toggleTimerBar(true)
-        }
-
+        autoPlayHandler(true)
     }
 
     const mouseMoveHandler = (e) => {
@@ -802,12 +709,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
         touchStart = true
         mouseDownHandler(e)
-
-        if (stopOnHover) {
-            e.preventDefault()
-            clearInterval(chevronInterval)
-            toggleTimerBar(false)
-        }
+        autoPlayHandler(false)
     }
 
     // touch screen: swipe effects
@@ -983,37 +885,48 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     const autoPlayHandler = (play) => {
 
         if (play) {
+            if (!mouseDown && !touchStart && (stopOnHover ? !mouseEnter : true)) {
 
-            // play chevron
-            if (autoPlay && !boxOpenned) {
-                clearInterval(chevronInterval)
+                // play chevron
+                if (autoPlay && !boxOpenned) {
+                    toggleTimerBar(true)
 
-                chevronInterval = setInterval(() => {
-                    direction === 'right' ? chevronRight() : chevronLeft()
-                }, duration)
+                    clearInterval(chevronInterval.current)
+                    chevronInterval.current = setInterval(() => {
 
-                toggleTimerBar(true)
+                        chevronRight()
+                        toggleTimerBar(true)
+
+                    }, duration)
+
+                }
+
+                // play marker
+                if (markerStyles.autoPlay) {
+                    clearInterval(markerInterval.current)
+                    markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
+
+                    // get marker controls
+                    markerControls = controls.find(controls =>
+                        controls.trigger.className.includes('marker-wrapper')
+                    )
+
+                    markerInterval.current = setInterval(() => {
+                        markerHandler(true)
+                    }, markerStyles.duration)
+
+                    markerHandler(true)
+                }
             }
-
-            // play marker
-            if (markerStyles.autoPlay) {
-                clearInterval(markerInterval)
-
-                markerInterval = setInterval(() => {
-                    markerHandler(false)
-                }, markerStyles.duration)
-
-                markerHandler(false)
-            }
-
         } else {
 
             // pause chevron
-            clearInterval(chevronInterval)
+            clearInterval(chevronInterval.current)
+            toggleTimerBar(false)
 
             // pause marker
             markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
-            clearInterval(markerInterval)
+            clearInterval(markerInterval.current)
         }
     }
 
@@ -1034,7 +947,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             if (bullets.display !== 'none') {
                 const bulletElement = sliderContainer.getElementsByClassName('bullet')
                 if (bulletElement[slideIndex] && bulletElement[slideIndex].style.color !== '#00bdd9') {
-                    var i = allSlides.length - 1
+                    var i = props.slides.length - 1
                     while (i >= 0) {
                         bulletElement[i].style.color = '#eeeeee'
                         i--
@@ -1071,7 +984,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             return (
                 <div style={bulletsCont} className='bullets-cont'>
                     <div style={bulletsWrap} className='bullets-wrap'>
-                        {allSlides && allSlides.map((slide, index) =>
+                        {props && props.slides.map((slide, index) =>
                             <div style={bulletCont} key={index}>
                                 <div style={bulletWrap}>
                                     <FontAwesomeIcon className='bullet' style={bullet}
@@ -1088,51 +1001,56 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
     const toggleTimerBar = (state) => {
 
-        if (timerBarStyle.display !== 'none') {
-            if (state && !mouseEnter && !touchStart) {
+        if (timerBarStyle.display !== 'none')
+            if (state) {
+
                 timerBar.style.transition = 'all 300ms'
                 timerBar.style.width = '0'
+
                 setTimeout(() => {
                     timerBar.style.transition = timerBarStyle.afterTransition
                     timerBar.style.width = '100%'
                 }, 300)
+
             } else {
                 timerBar.style.transition = 'unset'
                 timerBar.style.width = '0'
             }
-        }
+
     }
 
-    const overlayMouseEnter = (e) => {
+    const sliderMouseEnter = (e) => {
         e.preventDefault()
-        if (controllableStateAction) {
+
+        if (stateAction.current)
             dispatch({
                 type: 'UPDATE_ACTIONS', payload: {
-                    [action]: { ...controllableStateAction, pause: true }
+                    [action]: { ...stateAction.current, pause: true }
                 }
             })
-        }
     }
 
-    const overlayMouseLeave = (e) => {
+    const sliderMouseLeave = (e) => {
         e.preventDefault()
-        if (controllableStateAction) {
+
+        if (stateAction.current)
             dispatch({
                 type: 'UPDATE_ACTIONS', payload: {
                     [action]: { ...controllableStateAction, pause: false }
                 }
             })
-        }
     }
 
     ///////////////////////////// Marker /////////////////////////////////
 
-    const markerHandler = (hovering) => {
+    const markerHandler = (hovering, index) => {
 
-        if (markerIndex === allSlides.length) markerIndex = 0
+        if (markerIndex === props.slides.length) markerIndex = 0
+        if (index !== undefined) markerIndex = index
 
         if (markerElement)
             if (markerStyles.display && markerStyles.display !== 'none') {
+
                 var target = slideWrapper[markerIndex]
 
                 var slideWidth = target.offsetWidth
@@ -1163,20 +1081,24 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                 }
 
                 // controller handler
-                if (markerControls)
-                    controllerHandler(markerControls)
+                if (hovering && markerControls)
+                    controllerHandler(markerControls, markerIndex)
 
                 markerIndex++
             }
     }
 
-    const controllerHandler = (controls) => {
+    const controllerHandler = (controls, index) => {
+        var title, slides = [], searches = { collections: [], keyword: [] }
 
         if (controls.push.includes('title'))
-            controls.title = slider.title
+            title = slider.title
 
         if (controls.push.includes('slides'))
-            controls.slides = props.slides
+            slides = props.slides
+
+        if (controls.push.includes('slide'))
+            slides = [props.slides[index]]
 
         if (controls.search.push) {
 
@@ -1187,14 +1109,25 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             className.map(className => {
 
                 // if element exist
-                if (slideWrapper.getElementsByClassName(className)) {
-                    const value = slideWrapper.getElementsByClassName(className)[0].innerHTML
-                    controls.search[key].push(value)
+                if (sliderWrapper.getElementsByClassName(className)[0]) {
+                    const value = sliderWrapper.getElementsByClassName(className)[index || 0].innerHTML
+                    searches[key].push(value)
                 }
             })
         }
 
-        dispatch(search(_id, controls))
+        // written this way to stop controls reassigning
+        dispatch(search({
+            mounted: [_id],
+            ...controls,
+            title,
+            slides,
+            search: {
+                ...controls.search,
+                collections: [...controls.search.collections, ...searches.collections],
+                keyword: [...controls.search.keyword, ...searches.keyword]
+            },
+        }))
     }
 
     const stylesIndex = (index) => {
@@ -1203,61 +1136,110 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         return i
     }
 
+    const setSlideDimensions = () => {
+
+        slideWrapper = [...sliderContainer.getElementsByClassName('slide-wrapper')]
+        // get max slide height and width
+        slideWrapper.map(e => {
+            if (e.offsetHeight > maxHeight)
+                maxHeight = e.offsetHeight
+        })
+
+        // set slide height = max slide height
+        for (var i = 0, len = slideWrapper.length; i < len; i++)
+            slideWrapper[i].style.height = maxHeight + 'px'
+
+        slideHeight = maxHeight
+        slideWidth = slideWrapper[0] && slideWrapper[0].offsetWidth
+
+        widthSlideSkipper = slideWidth
+            ? (slideWidth + gapWidth) * skip
+            : slideWidth * skip
+
+        // set slider window height = slide height 
+        if (sliderWrapStyles.height === 'slideHeight')
+            sliderWrapper.style.height = slideHeight + (fixBorder ? 1 : 0) + 'px'
+
+        // skipper width and height
+        widthSlideSkipper = (slideWidth + gapWidth) * skip
+        heightSlideSkipper = (slideHeight + gapWidth) * skip
+
+        // get slider height
+        const swiperWidth = sliderWrapper.offsetWidth
+        const slidesPerRow = parseInt((swiperWidth + gapWidth) / (slideWidth + gapWidth) + 0.1)
+        const rowsPerSwiper = props.slides.length / slidesPerRow
+
+        if (rowsPerSwiper % 1 === 0)
+            swiperHeight = ((slideHeight + gapWidth) * rowsPerSwiper - gapWidth) + 'px'
+        else if (rowsPerSwiper % 1 > 0)
+            swiperHeight = ((slideHeight + gapWidth) * (parseInt(rowsPerSwiper + 1)) - gapWidth) + 'px'
+
+    }
+
     return (
-        <div className={'slider-overlay slider-' + _id} style={sliderOverlayStyle}
-            onMouseEnter={overlayMouseEnter} onMouseLeave={overlayMouseLeave}>
+        <div className={'slider-overlay slider-' + _id} style={sliderOverlayStyle}>
 
             {/* Slider Title */}
             {TitleStyles && TitleStyles.display !== 'none' &&
                 <Title
+                    type={'slider'}
                     box={slider}
                     styles={TitleStyles}
-                    defaultStyles={defaultStyles.title} />}
+                    defaultStyles={defaultStyles.title}
+                    slides={props ? props.slides : []} />}
 
-            <div className='flex-slides-wrapper'>
-                <div className='fixed-slides-wrapper' style={slidesWrapperStyle}>
+            {/* Timer Bar */}
+            {timerBarStyle.display !== 'none' &&
+                <div className='timer-bar' style={timerBarStyle} />}
 
-                    {/* Timer Bar */}
-                    {timerBarStyle.display !== 'none' &&
-                        <div className='timer-bar' style={timerBarStyle} />}
+            <div className='slider-container' style={sliderContainerStyle}
+                onMouseEnter={sliderMouseEnter} onMouseLeave={sliderMouseLeave}>
 
-                    {/* Chevrons */}
-                    <div className='left-chevron-wrap'
-                        onClick={e => chevronHandler('backward')}
-                        style={{ ...chevrons, ...leftChevronWrapper }}
-                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = chevrons.hoverBackgroundColor }}
-                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = chevrons.initialBackgroundColor }}>
-                        <FontAwesomeIcon icon={faChevronLeft} style={swiperChevronsStyle} />
-                    </div>
+                {/* Chevrons */}
+                <div className='left-chevron-wrap'
+                    onClick={e => chevronHandler('backward')}
+                    style={{ ...chevrons, ...leftChevronWrapper }}
+                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = chevrons.hoverBackgroundColor }}
+                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = chevrons.initialBackgroundColor }}>
+                    <FontAwesomeIcon icon={faChevronLeft} style={swiperChevronsStyle} />
+                </div>
 
-                    <div className='right-chevron-wrap'
-                        onClick={e => chevronHandler('forward')}
-                        style={{ ...chevrons, ...rightChevronWrapper }}
-                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = chevrons.hoverBackgroundColor }}
-                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = chevrons.initialBackgroundColor }}>
-                        <FontAwesomeIcon icon={faChevronRight} style={swiperChevronsStyle} />
-                    </div>
+                <div className='right-chevron-wrap'
+                    onClick={e => chevronHandler('forward')}
+                    style={{ ...chevrons, ...rightChevronWrapper }}
+                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = chevrons.hoverBackgroundColor }}
+                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = chevrons.initialBackgroundColor }}>
+                    <FontAwesomeIcon icon={faChevronRight} style={swiperChevronsStyle} />
+                </div>
 
-                    <div className='marker-wrapper' style={markerStyles} />
+                {/* Swiper */}
+                <div className="slider-wrapper" style={sliderWrapStyles}
+                    onMouseDown={e => { DOMLoaded && mouseDownHandler(e) }}
+                    onMouseEnter={e => { DOMLoaded && mouseEnterHandler(e) }}
+                    onMouseLeave={e => { DOMLoaded && mouseLeaveHandler(e) }}
+                    onTouchStart={e => { DOMLoaded && touchScreen && touchStartHandler(e) }}
+                    onTouchEnd={e => { DOMLoaded && touchScreen && mouseLeaveHandler(e) }}
+                    onScroll={e => DOMLoaded && toggleSlides()}>
 
-                    {/* Swiper */}
-                    <div className="slider-wrapper" style={swiperBox}
-                        onMouseDown={e => { DOMLoaded && mouseDownHandler(e) }}
-                        onMouseEnter={e => { DOMLoaded && mouseEnterHandler(e) }}
-                        onMouseLeave={e => { DOMLoaded && mouseLeaveHandler(e) }}
-                        onTouchStart={e => { DOMLoaded && touchScreen && touchStartHandler(e) }}
-                        onTouchEnd={e => { DOMLoaded && touchScreen && mouseLeaveHandler(e) }}
-                        onScroll={e => DOMLoaded && toggleSlides()}>
+                    {/* Marker */}
+                    {markerStyles.display !== 'none'
+                        && <div className='marker-wrapper' style={markerStyles} />}
 
-                        {allSlides.map((slide, index) =>
-                            <Slide styles={slideStyles}
-                                slider={slider}
-                                slide={slide}
+                    {props ? props.slides.map((slide, index) =>
+                        // real slides
+                        <Slide key={index}
+                            styles={slideStyles}
+                            slider={slider}
+                            slide={slide}
+                            stylesIndex={stylesIndex(index)}
+                            defaultStyles={defaultStyles} />)
+
+                        : skeletonSlides.map((slide, index) =>
+                            <Skeleton key={index}
+                                styles={slideStyles}
                                 stylesIndex={stylesIndex(index)}
-                                defaultStyles={defaultStyles} />
-
-                        )}
-                    </div>
+                                defaultStyles={defaultStyles} />)
+                    }
                 </div>
 
                 {/* Bullets */}

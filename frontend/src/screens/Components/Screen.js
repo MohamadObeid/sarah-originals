@@ -118,8 +118,8 @@ const Screen = ({ screen, viewPort, touchScreen }) => {
     }
 
     const touchStartHandler = e => {
-        (touchScreen) &&
-            mouseDownHandler(e)
+        e.preventDefault()
+        mouseDownHandler(e)
     }
 
     const touchMoveHandler = e => {

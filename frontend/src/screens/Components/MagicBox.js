@@ -75,10 +75,12 @@ export const MagicBox = React.memo(({ styles, defaultStyles, magicBox, touchScre
         // search slides
         magicBox.slider.map(slider => {
             // search(_id, controls)
-            dispatch(search(slider._id, {
+            dispatch(search({
                 title: slider.title,
                 search: slider.search,
-                action: slider._id
+                action: slider._id,
+                slides: slider.slide,
+                mounted: []
             }))
         })
 

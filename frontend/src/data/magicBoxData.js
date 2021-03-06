@@ -1474,7 +1474,7 @@ export const magicBoxData = [{
             },
         }],
         product: {
-            padding: '0 1rem',
+            padding: '1rem',
             justifyContent: 'space-between',
             alignItems: 'flex-start',
             name: {
@@ -1482,7 +1482,7 @@ export const magicBoxData = [{
                 fontSize: '1.6rem',
                 fontWeight: '400',
                 color: '#222222',
-                margin: '1rem 1rem 1rem 0'
+                margin: '0'
             },
             brand: {
                 fontSize: '1.4rem',
@@ -1490,7 +1490,7 @@ export const magicBoxData = [{
                 alignSelf: 'flex-start'
             },
             priceAndAddToCartWrapper: {
-                padding: '2rem 1rem',
+                padding: '0',
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 height: 'fit-content'

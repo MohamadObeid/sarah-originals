@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useDispatch, useSelector } from 'react-redux'
+import { search } from '../../actions/searchActions'
 
-export const Title = React.memo(({ box, styles, defaultStyles }) => {
+export const Title = React.memo(({ type, box, styles, defaultStyles, slides }) => {
 
     /////////////////////////// Hooks ////////////////////////////
 
@@ -12,7 +13,7 @@ export const Title = React.memo(({ box, styles, defaultStyles }) => {
     useSelector(state => {
 
         if (DOMLoaded) {
-            openBox = state.actions.openBox
+            openBox = state.actions.openBox || []
 
             // controllable
             if (controllable)
@@ -23,10 +24,16 @@ export const Title = React.memo(({ box, styles, defaultStyles }) => {
                     if (!controllableStateAction.mounted.includes(_id)) {
 
                         controllableStateAction.mounted.push(_id)
-                        dispatch({ type: 'UPDATE_ACTIONS', payload: controllableStateAction })
+                        dispatch({
+                            type: 'UPDATE_ACTIONS', payload: {
+                                [controls.action]: controllableStateAction
+                            }
+                        })
 
                         // mount title && styles
                         titleText.innerHTML = controllableStateAction.title
+
+                        // clear styles
                         eventStyles(false, 'after')
                     }
                 }
@@ -40,11 +47,16 @@ export const Title = React.memo(({ box, styles, defaultStyles }) => {
                         // set action mounted
                         if (!controllerStateAction.mounted.includes(_id)) {
 
+                            holdEvents = false
                             controllerStateAction.mounted.push(_id)
-                            dispatch({ type: 'UPDATE_ACTIONS', payload: controllerStateAction })
+                            dispatch({
+                                type: 'UPDATE_ACTIONS', payload: {
+                                    [controls.action]: controllerStateAction
+                                }
+                            })
 
-                            // style controller
-                            eventStyles(false, controllerStateAction.event) // false = clear styles
+                            // clear styles
+                            eventStyles(false, controllerStateAction.event)
                         }
                     }
                 })
@@ -52,14 +64,55 @@ export const Title = React.memo(({ box, styles, defaultStyles }) => {
     })
 
     useEffect(() => {
-        titleWrapper = document.getElementsByClassName('title-wrap-' + _id)[0]
-        titleElement = titleWrapper.getElementsByClassName('title-wrapper')[0]
-        icon = titleElement.getElementsByClassName('icon')[0]
-        titleText = titleElement.getElementsByClassName('title-text')[0]
-        titleBorder = titleElement.getElementsByClassName('title-border')[0]
-        secondBorder = titleElement.getElementsByClassName('second-border')[0]
-        chevron = titleWrapper.getElementsByClassName('showall-faChevronRight')[0]
+        titleContainer = document.getElementsByClassName(_id)[0]
+        titleWrapper = titleContainer.getElementsByClassName('title-wrapper')[0]
+        icon = titleWrapper.getElementsByClassName('icon')[0]
+        titleText = titleWrapper.getElementsByClassName('title-text')[0]
+        titleBorder = titleWrapper.getElementsByClassName('title-border')[0]
+        secondBorder = titleWrapper.getElementsByClassName('second-border')[0]
+        chevron = titleContainer.getElementsByClassName('showall-faChevronRight')[0]
         DOMLoaded = true
+
+        // add conrtroller handler on event to specified triggers
+        if (controller)
+            controls.map(controls => {
+                // check supplier slide or slider
+                if (controls.trigger.type === type) {
+
+                    // hover event: mouseenter
+                    if (controls.event === 'hover')
+                        controls.trigger.className.map(className => {
+
+                            if (className.includes('title') || className.includes('showall')) {
+
+                                titleContainer.getElementsByClassName(className)[0]
+                                    .addEventListener('mouseenter', () => {
+
+                                        className.includes('title') && eventStyles(true, 'hover')
+                                        className.includes('showall') && showAllEventStyles(true, 'hover')
+
+                                        controllerHandler(controls)
+                                    })
+                            }
+                        })
+
+                    // click event: mousedown
+                    else if (controls.event === 'click')
+                        controls.trigger.className.map(className => {
+
+                            if (className.includes('title') || className.includes('showall')) {
+                                titleContainer.getElementsByClassName(className)[0]
+                                    .addEventListener('mousedown', () => {
+
+                                        className.includes('title') && eventStyles(true, 'click')
+                                        className.includes('showall') && showAllEventStyles(true, 'click')
+
+                                        controllerHandler(controls)
+                                    })
+                            }
+                        })
+                }
+            })
     }, [])
 
     /////////////////////////// Consts & Vars ////////////////////////////
@@ -70,10 +123,10 @@ export const Title = React.memo(({ box, styles, defaultStyles }) => {
     const controller = box.controller
     const title = box.title
 
-    var titleWrapper, titleElement, titleText, icon, titleBorder, secondBorder,
+    var titleContainer, titleWrapper, titleText, icon, titleBorder, secondBorder,
         titleStroke, showAllWrapper, showAllText, showAllBorder, chevron,
-        openBox, onHold = false, DOMLoaded, controllableStateAction, event,
-        controllerStateAction
+        openBox = [], DOMLoaded, controllableStateAction, event,
+        controllerStateAction, holdEvents
 
     /////////////////////////// Styles ////////////////////////////
 
@@ -147,21 +200,56 @@ export const Title = React.memo(({ box, styles, defaultStyles }) => {
 
     /////////////////////////// functions ////////////////////////////
 
+    const controllerHandler = (controls) => {
+
+        var searches = { collections: [], keyword: [] }
+        holdEvents = true
+
+        if (controls.search.push) {
+
+            const key = controls.search.push.key
+            const className = controls.search.push.className
+
+            // push to search
+            className.map(className => {
+
+                const value = titleContainer.getElementsByClassName(className)[0].innerHTML
+                searches[key].push(value)
+
+            })
+        }
+
+        // written this way to stop controls reassigning
+        dispatch(search({
+            mounted: [_id],
+            ...controls,
+            title: controls.push.includes('title') && title,
+            slides: (controls.push.includes('slide')) && slides,
+            search: {
+                ...controls.search,
+                collections: [...controls.search.collections, ...searches.collections],
+                keyword: [...controls.search.keyword, ...searches.keyword]
+            },
+        }))
+    }
+
     const showMore = e => {
         e.preventDefault()
 
         if (showAllWrapStyle.direction === 'Y') {
-            const boxOpenned = openBox && openBox.find(box_id => box_id == _id)
+
+            const chevron = e.currentTarget.getElementsByClassName('showall-faChevronRight')[0]
+            const boxOpenned = openBox.find(_id => _id === box._id)
 
             if (!boxOpenned) {
-                var newOpenBox = []
-                if (openBox) newOpenBox = openBox
-                dispatch({ type: 'UPDATE_ACTIONS', payload: { openBox: [...newOpenBox, _id] } })
-                chevron.style["transform"] = `rotate(${parseInt(chevronStyle.transform.replace(/[^\d.]/g, '')) * (-1)}deg)`
+                openBox.push(box._id)
+                chevron.style.transform = `rotate(${parseInt(chevronStyle.transform.replace(/[^\d.]/g, '')) * (-1)}deg)`
+                dispatch({ type: 'UPDATE_ACTIONS', payload: { openBox } })
 
             } else {
-                dispatch({ type: 'UPDATE_ACTIONS', payload: { openBox: openBox.filter(box_id => box_id !== _id) } })
-                chevron.style["transform"] = chevronStyle.transform
+                openBox = openBox.filter(_id => _id !== box._id)
+                chevron.style.transform = chevronStyle.transform
+                dispatch({ type: 'UPDATE_ACTIONS', payload: { openBox } })
             }
 
         }
@@ -169,65 +257,71 @@ export const Title = React.memo(({ box, styles, defaultStyles }) => {
 
     const eventStyles = (apply, actionType) => {
 
-        titleWrapStyle[actionType] &&
-            Object.entries(titleWrapStyle[actionType]).map(([key, value]) => {
-                titleWrapper.style[key] = apply ? value : titleWrapStyle[key]
-            })
+        if (DOMLoaded && !holdEvents) {
 
-        titleStyle[actionType] &&
-            Object.entries(titleStyle[actionType]).map(([key, value]) => {
-                titleElement.style[key] = apply ? value : titleStyle[key]
-            })
-
-        titleBorderStyle[actionType] &&
-            Object.entries(titleBorderStyle[actionType]).map(([key, value]) => {
-                titleBorder.style[key] = apply ? value : titleBorderStyle[key]
-            })
-
-        titleTextStyle[actionType] &&
-            Object.entries(titleTextStyle[actionType]).map(([key, value]) => {
-                titleText.style[key] = apply ? value : titleTextStyle[key]
-            })
-
-        if (icon)
-            iconStyle[actionType] &&
-                Object.entries(iconStyle[actionType]).map(([key, value]) => {
-                    icon.style[key] = apply ? value : iconStyle[key]
+            titleWrapStyle[actionType] &&
+                Object.entries(titleWrapStyle[actionType]).map(([key, value]) => {
+                    titleContainer.style[key] = apply ? value : titleWrapStyle[key]
                 })
 
-        secondBorderStyle[actionType] &&
-            Object.entries(secondBorderStyle[actionType]).map(([key, value]) => {
-                secondBorder.style[key] = apply ? value : secondBorderStyle[key]
-            })
+            titleStyle[actionType] &&
+                Object.entries(titleStyle[actionType]).map(([key, value]) => {
+                    titleWrapper.style[key] = apply ? value : titleStyle[key]
+                })
+
+            titleBorderStyle[actionType] &&
+                Object.entries(titleBorderStyle[actionType]).map(([key, value]) => {
+                    titleBorder.style[key] = apply ? value : titleBorderStyle[key]
+                })
+
+            titleTextStyle[actionType] &&
+                Object.entries(titleTextStyle[actionType]).map(([key, value]) => {
+                    titleText.style[key] = apply ? value : titleTextStyle[key]
+                })
+
+            if (icon)
+                iconStyle[actionType] &&
+                    Object.entries(iconStyle[actionType]).map(([key, value]) => {
+                        icon.style[key] = apply ? value : iconStyle[key]
+                    })
+
+            secondBorderStyle[actionType] &&
+                Object.entries(secondBorderStyle[actionType]).map(([key, value]) => {
+                    secondBorder.style[key] = apply ? value : secondBorderStyle[key]
+                })
+        }
     }
 
     const showAllEventStyles = (apply, actionType) => {
 
-        showAllWrapStyle[actionType] &&
-            Object.entries(showAllWrapStyle[actionType]).map(([key, value]) => {
-                showAllWrapper.style[key] = apply ? value : showAllWrapStyle[key]
-            })
+        if (DOMLoaded && !holdEvents) {
 
-        showAllTextStyles[actionType] &&
-            Object.entries(showAllTextStyles[actionType]).map(([key, value]) => {
-                showAllText.style[key] = apply ? value : showAllTextStyles[key]
-            })
+            showAllWrapStyle[actionType] &&
+                Object.entries(showAllWrapStyle[actionType]).map(([key, value]) => {
+                    showAllWrapper.style[key] = apply ? value : showAllWrapStyle[key]
+                })
 
-        showAllBorderStyles[actionType] &&
-            Object.entries(showAllBorderStyles[actionType]).map(([key, value]) => {
-                showAllBorder.style[key] = apply ? value : showAllBorderStyles[key]
-            })
+            showAllTextStyles[actionType] &&
+                Object.entries(showAllTextStyles[actionType]).map(([key, value]) => {
+                    showAllText.style[key] = apply ? value : showAllTextStyles[key]
+                })
 
-        chevronStyle[actionType] &&
-            Object.entries(chevronStyle[actionType]).map(([key, value]) => {
-                chevron.style[key] = apply ? value : chevronStyle[key]
-            })
+            showAllBorderStyles[actionType] &&
+                Object.entries(showAllBorderStyles[actionType]).map(([key, value]) => {
+                    showAllBorder.style[key] = apply ? value : showAllBorderStyles[key]
+                })
+
+            chevronStyle[actionType] &&
+                Object.entries(chevronStyle[actionType]).map(([key, value]) => {
+                    chevron.style[key] = apply ? value : chevronStyle[key]
+                })
+        }
     }
 
     /////////////////////////// DOM ////////////////////////////
 
     return (
-        <div className={'title-container title-wrap-' + _id}
+        <div className={'title-container ' + _id}
             style={titleWrapStyle}>
             {/* Title */}
             <div className='title-wrapper' style={titleStyle}

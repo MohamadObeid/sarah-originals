@@ -27,7 +27,7 @@ const saveStyles = (styles) => async (dispatch, getState) => {
         const { data } = await axios.post(domain + '/api/styles/save', styles, {
             headers: { Authorization: 'Bearer ' + userInfo.token }
         })
-        // console.log('save styles', data)
+        console.log('save styles', data)
         dispatch({ type: 'STYLES_SAVE_SUCCESS', payload: data })
 
     } catch (error) {

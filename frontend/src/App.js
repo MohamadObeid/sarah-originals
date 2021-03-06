@@ -41,8 +41,8 @@ const App = () => {
 
   ///////////////////// DOM ///////////////////////
 
-  return websites.map((website) =>
-    <Website
+  return websites.map((website, index) =>
+    <Website key={index}
       website={website}
       viewPort={viewPort}
       touchScreen={touchScreen}

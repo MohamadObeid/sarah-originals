@@ -358,10 +358,18 @@ export const viewData = [{
         controls: [{
             action: 'changeSlides',
             event: 'click',
+            trigger: { type: 'slide', className: ['title-wrapper'] },
+            search: {
+                type: 'Product',
+                push: { key: 'collections', className: ['title-text'] }
+            }
+        }, {
+            action: 'changeSlides',
+            event: 'click',
             trigger: { type: 'slider', className: ['title-wrapper'] },
             search: {
                 type: 'Product',
-                push: { key: 'collections', className: ['product-name'] }
+                collections: ['Popular', 'Featured', 'Special Offer'],
             }
         }],
         slide: [{

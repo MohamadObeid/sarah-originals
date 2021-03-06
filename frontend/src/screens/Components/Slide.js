@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux'
 // components
 import { Title } from './Title'
 import { Badges } from './Badges'
+import { Product } from './Product'
 // methods
 import { showTimer } from '../../methods/methods'
 import { url } from '../../constants/defaultImages'
@@ -44,45 +45,56 @@ export const Slide = ({ slider, slide, stylesIndex, defaultStyles, styles }) => 
                     // hover event: mouseenter
                     if (slideControls.event === 'hover')
                         slideControls.trigger.className.map(className => {
-                            slideWrapper.getElementsByClassName(className)[0]
-                                .addEventListener('mouseenter', () => {
-                                    controllerHandler(slideControls)
-                                })
+
+                            if (!className.includes('title') && !className.includes('showall'))
+                                slideWrapper.getElementsByClassName(className)[0]
+                                    .addEventListener('mouseenter', () => {
+                                        controllerHandler(slideControls)
+                                    })
                         })
 
                     // click event: mousedown
                     else if (slideControls.event === 'click')
                         slideControls.trigger.className.map(className => {
-                            slideWrapper.getElementsByClassName(className)[0]
-                                .addEventListener('mousedown', () => {
-                                    controllerHandler(slideControls)
-                                })
+
+                            if (!className.includes('title') && !className.includes('showall'))
+                                slideWrapper.getElementsByClassName(className)[0]
+                                    .addEventListener('mousedown', () => {
+                                        controllerHandler(slideControls)
+                                    })
                         })
                 }
 
             } else {
                 // default controls
                 controls.map(controls => {
-                    if (controls.trigger.type === 'slide') {
 
-                        // hover event: mouseenter
-                        if (controls.event === 'hover')
-                            controls.trigger.className.map(className => {
-                                slideWrapper.getElementsByClassName(className)[0]
-                                    .addEventListener('mouseenter', () => {
-                                        controllerHandler(controls)
-                                    })
-                            })
+                    // set event coming from all controls other than slide controls
+                    if (!controls.slide || controls.slide.length === 0)
+                        if (controls.trigger.type === 'slide') {
 
-                        // click event: mousedown
-                        else if (controls.event === 'click')
-                            controls.trigger.className.map(className => {
-                                slideWrapper.getElementsByClassName(className)[0]
-                                    .addEventListener('mousedown', () => {
-                                        controllerHandler(controls)
-                                    })
-                            })
-                    }
+                            // hover event: mouseenter
+                            if (controls.event === 'hover')
+                                controls.trigger.className.map(className => {
+
+                                    if (!className.includes('title') && !className.includes('showall'))
+                                        slideWrapper.getElementsByClassName(className)[0]
+                                            .addEventListener('mouseenter', () => {
+                                                controllerHandler(controls)
+                                            })
+                                })
+
+                            // click event: mousedown
+                            else if (controls.event === 'click')
+                                controls.trigger.className.map(className => {
+
+                                    if (!className.includes('title') && !className.includes('showall'))
+                                        slideWrapper.getElementsByClassName(className)[0]
+                                            .addEventListener('mousedown', () => {
+                                                controllerHandler(controls)
+                                            })
+                                })
+                        }
                 })
             }
         }
@@ -158,12 +170,13 @@ export const Slide = ({ slider, slide, stylesIndex, defaultStyles, styles }) => 
     //////////////////////////// Functions //////////////////////////////
 
     const controllerHandler = (controls) => {
+        var title, slides = [], searches = { collections: [], keyword: [] }
 
         if (controls.push.includes('title'))
-            controls.title = slider.title
+            title = slider.title
 
         if (controls.push.includes('slide'))
-            controls.slides = [slide]
+            slides = [slide]
 
         if (controls.search.push) {
 
@@ -176,12 +189,23 @@ export const Slide = ({ slider, slide, stylesIndex, defaultStyles, styles }) => 
                 // if element exist
                 if (slideWrapper.getElementsByClassName(className)) {
                     const value = slideWrapper.getElementsByClassName(className)[0].innerHTML
-                    controls.search[key].push(value)
+                    searches[key].push(value)
                 }
             })
         }
 
-        dispatch(search(_id, controls))
+        // written this way to stop controls reassigning
+        dispatch(search({
+            mounted: [_id],
+            ...controls,
+            title,
+            slides,
+            search: {
+                ...controls.search,
+                collections: [...controls.search.collections, ...searches.collections],
+                keyword: [...controls.search.keyword, ...searches.keyword]
+            },
+        }))
     }
 
     const linkSlide = (e, src) => {
@@ -204,12 +228,6 @@ export const Slide = ({ slider, slide, stylesIndex, defaultStyles, styles }) => 
             ? defaultSlideStyles.productVisible
             : slideStyles[index].productVisible
 
-    const slideBox = slider
-    slideBox.title = {
-        title: slide.name || slide.nameEn,
-        icon: {}
-    }
-
     return (
         <div className={'slide-container ' + _id} style={slideContainer(stylesIndex)}>
             <div className='slide-wrapper' style={slideWrapperStyle(stylesIndex)}>
@@ -223,25 +241,26 @@ export const Slide = ({ slider, slide, stylesIndex, defaultStyles, styles }) => 
                     (slide.src || slide.image) &&
                     <div className='image-wrap' style={imageWrapStyle(stylesIndex)}>
                         {/*<div className='image-skeleton' style={skeleton}>Sarah Originals</div>*/}
-                        {!slideStyles.skeleton &&
-                            <img src={/*imageUrl + slide.src*/url(slide.src || slide.image)}
-                                className="slide-img"
-                                style={imageStyle(stylesIndex)}
-                                onClick={e => linkSlide(e, slide.link)}
-                            //onLoad={e => { e.currentTarget.previousSibling.classList.add('hide') }}
-                            />}
+                        <img src={/*imageUrl + slide.src*/url(slide.src || slide.image)}
+                            className="slide-img"
+                            style={imageStyle(stylesIndex)}
+                            onClick={e => linkSlide(e, slide.link)}
+                        //onLoad={e => { e.currentTarget.previousSibling.classList.add('hide') }}
+                        />
                     </div>}
 
                 {/* Slide Title */}
                 {slideTitleStyles(stylesIndex).display !== 'none' &&
                     <Title
-                        box={slideBox}
+                        type={'slide'}
+                        box={{ ...slider, title: { title: slide.name || slide.nameEn, icon: {} } }}
                         styles={slideTitleStyles(stylesIndex)}
-                        defaultStyles={defaultStyles.title} />}
+                        defaultStyles={defaultStyles.title}
+                        slides={[slide]} />}
 
                 {/* Product */}
-                {/*productVisible(stylesIndex) &&
-                    <Product product={slide} timer={timer} styles={productStyles} />*/}
+                {productVisible(stylesIndex) &&
+                    <Product product={slide} timer={timer} styles={productStyles} />}
 
             </div>
         </div>

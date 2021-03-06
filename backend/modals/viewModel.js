@@ -17,7 +17,7 @@ const search = {
     collections: [String],
     keyword: [String],
     limit: { type: Number, default: 10 },
-    skip: { type: Number, default: 10 },
+    skip: { type: Number, default: 0 },
     sort: { type: String, default: 'Recent' },
 }
 
@@ -30,7 +30,7 @@ const controlsSchema = {
         action: String,
         route: String,
         event: String, // click, hover
-        push: [String], // [slides, slide, slideTitle, sliderTitle, slideStyles, sliderStyles][product, products, similarProducts, ]
+        push: [String], // [slides, slide, title]
         trigger: { type: { type: String }, className: [String] },
         search: search
     }]

@@ -1,16 +1,17 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { timer, showTimer } from '../../methods/methods'
 import { faClock as farClock } from '@fortawesome/free-regular-svg-icons'
 
-export const Timer = React.memo(({ slide, slider_id }) => {
+export const Timer = React.memo(({ slide }) => {
     var element
     var timeLeft
     var timerVisible
 
+    const [_id] = useState(Math.floor(Math.random() * 10000000000000))
+
     useEffect(() => {
-        element = document.getElementsByClassName('slide-box-' + slider_id)[0]
-        element = element.getElementsByClassName('timer-' + slide._id)[0]
+        element = document.getElementsByClassName('timer-' + _id)[0]
         timerVisible = showTimer(slide.onSale).active
         timeLeft = timerVisible ? timer(slide.onSale.endDate) : timer(slide.onSale.startDate)
 
@@ -35,7 +36,7 @@ export const Timer = React.memo(({ slide, slider_id }) => {
     return (
         <div className={'product-timer-wrap ' + (showTimer(slide.onSale).active ? 'highlight' : '')}>
             <FontAwesomeIcon icon={farClock} className='product-fa-clock' />
-            <div className={'product-timer timer-' + slide._id} />
+            <div className={'product-timer timer-' + _id} />
         </div>
     )
 
