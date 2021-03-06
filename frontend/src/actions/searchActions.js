@@ -20,7 +20,7 @@ const search = (controls) => async (dispatch, getState) => {
             searchResult.search.collections.sort().toString() == search.collections.sort().toString() &&
             searchResult.search.keyword.sort().toString() == search.keyword.sort().toString() &&
             searchResult.search.skip === search.skip &&
-            searchResult.search.limit >= search.limit
+            searchResult.search.limit === search.limit
 
         )
 

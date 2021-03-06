@@ -72,7 +72,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
     const [props, setProps] = useState()
 
-    const stateAction = useRef(action)
+    const stateAction = useRef()
     const chevronInterval = useRef()
     const markerInterval = useRef()
 
@@ -140,9 +140,10 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                     controllableStateAction = state.actions[action]
 
                     // update state action for event listeners
-                    stateAction.current = controllableStateAction
-
+                    stateAction.current = state.actions[action]
+                    console.log(stateAction.current)
                     if (!controllableStateAction.mounted.includes(_id)) {
+
                         // if no title: keep current
                         controllableStateAction.title = controllableStateAction.title || props.title
 
@@ -234,16 +235,19 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             setSlideDimensions()
             toggleSlides(true)
             autoPlayHandler(true)
+            markerHandler(false)
 
             // add marker event
             slideWrapper.map((slide, index) => {
 
                 slide.addEventListener('mouseenter', () => {
-                    markerHandler(true, index)
+                    markerIndex = index
+                    markerHandler(true)
                 })
 
                 slide.addEventListener('mouseleave', () => {
-                    markerHandler(false, index)
+                    markerIndex = index
+                    markerHandler(false)
                 })
             })
 
@@ -904,7 +908,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                 // play marker
                 if (markerStyles.autoPlay) {
                     clearInterval(markerInterval.current)
-                    markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
+                    //markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
 
                     // get marker controls
                     markerControls = controls.find(controls =>
@@ -915,7 +919,6 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                         markerHandler(true)
                     }, markerStyles.duration)
 
-                    markerHandler(true)
                 }
             }
         } else {
@@ -925,7 +928,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             toggleTimerBar(false)
 
             // pause marker
-            markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
+            //markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
             clearInterval(markerInterval.current)
         }
     }
@@ -1036,17 +1039,16 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         if (stateAction.current)
             dispatch({
                 type: 'UPDATE_ACTIONS', payload: {
-                    [action]: { ...controllableStateAction, pause: false }
+                    [action]: { ...stateAction.current, pause: false }
                 }
             })
     }
 
     ///////////////////////////// Marker /////////////////////////////////
 
-    const markerHandler = (hovering, index) => {
+    const markerHandler = (hovering) => {
 
         if (markerIndex === props.slides.length) markerIndex = 0
-        if (index !== undefined) markerIndex = index
 
         if (markerElement)
             if (markerStyles.display && markerStyles.display !== 'none') {
