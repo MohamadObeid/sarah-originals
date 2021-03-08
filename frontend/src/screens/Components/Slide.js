@@ -13,7 +13,7 @@ export const Slide = ({ slider, slide, stylesIndex, defaultStyles, styles }) => 
 
     ////////////////////////// Consts & Vars ///////////////////////////
 
-    var slideWrapper
+    var slideWrapper, mounted
 
     const timer = showTimer(slide.onSale)
     const controller = slider.controller
@@ -170,6 +170,9 @@ export const Slide = ({ slider, slide, stylesIndex, defaultStyles, styles }) => 
     //////////////////////////// Functions //////////////////////////////
 
     const controllerHandler = (controls) => {
+
+        mounted = _id
+
         var title, slides = [], searches = { collections: [], keyword: [] }
 
         if (controls.push.includes('title'))
@@ -196,7 +199,7 @@ export const Slide = ({ slider, slide, stylesIndex, defaultStyles, styles }) => 
 
         // written this way to stop controls reassigning
         dispatch(search({
-            mounted: [_id],
+            mount: _id,
             ...controls,
             title,
             slides,

@@ -8,8 +8,8 @@ const search = (controls) => async (dispatch, getState) => {
         const search = controls.search
         const slides = controls.slides || []
         const title = controls.title
-        const mounted = controls.mounted
         const event = controls.event
+        const mount = controls.mount || Math.floor(Math.random() * 10000000000000)
 
         const { searchResults } = getState()
 
@@ -17,8 +17,8 @@ const search = (controls) => async (dispatch, getState) => {
         var searchResultExist = searchResults.find(searchResult =>
 
             searchResult.search.type === search.type &&
-            searchResult.search.collections.sort().toString() == search.collections.sort().toString() &&
-            searchResult.search.keyword.sort().toString() == search.keyword.sort().toString() &&
+            searchResult.search.collections.sort().toString() === search.collections.sort().toString() &&
+            searchResult.search.keyword.sort().toString() === search.keyword.sort().toString() &&
             searchResult.search.skip === search.skip &&
             searchResult.search.limit === search.limit
 
@@ -26,17 +26,16 @@ const search = (controls) => async (dispatch, getState) => {
 
         // search result exist in store
         if (searchResultExist)
-            if (action)
-                return dispatch({
-                    type: 'UPDATE_ACTIONS', payload: {
-                        [action]: {
-                            slides: [...slides, ...searchResultExist.slides],
-                            title,
-                            mounted,
-                            event
-                        }
+            return dispatch({
+                type: 'UPDATE_ACTIONS', payload: {
+                    [action]: {
+                        slides: [...slides, ...searchResultExist.slides],
+                        title,
+                        mount,
+                        event
                     }
-                })
+                }
+            })
 
         // no data to search for
         if (search.collections.length === 0 && search.keyword.length === 0)
@@ -45,7 +44,7 @@ const search = (controls) => async (dispatch, getState) => {
                     [action]: {
                         slides,
                         title,
-                        mounted,
+                        mount,
                         event
                     }
                 }
@@ -62,7 +61,7 @@ const search = (controls) => async (dispatch, getState) => {
                     [action]: {
                         slides: [...slides, ...data],
                         title,
-                        mounted,
+                        mount,
                         event
                     }
                 }

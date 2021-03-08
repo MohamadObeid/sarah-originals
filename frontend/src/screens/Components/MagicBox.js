@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 // components
 import { Slider } from './Slider';
@@ -14,17 +14,18 @@ export const MagicBox = React.memo(({ styles, defaultStyles, magicBox, touchScre
     ////////////////////////// Variables & Constants //////////////////////////
 
     const _id = magicBox._id
-    const action = magicBox.action || 'none'
+    const action = magicBox.action
     const controllable = magicBox.controllable
     const controller = magicBox.controller
     const controls = magicBox.controls
 
     var timerBar, viewWrapper, viewOverlay, timeOut, width, height, DOMLoaded,
-        controllableStateAction, controllerStateAction
+        controllableStateAction, controllerStateAction, mounted = false
 
     ////////////////////////// Hooks //////////////////////////
 
     const dispatch = useDispatch()
+    const stateAction = useRef({})
 
     useSelector(state => {
 
@@ -35,11 +36,9 @@ export const MagicBox = React.memo(({ styles, defaultStyles, magicBox, touchScre
                 if (state.actions[action]) {
                     controllableStateAction = state.actions[action]
 
-                    // set action mounted
-                    if (!controllableStateAction.mounted.includes(_id)) {
-
-                        controllableStateAction.mounted.push(_id)
-                        dispatch({ type: 'UPDATE_ACTIONS', payload: controllableStateAction })
+                    // set action mount
+                    if (controllableStateAction.mount !== stateAction.current.mount) {
+                        stateAction.current = controllableStateAction
 
                         // show Box
                         hideBox()
@@ -53,11 +52,9 @@ export const MagicBox = React.memo(({ styles, defaultStyles, magicBox, touchScre
                     if (state.actions[controls.action]) {
                         controllerStateAction = state.actions[controls.action]
 
-                        // set action styled
-                        if (!controllerStateAction.mounted.includes(_id)) {
-
-                            controllerStateAction.mounted.push(_id)
-                            dispatch({ type: 'UPDATE_ACTIONS', payload: controllerStateAction })
+                        // set action stateAction.current.mount
+                        if (controllerStateAction.mount !== stateAction.current.mount) {
+                            stateAction.current.mount = controllerStateAction.mount
                         }
                     }
                 })
@@ -80,7 +77,6 @@ export const MagicBox = React.memo(({ styles, defaultStyles, magicBox, touchScre
                 search: slider.search,
                 action: slider._id,
                 slides: slider.slide,
-                mounted: []
             }))
         })
 
@@ -206,7 +202,7 @@ export const MagicBox = React.memo(({ styles, defaultStyles, magicBox, touchScre
                     <img src={background.src} className='box-background-image' />}
 
                 {/* Title */}
-                {magicBox.title && styles.title && styles.title.display !== 'none' &&
+                {styles.title && styles.title.display !== 'none' &&
                     <Title
                         styles={styles.title}
                         defaultStyles={defaultStyles.title}

@@ -2155,10 +2155,22 @@ export const magicBoxData = [{
     },
     title: {
         display: 'flex',
+        justifyContent: 'center',
         title: {
+            margin: '0',
             text: {
                 fontSize: '1.5rem',
+                color: '#000',
+                hover: {
+                    color: '#000',
+                }
             }
-        }
+        },
+        strokeLine: {
+            display: 'none'
+        },
+        showAll: {
+            display: 'none'
+        },
     }
 },]

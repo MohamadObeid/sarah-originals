@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addToCart, removeFromCart, updateCart } from '../../actions/cartActions'
 
 export const AddToCart = React.memo(({ product, styles }) => {
-    const [controllerID] = useState(Math.floor(Math.random() * 10000000000000))
 
     const item = useSelector(state =>
         state.cart.cartItems.find(item => item._id === product._id))
@@ -28,7 +27,11 @@ export const AddToCart = React.memo(({ product, styles }) => {
                 message = 'Quantity Reduced Successfully!'
             }
             // display action note
-            dispatch({ type: 'UPDATE_ACTIONS', payload: { addToCart: { title: message, controllerID } } })
+            dispatch({
+                type: 'UPDATE_ACTIONS', payload: {
+                    addToCart: { title: message, mount: Math.floor(Math.random() * 10000000000000) }
+                }
+            })
         }
     }
 
@@ -50,7 +53,11 @@ export const AddToCart = React.memo(({ product, styles }) => {
             message = 'Product Added Successfully!'
         }
         // display action note
-        dispatch({ type: 'UPDATE_ACTIONS', payload: { addToCart: { title: message, controllerID } } })
+        dispatch({
+            type: 'UPDATE_ACTIONS', payload: {
+                addToCart: { title: message, mount: Math.floor(Math.random() * 10000000000000) }
+            }
+        })
     }
 
     const hide = item ? { display: 'none' } : {}

@@ -159,11 +159,6 @@ export const viewData = [{
         },
         controller: true,
         controls: [{
-            event: 'hover',
-            action: 'digiProduct',
-            trigger: { type: 'slide', className: ['slide-wrapper'] },
-            push: ['slide']
-        }, {
             event: 'autoPlay',
             action: 'digiProduct',
             trigger: { type: 'slider', className: ['marker-wrapper'] },

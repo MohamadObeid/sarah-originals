@@ -11,40 +11,23 @@ import { Skeleton } from './Skeleton'
 // actions
 import { search } from '../../actions/searchActions'
 
-export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }) => {
+export const Slider = ({ styles, defaultStyles, slider, touchScreen }) => {
 
-    var sliderOverlay
-    var sliderWrapper
-    var timerBar
-    var leftChevron
-    var rightChevron
-    var slideWidth
-    var slideHeight
-    var boxOpenned
-    var sliderContainer
-    var slideIndex
-    var swiperHeight
-    var defaultStylesIndex
-    var slideWrapper
-    var markerElement
-    var markerIndex = 0
-    var skeletonSlides = []
+    var sliderOverlay, sliderWrapper, timerBar, leftChevron, rightChevron,
+        slideWidth, slideHeight, boxOpenned, sliderContainer, slideIndex, swiperHeight,
+        defaultStylesIndex, slideWrapper, markerElement, markerIndex = 0, skeletonSlides = [],
+        widthSlideSkipper, maxHeight = 0, slideStyles = { slide: styles.slide },
+        controlsSlides = slider.slide, controllableStateAction, controllerStateAction,
+        firstLoadStateAction, markerControls
+
+    // set skeleton length = 10
     while (skeletonSlides.length < 10) {
         skeletonSlides.push({ skeleton: true })
     }
-    var widthSlideSkipper
-    var maxHeight = 0
-    var DOMLoaded = false
-    var slideStyles = { slide: styles.slide }
 
-    var controlsSlides = slider.slide
+    // get slides from controls that have a title or a src
     controlsSlides = controlsSlides.filter(slide =>
         (slide.title && slide.title.title) || slide.src)
-
-    var controllableStateAction
-    var controllerStateAction
-    var firstLoadStateAction
-    var markerControls
 
     const _id = slider._id
     const action = slider.action
@@ -66,20 +49,21 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     const defaultSwiper = defaultStyles.swiper
     const defaultAddToCart = defaultProduct.addToCart
 
-    ////////////////////////// Hook ///////////////////////////
+    ////////////////////////// Hooks ///////////////////////////
 
     const dispatch = useDispatch()
 
     const [props, setProps] = useState()
 
-    const stateAction = useRef()
-    const chevronInterval = useRef()
-    const markerInterval = useRef()
+    const stateAction = useRef({})
+    const chevronInterval = useRef(0)
+    const markerInterval = useRef(0)
+    const DOM = useRef(false)
 
     // open Box handler
     useSelector(state => {
 
-        if (DOMLoaded) {
+        if (DOM.current) {
             if (state.actions.openBox) {
                 const openBox = state.actions.openBox.find(box_id => box_id == _id)
 
@@ -114,15 +98,12 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         if (state.actions[_id]) {
             firstLoadStateAction = state.actions[_id]
 
-            if (!firstLoadStateAction.mounted.includes(_id)) {
-                // if no title: keep current
-                firstLoadStateAction.title = firstLoadStateAction.title
+            if (firstLoadStateAction.mount !== _id) {
 
-                // if no slides: set []
+                firstLoadStateAction.title = firstLoadStateAction.title
                 firstLoadStateAction.slides = firstLoadStateAction.slides
 
-                // set action mounted
-                firstLoadStateAction.mounted.push(_id)
+                firstLoadStateAction.mount = _id
                 dispatch({ type: 'UPDATE_ACTIONS', payload: { [_id]: firstLoadStateAction } })
 
                 setProps({
@@ -132,27 +113,23 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             }
         }
 
-        if (DOMLoaded) {
+        if (DOM.current) {
 
             // controllable
             if (controllable)
                 if (state.actions[action]) {
                     controllableStateAction = state.actions[action]
 
-                    // update state action for event listeners
-                    stateAction.current = state.actions[action]
-                    console.log(stateAction.current)
-                    if (!controllableStateAction.mounted.includes(_id)) {
+                    if (controllableStateAction.mount !== stateAction.current.mount) {
 
                         // if no title: keep current
-                        controllableStateAction.title = controllableStateAction.title || props.title
+                        controllableStateAction.title = controllableStateAction.title
 
                         // if no slides: set []
-                        controllableStateAction.slides = controllableStateAction.slides || []
+                        controllableStateAction.slides = controllableStateAction.slides
 
-                        // set action mounted
-                        controllableStateAction.mounted.push(_id)
-                        dispatch({ type: 'UPDATE_ACTIONS', payload: { [action]: controllableStateAction } })
+                        // update state action for event listeners
+                        stateAction.current = controllableStateAction
 
                         setProps({
                             slides: controllableStateAction.slides,
@@ -168,29 +145,20 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                     if (state.actions[controls.action]) {
                         controllerStateAction = state.actions[controls.action]
 
-                        if (!controllerStateAction.mounted.includes(_id)) {
+                        if (controllerStateAction.mount !== stateAction.current.mount) {
+                            stateAction.current.mount = controllerStateAction.mount
                             clearEventStyles(controls.event, controls.trigger)
-
-                            // update action
-                            controllerStateAction.mounted.push(_id)
-                            dispatch({ type: 'UPDATE_ACTIONS', payload: { [controls.action]: controllerStateAction } })
                         }
 
                         // pause controller
-                        if (controllerStateAction.pause && !controllerStateAction.paused) {
+                        if (controllerStateAction.pause && !stateAction.current.pause) {
+                            stateAction.current.pause = true
                             autoPlayHandler(false)
 
-                            // pause actions
-                            controllerStateAction.paused = true
-                            dispatch({ type: 'UPDATE_ACTIONS', payload: { [controls.action]: controllerStateAction } })
-
                             // play controller
-                        } else if (!controllerStateAction.pause && controllerStateAction.paused) {
+                        } else if (!controllerStateAction.pause && stateAction.current.pause) {
+                            stateAction.current.pause = false
                             autoPlayHandler(true)
-
-                            // unpause actions
-                            controllerStateAction.paused = false
-                            dispatch({ type: 'UPDATE_ACTIONS', payload: { [controls.action]: controllerStateAction } })
                         }
                     }
                 })
@@ -209,6 +177,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
     useEffect(() => {
         if (props) {
+
             sliderOverlay = document.getElementsByClassName('slider-' + _id)[0]
             timerBar = sliderOverlay.getElementsByClassName('timer-bar')[0]
             sliderContainer = sliderOverlay.getElementsByClassName('slider-container')[0]
@@ -217,7 +186,7 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
             sliderWrapper = sliderContainer.getElementsByClassName('slider-wrapper')[0]
             markerElement = sliderWrapper.getElementsByClassName('marker-wrapper')[0]
             slideWrapper = [...sliderWrapper.getElementsByClassName('slide-wrapper')]
-            DOMLoaded = true
+            DOM.current = true
 
             sliderWrapper.style.scrollBehavior = 'auto'
             sliderWrapper.scrollLeft = 0
@@ -902,13 +871,11 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                         toggleTimerBar(true)
 
                     }, duration)
-
                 }
 
                 // play marker
                 if (markerStyles.autoPlay) {
                     clearInterval(markerInterval.current)
-                    //markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
 
                     // get marker controls
                     markerControls = controls.find(controls =>
@@ -918,17 +885,14 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
                     markerInterval.current = setInterval(() => {
                         markerHandler(true)
                     }, markerStyles.duration)
-
                 }
             }
         } else {
-
             // pause chevron
             clearInterval(chevronInterval.current)
             toggleTimerBar(false)
 
             // pause marker
-            //markerIndex = markerIndex === 0 ? 0 : markerIndex - 1
             clearInterval(markerInterval.current)
         }
     }
@@ -1025,23 +989,27 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     const sliderMouseEnter = (e) => {
         e.preventDefault()
 
-        if (stateAction.current)
+        if (stateAction.current.mount) {
+            stateAction.current.pause = true
             dispatch({
                 type: 'UPDATE_ACTIONS', payload: {
-                    [action]: { ...stateAction.current, pause: true }
+                    [action]: stateAction.current
                 }
             })
+        }
     }
 
     const sliderMouseLeave = (e) => {
         e.preventDefault()
 
-        if (stateAction.current)
+        if (stateAction.current.mount) {
+            stateAction.current.pause = false
             dispatch({
                 type: 'UPDATE_ACTIONS', payload: {
-                    [action]: { ...stateAction.current, pause: false }
+                    [action]: stateAction.current
                 }
             })
+        }
     }
 
     ///////////////////////////// Marker /////////////////////////////////
@@ -1091,45 +1059,50 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
     }
 
     const controllerHandler = (controls, index) => {
-        var title, slides = [], searches = { collections: [], keyword: [] }
+        if (!stateAction.current.pause) {
 
-        if (controls.push.includes('title'))
-            title = slider.title
+            stateAction.current.mount = Math.floor(Math.random() * 10000000000000)
 
-        if (controls.push.includes('slides'))
-            slides = props.slides
+            var title, slides = [], searches = { collections: [], keyword: [] }
 
-        if (controls.push.includes('slide'))
-            slides = [props.slides[index]]
+            if (controls.push.includes('title'))
+                title = slider.title
 
-        if (controls.search.push) {
+            if (controls.push.includes('slides'))
+                slides = props.slides
 
-            const key = controls.search.push.key
-            const className = controls.search.push.className
+            if (controls.push.includes('slide'))
+                slides = [props.slides[index]]
 
-            // push to search
-            className.map(className => {
+            if (controls.search.push) {
 
-                // if element exist
-                if (sliderWrapper.getElementsByClassName(className)[0]) {
-                    const value = sliderWrapper.getElementsByClassName(className)[index || 0].innerHTML
-                    searches[key].push(value)
-                }
-            })
+                const key = controls.search.push.key
+                const className = controls.search.push.className
+
+                // push to search
+                className.map(className => {
+
+                    // if element exist
+                    if (sliderWrapper.getElementsByClassName(className)[0]) {
+                        const value = sliderWrapper.getElementsByClassName(className)[index || 0].innerHTML
+                        searches[key].push(value)
+                    }
+                })
+            }
+
+            // written this way to stop controls reassigning
+            dispatch(search({
+                mount: stateAction.current.mount,
+                ...controls,
+                title,
+                slides,
+                search: {
+                    ...controls.search,
+                    collections: [...controls.search.collections, ...searches.collections],
+                    keyword: [...controls.search.keyword, ...searches.keyword]
+                },
+            }))
         }
-
-        // written this way to stop controls reassigning
-        dispatch(search({
-            mounted: [_id],
-            ...controls,
-            title,
-            slides,
-            search: {
-                ...controls.search,
-                collections: [...controls.search.collections, ...searches.collections],
-                keyword: [...controls.search.keyword, ...searches.keyword]
-            },
-        }))
     }
 
     const stylesIndex = (index) => {
@@ -1178,6 +1151,8 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
     }
 
+    //////////////////////////// JSX ////////////////////////////
+
     return (
         <div className={'slider-overlay slider-' + _id} style={sliderOverlayStyle}>
 
@@ -1216,12 +1191,12 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
 
                 {/* Swiper */}
                 <div className="slider-wrapper" style={sliderWrapStyles}
-                    onMouseDown={e => { DOMLoaded && mouseDownHandler(e) }}
-                    onMouseEnter={e => { DOMLoaded && mouseEnterHandler(e) }}
-                    onMouseLeave={e => { DOMLoaded && mouseLeaveHandler(e) }}
-                    onTouchStart={e => { DOMLoaded && touchScreen && touchStartHandler(e) }}
-                    onTouchEnd={e => { DOMLoaded && touchScreen && mouseLeaveHandler(e) }}
-                    onScroll={e => DOMLoaded && toggleSlides()}>
+                    onMouseDown={e => { DOM.current && mouseDownHandler(e) }}
+                    onMouseEnter={e => { DOM.current && mouseEnterHandler(e) }}
+                    onMouseLeave={e => { DOM.current && mouseLeaveHandler(e) }}
+                    onTouchStart={e => { DOM.current && touchScreen && touchStartHandler(e) }}
+                    onTouchEnd={e => { DOM.current && touchScreen && mouseLeaveHandler(e) }}
+                    onScroll={e => DOM.current && toggleSlides()}>
 
                     {/* Marker */}
                     {markerStyles.display !== 'none'
@@ -1250,4 +1225,4 @@ export const Slider = React.memo(({ styles, defaultStyles, slider, touchScreen }
         </div >
     )
 
-})
+}
